@@ -16,7 +16,8 @@ permissions:
 jobs:
   macos-ios:
     name: macOS / unit, widget, and three no-sign builds
-    runs-on: macos-15
+    # connectivity_plus 7.3.1 uses Network.framework APIs from the iOS 26 SDK.
+    runs-on: macos-26
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
