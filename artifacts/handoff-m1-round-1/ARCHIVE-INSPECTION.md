@@ -8,13 +8,13 @@ and scans text for home-directory and SDK assignments.
 
 Archive result:
 
-- Source commit: `16fabdb`
+- Source commit: `9cf0c89`
 - Filename: `waflo-mobile-m1-round-1-portable-source.zip`
-- Size: 853,949 bytes
-- Entries: 372
-- SHA-256: `5ee2d3b77687af89a38a8825d5ef6d1152af6c0e3d62628236c6246f48ae5036`
+- Size: 1,365,175 bytes
+- Entries: 393
+- SHA-256: `d9d0906df20d58e835da320cb20373014c4cd3fe2a8208617f2ca4f3d1bde289`
 - Extraction and archive scan: PASS
 
-Raw output is `raw-test-output/archive-scan.log`. The extracted source can
+Final raw output is `raw-test-output/archive-scan-final.log`. The extracted source can
 regenerate Flutter/Dart configuration and generated API sources from committed
 inputs.
