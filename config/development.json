@@ -1,0 +1,10 @@
+{
+  "WAFLO_ENV": "development",
+  "WAFLO_API_BASE_URL": "http://10.0.2.2:3000",
+  "WAFLO_PAIRING_ENVIRONMENT": "development",
+  "WAFLO_LOG_LEVEL": "debug",
+  "WAFLO_ALLOW_TEST_ADAPTER": "true",
+  "WAFLO_MIN_VERSION_SOURCE": "backend",
+  "WAFLO_CRASH_REPORTING": "false",
+  "WAFLO_CERT_PINNING": "false"
+}

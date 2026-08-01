@@ -1,0 +1,10 @@
+{
+  "WAFLO_ENV": "staging",
+  "WAFLO_API_BASE_URL": "https://staging-api.example.invalid",
+  "WAFLO_PAIRING_ENVIRONMENT": "test",
+  "WAFLO_LOG_LEVEL": "info",
+  "WAFLO_ALLOW_TEST_ADAPTER": "false",
+  "WAFLO_MIN_VERSION_SOURCE": "backend",
+  "WAFLO_CRASH_REPORTING": "false",
+  "WAFLO_CERT_PINNING": "false"
+}

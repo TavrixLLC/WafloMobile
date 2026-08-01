@@ -1,0 +1,536 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "Waflo Staff Device API — Flutter M1 subset",
+    "version": "w4-round1-m1-v1",
+    "description": "Approved mobile-safe subset for device pairing, session rotation/logout, and signed device context. Server messages are not localization strings; clients branch on error.code."
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Resolve against the environment-specific API base URL supplied to the app."
+    }
+  ],
+  "tags": [
+    { "name": "Pairing" },
+    { "name": "Device session" }
+  ],
+  "paths": {
+    "/v1/staff/devices/pairing/claim": {
+      "post": {
+        "operationId": "claimStaffDevicePairing",
+        "tags": ["Pairing"],
+        "summary": "Claim a one-time pairing QR",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PairingClaimRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Challenge issued",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PairingClaimSuccess" }
+              }
+            }
+          },
+          "409": { "$ref": "#/components/responses/ConflictError" },
+          "410": { "$ref": "#/components/responses/GoneError" },
+          "422": { "$ref": "#/components/responses/ValidationError" },
+          "429": { "$ref": "#/components/responses/RateLimitError" }
+        }
+      }
+    },
+    "/v1/staff/devices/pairing/challenge": {
+      "post": {
+        "operationId": "getStaffDevicePairingChallenge",
+        "tags": ["Pairing"],
+        "summary": "Recover an unexpired claimed challenge",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PairingChallengeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current challenge",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PairingChallengeSuccess" }
+              }
+            }
+          },
+          "410": { "$ref": "#/components/responses/GoneError" },
+          "422": { "$ref": "#/components/responses/ValidationError" },
+          "429": { "$ref": "#/components/responses/RateLimitError" }
+        }
+      }
+    },
+    "/v1/staff/devices/pairing/complete": {
+      "post": {
+        "operationId": "completeStaffDevicePairing",
+        "tags": ["Pairing"],
+        "summary": "Verify the Ed25519 challenge signature and create the device session",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PairingCompleteRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pairing completed; returned tokens are sensitive and shown once",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PairingCompleteSuccess" }
+              }
+            }
+          },
+          "403": { "$ref": "#/components/responses/ForbiddenError" },
+          "410": { "$ref": "#/components/responses/GoneError" },
+          "422": { "$ref": "#/components/responses/ValidationError" },
+          "429": { "$ref": "#/components/responses/RateLimitError" }
+        }
+      }
+    },
+    "/v1/staff/devices/session/refresh": {
+      "post": {
+        "operationId": "refreshStaffDeviceSession",
+        "tags": ["Device session"],
+        "summary": "Rotate the current signed device session",
+        "description": "Sign with the current session. A success revokes it and returns a new session ID, access token, and refresh token.",
+        "security": [{ "DeviceToken": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/DeviceId" },
+          { "$ref": "#/components/parameters/DeviceSessionId" },
+          { "$ref": "#/components/parameters/RequestId" },
+          { "$ref": "#/components/parameters/Timestamp" },
+          { "$ref": "#/components/parameters/Nonce" },
+          { "$ref": "#/components/parameters/BodySha256" },
+          { "$ref": "#/components/parameters/Signature" }
+        ],
+        "x-waflo-signing-required": true,
+        "x-waflo-canonical-path": "/v1/staff/devices/session/refresh",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/SessionRefreshRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Session rotated; replace all stored session credentials atomically",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SessionRefreshSuccess" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/DeviceAuthError" },
+          "409": { "$ref": "#/components/responses/ConflictError" },
+          "422": { "$ref": "#/components/responses/ValidationError" },
+          "429": { "$ref": "#/components/responses/RateLimitError" }
+        }
+      }
+    },
+    "/v1/staff/devices/session/logout": {
+      "post": {
+        "operationId": "logoutStaffDeviceSession",
+        "tags": ["Device session"],
+        "summary": "Revoke the current signed device session",
+        "security": [{ "DeviceToken": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/DeviceId" },
+          { "$ref": "#/components/parameters/DeviceSessionId" },
+          { "$ref": "#/components/parameters/RequestId" },
+          { "$ref": "#/components/parameters/Timestamp" },
+          { "$ref": "#/components/parameters/Nonce" },
+          { "$ref": "#/components/parameters/BodySha256" },
+          { "$ref": "#/components/parameters/Signature" }
+        ],
+        "x-waflo-signing-required": true,
+        "x-waflo-canonical-path": "/v1/staff/devices/session/logout",
+        "responses": {
+          "204": { "description": "Session revoked; no response body" },
+          "401": { "$ref": "#/components/responses/DeviceAuthError" },
+          "409": { "$ref": "#/components/responses/ConflictError" },
+          "429": { "$ref": "#/components/responses/RateLimitError" }
+        }
+      }
+    },
+    "/v1/staff/device-context": {
+      "get": {
+        "operationId": "getStaffDeviceContext",
+        "tags": ["Device session"],
+        "summary": "Return the verified Staff device context",
+        "security": [{ "DeviceToken": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/DeviceId" },
+          { "$ref": "#/components/parameters/DeviceSessionId" },
+          { "$ref": "#/components/parameters/RequestId" },
+          { "$ref": "#/components/parameters/Timestamp" },
+          { "$ref": "#/components/parameters/Nonce" },
+          { "$ref": "#/components/parameters/BodySha256" },
+          { "$ref": "#/components/parameters/Signature" }
+        ],
+        "x-waflo-signing-required": true,
+        "x-waflo-canonical-path": "/v1/staff/device-context",
+        "responses": {
+          "200": {
+            "description": "Verified device context",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeviceContextSuccess" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/DeviceAuthError" },
+          "409": { "$ref": "#/components/responses/ConflictError" },
+          "429": { "$ref": "#/components/responses/RateLimitError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "DeviceToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Exact value: Device <opaque access token>. This header is also covered indirectly by server session lookup; the seven X-Waflo headers complete the signed request contract."
+      }
+    },
+    "parameters": {
+      "DeviceId": {
+        "name": "X-Waflo-Device-Id",
+        "in": "header",
+        "required": true,
+        "schema": { "$ref": "#/components/schemas/Uuid" }
+      },
+      "DeviceSessionId": {
+        "name": "X-Waflo-Device-Session-Id",
+        "in": "header",
+        "required": true,
+        "schema": { "$ref": "#/components/schemas/Uuid" }
+      },
+      "RequestId": {
+        "name": "X-Waflo-Request-Id",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "minLength": 1, "maxLength": 128 }
+      },
+      "Timestamp": {
+        "name": "X-Waflo-Timestamp",
+        "in": "header",
+        "required": true,
+        "schema": { "$ref": "#/components/schemas/IsoDateTime" }
+      },
+      "Nonce": {
+        "name": "X-Waflo-Nonce",
+        "in": "header",
+        "required": true,
+        "schema": { "type": "string", "minLength": 1, "maxLength": 128 }
+      },
+      "BodySha256": {
+        "name": "X-Waflo-Body-Sha256",
+        "in": "header",
+        "required": true,
+        "description": "Lowercase SHA-256 hex of the exact transmitted body bytes; hash zero bytes when no body is present.",
+        "schema": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      },
+      "Signature": {
+        "name": "X-Waflo-Signature",
+        "in": "header",
+        "required": true,
+        "description": "Unpadded base64url Ed25519 signature over the canonical nine-line envelope.",
+        "schema": { "type": "string", "pattern": "^[A-Za-z0-9_-]{86}$" }
+      }
+    },
+    "responses": {
+      "DeviceAuthError": {
+        "description": "Signed request rejected. Stable M1 codes include STAFF_DEVICE_SIGNATURE_INVALID, STAFF_DEVICE_CLOCK_SKEW, STAFF_DEVICE_BODY_DIGEST_INVALID, and STAFF_DEVICE_NOT_ACTIVE.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" }
+          }
+        }
+      },
+      "ForbiddenError": {
+        "description": "Forbidden, such as STAFF_ASSIGNMENT_REQUIRED or a disabled development client",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" }
+          }
+        }
+      },
+      "ConflictError": {
+        "description": "Conflict, such as DEVICE_PAIRING_ALREADY_USED or STAFF_DEVICE_NONCE_REPLAYED",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" }
+          }
+        }
+      },
+      "GoneError": {
+        "description": "Expired pairing or challenge",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Strict request validation or invalid pairing input",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" }
+          }
+        }
+      },
+      "RateLimitError": {
+        "description": "Rate limited",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ApiErrorEnvelope" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Uuid": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+      },
+      "IsoDateTime": {
+        "type": "string",
+        "format": "date-time",
+        "maxLength": 40
+      },
+      "Platform": {
+        "type": "string",
+        "enum": ["IOS", "ANDROID", "TEST_CLIENT"],
+        "description": "Flutter production builds use IOS or ANDROID."
+      },
+      "Role": {
+        "type": "string",
+        "enum": ["OWNER", "MANAGER", "STAFF"]
+      },
+      "PairingQrToken": {
+        "type": "string",
+        "minLength": 80,
+        "maxLength": 512,
+        "pattern": "^waflo-pair-v1\\.[A-Za-z0-9_-]{48}\\.[A-Za-z0-9_-]{43}\\.[A-Za-z0-9_-]{3,43}$"
+      },
+      "PairingClaimRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pairingToken", "installationId", "publicKey", "platform", "appVersion"],
+        "properties": {
+          "pairingToken": { "$ref": "#/components/schemas/PairingQrToken" },
+          "installationId": { "type": "string", "minLength": 16, "maxLength": 160 },
+          "publicKey": { "type": "string", "minLength": 40, "maxLength": 1024 },
+          "platform": { "$ref": "#/components/schemas/Platform" },
+          "appVersion": { "type": "string", "minLength": 1, "maxLength": 40 },
+          "osVersion": { "type": "string", "maxLength": 80 },
+          "model": { "type": "string", "maxLength": 120 }
+        }
+      },
+      "PairingClaimData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pairingPublicId", "challenge", "challengeExpiresAt", "signatureAlgorithm", "message"],
+        "properties": {
+          "pairingPublicId": { "$ref": "#/components/schemas/Uuid" },
+          "challenge": { "type": "string", "minLength": 32, "maxLength": 256 },
+          "challengeExpiresAt": { "$ref": "#/components/schemas/IsoDateTime" },
+          "signatureAlgorithm": { "type": "string", "const": "Ed25519" },
+          "message": { "type": "string", "minLength": 1, "maxLength": 500 }
+        }
+      },
+      "PairingClaimSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data", "requestId"],
+        "properties": {
+          "data": { "$ref": "#/components/schemas/PairingClaimData" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "PairingChallengeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pairingPublicId"],
+        "properties": {
+          "pairingPublicId": { "$ref": "#/components/schemas/Uuid" }
+        }
+      },
+      "PairingChallengeData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pairingPublicId", "challenge", "challengeExpiresAt", "message"],
+        "properties": {
+          "pairingPublicId": { "$ref": "#/components/schemas/Uuid" },
+          "challenge": { "type": "string", "minLength": 32, "maxLength": 256 },
+          "challengeExpiresAt": { "$ref": "#/components/schemas/IsoDateTime" },
+          "message": { "type": "string", "minLength": 1, "maxLength": 500 }
+        }
+      },
+      "PairingChallengeSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data", "requestId"],
+        "properties": {
+          "data": { "$ref": "#/components/schemas/PairingChallengeData" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "PairingCompleteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pairingPublicId", "challenge", "signature"],
+        "properties": {
+          "pairingPublicId": { "$ref": "#/components/schemas/Uuid" },
+          "challenge": { "type": "string", "minLength": 32, "maxLength": 256 },
+          "signature": { "type": "string", "minLength": 40, "maxLength": 256, "pattern": "^[A-Za-z0-9_-]+$" },
+          "displayName": { "type": "string", "minLength": 1, "maxLength": 120 }
+        }
+      },
+      "DeviceSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["publicId", "displayName", "platform", "status"],
+        "properties": {
+          "publicId": { "$ref": "#/components/schemas/Uuid" },
+          "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "platform": { "$ref": "#/components/schemas/Platform" },
+          "status": { "type": "string", "enum": ["ACTIVE"] }
+        }
+      },
+      "DeviceSessionCredentials": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "token", "refreshToken", "expiresAt"],
+        "properties": {
+          "id": { "$ref": "#/components/schemas/Uuid" },
+          "token": { "type": "string", "minLength": 40, "maxLength": 512, "readOnly": true, "x-sensitive": true },
+          "refreshToken": { "type": "string", "minLength": 40, "maxLength": 512, "readOnly": true, "x-sensitive": true },
+          "expiresAt": { "$ref": "#/components/schemas/IsoDateTime" }
+        }
+      },
+      "PairingCompleteContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["organizationId", "role", "locationId"],
+        "properties": {
+          "organizationId": { "$ref": "#/components/schemas/Uuid" },
+          "role": { "$ref": "#/components/schemas/Role" },
+          "locationId": { "$ref": "#/components/schemas/Uuid" }
+        }
+      },
+      "PairingCompleteData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["device", "session", "context"],
+        "properties": {
+          "device": { "$ref": "#/components/schemas/DeviceSummary" },
+          "session": { "$ref": "#/components/schemas/DeviceSessionCredentials" },
+          "context": { "$ref": "#/components/schemas/PairingCompleteContext" }
+        }
+      },
+      "PairingCompleteSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data", "requestId"],
+        "properties": {
+          "data": { "$ref": "#/components/schemas/PairingCompleteData" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "SessionRefreshRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": { "type": "string", "minLength": 40, "maxLength": 512, "writeOnly": true }
+        }
+      },
+      "SessionRefreshData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["session"],
+        "properties": {
+          "session": { "$ref": "#/components/schemas/DeviceSessionCredentials" }
+        }
+      },
+      "SessionRefreshSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data", "requestId"],
+        "properties": {
+          "data": { "$ref": "#/components/schemas/SessionRefreshData" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "DeviceContext": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["organizationId", "organizationMemberId", "role", "locationId", "deviceId", "devicePublicId", "deviceSessionId", "platform", "requestId"],
+        "properties": {
+          "organizationId": { "$ref": "#/components/schemas/Uuid" },
+          "organizationMemberId": { "$ref": "#/components/schemas/Uuid" },
+          "role": { "$ref": "#/components/schemas/Role" },
+          "locationId": { "$ref": "#/components/schemas/Uuid" },
+          "deviceId": { "$ref": "#/components/schemas/Uuid" },
+          "devicePublicId": { "$ref": "#/components/schemas/Uuid" },
+          "deviceSessionId": { "$ref": "#/components/schemas/Uuid" },
+          "platform": { "$ref": "#/components/schemas/Platform" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "DeviceContextSuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["data", "requestId"],
+        "properties": {
+          "data": { "$ref": "#/components/schemas/DeviceContext" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "ApiErrorBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "message", "requestId"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "message": { "type": "string" },
+          "details": { "type": "object" },
+          "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      },
+      "ApiErrorEnvelope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["error"],
+        "properties": {
+          "error": { "$ref": "#/components/schemas/ApiErrorBody" }
+        }
+      }
+    }
+  }
+}

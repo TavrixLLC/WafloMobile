@@ -1,0 +1,4 @@
+#include "Debug.xcconfig"
+PRODUCT_BUNDLE_IDENTIFIER=app.waflo.staff.dev
+APP_DISPLAY_NAME=Waflo Staff Dev
+INFOPLIST_KEY_NSAppTransportSecurity_NSAllowsLocalNetworking=YES

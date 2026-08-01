@@ -1,0 +1,46 @@
+Waflo Mobile M1 quality-gate record
+Host: Windows 10 Pro 22H2
+Recorded: 2026-08-01 Asia/Baghdad
+
+Toolchain
+- flutter --version: exit 0; Flutter 3.44.0 stable, Dart 3.12.0
+- flutter doctor -v: exit 0; Android toolchain/JDK/licenses passed. Visual Studio missing is unrelated because Windows desktop is out of scope.
+
+Generation and static quality
+- W4 OpenAPI generation: exit 0; 2 clients, 6 requests, 25 typed data classes
+- build_runner: exit 0; generated Retrofit/JSON serializers
+- flutter gen-l10n: exit 0
+- dart format --output=none --set-exit-if-changed .: exit 0; 100 files, 0 changes
+- flutter analyze --fatal-infos --fatal-warnings: exit 0; no issues
+- TODO/FIXME/raw print scan: exit 0; no matches outside generated code
+
+Tests
+- flutter test: exit 0; 58 passed, 1 skipped
+- W4 deterministic contract fixtures: passed inside unit suite
+- Golden/screenshots: 20 passed
+- Accessibility/semantics/dynamic text: passed inside widget/golden suites
+- Arabic RTL/localization: passed inside widget/golden suites
+- Real local W4 backend contract: SKIPPED with explicit reason; no seeded backend/one-time QR supplied
+- flutter test integration_test: NOT RUN successfully; local attempt returned exit 1 because no supported Android/iOS device or emulator is installed. Android-emulator CI gate is configured.
+
+Android
+- development debug APK: exit 0; app.waflo.staff.dev; 210158832 bytes; sha256 cd31cf0a7e244e709fe301eb60f572f70b06d2a205843270acf0165449f74fe7
+- staging debug APK: exit 0; app.waflo.staff.staging; 182727006 bytes; sha256 381cbfeac7bbfc78fb04021d5803422213a8f58e97a0dbe94c21af25e169732b
+- production compile debug APK: exit 0; app.waflo.staff; 182726858 bytes; sha256 dec422907aa964cfaf857b6a652342b385a83c4c0b9de95e4e5361466fb04ad4
+- Manifest permissions: INTERNET, ACCESS_NETWORK_STATE, CAMERA, plus AndroidX internal non-exported dynamic-receiver signature permission; no unrelated runtime permission
+- mobile_scanner emitted a future Flutter built-in-Kotlin migration warning; builds passed
+
+iOS
+- plist/scheme/pbx configuration parser: exit 0; 3 schemes and 9 flavor configurations present
+- development/staging/production no-sign build: NOT RUN (Xcode/macOS unavailable on Windows)
+- macOS GitHub Actions workflow: configured, external result pending
+
+Security and cleanup
+- repository security scan: exit 0; 290 files; no forbidden backend artifacts, private-key marker, or runtime credential/QR literal
+- workspace-bound task process check: exit 0; none remaining
+- Git branch/origin: main; https://github.com/TavrixLLC/WafloMobile.git
+
+Archive
+- Draft portable archive exclusion/path-traversal/required-file inspection: exit 0
+- Draft extraction and cleanup: exit 0; 417 entries, 303 files
+- Final archive inspection/extraction/SHA-256: completed after this record was embedded; companion .sha256 is authoritative.

@@ -1,0 +1,90 @@
+{
+  "version": "waflo-w4-m1-errors-v1",
+  "controlFlowField": "error.code",
+  "supportCorrelationField": "error.requestId",
+  "messagePolicy": "The server message is diagnostic fallback text. Localize by code in Flutter.",
+  "errors": [
+    {
+      "code": "DEVICE_PAIRING_INVALID",
+      "httpStatuses": [422],
+      "appliesTo": ["pairing.claim", "pairing.challenge", "pairing.complete"],
+      "mobileAction": "Discard the scanned value or invalid challenge and restart pairing."
+    },
+    {
+      "code": "DEVICE_PAIRING_ALREADY_USED",
+      "httpStatuses": [409],
+      "appliesTo": ["pairing.claim"],
+      "mobileAction": "Do not retry the token. Request and scan a new pairing QR."
+    },
+    {
+      "code": "DEVICE_PAIRING_EXPIRED",
+      "httpStatuses": [410],
+      "appliesTo": ["pairing.claim", "pairing.challenge", "pairing.complete"],
+      "mobileAction": "Discard the pairing state and scan a newly issued QR."
+    },
+    {
+      "code": "STAFF_ASSIGNMENT_REQUIRED",
+      "httpStatuses": [403, 422],
+      "appliesTo": ["pairing.complete"],
+      "mobileAction": "Stop pairing and ask an authorized manager to correct the Staff assignment."
+    },
+    {
+      "code": "STAFF_DEVICE_SIGNATURE_INVALID",
+      "httpStatuses": [401],
+      "appliesTo": ["signed.*"],
+      "mobileAction": "Do not blindly replay. Verify IDs, exact envelope bytes, key selection, and base64url encoding."
+    },
+    {
+      "code": "STAFF_DEVICE_CLOCK_SKEW",
+      "httpStatuses": [401],
+      "appliesTo": ["signed.*"],
+      "mobileAction": "Prompt for automatic device time, then retry with a fresh request ID, timestamp, nonce, and signature."
+    },
+    {
+      "code": "STAFF_DEVICE_BODY_DIGEST_INVALID",
+      "httpStatuses": [401],
+      "appliesTo": ["signed.*"],
+      "mobileAction": "Fix exact-byte serialization; regenerate digest, envelope, and signature before retrying."
+    },
+    {
+      "code": "STAFF_DEVICE_NONCE_REPLAYED",
+      "httpStatuses": [409],
+      "appliesTo": ["signed.*"],
+      "mobileAction": "Generate a fresh request ID, nonce, timestamp, digest, and signature. Preserve only any operation idempotency UUID."
+    },
+    {
+      "code": "STAFF_DEVICE_NOT_ACTIVE",
+      "httpStatuses": [401, 403],
+      "appliesTo": ["pairing.claim", "session.refresh", "session.logout", "device.context", "signed.*"],
+      "mobileAction": "Treat the session as unusable. Clear it atomically and require pairing again unless a single in-flight refresh can still succeed."
+    },
+    {
+      "code": "VALIDATION_FAILED",
+      "httpStatuses": [422],
+      "appliesTo": ["m1.*"],
+      "mobileAction": "Correct the request from error.details.fields; do not retry unchanged."
+    },
+    {
+      "code": "RATE_LIMITED",
+      "httpStatuses": [429],
+      "appliesTo": ["m1.*"],
+      "mobileAction": "Back off and retry later with newly generated signing values when signing is required."
+    },
+    {
+      "code": "REQUEST_REJECTED",
+      "httpStatuses": [400, 401, 403, 404, 405, 409, 410, 415, 422, 429],
+      "appliesTo": ["m1.*"],
+      "mobileAction": "Use HTTP status and request ID as fallback; do not assume the request is retryable."
+    },
+    {
+      "code": "INTERNAL_ERROR",
+      "httpStatuses": [500],
+      "appliesTo": ["m1.*"],
+      "mobileAction": "Show a safe localized error and use bounded backoff. Never replay an old signed envelope."
+    }
+  ],
+  "notDefinedInApprovedW4Round1": {
+    "appVersionRejectionCode": null,
+    "note": "M1 accepts and records appVersion but the approved source does not define a minimum-version error code."
+  }
+}

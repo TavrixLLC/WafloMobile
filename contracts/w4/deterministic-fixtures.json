@@ -1,0 +1,72 @@
+{
+  "version": "waflo-w4-m1-fixtures-v1",
+  "containsCredential": false,
+  "containsPrivateKey": false,
+  "warning": "All tokens, challenges, signatures, IDs, and key material are public test values and must never be used as production credentials.",
+  "constants": {
+    "pairingTokenVersion": "waflo-pair-v1",
+    "pairingChallengeVersion": "waflo-pair-challenge-v1",
+    "requestEnvelopeVersion": "waflo-device-request-v1",
+    "signatureAlgorithm": "Ed25519",
+    "separator": "\n",
+    "emptyBodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "pairingQrShape": {
+    "pairingPublicId": "00000000-0000-4000-8000-000000000100",
+    "environmentId": "test",
+    "token": "waflo-pair-v1.MDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMTAw.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.dGVzdA",
+    "tokenLength": 113,
+    "schemaValid": true,
+    "serverValid": false,
+    "note": "Shape-only fixture: its one-time secret and server hash do not exist."
+  },
+  "pairingMessage": {
+    "pairingPublicId": "00000000-0000-4000-8000-000000000100",
+    "installationId": "fixture-installation-0001",
+    "challenge": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+    "message": "waflo-pair-challenge-v1\n00000000-0000-4000-8000-000000000100\nBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\nfixture-installation-0001",
+    "publicKeySpkiDerBase64": "MCowBQYDK2VwAyEA11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=",
+    "signature": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "schemaValidSignatureShape": true,
+    "cryptographicallyValidSignature": false
+  },
+  "providerArtifactCanonicalRequest": {
+    "purpose": "Preserves the approved W4 provider-artifact canonicalization fixture. The zero digest is an explicit sentinel, not a computed body digest.",
+    "contractMapping": {
+      "bodySha256": "CanonicalDeviceRequest.bodyDigest"
+    },
+    "fields": {
+      "method": "POST",
+      "canonicalPath": "/v1/staff/operations/stamps",
+      "requestId": "00000000-0000-4000-8000-000000000001",
+      "timestamp": "2026-07-30T12:00:00.000Z",
+      "nonce": "fixture-nonce-not-valid-for-production",
+      "bodySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "deviceSessionId": "00000000-0000-4000-8000-000000000002",
+      "organizationId": "00000000-0000-4000-8000-000000000003"
+    },
+    "expectedEnvelope": "waflo-device-request-v1\nPOST\n/v1/staff/operations/stamps\n00000000-0000-4000-8000-000000000001\n2026-07-30T12:00:00.000Z\nfixture-nonce-not-valid-for-production\n0000000000000000000000000000000000000000000000000000000000000000\n00000000-0000-4000-8000-000000000002\n00000000-0000-4000-8000-000000000003"
+  },
+  "m1RefreshDigestAndEnvelope": {
+    "exactUtf8Body": "{\"refreshToken\":\"fixture-refresh-token-not-a-real-credential-000000000000\"}",
+    "expectedBodySha256": "2774ac7f29c327e24781e3bab83d61c2d87519a2fb247b4280afb043365dd074",
+    "fields": {
+      "method": "POST",
+      "canonicalPath": "/v1/staff/devices/session/refresh",
+      "requestId": "00000000-0000-4000-8000-000000000101",
+      "timestamp": "2026-07-30T12:00:00.000Z",
+      "nonce": "fixture-nonce-m1-refresh-0001",
+      "bodyDigest": "2774ac7f29c327e24781e3bab83d61c2d87519a2fb247b4280afb043365dd074",
+      "deviceSessionId": "00000000-0000-4000-8000-000000000102",
+      "organizationId": "00000000-0000-4000-8000-000000000103"
+    },
+    "expectedEnvelope": "waflo-device-request-v1\nPOST\n/v1/staff/devices/session/refresh\n00000000-0000-4000-8000-000000000101\n2026-07-30T12:00:00.000Z\nfixture-nonce-m1-refresh-0001\n2774ac7f29c327e24781e3bab83d61c2d87519a2fb247b4280afb043365dd074\n00000000-0000-4000-8000-000000000102\n00000000-0000-4000-8000-000000000103"
+  },
+  "safeErrorEnvelope": {
+    "error": {
+      "code": "STAFF_DEVICE_NONCE_REPLAYED",
+      "message": "This Staff device request has already been used.",
+      "requestId": "00000000-0000-4000-8000-000000000104"
+    }
+  }
+}

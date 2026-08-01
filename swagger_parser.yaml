@@ -1,0 +1,14 @@
+swagger_parser:
+  schema_path: contracts/w4/openapi.m1.json
+  output_directory: lib/core/api/generated
+  name: w4_m1
+  language: dart
+  json_serializer: json_serializable
+  default_content_type: application/json
+  extras_parameter_by_default: false
+  add_openapi_metadata: true
+  dio_options_parameter_by_default: true
+  root_client: true
+  root_client_name: W4M1ApiClient
+  export_file: true
+  put_in_folder: false

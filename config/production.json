@@ -1,0 +1,10 @@
+{
+  "WAFLO_ENV": "production",
+  "WAFLO_API_BASE_URL": "https://api.example.invalid",
+  "WAFLO_PAIRING_ENVIRONMENT": "production",
+  "WAFLO_LOG_LEVEL": "minimal",
+  "WAFLO_ALLOW_TEST_ADAPTER": "false",
+  "WAFLO_MIN_VERSION_SOURCE": "backend",
+  "WAFLO_CRASH_REPORTING": "false",
+  "WAFLO_CERT_PINNING": "false"
+}

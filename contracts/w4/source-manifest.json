@@ -1,0 +1,38 @@
+{
+  "contractBundle": "waflo-w4-mobile-contracts-v1",
+  "sourceArchive": {
+    "fileName": "waflo-w4-round-1-portable-source.zip",
+    "sha256": "8ebed2d49c613d2199b534b7633f6c98847da73c2c13330868c37784cf295258"
+  },
+  "approvedEntriesConsulted": [
+    "docs/w4/flutter-handoff.md",
+    "docs/w4/staff-device-pairing.md",
+    "docs/w4/staff-request-signing.md",
+    "docs/adr/0043-w4-flutter-boundary.md",
+    "packages/contracts/src/index.ts",
+    "packages/contracts/src/w4.ts",
+    "packages/loyalty-policy/src/index.ts",
+    "packages/staff-device-security/src/index.ts",
+    "apps/api/src/common/app-error.ts",
+    "apps/api/src/common/error.filter.ts",
+    "apps/api/src/common/request-context.ts",
+    "apps/api/src/security/guards.ts",
+    "apps/api/src/staff-devices/staff-device.controller.ts",
+    "apps/api/src/staff-devices/staff-device.service.ts",
+    "packages/database/prisma/schema.prisma",
+    "scripts/generate-w4-provider-artifacts.mjs",
+    "tests/helpers/w4-staff-test-client.ts",
+    "tests/http/w4-staff-operations.test.ts"
+  ],
+  "transformation": {
+    "mode": "read selected archive entries in memory and manually curate platform-neutral contracts",
+    "backendSourceCopied": false,
+    "runtimeFilesCopied": false,
+    "containsEnvironmentFiles": false,
+    "containsCredentials": false,
+    "containsDatabaseFiles": false,
+    "containsCustomerData": false,
+    "containsProviderSecrets": false,
+    "containsPrivateKeys": false
+  }
+}
