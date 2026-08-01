@@ -58,6 +58,7 @@ jobs:
           path: |
             coverage/lcov.info
             test/golden/goldens/*.png
+            test/golden/failures/*_testImage.png
           if-no-files-found: warn
           retention-days: 14
 
