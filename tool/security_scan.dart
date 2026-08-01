@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 Future<void> main() async {
@@ -31,7 +32,7 @@ Future<void> main() async {
     if (!file.existsSync() || _isBinary(path)) {
       continue;
     }
-    final text = await file.readAsString();
+    final text = utf8.decode(await file.readAsBytes(), allowMalformed: true);
     if (privateKeyMarker.hasMatch(text)) {
       problems.add('Private-key marker: $normalized');
     }
