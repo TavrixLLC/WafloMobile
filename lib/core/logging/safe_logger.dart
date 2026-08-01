@@ -47,7 +47,10 @@ final class SafeLogger {
     this._level, {
     SafeLogSink sink = const DeveloperLogSink(),
     SensitiveRedactor redactor = const SensitiveRedactor(),
-  }) : _sink = sink,
+  }) : // Public named parameters intentionally initialize private fields.
+       // ignore: prefer_initializing_formals
+       _sink = sink,
+       // ignore: prefer_initializing_formals
        _redactor = redactor;
 
   static const Set<String> _allowedFields = {

@@ -23,7 +23,10 @@ final class SessionManager {
     required LocalLifecycleRepository lifecycleRepository,
     required PairingTransactionRepository transactionRepository,
     DateTime Function()? now,
-  }) : _lifecycleRepository = lifecycleRepository,
+  }) : // Public named parameters intentionally initialize private fields.
+       // ignore: prefer_initializing_formals
+       _lifecycleRepository = lifecycleRepository,
+       // ignore: prefer_initializing_formals
        _transactionRepository = transactionRepository,
        _now = now ?? DateTime.now;
 
