@@ -65,6 +65,12 @@ final class PairingController extends Notifier<PairingViewState> {
     }
   }
 
+  void showExternalFailure(AppFailure failure) {
+    if (_pairingOperation == null) {
+      state = PairingViewState(stage: PairingViewStage.error, failure: failure);
+    }
+  }
+
   Future<void> submit(String rawQr) {
     final running = _pairingOperation;
     if (running != null) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
+import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 
 enum BootStage {
@@ -79,45 +80,122 @@ final class BootController extends Notifier<BootState> {
       final transactionRepository = ref.read(
         pairingTransactionRepositoryProvider,
       );
+      final lifecycleRepository = ref.read(localLifecycleRepositoryProvider);
       final session = await sessionRepository.read();
       final identity = await identityRepository.load();
-      final transaction = await transactionRepository.readStage();
-      if (session == null) {
-        if (transaction == PairingTransactionStage.completing ||
-            transaction == PairingTransactionStage.persisting) {
-          state = const BootState(
-            stage: BootStage.fatalLocalSecurityError,
-            failure: SecurePersistenceFailure(),
-          );
-          return;
-        }
-        if (transaction != null) {
-          await transactionRepository.clear();
-        }
+      final transaction = await transactionRepository.read();
+      final lifecycle = await lifecycleRepository.read();
+
+      if (lifecycle?.state == LocalLifecycleState.loggedOut) {
+        await sessionRepository.clear();
+        await identityRepository.delete();
+        await transactionRepository.clear();
         state = const BootState(stage: BootStage.unpaired);
         return;
       }
+
       if (identity == null) {
+        if (session == null && transaction == null) {
+          await lifecycleRepository.mark(LocalLifecycleState.neverPaired);
+          state = const BootState(stage: BootStage.unpaired);
+          return;
+        }
+        await lifecycleRepository.mark(
+          LocalLifecycleState.recoveryRequired,
+          reason: 'LOCAL_KEY_MISSING',
+        );
         state = const BootState(
           stage: BootStage.fatalLocalSecurityError,
           failure: LocalSecurityFailure('LOCAL_KEY_MISSING'),
         );
         return;
       }
-      if (session.deviceStatus == 'REVOKED') {
-        state = BootState(
-          stage: BootStage.deviceRevoked,
-          session: session,
-          failure: const ApiFailure('DEVICE_REVOKED'),
+
+      if (transaction != null) {
+        if (session != null || transaction.isCompletionAmbiguous) {
+          await lifecycleRepository.mark(
+            LocalLifecycleState.recoveryRequired,
+            reason: 'PAIRING_COMPLETION_AMBIGUOUS',
+          );
+          state = const BootState(
+            stage: BootStage.fatalLocalSecurityError,
+            failure: SecurePersistenceFailure(),
+          );
+          return;
+        }
+        state = const BootState(stage: BootStage.pairingInProgress);
+        try {
+          final result = await ref
+              .read(pairingFlowServiceProvider)
+              .resume(onProgress: (_) {});
+          final restoredSession = await sessionRepository.read();
+          _lastContextRefresh = DateTime.now().toUtc();
+          state = BootState(
+            stage: BootStage.pairedReady,
+            context: result.context,
+            session: restoredSession,
+          );
+        } on AppFailure catch (failure) {
+          if (failure.safeCode == 'DEVICE_PAIRING_EXPIRED') {
+            ref
+                .read(pairingControllerProvider.notifier)
+                .showExternalFailure(failure);
+            state = const BootState(stage: BootStage.unpaired);
+          } else {
+            _setFailure(failure);
+          }
+        }
+        return;
+      }
+
+      if (session == null) {
+        if (lifecycle?.state == LocalLifecycleState.paired ||
+            lifecycle?.state == LocalLifecycleState.pairing ||
+            lifecycle?.state == LocalLifecycleState.recoveryRequired) {
+          final reason = lifecycle?.reason ?? 'LOCAL_SESSION_MISSING';
+          state = BootState(
+            stage: _stageForRecoveryReason(reason),
+            failure: LocalSecurityFailure(reason),
+          );
+          return;
+        }
+        await identityRepository.delete();
+        await lifecycleRepository.mark(LocalLifecycleState.neverPaired);
+        state = const BootState(stage: BootStage.unpaired);
+        return;
+      }
+
+      if (lifecycle != null && lifecycle.state != LocalLifecycleState.paired) {
+        await lifecycleRepository.mark(
+          LocalLifecycleState.recoveryRequired,
+          reason: lifecycle.reason ?? 'LOCAL_LIFECYCLE_MISMATCH',
+          requestId: lifecycle.requestId,
+        );
+        state = const BootState(
+          stage: BootStage.fatalLocalSecurityError,
+          failure: LocalSecurityFailure('LOCAL_LIFECYCLE_MISMATCH'),
         );
         return;
       }
-      if (session.deviceStatus == 'COMPROMISED') {
-        state = BootState(
-          stage: BootStage.deviceCompromised,
-          session: session,
-          failure: const ApiFailure('DEVICE_COMPROMISED'),
+      await lifecycleRepository.mark(LocalLifecycleState.paired);
+      if (session.deviceStatus == 'REVOKED') {
+        const failure = ApiFailure('STAFF_DEVICE_REVOKED', httpStatus: 401);
+        await sessionRepository.clear();
+        await lifecycleRepository.mark(
+          LocalLifecycleState.recoveryRequired,
+          reason: failure.safeCode,
         );
+        state = BootState(stage: BootStage.deviceRevoked, failure: failure);
+        return;
+      }
+      if (session.deviceStatus == 'COMPROMISED') {
+        const failure = ApiFailure('STAFF_DEVICE_COMPROMISED', httpStatus: 401);
+        await sessionRepository.clear();
+        await lifecycleRepository.mark(
+          LocalLifecycleState.recoveryRequired,
+          reason: failure.safeCode,
+        );
+        state = BootState(stage: BootStage.deviceCompromised, failure: failure);
         return;
       }
       state = BootState(
@@ -185,13 +263,20 @@ final class BootController extends Notifier<BootState> {
     await ref.read(identityRepositoryProvider).delete();
     await ref.read(pairingTransactionRepositoryProvider).clear();
     await ref.read(preferencesRepositoryProvider).clearSafeContext();
+    await ref
+        .read(localLifecycleRepositoryProvider)
+        .mark(LocalLifecycleState.neverPaired);
     ref.read(pairingControllerProvider.notifier).reset();
     state = const BootState(stage: BootStage.unpaired);
   }
 
   void _setFailure(AppFailure failure) {
+    final disposition = classifyFailure(failure);
+    final preserveSession =
+        disposition == FailureDisposition.updateRequired ||
+        disposition == FailureDisposition.backendUnavailable;
     state = BootState(
-      stage: switch (classifyFailure(failure)) {
+      stage: switch (disposition) {
         FailureDisposition.deviceRevoked => BootStage.deviceRevoked,
         FailureDisposition.deviceCompromised => BootStage.deviceCompromised,
         FailureDisposition.updateRequired => BootStage.appUpdateRequired,
@@ -201,7 +286,15 @@ final class BootController extends Notifier<BootState> {
         _ => BootStage.backendUnavailable,
       },
       failure: failure,
-      session: state.session,
+      session: preserveSession ? state.session : null,
     );
   }
+
+  BootStage _stageForRecoveryReason(String reason) => switch (reason) {
+    'STAFF_DEVICE_REVOKED' => BootStage.deviceRevoked,
+    'STAFF_DEVICE_COMPROMISED' => BootStage.deviceCompromised,
+    'STAFF_DEVICE_SESSION_EXPIRED' ||
+    'STAFF_DEVICE_NOT_ACTIVE' => BootStage.sessionExpired,
+    _ => BootStage.fatalLocalSecurityError,
+  };
 }

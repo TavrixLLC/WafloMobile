@@ -14,35 +14,34 @@ final class AppEnvironment {
     required this.minimumVersionSource,
     required this.crashReportingEnabled,
     required this.certificatePinningEnabled,
+    this.expectedNativeFlavor,
+    this.suppliedDartEnvironment = '',
+    this.requiredDefinesSupplied = true,
+    this.dartEnvironmentRecognized = true,
+    this.nativeFlavorSupplied = true,
   });
 
-  factory AppEnvironment.fromDefines() {
-    const flavorValue = String.fromEnvironment(
-      'WAFLO_ENV',
-      defaultValue: 'development',
-    );
-    const apiBaseUrl = String.fromEnvironment(
-      'WAFLO_API_BASE_URL',
-      defaultValue: 'http://10.0.2.2:3000',
-    );
+  factory AppEnvironment.fromDefines({AppFlavor? expectedNativeFlavor}) {
+    const flavorValue = String.fromEnvironment('WAFLO_ENV');
+    const apiBaseUrl = String.fromEnvironment('WAFLO_API_BASE_URL');
     const pairingEnvironment = String.fromEnvironment(
       'WAFLO_PAIRING_ENVIRONMENT',
-      defaultValue: 'development',
     );
-    const logLevel = String.fromEnvironment(
-      'WAFLO_LOG_LEVEL',
-      defaultValue: 'debug',
-    );
+    const logLevel = String.fromEnvironment('WAFLO_LOG_LEVEL');
+    AppFlavor? recognizedFlavor;
+    for (final candidate in AppFlavor.values) {
+      if (candidate.name == flavorValue) {
+        recognizedFlavor = candidate;
+        break;
+      }
+    }
     return AppEnvironment(
-      flavor: AppFlavor.values.firstWhere(
-        (value) => value.name == flavorValue,
-        orElse: () => AppFlavor.development,
-      ),
+      flavor: recognizedFlavor ?? expectedNativeFlavor ?? AppFlavor.development,
       apiBaseUrl: Uri.tryParse(apiBaseUrl) ?? Uri(),
       pairingEnvironment: pairingEnvironment,
       logLevel: AppLogLevel.values.firstWhere(
         (value) => value.name == logLevel,
-        orElse: () => AppLogLevel.debug,
+        orElse: () => AppLogLevel.minimal,
       ),
       allowTestAdapter: const bool.fromEnvironment('WAFLO_ALLOW_TEST_ADAPTER'),
       minimumVersionSource: const String.fromEnvironment(
@@ -55,6 +54,15 @@ final class AppEnvironment {
       certificatePinningEnabled: const bool.fromEnvironment(
         'WAFLO_CERT_PINNING',
       ),
+      expectedNativeFlavor: expectedNativeFlavor,
+      suppliedDartEnvironment: flavorValue,
+      requiredDefinesSupplied:
+          flavorValue.isNotEmpty &&
+          apiBaseUrl.isNotEmpty &&
+          pairingEnvironment.isNotEmpty &&
+          logLevel.isNotEmpty,
+      dartEnvironmentRecognized: recognizedFlavor != null,
+      nativeFlavorSupplied: expectedNativeFlavor != null,
     );
   }
 
@@ -66,6 +74,11 @@ final class AppEnvironment {
   final String minimumVersionSource;
   final bool crashReportingEnabled;
   final bool certificatePinningEnabled;
+  final AppFlavor? expectedNativeFlavor;
+  final String suppliedDartEnvironment;
+  final bool requiredDefinesSupplied;
+  final bool dartEnvironmentRecognized;
+  final bool nativeFlavorSupplied;
 
   bool get isProduction => flavor == AppFlavor.production;
 
@@ -77,6 +90,18 @@ final class AppEnvironment {
 
   List<String> validate() {
     final issues = <String>[];
+    if (!nativeFlavorSupplied) {
+      issues.add('NATIVE_FLAVOR_MISSING');
+    }
+    if (!requiredDefinesSupplied) {
+      issues.add('REQUIRED_DART_CONFIGURATION_MISSING');
+    }
+    if (!dartEnvironmentRecognized) {
+      issues.add('DART_ENVIRONMENT_INVALID');
+    }
+    if (expectedNativeFlavor != null && expectedNativeFlavor != flavor) {
+      issues.add('NATIVE_DART_FLAVOR_MISMATCH');
+    }
     if (!apiBaseUrl.hasScheme || apiBaseUrl.host.isEmpty) {
       issues.add('API_BASE_URL_INVALID');
     }

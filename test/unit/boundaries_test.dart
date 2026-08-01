@@ -36,15 +36,15 @@ void main() {
     'revoked, compromised, expired, and update codes classify explicitly',
     () {
       expect(
-        classifyFailure(const ApiFailure('DEVICE_REVOKED')),
+        classifyFailure(const ApiFailure('STAFF_DEVICE_REVOKED')),
         FailureDisposition.deviceRevoked,
       );
       expect(
-        classifyFailure(const ApiFailure('DEVICE_COMPROMISED')),
+        classifyFailure(const ApiFailure('STAFF_DEVICE_COMPROMISED')),
         FailureDisposition.deviceCompromised,
       );
       expect(
-        classifyFailure(const ApiFailure('STAFF_DEVICE_NOT_ACTIVE')),
+        classifyFailure(const ApiFailure('STAFF_DEVICE_SESSION_EXPIRED')),
         FailureDisposition.sessionExpired,
       );
       expect(
@@ -102,21 +102,66 @@ void main() {
     expect(cache?.toJson().keys, isNot(contains('organizationId')));
   });
 
-  test('device context exposes count without inventing backend names', () {
+  test('device context derives empty and multiple location counts', () {
     final context = AuthoritativeDeviceContext(
-      organizationId: 'organization-id',
-      organizationMemberId: 'member-id',
-      role: 'MANAGER',
-      locationId: 'location-id',
-      deviceId: 'device-id',
-      devicePublicId: 'public-id',
-      deviceSessionId: 'session-id',
-      platform: 'IOS',
+      organization: const OrganizationContext(
+        publicId: 'merchant-slug',
+        displayName: 'Coffee House',
+      ),
+      staff: const StaffContext(
+        publicId: 'staff-public-id',
+        displayName: 'Test Staff',
+        role: 'MANAGER',
+      ),
+      device: const DeviceContextSummary(
+        publicId: 'device-public-id',
+        displayName: 'Counter tablet',
+        status: 'ACTIVE',
+        platform: 'IOS',
+        appVersion: '1.0.0',
+      ),
+      currentLocation: const LocationContext(
+        publicId: 'location-current',
+        displayName: 'Main branch',
+        earningAllowed: true,
+        redemptionAllowed: false,
+      ),
+      assignedLocations: const [
+        LocationContext(
+          publicId: 'location-current',
+          displayName: 'Main branch',
+          earningAllowed: true,
+          redemptionAllowed: false,
+        ),
+        LocationContext(
+          publicId: 'location-second',
+          displayName: 'Airport branch',
+          earningAllowed: true,
+          redemptionAllowed: true,
+        ),
+      ],
+      appPolicy: const AppUpdatePolicy(
+        minimumSupportedVersion: '1.0.0',
+        updateRequired: false,
+      ),
       requestId: 'request-id',
       synchronizedAt: DateTime.utc(2026),
     );
-    expect(context.assignedLocationCount, 1);
-    expect(context.toString(), isNot(contains('organization-id')));
+    expect(context.assignedLocationCount, 2);
+    expect(
+      AuthoritativeDeviceContext(
+        organization: context.organization,
+        staff: context.staff,
+        device: context.device,
+        currentLocation: context.currentLocation,
+        assignedLocations: const [],
+        appPolicy: context.appPolicy,
+        requestId: context.requestId,
+        synchronizedAt: context.synchronizedAt,
+      ).assignedLocationCount,
+      0,
+    );
+    expect(context.toString(), isNot(contains('device-public-id')));
   });
 }
 

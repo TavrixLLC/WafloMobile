@@ -1,19 +1,68 @@
-name: Flutter M1
+name: Flutter M1 Repair Round 1
 
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, 'feature/**']
+  workflow_dispatch:
 
 concurrency:
-  group: flutter-m1-${{ github.ref }}
+  group: flutter-m1-round-1-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
+env:
+  FLUTTER_VERSION: 3.44.8
+
 jobs:
-  quality-android:
+  linux-quality:
+    name: Linux / generation, analysis, tests, security, archive
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Toolchain
+        run: flutter --version
+      - name: Dependencies
+        run: flutter pub get
+      - name: Generation drift
+        run: |
+          dart run tool/generate_w4_client.dart --check
+          flutter gen-l10n
+          git diff --exit-code -- contracts/w4 lib/core/api/generated lib/core/localization/generated
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed lib test integration_test tool
+      - name: Analyze fatal
+        run: flutter analyze --fatal-infos --fatal-warnings
+      - name: M1 unit tests
+        run: flutter test test/unit --coverage --reporter expanded
+      - name: M1 widget tests
+        run: flutter test test/widget --reporter expanded
+      - name: M1 golden tests
+        run: flutter test test/golden --reporter expanded
+      - name: Security scan
+        run: dart run tool/security_scan.dart
+      - name: Portable archive scan
+        run: dart run tool/archive_scan.dart artifacts/handoff-m1-round-1/waflo-mobile-m1-round-1-portable-source.zip
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-m1-evidence
+          path: |
+            coverage/lcov.info
+            test/golden/goldens/*.png
+          if-no-files-found: warn
+          retention-days: 14
+
+  android-emulator:
+    name: Android emulator / 21 app integration tests
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -24,57 +73,7 @@ jobs:
           java-version: '21'
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.44.0
-          channel: stable
-          cache: true
-      - name: Toolchain
-        run: flutter --version
-      - name: Dependencies
-        run: flutter pub get
-      - name: Generated sources are current
-        run: |
-          dart run swagger_parser -f swagger_parser.yaml
-          dart run build_runner build --delete-conflicting-outputs
-          flutter gen-l10n
-          dart format lib/core/api/generated lib/core/localization/generated
-          git diff --exit-code -- contracts/w4 lib/core/api/generated lib/core/localization/generated
-      - name: Format
-        run: dart format --output=none --set-exit-if-changed .
-      - name: Analyze
-        run: flutter analyze --fatal-infos --fatal-warnings
-      - name: Unit, widget, contract-fixture, and golden tests
-        run: flutter test --coverage
-      - name: Repository security boundary
-        run: dart run tool/security_scan.dart
-      - name: Android development build
-        run: flutter build apk --flavor development --debug --dart-define-from-file=config/development.json
-      - name: Android staging build
-        run: flutter build apk --flavor staging --debug --dart-define-from-file=config/staging.json
-      - name: Android production compile build
-        run: flutter build apk --flavor production --debug --dart-define-from-file=config/production.json
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: android-test-evidence
-          path: |
-            coverage/lcov.info
-            test/golden/goldens/*.png
-            build/app/outputs/flutter-apk/*.apk
-          if-no-files-found: warn
-          retention-days: 14
-
-  integration-android:
-    runs-on: ubuntu-latest
-    timeout-minutes: 35
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.44.0
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
       - run: flutter pub get
@@ -84,4 +83,59 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          script: flutter test integration_test --flavor development --dart-define-from-file=config/development.json
+          script: |
+            flutter test integration_test/m1_app_integration_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
+            flutter test integration_test/m1_pairing_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
+
+  android-builds:
+    name: Android / development debug and release builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Development debug APK
+        run: flutter build apk -t lib/main_development.dart --flavor development --debug --dart-define-from-file=config/development.json
+      - name: Staging release APK
+        run: flutter build apk -t lib/main_staging.dart --flavor staging --release --dart-define-from-file=config/staging.json
+      - name: Production release APK
+        run: flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-m1-apks
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  real-w4-contract:
+    name: Approved W4 / 11 real contract tests
+    runs-on: [self-hosted, windows, x64, waflo-w4-approved]
+    timeout-minutes: 30
+    env:
+      WAFLO_RUN_BACKEND_CONTRACT: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Require approved W4 checkout
+        shell: pwsh
+        run: |
+          if (-not $env:WAFLO_W4_BACKEND_ROOT) {
+            throw 'WAFLO_W4_BACKEND_ROOT is required on the approved integration runner.'
+          }
+      - name: Real W4 development contract gate
+        shell: pwsh
+        run: dart run tool/run_real_w4_contract_gate.dart

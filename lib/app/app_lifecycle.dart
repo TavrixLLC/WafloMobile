@@ -45,6 +45,7 @@ final class _AppLifecycleBoundaryState
 
   @override
   Widget build(BuildContext context) => Stack(
+    alignment: Alignment.topLeft,
     fit: StackFit.expand,
     children: [
       widget.child,

@@ -284,6 +284,12 @@ abstract class AppLocalizations {
   /// **'Claiming the pairing session'**
   String get pairingClaiming;
 
+  /// No description provided for @pairingRecovering.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovering the secure pairing challenge'**
+  String get pairingRecovering;
+
   /// No description provided for @pairingSigning.
   ///
   /// In en, this message translates to:
@@ -379,6 +385,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Android'**
   String get platformAndroid;
+
+  /// No description provided for @organizationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization'**
+  String get organizationLabel;
+
+  /// No description provided for @staffLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff member'**
+  String get staffLabel;
+
+  /// No description provided for @deviceStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Device status'**
+  String get deviceStatusLabel;
+
+  /// No description provided for @currentLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current location'**
+  String get currentLocationLabel;
+
+  /// No description provided for @locationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned locations'**
+  String get locationsTitle;
+
+  /// No description provided for @earningCapability.
+  ///
+  /// In en, this message translates to:
+  /// **'Earning'**
+  String get earningCapability;
+
+  /// No description provided for @redemptionCapability.
+  ///
+  /// In en, this message translates to:
+  /// **'Redemption'**
+  String get redemptionCapability;
+
+  /// No description provided for @capabilityAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get capabilityAllowed;
+
+  /// No description provided for @capabilityBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get capabilityBlocked;
+
+  /// No description provided for @updatePolicyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update policy'**
+  String get updatePolicyLabel;
+
+  /// No description provided for @minimumSupportedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum supported version: {version}'**
+  String minimumSupportedVersion(Object version);
+
+  /// No description provided for @appVersionCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'This app version is supported'**
+  String get appVersionCurrent;
 
   /// No description provided for @assignedLocations.
   ///

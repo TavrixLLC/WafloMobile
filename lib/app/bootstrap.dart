@@ -9,6 +9,7 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 
 Future<void> bootstrap({
+  AppFlavor? expectedNativeFlavor,
   AppEnvironment? environment,
   SharedPreferences? preferences,
   SecureKeyValueStore? secureStore,
@@ -16,7 +17,9 @@ Future<void> bootstrap({
   WidgetsFlutterBinding.ensureInitialized();
   final resolvedPreferences =
       preferences ?? await SharedPreferences.getInstance();
-  final resolvedEnvironment = environment ?? AppEnvironment.fromDefines();
+  final resolvedEnvironment =
+      environment ??
+      AppEnvironment.fromDefines(expectedNativeFlavor: expectedNativeFlavor);
   runApp(
     ProviderScope(
       overrides: [

@@ -4,7 +4,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-/// Flutter production builds use IOS or ANDROID.
 @JsonEnum()
 enum Platform {
   @JsonValue('IOS')

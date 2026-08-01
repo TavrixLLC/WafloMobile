@@ -18,7 +18,7 @@ The code is feature-first and layered. `lib/app` owns bootstrap/routing, `lib/co
 
 ## Requirements
 
-- Flutter 3.44.0 stable
+- Flutter 3.44.8 stable
 - Dart 3.12.0
 - JDK 21
 - Android SDK 36 (minimum device API 23)
@@ -30,8 +30,7 @@ The code is feature-first and layered. `lib/app` owns bootstrap/routing, `lib/co
 git clone https://github.com/TavrixLLC/WafloMobile.git
 cd WafloMobile
 flutter pub get
-dart run swagger_parser -f swagger_parser.yaml
-dart run build_runner build --delete-conflicting-outputs
+dart run tool/generate_w4_client.dart
 flutter gen-l10n
 ```
 
@@ -42,18 +41,18 @@ The approved, mobile-safe contract is committed under `contracts/w4/`. Do not co
 Committed files in `config/` contain no secrets. Development targets the Android emulator host. Staging and production use reserved `.invalid` placeholders because no deployment hosts were supplied; provide an approved HTTPS host through CI/CD `--dart-define` values before distribution. Production validation rejects HTTP, local hosts, debug logging, test adapters, environment mismatch, and unsupplied certificate-pinning mode.
 
 ```text
-flutter run --flavor development --dart-define-from-file=config/development.json
-flutter run --flavor development --dart-define-from-file=config/development.json --dart-define=WAFLO_API_BASE_URL=http://127.0.0.1:3000
-flutter build apk --flavor staging --debug --dart-define-from-file=config/staging.json
-flutter build apk --flavor production --debug --dart-define-from-file=config/production.json
+flutter run -t lib/main_development.dart --flavor development --dart-define-from-file=config/development.json
+flutter run -t lib/main_development.dart --flavor development --dart-define-from-file=config/development.json --dart-define=WAFLO_API_BASE_URL=http://127.0.0.1:3000
+flutter build apk -t lib/main_staging.dart --flavor staging --release --dart-define-from-file=config/staging.json
+flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
 ```
 
 The second command is the iOS-simulator localhost override. iOS builds use the corresponding Xcode schemes:
 
 ```text
-flutter build ios --no-codesign --flavor development --debug --dart-define-from-file=config/development.json
-flutter build ios --no-codesign --flavor staging --release --dart-define-from-file=config/staging.json
-flutter build ios --no-codesign --flavor production --release --dart-define-from-file=config/production.json
+flutter build ios -t lib/main_development.dart --no-codesign --flavor development --debug --dart-define-from-file=config/development.json
+flutter build ios -t lib/main_staging.dart --no-codesign --flavor staging --release --dart-define-from-file=config/staging.json
+flutter build ios -t lib/main_production.dart --no-codesign --flavor production --release --dart-define-from-file=config/production.json
 ```
 
 ## Tests and generation checks
@@ -63,10 +62,23 @@ dart format --output=none --set-exit-if-changed .
 flutter analyze --fatal-infos --fatal-warnings
 flutter test
 flutter test integration_test --flavor development --dart-define-from-file=config/development.json
+dart run tool/generate_w4_client.dart --check
 dart run tool/security_scan.dart
 ```
 
-The integration suite requires an Android/iOS runner. The opt-in real W4 contract test is skipped unless a seeded development backend and temporary pairing QR are supplied as compile-time defines; it never writes key material to the repository. CI repeats code generation and fails on a diff.
+The integration suite requires an Android/iOS runner. The real W4 gate verifies the
+approved backend source manifest, builds W4, creates ephemeral pairings, runs 11
+contract checks, and cleans the devices. It fails closed unless explicitly enabled:
+
+```text
+set WAFLO_RUN_BACKEND_CONTRACT=true
+set WAFLO_W4_BACKEND_ROOT=C:\path\to\approved-w4
+dart run tool/run_real_w4_contract_gate.dart
+```
+
+No QR, private key, control secret, or device token is committed or printed. The
+ordinary test suite leaves this external gate skipped; the final CI contract job
+does not permit that skip.
 
 ## Security notes
 
@@ -83,6 +95,12 @@ Generated ARB localization supports English and Arabic with RTL, pluralization, 
 
 ## Known limitations and M2 handoff
 
-The approved W4 context returns internal IDs plus role/platform, not staff, organization, or location display names; M1 does not expose raw IDs or invent names. Approved W4 round 1 also does not define distinct revoked/compromised/minimum-version codes, so those UI states are implemented and tested but await backend codes. The staging app maps to W4's internal `test` environment. Real backend certification and iOS no-sign results require external infrastructure/CI.
+The repaired W4 contract now supplies safe organization, staff, device, current
+Location, assigned Location, capability, and update-policy fields. M1 displays
+those values without showing internal IDs and handles the distinct revoked,
+compromised, session-expired, and update-required codes. Staging maps to W4's
+approved `test` pairing environment. The committed staging and production hosts
+remain reserved `.invalid` values until deployment URLs are supplied; those builds
+therefore fail closed with `CONFIGURATION_ERROR` if launched unchanged.
 
 M2 may add customer operations only after the backend contracts and authorization policies are approved. See [docs/m1/m2-handoff.md](docs/m1/m2-handoff.md). No M2 operation is implemented here.

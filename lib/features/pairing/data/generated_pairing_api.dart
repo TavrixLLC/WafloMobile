@@ -1,28 +1,30 @@
 import 'package:waflo_staff/core/api/api_error_decoder.dart';
-import 'package:waflo_staff/core/api/generated/models/pairing_claim_request.dart';
-import 'package:waflo_staff/core/api/generated/models/pairing_complete_request.dart';
-import 'package:waflo_staff/core/api/generated/models/platform.dart';
-import 'package:waflo_staff/core/api/generated/pairing/pairing_client.dart';
+import 'package:waflo_staff/core/api/generated/models/device_pairing_claim_request.dart';
+import 'package:waflo_staff/core/api/generated/models/device_pairing_claim_request_platform.dart';
+import 'package:waflo_staff/core/api/generated/models/device_pairing_complete_request.dart';
+import 'package:waflo_staff/core/api/generated/models/device_pairing_recovery_request.dart';
+import 'package:waflo_staff/core/api/generated/staff_device_pairing/staff_device_pairing_client.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_api.dart';
 
 final class GeneratedPairingApi implements PairingApi {
   const GeneratedPairingApi(this._client, this._errorDecoder);
 
-  final PairingClient _client;
+  final StaffDevicePairingClient _client;
   final ApiErrorDecoder _errorDecoder;
 
   @override
   Future<PairingClaimResult> claim(PairingClaimCommand command) async {
     try {
-      final response = await _client.claimStaffDevicePairing(
-        body: PairingClaimRequest(
+      final response = await _client.staffDevicePairingControllerClaim(
+        body: DevicePairingClaimRequest(
           pairingToken: command.pairingToken,
           installationId: command.installationId,
           publicKey: command.publicKey,
           platform: switch (command.metadata.platform) {
-            StaffMobilePlatform.ios => Platform.ios,
-            StaffMobilePlatform.android => Platform.android,
+            StaffMobilePlatform.ios => DevicePairingClaimRequestPlatform.ios,
+            StaffMobilePlatform.android =>
+              DevicePairingClaimRequestPlatform.android,
           },
           appVersion: command.metadata.appVersion,
           osVersion: command.metadata.osVersion,
@@ -43,10 +45,29 @@ final class GeneratedPairingApi implements PairingApi {
   }
 
   @override
+  Future<PairingChallengeResult> challenge(String pairingPublicId) async {
+    try {
+      final response = await _client.staffDevicePairingControllerChallenge(
+        body: DevicePairingRecoveryRequest(pairingPublicId: pairingPublicId),
+      );
+      final data = response.data;
+      return PairingChallengeResult(
+        pairingPublicId: data.pairingPublicId,
+        challenge: data.challenge,
+        challengeExpiresAt: data.challengeExpiresAt.toUtc(),
+        signatureAlgorithm: data.signatureAlgorithm,
+        message: data.message,
+      );
+    } on Object catch (error) {
+      throw _errorDecoder.decode(error);
+    }
+  }
+
+  @override
   Future<StaffDeviceSession> complete(PairingCompleteCommand command) async {
     try {
-      final response = await _client.completeStaffDevicePairing(
-        body: PairingCompleteRequest(
+      final response = await _client.staffDevicePairingControllerComplete(
+        body: DevicePairingCompleteRequest(
           pairingPublicId: command.pairingPublicId,
           challenge: command.challenge,
           signature: command.signature,
@@ -56,8 +77,8 @@ final class GeneratedPairingApi implements PairingApi {
       final data = response.data;
       final platform = data.device.platform.json;
       final role = data.context.role.json;
-      final status = data.device.status.json;
-      if (platform == null || role == null || status == null) {
+      final status = data.device.status;
+      if (platform == null || role == null) {
         throw StateError('Unknown required enum in pairing response.');
       }
       return StaffDeviceSession(

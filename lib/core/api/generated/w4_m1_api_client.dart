@@ -4,26 +4,26 @@
 
 import 'package:dio/dio.dart';
 
-import 'pairing/pairing_client.dart';
-import 'device_session/device_session_client.dart';
+import 'staff_device_pairing/staff_device_pairing_client.dart';
+import 'staff_operations/staff_operations_client.dart';
 
-/// Waflo Staff Device API — Flutter M1 subset `vw4-round1-m1-v1`.
+/// Waflo M1 Staff Mobile API `vw4-m1-contract-v1`.
 ///
-/// Approved mobile-safe subset for device pairing, session rotation/logout, and signed device context. Server messages are not localization strings; clients branch on error.code.
+/// Mobile-safe subset of the approved W4 backend contract.
 class W4M1ApiClient {
   W4M1ApiClient(Dio dio, {String? baseUrl}) : _dio = dio, _baseUrl = baseUrl;
 
   final Dio _dio;
   final String? _baseUrl;
 
-  static String get version => 'w4-round1-m1-v1';
+  static String get version => 'w4-m1-contract-v1';
 
-  PairingClient? _pairing;
-  DeviceSessionClient? _deviceSession;
+  StaffDevicePairingClient? _staffDevicePairing;
+  StaffOperationsClient? _staffOperations;
 
-  PairingClient get pairing =>
-      _pairing ??= PairingClient(_dio, baseUrl: _baseUrl);
+  StaffDevicePairingClient get staffDevicePairing =>
+      _staffDevicePairing ??= StaffDevicePairingClient(_dio, baseUrl: _baseUrl);
 
-  DeviceSessionClient get deviceSession =>
-      _deviceSession ??= DeviceSessionClient(_dio, baseUrl: _baseUrl);
+  StaffOperationsClient get staffOperations =>
+      _staffOperations ??= StaffOperationsClient(_dio, baseUrl: _baseUrl);
 }

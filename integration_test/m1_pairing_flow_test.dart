@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +7,7 @@ import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
+import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/session_manager.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_api.dart';
@@ -30,12 +28,15 @@ void main() {
     final identity = DeviceIdentityRepository(store);
     final sessions = StaffDeviceSessionRepository(store);
     final transactions = PairingTransactionRepository(store);
+    final lifecycle = LocalLifecycleRepository(store);
     final sessionApi = _IntegrationSessionApi();
     final manager = SessionManager(
       sessions,
       sessionApi,
       identity,
       PreferencesRepository(await SharedPreferences.getInstance()),
+      lifecycleRepository: lifecycle,
+      transactionRepository: transactions,
       now: () => DateTime.utc(2026, DateTime.july, 30),
     );
     final pairingApi = _IntegrationPairingApi();
@@ -46,6 +47,7 @@ void main() {
       const _MetadataProvider(),
       sessions,
       transactions,
+      lifecycle,
       manager,
       now: () => DateTime.utc(2026, DateTime.july, 30),
     );
@@ -57,7 +59,15 @@ void main() {
       onProgress: progress.add,
     );
     expect(result.context.role, 'STAFF');
-    expect(progress, PairingProgress.values);
+    expect(progress, [
+      PairingProgress.validating,
+      PairingProgress.creatingIdentity,
+      PairingProgress.claiming,
+      PairingProgress.signing,
+      PairingProgress.completing,
+      PairingProgress.saving,
+      PairingProgress.loadingContext,
+    ]);
     expect(pairingApi.completedSignature, isNotEmpty);
     expect(await transactions.readStage(), isNull);
 
@@ -81,6 +91,9 @@ void main() {
       ),
     );
     sessionApi.contextFailure = null;
+    expect(await sessions.read(), isNull);
+    await sessions.replaceAtomically(fixtureSession());
+    await lifecycle.mark(LocalLifecycleState.paired);
 
     final logout = await manager.logout();
     expect(logout.serverReached, isTrue);
@@ -101,7 +114,7 @@ void main() {
     expect(await harness.sessions.read(), isNull);
     expect(
       await harness.transactions.readStage(),
-      PairingTransactionStage.claim,
+      PairingTransactionStage.claimPending,
     );
   });
 
@@ -142,11 +155,14 @@ final class _FlowHarness {
     final identity = DeviceIdentityRepository(resolvedStore);
     final sessions = StaffDeviceSessionRepository(resolvedStore);
     final transactions = PairingTransactionRepository(resolvedStore);
+    final lifecycle = LocalLifecycleRepository(resolvedStore);
     final manager = SessionManager(
       sessions,
       _IntegrationSessionApi(),
       identity,
       PreferencesRepository(await SharedPreferences.getInstance()),
+      lifecycleRepository: lifecycle,
+      transactionRepository: transactions,
     );
     return _FlowHarness(
       service: PairingFlowService(
@@ -156,6 +172,7 @@ final class _FlowHarness {
         const _MetadataProvider(),
         sessions,
         transactions,
+        lifecycle,
         manager,
         now: () => DateTime.utc(2026, DateTime.july, 30),
       ),
@@ -171,6 +188,31 @@ final class _IntegrationPairingApi implements PairingApi {
   final AppFailure? failure;
   String? completedSignature;
   String? _installationId;
+
+  @override
+  Future<PairingChallengeResult> challenge(String pairingPublicId) async {
+    final problem = failure;
+    if (problem != null) {
+      throw problem;
+    }
+    final installationId = _installationId;
+    if (installationId == null) {
+      throw StateError('Fixture installation ID is unavailable.');
+    }
+    const challenge = 'fixture-challenge-value-with-at-least-32-characters';
+    return PairingChallengeResult(
+      pairingPublicId: pairingPublicId,
+      challenge: challenge,
+      challengeExpiresAt: DateTime.utc(2026, DateTime.july, 30, 12, 5),
+      signatureAlgorithm: 'Ed25519',
+      message: [
+        'waflo-pair-challenge-v1',
+        pairingPublicId,
+        challenge,
+        installationId,
+      ].join('\n'),
+    );
+  }
 
   @override
   Future<PairingClaimResult> claim(PairingClaimCommand command) async {
@@ -260,11 +302,8 @@ final class _SelectiveFailureStore implements SecureKeyValueStore {
 }
 
 String _fixtureToken() {
-  final root =
-      jsonDecode(
-            File('contracts/w4/deterministic-fixtures.json').readAsStringSync(),
-          )
-          as Map<String, Object?>;
-  final shape = root['pairingQrShape']! as Map<String, Object?>;
-  return shape['token']! as String;
+  return 'waflo-pair-v1.'
+      'MDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMTAw.'
+      'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.'
+      'dGVzdA';
 }

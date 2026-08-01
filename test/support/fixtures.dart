@@ -20,15 +20,45 @@ StaffDeviceSession fixtureSession({
   issuedAt: DateTime.utc(2026, DateTime.july, 30, 12),
 );
 
-AuthoritativeDeviceContext fixtureContext() => AuthoritativeDeviceContext(
-  organizationId: '00000000-0000-4000-8000-000000000203',
-  organizationMemberId: '00000000-0000-4000-8000-000000000205',
-  role: 'STAFF',
-  locationId: '00000000-0000-4000-8000-000000000204',
-  deviceId: '00000000-0000-4000-8000-000000000206',
-  devicePublicId: '00000000-0000-4000-8000-000000000202',
-  deviceSessionId: '00000000-0000-4000-8000-000000000201',
-  platform: 'ANDROID',
+AuthoritativeDeviceContext fixtureContext({
+  List<LocationContext>? assignedLocations,
+}) => AuthoritativeDeviceContext(
+  organization: const OrganizationContext(
+    publicId: 'fixture-merchant',
+    displayName: 'Fixture Coffee',
+  ),
+  staff: const StaffContext(
+    publicId: '00000000-0000-4000-8000-000000000205',
+    displayName: 'Fixture Staff',
+    role: 'STAFF',
+  ),
+  device: const DeviceContextSummary(
+    publicId: '00000000-0000-4000-8000-000000000202',
+    displayName: 'Test staff device',
+    status: 'ACTIVE',
+    platform: 'ANDROID',
+    appVersion: '1.0.0',
+  ),
+  currentLocation: const LocationContext(
+    publicId: '00000000-0000-4000-8000-000000000204',
+    displayName: 'Main branch',
+    earningAllowed: true,
+    redemptionAllowed: true,
+  ),
+  assignedLocations:
+      assignedLocations ??
+      const [
+        LocationContext(
+          publicId: '00000000-0000-4000-8000-000000000204',
+          displayName: 'Main branch',
+          earningAllowed: true,
+          redemptionAllowed: true,
+        ),
+      ],
+  appPolicy: const AppUpdatePolicy(
+    minimumSupportedVersion: '1.0.0',
+    updateRequired: false,
+  ),
   requestId: '00000000-0000-4000-8000-000000000207',
   synchronizedAt: DateTime.utc(2026, DateTime.july, 30, 12),
 );

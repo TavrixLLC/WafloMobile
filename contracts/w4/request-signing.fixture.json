@@ -1,0 +1,14 @@
+{
+  "envelopeVersion": "waflo-device-request-v1",
+  "algorithm": "Ed25519",
+  "method": "POST",
+  "canonicalPath": "/v1/staff/operations/stamps",
+  "requestId": "70000000-0000-4000-8000-000000000001",
+  "timestamp": "2026-08-01T12:00:00.000Z",
+  "nonce": "fixture-nonce-not-valid-for-production",
+  "bodySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "deviceSessionId": "70000000-0000-4000-8000-000000000002",
+  "organizationId": "70000000-0000-4000-8000-000000000003",
+  "separator": "\\n",
+  "containsCredential": false
+}

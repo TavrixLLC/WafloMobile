@@ -45,9 +45,10 @@ final class SensitiveRedactor {
 final class SafeLogger {
   SafeLogger(
     this._level, {
-    this._sink = const DeveloperLogSink(),
-    this._redactor = const SensitiveRedactor(),
-  });
+    SafeLogSink sink = const DeveloperLogSink(),
+    SensitiveRedactor redactor = const SensitiveRedactor(),
+  }) : _sink = sink,
+       _redactor = redactor;
 
   static const Set<String> _allowedFields = {
     'appVersion',

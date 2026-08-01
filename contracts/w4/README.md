@@ -1,45 +1,37 @@
-# Waflo W4 mobile contracts
+# Waflo W4 mobile contract bundle
 
-This directory is the mobile-safe W4 contract bundle for Flutter M1. It is a curated
-transformation of the approved W4 backend archive; it is not a backend source copy.
+This directory contains the exact mobile-safe machine-readable bundle from the
+approved companion **W4 Mobile Contract Compatibility Patch**. The authoritative
+source is backend base commit `16e0b4077510073777040450b84af9b055cf2a33` plus the
+working-tree sources whose individual hashes are recorded in
+`source-manifest.json`.
 
-## M1 contents
+Bundle integrity:
 
-- `flutter-handoff.md`: implementation boundary and M1 pairing/session flow.
-- `pairing-qr.md`: exact QR payload contract and handling rules.
-- `signed-request.md`: canonical Ed25519 request contract and retry rules.
-- `schemas/m1.schema.json`: JSON Schema 2020-12 definitions for pairing, device
-  sessions, device context, signed requests, and API envelopes.
-- `openapi.m1.json`: self-contained OpenAPI 3.1 subset for the six M1 Staff-device
-  endpoints.
-- `stable-error-codes.json`: stable machine codes and mobile recovery guidance.
-- `deterministic-fixtures.json`: sanitized canonicalization, digest, QR-shape, and
-  error-envelope fixtures. They contain no usable credentials or private keys.
-- `source-manifest.json`: archive checksum and the exact approved entries consulted.
+- Working-tree source checksum:
+  `bc3d1c4886643b1b8b399a72a50396e7dc7a4a2b58684fea58cfeb9ddf56beb6`
+- Generated bundle checksum:
+  `a36b0b24d00c962254d127ea0bc272ceedf94c19556922b4162745aa8c3957d0`
+- Credentials or real QR values: none
 
-## Authoritative rules
+## Authoritative files
 
-1. Generate the Ed25519 key pair on the device. Never export, log, back up, or add the
-   private key to this directory.
-2. Treat pairing QR values, access tokens, refresh tokens, nonces, and signatures as
-   sensitive. The examples here are deliberately non-secret fixtures.
-3. Hash the exact UTF-8 request bytes that are sent. Do not hash one JSON serialization
-   and send another.
-4. Sign the exact nine-line envelope in `signed-request.md` with LF (`0x0A`)
-   separators and no trailing newline.
-5. On a retry, keep the operation idempotency UUID when the operation has one, but
-   generate a fresh request ID, nonce, timestamp, body digest, and signature.
-6. Use error `code` for control flow and localization. Server English messages are not
-   localization strings.
+- `openapi.m1.json` — approved OpenAPI 3.1 mobile surface.
+- `schemas/m1.schema.json` — approved JSON Schema definitions.
+- `stable-error-codes.json` — backend-supported mobile state codes.
+- `device-context.fixture.json` — sanitized safe-context examples.
+- `pairing-recovery.fixture.json` — sanitized challenge-recovery examples.
+- `request-signing.fixture.json` — deterministic signing examples.
+- `source-manifest.json` — backend source provenance and per-file SHA-256 values.
 
-## M1 endpoint scope
+The OpenAPI bundle also describes W4 Staff operation endpoints intended for later
+mobile milestones. M1 generates the authoritative client as a whole but consumes
+only pairing, signed session, logout, and device-context operations. No M2 feature
+or UI is implemented here.
 
-- `POST /v1/staff/devices/pairing/claim`
-- `POST /v1/staff/devices/pairing/challenge`
-- `POST /v1/staff/devices/pairing/complete`
-- `POST /v1/staff/devices/session/refresh`
-- `POST /v1/staff/devices/session/logout`
-- `GET /v1/staff/device-context`
+## Security boundary
 
-The broader W4 operation endpoints belong to later mobile milestones and are
-intentionally absent from `openapi.m1.json`.
+The device creates its Ed25519 key locally. Pairing QR values, one-time secrets,
+private keys, session tokens, nonces, and signatures are never committed to this
+directory. Control flow uses the stable backend `code`, while backend messages are
+not treated as localization strings.

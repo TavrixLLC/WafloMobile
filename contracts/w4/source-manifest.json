@@ -1,38 +1,155 @@
 {
-  "contractBundle": "waflo-w4-mobile-contracts-v1",
-  "sourceArchive": {
-    "fileName": "waflo-w4-round-1-portable-source.zip",
-    "sha256": "8ebed2d49c613d2199b534b7633f6c98847da73c2c13330868c37784cf295258"
+  "version": "waflo-w4-m1-source-manifest-v1",
+  "generatedAt": "2026-08-01T15:53:01.140Z",
+  "backendCommitSha": "16e0b4077510073777040450b84af9b055cf2a33",
+  "workingTreeSourceChecksum": "bc3d1c4886643b1b8b399a72a50396e7dc7a4a2b58684fea58cfeb9ddf56beb6",
+  "migration": {
+    "count": 25,
+    "status": "UP_TO_DATE",
+    "statusOutput": "◇ injected env (0) from ..\\..\\.env // tip: ⌘ enable debugging { debug: true }\nDatasource \"db\": PostgreSQL database \"waflo_m1_patch_final2\", schema \"public\" at \"localhost:5432\"\n\n25 migrations found in prisma/migrations\n\nDatabase schema is up to date!\nLoaded Prisma config from prisma.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma."
   },
-  "approvedEntriesConsulted": [
-    "docs/w4/flutter-handoff.md",
-    "docs/w4/staff-device-pairing.md",
-    "docs/w4/staff-request-signing.md",
-    "docs/adr/0043-w4-flutter-boundary.md",
-    "packages/contracts/src/index.ts",
-    "packages/contracts/src/w4.ts",
-    "packages/loyalty-policy/src/index.ts",
-    "packages/staff-device-security/src/index.ts",
-    "apps/api/src/common/app-error.ts",
-    "apps/api/src/common/error.filter.ts",
-    "apps/api/src/common/request-context.ts",
-    "apps/api/src/security/guards.ts",
-    "apps/api/src/staff-devices/staff-device.controller.ts",
-    "apps/api/src/staff-devices/staff-device.service.ts",
-    "packages/database/prisma/schema.prisma",
-    "scripts/generate-w4-provider-artifacts.mjs",
-    "tests/helpers/w4-staff-test-client.ts",
-    "tests/http/w4-staff-operations.test.ts"
+  "sourceFiles": [
+    {
+      "path": ".env.example",
+      "sha256": "ee321d46d075bca9ed67621cab8d2ddb6dc9f308d23332709f72e4748a3f9e31"
+    },
+    {
+      "path": "apps/api/src/common/request-context.ts",
+      "sha256": "af902828f4426fdcef0079235f4422998a63bdc6ccc712223d55b6a24114c00d"
+    },
+    {
+      "path": "apps/api/src/security/guards.ts",
+      "sha256": "8594bfe3e921cee928a7f5207053706ed99921bd6cd211fe8e2b9e3103aee596"
+    },
+    {
+      "path": "apps/api/src/staff-devices/mobile-device-context.ts",
+      "sha256": "25958be66ec418b81484cea7cfb97e18c5ca7a29588f9fd0da4105cddd923b69"
+    },
+    {
+      "path": "apps/api/src/staff-devices/staff-device.controller.ts",
+      "sha256": "6fb5f12b8cb7daca26efe78e38685bdaea6f02917299e7eff859850298dae363"
+    },
+    {
+      "path": "apps/api/src/staff-devices/staff-device.service.ts",
+      "sha256": "ed5bd9e72a071c4608a6e0f049734e88bee7b457b5d410119a25cd00ffc74b4b"
+    },
+    {
+      "path": "docs/w4/flutter-handoff.md",
+      "sha256": "07ea33d81b60c613de1711f4704601b09a69eb1ea4898a8f87586cb1da04a08d"
+    },
+    {
+      "path": "docs/w4/mobile-device-context.md",
+      "sha256": "b14c336963489dac0356ed65f5414c11362f8a1d201e603bfe2f1d1343c41275"
+    },
+    {
+      "path": "docs/w4/staff-device-pairing.md",
+      "sha256": "035f808a129b84c942cb126aec9cc1efd53bbb306f2007a351d38de29fe084c3"
+    },
+    {
+      "path": "docs/w4/staff-mobile-app-version-policy.md",
+      "sha256": "d73803c6a0a19f1ea334951a9b77bea9f880f53d3e2457527e5028d97db736e1"
+    },
+    {
+      "path": "docs/w4/staff-request-signing.md",
+      "sha256": "970da33d2865a388350f6beb56b620ea193806fc572a554631324779450d874a"
+    },
+    {
+      "path": "package.json",
+      "sha256": "7f5f52ef5805b60bb581e36f294fed8628ef4bba98d21ad7dbe26298dba95b78"
+    },
+    {
+      "path": "packages/config/src/index.ts",
+      "sha256": "d262f60f4e8ca7e76d207c47f31234a4e3184cf69ca77f9813f66ea673e74971"
+    },
+    {
+      "path": "packages/contracts/src/index.ts",
+      "sha256": "4ea475b785800621ecc197a8272cb238447f6af13c96b3cfa289ae68254fba44"
+    },
+    {
+      "path": "packages/contracts/src/semantic-version.ts",
+      "sha256": "34fc1775ec150f1322e4309e9b40529d12de66743ee9488668d92d1674428593"
+    },
+    {
+      "path": "packages/contracts/src/w4.ts",
+      "sha256": "e983d1bff75b96a4fab563026133fc7a6f6f954a65f3796b040e936069eaa8b2"
+    },
+    {
+      "path": "packages/database/prisma/migrations/20260801090000_w4_m1_mobile_contract/migration.sql",
+      "sha256": "1aaae60e8620a1715d161217382cc2a4349da076cf80f44993387cf28a23784a"
+    },
+    {
+      "path": "packages/database/prisma/schema.prisma",
+      "sha256": "76b66675e7f373b7e6ead783f58914467a5342cab0ceb168fa2904484a577590"
+    },
+    {
+      "path": "packages/database/prisma/seed.ts",
+      "sha256": "42cf4c43d5fee8bc942528400a913662afd7758c5296e9fef266e4bf679e4b80"
+    },
+    {
+      "path": "packages/staff-device-security/src/index.ts",
+      "sha256": "e73331ff67e830bed125457b95dd39a8c812f1cb13f745303c1fdc051dc3f789"
+    },
+    {
+      "path": "scripts/generate-m1-mobile-contracts.mjs",
+      "sha256": "391be16a4c52bbb3d24e43a08ce921722e980d4d3d4c28b6e53e93a0d7af2fdf"
+    },
+    {
+      "path": "scripts/w4-staff-test-client.mjs",
+      "sha256": "9ec24de9b11eae0d23844cc8676ba094c98c7bf7fefb45045bf21e662f7936fc"
+    },
+    {
+      "path": "tests/concurrency/w4-operational-races.test.ts",
+      "sha256": "938bcec6adca3ecbc573a2b7e0b035f8a9c4fe83bea617adf0962a69281a81c9"
+    },
+    {
+      "path": "tests/e2e/w4-platform.spec.ts",
+      "sha256": "0171537d7ffda276ed3a90a5ee73a9920757845f41cdad993e8f970b55083d5c"
+    },
+    {
+      "path": "tests/http/w4-pairing-recovery.test.ts",
+      "sha256": "a0d82703e1b95297330ca490377b2a99db37d2e0a65fbea1064f36a16f4cd5f5"
+    },
+    {
+      "path": "tests/http/w4-staff-operations.test.ts",
+      "sha256": "214b40e214b65fae864d716ff798220c85609a4504aef413a98e29dcb7a7379a"
+    },
+    {
+      "path": "tests/integration/w4-incremental-analytics.test.ts",
+      "sha256": "6148df8bfe8c0f056bff477a1b21c95bc54b912feb0165d9fd9b123991647312"
+    },
+    {
+      "path": "tests/unit/w4-mobile-contract-compatibility.test.ts",
+      "sha256": "6edf3eb5164443814b014cb03058891ca07d444d2631db9d65e72da136b5f586"
+    }
   ],
-  "transformation": {
-    "mode": "read selected archive entries in memory and manually curate platform-neutral contracts",
-    "backendSourceCopied": false,
-    "runtimeFilesCopied": false,
-    "containsEnvironmentFiles": false,
-    "containsCredentials": false,
-    "containsDatabaseFiles": false,
-    "containsCustomerData": false,
-    "containsProviderSecrets": false,
-    "containsPrivateKeys": false
-  }
+  "bundleFiles": [
+    {
+      "name": "openapi.m1.json",
+      "sha256": "df94e0204ad65da508099d624b63990f64a1226ab2785984457252097cd703b0"
+    },
+    {
+      "name": "m1.schema.json",
+      "sha256": "e1127c7a0457e29bae5371ce83f52d29e10c07ba948fce5df621ff3aaea52aea"
+    },
+    {
+      "name": "stable-error-codes.json",
+      "sha256": "56134bc14f96d3053ae096b0dc3fdffa4f0a09e28841ef7ddce29f98e5f87b05"
+    },
+    {
+      "name": "device-context.fixture.json",
+      "sha256": "b15437690ebd4ec44a60303553f33c86defeae07e1310a5f4797591a45c3c847"
+    },
+    {
+      "name": "pairing-recovery.fixture.json",
+      "sha256": "b4cecd2a264a35214282567f51aa6562898136bf621e63559c882ddfbf5544c4"
+    },
+    {
+      "name": "request-signing.fixture.json",
+      "sha256": "71f118280cdadcc52cd51cb228ac17f87ccb34173ca45aac4ab0937971a33bbc"
+    }
+  ],
+  "generatedChecksumAlgorithm": "SHA-256",
+  "generatedChecksum": "a36b0b24d00c962254d127ea0bc272ceedf94c19556922b4162745aa8c3957d0",
+  "containsCredentials": false,
+  "containsRealQrValues": false
 }

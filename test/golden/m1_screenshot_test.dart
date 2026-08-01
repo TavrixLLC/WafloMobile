@@ -15,6 +15,7 @@ import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
+import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
 
@@ -73,10 +74,13 @@ void main() {
     await capture(
       tester,
       '04-pairing-scanner',
-      _app(
-        child: PairingScannerScreen(
-          cameraPreviewBuilder: (context) => const _SafeScannerPreview(),
-        ),
+      ProviderScope(
+        overrides: [
+          pairingScannerAdapterProvider.overrideWithValue(
+            const _GoldenScannerAdapter(),
+          ),
+        ],
+        child: _app(child: const PairingScannerScreen()),
       ),
     );
   });
@@ -336,4 +340,26 @@ final class _SafeScannerPreview extends StatelessWidget {
       ),
     ),
   );
+}
+
+final class _GoldenScannerAdapter implements PairingScannerAdapter {
+  const _GoldenScannerAdapter();
+
+  @override
+  Widget buildPreview(
+    BuildContext context, {
+    required Future<void> Function(String value) onDetected,
+  }) => const _SafeScannerPreview();
+
+  @override
+  Future<void> dispose() async {}
+
+  @override
+  Future<void> start() async {}
+
+  @override
+  Future<void> stop() async {}
+
+  @override
+  Future<void> toggleTorch() async {}
 }

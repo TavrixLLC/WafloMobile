@@ -108,6 +108,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pairingClaiming => 'جارٍ حجز جلسة الإقران';
 
   @override
+  String get pairingRecovering => 'جارٍ استعادة تحدي الإقران الآمن';
+
+  @override
   String get pairingSigning => 'جارٍ توقيع تحدي الحماية';
 
   @override
@@ -155,6 +158,44 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get platformAndroid => 'Android';
+
+  @override
+  String get organizationLabel => 'المؤسسة';
+
+  @override
+  String get staffLabel => 'الموظف';
+
+  @override
+  String get deviceStatusLabel => 'حالة الجهاز';
+
+  @override
+  String get currentLocationLabel => 'الموقع الحالي';
+
+  @override
+  String get locationsTitle => 'المواقع المعيّنة';
+
+  @override
+  String get earningCapability => 'الاكتساب';
+
+  @override
+  String get redemptionCapability => 'الاستبدال';
+
+  @override
+  String get capabilityAllowed => 'مسموح';
+
+  @override
+  String get capabilityBlocked => 'غير مسموح';
+
+  @override
+  String get updatePolicyLabel => 'سياسة التحديث';
+
+  @override
+  String minimumSupportedVersion(Object version) {
+    return 'الحد الأدنى للإصدار المدعوم: $version';
+  }
+
+  @override
+  String get appVersionCurrent => 'إصدار التطبيق هذا مدعوم';
 
   @override
   String assignedLocations(num count) {

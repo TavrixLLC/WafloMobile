@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:waflo_staff/core/api/api_error_decoder.dart';
-import 'package:waflo_staff/core/api/generated/models/device_context_success.dart';
-import 'package:waflo_staff/core/api/generated/models/session_refresh_success.dart';
+import 'package:waflo_staff/core/api/generated/models/get_v1_staff_device_context_response.dart';
+import 'package:waflo_staff/core/api/generated/models/post_v1_staff_devices_session_refresh_response.dart';
 import 'package:waflo_staff/core/crypto/request_signing.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
@@ -36,7 +36,9 @@ final class SignedDeviceApi implements DeviceSessionApi {
         body: body,
         session: current,
       );
-      final parsed = SessionRefreshSuccess.fromJson(_jsonMap(response.data));
+      final parsed = PostV1StaffDevicesSessionRefreshResponse.fromJson(
+        _jsonMap(response.data),
+      );
       final replacement = parsed.data.session;
       return StaffDeviceSession(
         devicePublicId: current.devicePublicId,
@@ -69,27 +71,59 @@ final class SignedDeviceApi implements DeviceSessionApi {
           body: null,
           session: current,
         );
-        final parsed = DeviceContextSuccess.fromJson(_jsonMap(response.data));
+        final parsed = GetV1StaffDeviceContextResponse.fromJson(
+          _jsonMap(response.data),
+        );
         final data = parsed.data;
-        if (data.organizationId != current.organizationId ||
-            data.devicePublicId != current.devicePublicId ||
-            data.deviceSessionId != current.sessionId) {
+        if (data.device.publicId != current.devicePublicId) {
           throw const ApiFailure('DEVICE_CONTEXT_MISMATCH');
         }
-        final role = data.role.json;
-        final platform = data.platform.json;
-        if (role == null || platform == null) {
+        final role = data.staff.role.json;
+        final platform = data.device.platform.json;
+        final status = data.device.status.json;
+        if (role == null || platform == null || status == null) {
           throw const ApiFailure('INVALID_RESPONSE_BODY');
         }
+        if (data.appPolicy.updateRequired) {
+          throw const ApiFailure('APP_UPDATE_REQUIRED', httpStatus: 426);
+        }
         return AuthoritativeDeviceContext(
-          organizationId: data.organizationId,
-          organizationMemberId: data.organizationMemberId,
-          role: role,
-          locationId: data.locationId,
-          deviceId: data.deviceId,
-          devicePublicId: data.devicePublicId,
-          deviceSessionId: data.deviceSessionId,
-          platform: platform,
+          organization: OrganizationContext(
+            publicId: data.organization.publicId,
+            displayName: data.organization.displayName,
+          ),
+          staff: StaffContext(
+            publicId: data.staff.publicId,
+            displayName: data.staff.displayName,
+            role: role,
+          ),
+          device: DeviceContextSummary(
+            publicId: data.device.publicId,
+            displayName: data.device.displayName,
+            status: status,
+            platform: platform,
+            appVersion: data.device.appVersion,
+          ),
+          currentLocation: LocationContext(
+            publicId: data.currentLocation.publicId,
+            displayName: data.currentLocation.displayName,
+            earningAllowed: data.currentLocation.earningAllowed,
+            redemptionAllowed: data.currentLocation.redemptionAllowed,
+          ),
+          assignedLocations: data.assignedLocations
+              .map(
+                (location) => LocationContext(
+                  publicId: location.publicId,
+                  displayName: location.displayName,
+                  earningAllowed: location.earningAllowed,
+                  redemptionAllowed: location.redemptionAllowed,
+                ),
+              )
+              .toList(growable: false),
+          appPolicy: AppUpdatePolicy(
+            minimumSupportedVersion: data.appPolicy.minimumSupportedVersion,
+            updateRequired: data.appPolicy.updateRequired,
+          ),
           requestId: data.requestId,
           synchronizedAt: DateTime.now().toUtc(),
         );
@@ -140,7 +174,7 @@ final class SignedDeviceApi implements DeviceSessionApi {
       options: Options(
         method: method,
         headers: headers.toHttpHeaders(),
-        contentType: Headers.jsonContentType,
+        contentType: body == null ? null : Headers.jsonContentType,
         responseType: ResponseType.json,
         followRedirects: false,
       ),

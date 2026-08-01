@@ -1,0 +1,11 @@
+/artifacts export-ignore
+/.dart_tool export-ignore
+/build export-ignore
+/coverage export-ignore
+/android/local.properties export-ignore
+/ios/Flutter/Generated.xcconfig export-ignore
+/ios/Flutter/flutter_export_environment.sh export-ignore
+/ios/Flutter/ephemeral export-ignore
+**/*.iml export-ignore
+**/Pods export-ignore
+**/DerivedData export-ignore

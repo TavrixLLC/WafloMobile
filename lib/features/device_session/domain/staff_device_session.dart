@@ -127,49 +127,212 @@ final class StaffDeviceSessionRepository {
   Future<void> clear() => _store.delete(_sessionKey);
 }
 
-enum PairingTransactionStage { claim, signing, completing, persisting }
+enum PairingTransactionStage {
+  claimPending,
+  claimed,
+  signing,
+  completing,
+  persisting,
+}
+
+final class PairingTransaction {
+  const PairingTransaction({
+    required this.pairingPublicId,
+    required this.stage,
+    required this.updatedAt,
+    this.challenge,
+    this.challengeExpiresAt,
+    this.message,
+    this.signature,
+  });
+
+  final String pairingPublicId;
+  final PairingTransactionStage stage;
+  final String? challenge;
+  final DateTime? challengeExpiresAt;
+  final String? message;
+  final String? signature;
+  final DateTime updatedAt;
+
+  bool get isRecoverable =>
+      stage == PairingTransactionStage.claimPending ||
+      stage == PairingTransactionStage.claimed ||
+      stage == PairingTransactionStage.signing;
+
+  bool get isCompletionAmbiguous =>
+      stage == PairingTransactionStage.completing ||
+      stage == PairingTransactionStage.persisting;
+}
 
 final class PairingTransactionRepository {
-  PairingTransactionRepository(this._store);
+  PairingTransactionRepository(this._store, {DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
-  static const _key = 'pairing.transaction.v1';
+  static const _key = 'pairing.transaction.v2';
+  static const _legacyKey = 'pairing.transaction.v1';
+  static const _recordVersion = 2;
   final SecureKeyValueStore _store;
+  final DateTime Function() _now;
 
   Future<void> mark({
     required String pairingPublicId,
     required PairingTransactionStage stage,
-  }) => _store.write(
-    _key,
-    jsonEncode({
-      'recordVersion': 1,
-      'pairingPublicId': pairingPublicId,
-      'stage': stage.name,
-      'updatedAt': DateTime.now().toUtc().toIso8601String(),
-    }),
-  );
+    String? challenge,
+    DateTime? challengeExpiresAt,
+    String? message,
+    String? signature,
+  }) async {
+    final current = await read();
+    await save(
+      PairingTransaction(
+        pairingPublicId: pairingPublicId,
+        stage: stage,
+        challenge: challenge ?? current?.challenge,
+        challengeExpiresAt: challengeExpiresAt ?? current?.challengeExpiresAt,
+        message: message ?? current?.message,
+        signature: signature ?? current?.signature,
+        updatedAt: _now().toUtc(),
+      ),
+    );
+  }
 
-  Future<PairingTransactionStage?> readStage() async {
-    final raw = await _store.read(_key);
-    if (raw == null) {
-      return null;
-    }
+  Future<void> save(PairingTransaction transaction) async {
     try {
-      final value = jsonDecode(raw);
-      if (value is! Map<String, Object?> || value['recordVersion'] != 1) {
-        return PairingTransactionStage.persisting;
-      }
-      final stage = value['stage'];
-      if (stage is! String) {
-        return PairingTransactionStage.persisting;
-      }
-      return PairingTransactionStage.values.firstWhere(
-        (candidate) => candidate.name == stage,
-        orElse: () => PairingTransactionStage.persisting,
+      await _store.write(
+        _key,
+        jsonEncode({
+          'recordVersion': _recordVersion,
+          'pairingPublicId': transaction.pairingPublicId,
+          'stage': transaction.stage.name,
+          if (transaction.challenge != null) 'challenge': transaction.challenge,
+          if (transaction.challengeExpiresAt != null)
+            'challengeExpiresAt': transaction.challengeExpiresAt!
+                .toUtc()
+                .toIso8601String(),
+          if (transaction.message != null) 'message': transaction.message,
+          if (transaction.signature != null) 'signature': transaction.signature,
+          'updatedAt': transaction.updatedAt.toUtc().toIso8601String(),
+        }),
       );
-    } on FormatException {
-      return PairingTransactionStage.persisting;
+      final verified = await read();
+      if (verified == null ||
+          verified.pairingPublicId != transaction.pairingPublicId ||
+          verified.stage != transaction.stage) {
+        throw const FormatException('Pairing transaction verification failed.');
+      }
+    } on SecurePersistenceFailure {
+      rethrow;
+    } on Object {
+      throw const SecurePersistenceFailure();
     }
   }
 
-  Future<void> clear() => _store.delete(_key);
+  Future<PairingTransaction?> read() async {
+    final current = await _store.read(_key);
+    if (current != null) {
+      return _decode(current);
+    }
+    final legacy = await _store.read(_legacyKey);
+    if (legacy == null) {
+      return null;
+    }
+    return _decodeLegacy(legacy);
+  }
+
+  Future<PairingTransactionStage?> readStage() async {
+    return (await read())?.stage;
+  }
+
+  PairingTransaction _decode(String raw) {
+    try {
+      final value = jsonDecode(raw);
+      if (value is! Map<String, Object?> ||
+          value['recordVersion'] != _recordVersion) {
+        return _ambiguous();
+      }
+      final pairingPublicId = value['pairingPublicId'];
+      final stage = value['stage'];
+      final updatedAt = DateTime.tryParse(value['updatedAt'] as String? ?? '');
+      if (pairingPublicId is! String ||
+          pairingPublicId.isEmpty ||
+          stage is! String ||
+          updatedAt == null) {
+        return _ambiguous(pairingPublicId: pairingPublicId as String?);
+      }
+      final resolvedStage = PairingTransactionStage.values.firstWhere(
+        (candidate) => candidate.name == stage,
+        orElse: () => PairingTransactionStage.persisting,
+      );
+      final challenge = value['challenge'];
+      final challengeExpiresAt = DateTime.tryParse(
+        value['challengeExpiresAt'] as String? ?? '',
+      );
+      final message = value['message'];
+      final signature = value['signature'];
+      final needsChallenge =
+          resolvedStage != PairingTransactionStage.claimPending;
+      final needsSignature =
+          resolvedStage == PairingTransactionStage.signing ||
+          resolvedStage == PairingTransactionStage.completing ||
+          resolvedStage == PairingTransactionStage.persisting;
+      if ((needsChallenge &&
+              (challenge is! String ||
+                  challengeExpiresAt == null ||
+                  message is! String)) ||
+          (needsSignature && signature is! String)) {
+        return _ambiguous(pairingPublicId: pairingPublicId);
+      }
+      return PairingTransaction(
+        pairingPublicId: pairingPublicId,
+        stage: resolvedStage,
+        challenge: challenge as String?,
+        challengeExpiresAt: challengeExpiresAt?.toUtc(),
+        message: message as String?,
+        signature: signature as String?,
+        updatedAt: updatedAt.toUtc(),
+      );
+    } on Object {
+      return _ambiguous();
+    }
+  }
+
+  PairingTransaction _decodeLegacy(String raw) {
+    try {
+      final value = jsonDecode(raw);
+      if (value is! Map<String, Object?> || value['recordVersion'] != 1) {
+        return _ambiguous();
+      }
+      final pairingPublicId = value['pairingPublicId'];
+      final stage = value['stage'];
+      final updatedAt = DateTime.tryParse(value['updatedAt'] as String? ?? '');
+      if (pairingPublicId is! String ||
+          pairingPublicId.isEmpty ||
+          stage is! String ||
+          updatedAt == null) {
+        return _ambiguous(pairingPublicId: pairingPublicId as String?);
+      }
+      if (stage == 'claim' || stage == 'signing') {
+        return PairingTransaction(
+          pairingPublicId: pairingPublicId,
+          stage: PairingTransactionStage.claimPending,
+          updatedAt: updatedAt.toUtc(),
+        );
+      }
+      return _ambiguous(pairingPublicId: pairingPublicId);
+    } on Object {
+      return _ambiguous();
+    }
+  }
+
+  PairingTransaction _ambiguous({String? pairingPublicId}) =>
+      PairingTransaction(
+        pairingPublicId: pairingPublicId ?? '',
+        stage: PairingTransactionStage.persisting,
+        updatedAt: _now().toUtc(),
+      );
+
+  Future<void> clear() async {
+    await _store.delete(_key);
+    await _store.delete(_legacyKey);
+  }
 }

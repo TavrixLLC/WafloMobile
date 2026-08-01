@@ -80,4 +80,39 @@ void main() {
       contains('PAIRING_ENVIRONMENT_MISMATCH'),
     );
   });
+
+  test('native and Dart flavors must match exactly', () {
+    final mismatched = AppEnvironment(
+      flavor: AppFlavor.production,
+      expectedNativeFlavor: AppFlavor.staging,
+      suppliedDartEnvironment: 'production',
+      apiBaseUrl: Uri.parse('https://api.waflo.app'),
+      pairingEnvironment: 'production',
+      logLevel: AppLogLevel.minimal,
+      allowTestAdapter: false,
+      minimumVersionSource: 'backend',
+      crashReportingEnabled: false,
+      certificatePinningEnabled: false,
+    );
+    expect(mismatched.validate(), contains('NATIVE_DART_FLAVOR_MISMATCH'));
+  });
+
+  test('missing native flavor and Dart configuration fail closed', () {
+    final missing = AppEnvironment(
+      flavor: AppFlavor.production,
+      nativeFlavorSupplied: false,
+      requiredDefinesSupplied: false,
+      dartEnvironmentRecognized: false,
+      apiBaseUrl: Uri(),
+      pairingEnvironment: '',
+      logLevel: AppLogLevel.minimal,
+      allowTestAdapter: false,
+      minimumVersionSource: 'backend',
+      crashReportingEnabled: false,
+      certificatePinningEnabled: false,
+    );
+    expect(missing.validate(), contains('NATIVE_FLAVOR_MISSING'));
+    expect(missing.validate(), contains('REQUIRED_DART_CONFIGURATION_MISSING'));
+    expect(missing.validate(), contains('DART_ENVIRONMENT_INVALID'));
+  });
 }

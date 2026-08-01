@@ -16,7 +16,6 @@ final class HomeScreen extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final boot = ref.watch(bootControllerProvider);
     final deviceContext = boot.context;
-    final session = boot.session;
     final online = ref
         .watch(connectivityProvider)
         .when(
@@ -61,20 +60,23 @@ final class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: WafloSpacing.md),
               WafloInfoCard(
-                title: session?.deviceDisplayName ?? strings.verifiedByWaflo,
-                icon: Icons.phone_android_outlined,
+                title:
+                    deviceContext?.organization.displayName ??
+                    strings.verifiedByWaflo,
+                icon: Icons.business_outlined,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (deviceContext != null)
+                      Text(
+                        '${strings.staffLabel}: ${deviceContext.staff.displayName}',
+                      ),
                     Text(
-                      '${strings.roleLabel}: ${strings.localizeRole(deviceContext?.role ?? session?.role ?? '')}',
-                    ),
-                    Text(
-                      '${strings.platformLabel}: ${strings.localizePlatform(deviceContext?.platform ?? session?.devicePlatform ?? '')}',
+                      '${strings.roleLabel}: ${strings.localizeRole(deviceContext?.role ?? '')}',
                     ),
                     Text(
                       strings.assignedLocations(
-                        deviceContext?.assignedLocationCount ?? 1,
+                        deviceContext?.assignedLocationCount ?? 0,
                       ),
                     ),
                     if (synchronized != null)
@@ -83,6 +85,74 @@ final class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: WafloSpacing.md),
+              if (deviceContext != null) ...[
+                WafloInfoCard(
+                  title: deviceContext.device.displayName,
+                  icon: Icons.phone_android_outlined,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${strings.deviceStatusLabel}: ${deviceContext.device.status}',
+                      ),
+                      Text(
+                        '${strings.platformLabel}: ${strings.localizePlatform(deviceContext.device.platform)}',
+                      ),
+                      Text(strings.appVersion(deviceContext.device.appVersion)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+                WafloInfoCard(
+                  title:
+                      '${strings.currentLocationLabel}: ${deviceContext.currentLocation.displayName}',
+                  icon: Icons.location_on_outlined,
+                  child: _Capabilities(
+                    earningAllowed:
+                        deviceContext.currentLocation.earningAllowed,
+                    redemptionAllowed:
+                        deviceContext.currentLocation.redemptionAllowed,
+                  ),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+                WafloInfoCard(
+                  title: strings.locationsTitle,
+                  icon: Icons.location_city_outlined,
+                  child: deviceContext.assignedLocations.isEmpty
+                      ? Text(strings.assignedLocations(0))
+                      : Column(
+                          children: [
+                            for (final location
+                                in deviceContext.assignedLocations)
+                              ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(location.displayName),
+                                subtitle: _Capabilities(
+                                  earningAllowed: location.earningAllowed,
+                                  redemptionAllowed: location.redemptionAllowed,
+                                ),
+                              ),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+                WafloInfoCard(
+                  title: strings.updatePolicyLabel,
+                  icon: Icons.system_update_outlined,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        strings.minimumSupportedVersion(
+                          deviceContext.appPolicy.minimumSupportedVersion,
+                        ),
+                      ),
+                      Text(strings.appVersionCurrent),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+              ],
               WafloInfoCard(
                 title: strings.securityStatus,
                 icon: Icons.shield_outlined,
@@ -132,6 +202,30 @@ final class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+final class _Capabilities extends StatelessWidget {
+  const _Capabilities({
+    required this.earningAllowed,
+    required this.redemptionAllowed,
+  });
+
+  final bool earningAllowed;
+  final bool redemptionAllowed;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    String value(bool allowed) =>
+        allowed ? strings.capabilityAllowed : strings.capabilityBlocked;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('${strings.earningCapability}: ${value(earningAllowed)}'),
+        Text('${strings.redemptionCapability}: ${value(redemptionAllowed)}'),
+      ],
     );
   }
 }

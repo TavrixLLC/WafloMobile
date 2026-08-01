@@ -1,301 +1,645 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:waflo:contracts:w4:m1:v1",
-  "title": "Waflo W4 Flutter M1 contracts",
-  "description": "Mobile-safe pairing, device-session, device-context, signing, and envelope schemas derived from the approved W4 round-1 archive.",
+  "$id": "https://waflo.app/contracts/m1.schema.json",
+  "title": "Waflo W4-to-M1 Mobile Contract",
+  "type": "object",
   "$defs": {
-    "Uuid": {
+    "StrictSemanticVersion": {
       "type": "string",
-      "format": "uuid",
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+      "minLength": 5,
+      "maxLength": 40,
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
     },
-    "DateTime": {
-      "type": "string",
-      "format": "date-time",
-      "maxLength": 40
-    },
-    "Platform": {
-      "type": "string",
-      "enum": ["IOS", "ANDROID", "TEST_CLIENT"],
-      "description": "Flutter production builds use IOS or ANDROID. TEST_CLIENT is development-only and rejected in production."
-    },
-    "Role": {
-      "type": "string",
-      "enum": ["OWNER", "MANAGER", "STAFF"]
-    },
-    "PairingQrToken": {
-      "type": "string",
-      "minLength": 80,
-      "maxLength": 512,
-      "pattern": "^waflo-pair-v1\\.[A-Za-z0-9_-]{48}\\.[A-Za-z0-9_-]{43}\\.[A-Za-z0-9_-]{3,43}$",
-      "description": "Sensitive one-time QR payload. Treat as opaque even though its current structure is versioned."
-    },
-    "PairingClaimRequest": {
+    "DevicePairingClaimRequest": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["pairingToken", "installationId", "publicKey", "platform", "appVersion"],
       "properties": {
-        "pairingToken": { "$ref": "#/$defs/PairingQrToken" },
-        "installationId": { "type": "string", "minLength": 16, "maxLength": 160 },
+        "pairingToken": {
+          "type": "string",
+          "minLength": 80,
+          "maxLength": 512
+        },
+        "installationId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 160
+        },
         "publicKey": {
           "type": "string",
           "minLength": 40,
-          "maxLength": 1024,
-          "description": "Ed25519 SPKI DER using standard Base64; PEM is also accepted by W4 but is not the preferred mobile representation."
+          "maxLength": 1024
         },
-        "platform": { "$ref": "#/$defs/Platform" },
-        "appVersion": { "type": "string", "minLength": 1, "maxLength": 40 },
-        "osVersion": { "type": "string", "maxLength": 80 },
-        "model": { "type": "string", "maxLength": 120 }
-      }
+        "platform": {
+          "type": "string",
+          "enum": [
+            "IOS",
+            "ANDROID",
+            "TEST_CLIENT"
+          ]
+        },
+        "appVersion": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 40,
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+        },
+        "osVersion": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 120
+        }
+      },
+      "required": [
+        "pairingToken",
+        "installationId",
+        "publicKey",
+        "platform",
+        "appVersion"
+      ],
+      "additionalProperties": false
     },
-    "PairingClaimResponseData": {
+    "DevicePairingClaimResponse": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["pairingPublicId", "challenge", "challengeExpiresAt", "signatureAlgorithm", "message"],
       "properties": {
-        "pairingPublicId": { "$ref": "#/$defs/Uuid" },
-        "challenge": { "type": "string", "minLength": 32, "maxLength": 256 },
-        "challengeExpiresAt": { "$ref": "#/$defs/DateTime" },
-        "signatureAlgorithm": { "const": "Ed25519" },
-        "message": { "type": "string", "minLength": 1, "maxLength": 500 }
-      }
+        "pairingPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "challenge": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 256
+        },
+        "challengeExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        },
+        "signatureAlgorithm": {
+          "type": "string",
+          "const": "Ed25519"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      },
+      "required": [
+        "pairingPublicId",
+        "challenge",
+        "challengeExpiresAt",
+        "signatureAlgorithm",
+        "message"
+      ],
+      "additionalProperties": false
     },
-    "PairingChallengeRequest": {
+    "DevicePairingRecoveryRequest": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["pairingPublicId"],
       "properties": {
-        "pairingPublicId": { "$ref": "#/$defs/Uuid" }
-      }
+        "pairingPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        }
+      },
+      "required": [
+        "pairingPublicId"
+      ],
+      "additionalProperties": false
     },
-    "PairingChallengeResponseData": {
+    "DevicePairingRecoveryResponse": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["pairingPublicId", "challenge", "challengeExpiresAt", "message"],
       "properties": {
-        "pairingPublicId": { "$ref": "#/$defs/Uuid" },
-        "challenge": { "type": "string", "minLength": 32, "maxLength": 256 },
-        "challengeExpiresAt": { "$ref": "#/$defs/DateTime" },
-        "message": { "type": "string", "minLength": 1, "maxLength": 500 }
-      }
+        "pairingPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "challenge": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 256
+        },
+        "challengeExpiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        },
+        "signatureAlgorithm": {
+          "type": "string",
+          "const": "Ed25519"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      },
+      "required": [
+        "pairingPublicId",
+        "challenge",
+        "challengeExpiresAt",
+        "signatureAlgorithm",
+        "message"
+      ],
+      "additionalProperties": false
     },
-    "PairingCompleteRequest": {
+    "DevicePairingCompleteRequest": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["pairingPublicId", "challenge", "signature"],
       "properties": {
-        "pairingPublicId": { "$ref": "#/$defs/Uuid" },
-        "challenge": { "type": "string", "minLength": 32, "maxLength": 256 },
+        "pairingPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "challenge": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 256
+        },
         "signature": {
           "type": "string",
           "minLength": 40,
-          "maxLength": 256,
-          "pattern": "^[A-Za-z0-9_-]+$",
-          "description": "Unpadded base64url Ed25519 signature; a valid Ed25519 signature decodes to exactly 64 bytes."
+          "maxLength": 256
         },
-        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 }
-      }
-    },
-    "DeviceSummary": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["publicId", "displayName", "platform", "status"],
-      "properties": {
-        "publicId": { "$ref": "#/$defs/Uuid" },
-        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
-        "platform": { "$ref": "#/$defs/Platform" },
-        "status": { "type": "string", "enum": ["ACTIVE"] }
-      }
-    },
-    "DeviceSessionCredentials": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["id", "token", "refreshToken", "expiresAt"],
-      "properties": {
-        "id": { "$ref": "#/$defs/Uuid" },
-        "token": { "type": "string", "minLength": 40, "maxLength": 512 },
-        "refreshToken": { "type": "string", "minLength": 40, "maxLength": 512 },
-        "expiresAt": { "$ref": "#/$defs/DateTime" }
-      }
-    },
-    "PairingCompleteContext": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["organizationId", "role", "locationId"],
-      "properties": {
-        "organizationId": { "$ref": "#/$defs/Uuid" },
-        "role": { "$ref": "#/$defs/Role" },
-        "locationId": { "$ref": "#/$defs/Uuid" }
-      }
-    },
-    "PairingCompleteResponseData": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["device", "session", "context"],
-      "properties": {
-        "device": { "$ref": "#/$defs/DeviceSummary" },
-        "session": { "$ref": "#/$defs/DeviceSessionCredentials" },
-        "context": { "$ref": "#/$defs/PairingCompleteContext" }
-      }
-    },
-    "SessionRefreshRequest": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["refreshToken"],
-      "properties": {
-        "refreshToken": { "type": "string", "minLength": 40, "maxLength": 512 }
-      }
-    },
-    "SessionRefreshResponseData": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["session"],
-      "properties": {
-        "session": { "$ref": "#/$defs/DeviceSessionCredentials" }
-      }
-    },
-    "DeviceContext": {
-      "type": "object",
-      "additionalProperties": false,
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        }
+      },
       "required": [
-        "organizationId",
-        "organizationMemberId",
-        "role",
-        "locationId",
-        "deviceId",
-        "devicePublicId",
-        "deviceSessionId",
-        "platform",
+        "pairingPublicId",
+        "challenge",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "DevicePairingCompleteResponse": {
+      "type": "object",
+      "properties": {
+        "device": {
+          "type": "object",
+          "properties": {
+            "publicId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "displayName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "platform": {
+              "type": "string",
+              "enum": [
+                "IOS",
+                "ANDROID",
+                "TEST_CLIENT"
+              ]
+            },
+            "status": {
+              "type": "string",
+              "const": "ACTIVE"
+            }
+          },
+          "required": [
+            "publicId",
+            "displayName",
+            "platform",
+            "status"
+          ],
+          "additionalProperties": false
+        },
+        "session": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "token": {
+              "type": "string",
+              "minLength": 40,
+              "maxLength": 512
+            },
+            "refreshToken": {
+              "type": "string",
+              "minLength": 40,
+              "maxLength": 512
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            }
+          },
+          "required": [
+            "id",
+            "token",
+            "refreshToken",
+            "expiresAt"
+          ],
+          "additionalProperties": false
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "organizationId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "OWNER",
+                "MANAGER",
+                "STAFF"
+              ]
+            },
+            "locationId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          },
+          "required": [
+            "organizationId",
+            "role",
+            "locationId"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "device",
+        "session",
+        "context"
+      ],
+      "additionalProperties": false
+    },
+    "StaffDeviceSessionRefreshRequest": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string",
+          "minLength": 40,
+          "maxLength": 512
+        }
+      },
+      "required": [
+        "refreshToken"
+      ],
+      "additionalProperties": false
+    },
+    "StaffDeviceSessionRefreshResponse": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "token": {
+              "type": "string",
+              "minLength": 40,
+              "maxLength": 512
+            },
+            "refreshToken": {
+              "type": "string",
+              "minLength": 40,
+              "maxLength": 512
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            }
+          },
+          "required": [
+            "id",
+            "token",
+            "refreshToken",
+            "expiresAt"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "session"
+      ],
+      "additionalProperties": false
+    },
+    "MobileStaffDeviceContext": {
+      "type": "object",
+      "properties": {
+        "organization": {
+          "type": "object",
+          "properties": {
+            "publicId": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 40
+            },
+            "displayName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            }
+          },
+          "required": [
+            "publicId",
+            "displayName"
+          ],
+          "additionalProperties": false
+        },
+        "staff": {
+          "type": "object",
+          "properties": {
+            "publicId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "displayName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "OWNER",
+                "MANAGER",
+                "STAFF"
+              ]
+            }
+          },
+          "required": [
+            "publicId",
+            "displayName",
+            "role"
+          ],
+          "additionalProperties": false
+        },
+        "device": {
+          "type": "object",
+          "properties": {
+            "publicId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "displayName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "ACTIVE",
+                "REVOKED",
+                "COMPROMISED"
+              ]
+            },
+            "platform": {
+              "type": "string",
+              "enum": [
+                "IOS",
+                "ANDROID",
+                "TEST_CLIENT"
+              ]
+            },
+            "appVersion": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 40,
+              "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+            }
+          },
+          "required": [
+            "publicId",
+            "displayName",
+            "status",
+            "platform",
+            "appVersion"
+          ],
+          "additionalProperties": false
+        },
+        "currentLocation": {
+          "type": "object",
+          "properties": {
+            "publicId": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "displayName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "earningAllowed": {
+              "type": "boolean"
+            },
+            "redemptionAllowed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "publicId",
+            "displayName",
+            "earningAllowed",
+            "redemptionAllowed"
+          ],
+          "additionalProperties": false
+        },
+        "assignedLocations": {
+          "maxItems": 50,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "publicId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "displayName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "earningAllowed": {
+                "type": "boolean"
+              },
+              "redemptionAllowed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "publicId",
+              "displayName",
+              "earningAllowed",
+              "redemptionAllowed"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "appPolicy": {
+          "type": "object",
+          "properties": {
+            "minimumSupportedVersion": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 40,
+              "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\\+([0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*))?$"
+            },
+            "updateRequired": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "minimumSupportedVersion",
+            "updateRequired"
+          ],
+          "additionalProperties": false
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "organization",
+        "staff",
+        "device",
+        "currentLocation",
+        "assignedLocations",
+        "appPolicy",
         "requestId"
       ],
-      "properties": {
-        "organizationId": { "$ref": "#/$defs/Uuid" },
-        "organizationMemberId": { "$ref": "#/$defs/Uuid" },
-        "role": { "$ref": "#/$defs/Role" },
-        "locationId": { "$ref": "#/$defs/Uuid" },
-        "deviceId": { "$ref": "#/$defs/Uuid" },
-        "devicePublicId": { "$ref": "#/$defs/Uuid" },
-        "deviceSessionId": { "$ref": "#/$defs/Uuid" },
-        "platform": { "$ref": "#/$defs/Platform" },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
-      }
+      "additionalProperties": false
     },
-    "CanonicalDeviceRequest": {
+    "RequestSigningFixture": {
       "type": "object",
-      "additionalProperties": false,
+      "properties": {
+        "envelopeVersion": {
+          "type": "string",
+          "const": "waflo-device-request-v1"
+        },
+        "algorithm": {
+          "type": "string",
+          "const": "Ed25519"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE"
+          ]
+        },
+        "canonicalPath": {
+          "type": "string",
+          "pattern": "^\\/.*"
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        },
+        "nonce": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "bodySha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "deviceSessionId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "organizationId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "separator": {
+          "type": "string",
+          "const": "\\n"
+        },
+        "containsCredential": {
+          "type": "boolean",
+          "const": false
+        }
+      },
       "required": [
+        "envelopeVersion",
+        "algorithm",
         "method",
         "canonicalPath",
         "requestId",
         "timestamp",
         "nonce",
-        "bodyDigest",
+        "bodySha256",
         "deviceSessionId",
-        "organizationId"
+        "organizationId",
+        "separator",
+        "containsCredential"
       ],
-      "properties": {
-        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
-        "canonicalPath": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 512,
-          "pattern": "^/[^?#]*$"
-        },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 },
-        "timestamp": { "$ref": "#/$defs/DateTime" },
-        "nonce": { "type": "string", "minLength": 1, "maxLength": 128 },
-        "bodyDigest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-        "deviceSessionId": { "type": "string", "minLength": 1, "maxLength": 64 },
-        "organizationId": { "type": "string", "minLength": 1, "maxLength": 64 }
-      }
+      "additionalProperties": false
     },
-    "SignedRequestHeaders": {
+    "ApiError": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "authorization",
-        "x-waflo-device-id",
-        "x-waflo-device-session-id",
-        "x-waflo-request-id",
-        "x-waflo-timestamp",
-        "x-waflo-nonce",
-        "x-waflo-body-sha256",
-        "x-waflo-signature"
+        "error"
       ],
-      "properties": {
-        "authorization": { "type": "string", "pattern": "^Device .{40,512}$" },
-        "x-waflo-device-id": { "$ref": "#/$defs/Uuid" },
-        "x-waflo-device-session-id": { "$ref": "#/$defs/Uuid" },
-        "x-waflo-request-id": { "type": "string", "minLength": 1, "maxLength": 128 },
-        "x-waflo-timestamp": { "$ref": "#/$defs/DateTime" },
-        "x-waflo-nonce": { "type": "string", "minLength": 1, "maxLength": 128 },
-        "x-waflo-body-sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-        "x-waflo-signature": { "type": "string", "pattern": "^[A-Za-z0-9_-]{86}$" },
-        "x-idempotency-key": { "$ref": "#/$defs/Uuid" }
-      }
-    },
-    "ApiErrorEnvelope": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["error"],
       "properties": {
         "error": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["code", "message", "requestId"],
+          "required": [
+            "code",
+            "message",
+            "requestId"
+          ],
           "properties": {
-            "code": { "type": "string", "minLength": 1, "maxLength": 120 },
-            "message": { "type": "string" },
-            "details": { "type": "object" },
-            "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "requestId": {
+              "type": "string"
+            }
           }
         }
-      }
-    },
-    "PairingClaimSuccess": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["data", "requestId"],
-      "properties": {
-        "data": { "$ref": "#/$defs/PairingClaimResponseData" },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
-      }
-    },
-    "PairingChallengeSuccess": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["data", "requestId"],
-      "properties": {
-        "data": { "$ref": "#/$defs/PairingChallengeResponseData" },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
-      }
-    },
-    "PairingCompleteSuccess": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["data", "requestId"],
-      "properties": {
-        "data": { "$ref": "#/$defs/PairingCompleteResponseData" },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
-      }
-    },
-    "SessionRefreshSuccess": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["data", "requestId"],
-      "properties": {
-        "data": { "$ref": "#/$defs/SessionRefreshResponseData" },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
-      }
-    },
-    "DeviceContextSuccess": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["data", "requestId"],
-      "properties": {
-        "data": { "$ref": "#/$defs/DeviceContext" },
-        "requestId": { "type": "string", "minLength": 1, "maxLength": 128 }
       }
     }
   }

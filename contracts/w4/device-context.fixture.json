@@ -1,0 +1,42 @@
+{
+  "data": {
+    "organization": {
+      "publicId": "today",
+      "displayName": "Today Coffee"
+    },
+    "staff": {
+      "publicId": "10000000-0000-4000-8000-000000000001",
+      "displayName": "Fixture Staff",
+      "role": "STAFF"
+    },
+    "device": {
+      "publicId": "20000000-0000-4000-8000-000000000001",
+      "displayName": "Fixture counter device",
+      "status": "ACTIVE",
+      "platform": "ANDROID",
+      "appVersion": "1.4.0"
+    },
+    "currentLocation": {
+      "publicId": "30000000-0000-4000-8000-000000000001",
+      "displayName": "Main branch",
+      "earningAllowed": true,
+      "redemptionAllowed": true
+    },
+    "assignedLocations": [
+      {
+        "publicId": "30000000-0000-4000-8000-000000000001",
+        "displayName": "Main branch",
+        "earningAllowed": true,
+        "redemptionAllowed": true
+      }
+    ],
+    "appPolicy": {
+      "minimumSupportedVersion": "1.2.0",
+      "updateRequired": false
+    },
+    "requestId": "40000000-0000-4000-8000-000000000001"
+  },
+  "requestId": "40000000-0000-4000-8000-000000000001",
+  "containsInternalDatabaseIds": false,
+  "containsCredential": false
+}

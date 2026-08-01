@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/core/api/api_error_decoder.dart';
-import 'package:waflo_staff/core/api/generated/pairing/pairing_client.dart';
+import 'package:waflo_staff/core/api/generated/staff_device_pairing/staff_device_pairing_client.dart';
 import 'package:waflo_staff/core/crypto/device_identity.dart';
 import 'package:waflo_staff/core/crypto/request_signing.dart';
 import 'package:waflo_staff/core/logging/safe_logger.dart';
@@ -15,6 +17,7 @@ import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
+import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/session_manager.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 import 'package:waflo_staff/features/pairing/data/generated_pairing_api.dart';
@@ -23,6 +26,7 @@ import 'package:waflo_staff/features/pairing/domain/pairing_api.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
+import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
 import 'package:waflo_staff/features/settings/presentation/preferences_controllers.dart';
 
 final environmentProvider = Provider<AppEnvironment>(
@@ -59,6 +63,9 @@ final pairingTransactionRepositoryProvider =
     Provider<PairingTransactionRepository>(
       (ref) => PairingTransactionRepository(ref.watch(secureStoreProvider)),
     );
+final localLifecycleRepositoryProvider = Provider<LocalLifecycleRepository>(
+  (ref) => LocalLifecycleRepository(ref.watch(secureStoreProvider)),
+);
 final pairingQrParserProvider = Provider<PairingQrParser>(
   (ref) => PairingQrParser(
     expectedEnvironment: ref.watch(environmentProvider).pairingEnvironment,
@@ -66,13 +73,19 @@ final pairingQrParserProvider = Provider<PairingQrParser>(
 );
 final pairingApiProvider = Provider<PairingApi>(
   (ref) => GeneratedPairingApi(
-    PairingClient(ref.watch(publicDioProvider)),
+    StaffDevicePairingClient(ref.watch(publicDioProvider)),
     ref.watch(apiErrorDecoderProvider),
   ),
 );
 final metadataProvider = Provider<DeviceMetadataProvider>(
   (ref) => PlatformDeviceMetadataProvider(),
 );
+final pairingScannerAdapterProvider =
+    Provider.autoDispose<PairingScannerAdapter>((ref) {
+      final adapter = MobilePairingScannerAdapter();
+      ref.onDispose(() => unawaited(adapter.dispose()));
+      return adapter;
+    });
 final requestSignerProvider = Provider<DeviceRequestSigner>(
   (ref) => DeviceRequestSigner(ref.watch(identityRepositoryProvider)),
 );
@@ -89,6 +102,8 @@ final sessionManagerProvider = Provider<SessionManager>(
     ref.watch(deviceSessionApiProvider),
     ref.watch(identityRepositoryProvider),
     ref.watch(preferencesRepositoryProvider),
+    lifecycleRepository: ref.watch(localLifecycleRepositoryProvider),
+    transactionRepository: ref.watch(pairingTransactionRepositoryProvider),
   ),
 );
 final pairingFlowServiceProvider = Provider<PairingFlowService>(
@@ -99,6 +114,7 @@ final pairingFlowServiceProvider = Provider<PairingFlowService>(
     ref.watch(metadataProvider),
     ref.watch(sessionRepositoryProvider),
     ref.watch(pairingTransactionRepositoryProvider),
+    ref.watch(localLifecycleRepositoryProvider),
     ref.watch(sessionManagerProvider),
   ),
 );

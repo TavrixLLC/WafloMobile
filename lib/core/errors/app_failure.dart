@@ -57,11 +57,10 @@ FailureDisposition classifyFailure(AppFailure failure) =>
       'DEVICE_PAIRING_EXPIRED' => FailureDisposition.pairingExpired,
       'DEVICE_PAIRING_ALREADY_USED' => FailureDisposition.pairingUsed,
       'DEVICE_PAIRING_INVALID' => FailureDisposition.pairingInvalid,
-      'DEVICE_REVOKED' => FailureDisposition.deviceRevoked,
-      'DEVICE_COMPROMISED' => FailureDisposition.deviceCompromised,
-      'APP_UPDATE_REQUIRED' ||
-      'APP_VERSION_UNSUPPORTED' ||
-      'MINIMUM_APP_VERSION_REQUIRED' => FailureDisposition.updateRequired,
+      'STAFF_DEVICE_REVOKED' => FailureDisposition.deviceRevoked,
+      'STAFF_DEVICE_COMPROMISED' => FailureDisposition.deviceCompromised,
+      'APP_UPDATE_REQUIRED' => FailureDisposition.updateRequired,
+      'STAFF_DEVICE_SESSION_EXPIRED' ||
       'STAFF_DEVICE_NOT_ACTIVE' => FailureDisposition.sessionExpired,
       'BACKEND_UNAVAILABLE' => FailureDisposition.backendUnavailable,
       'LOCAL_KEY_MISSING' ||

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
@@ -170,9 +169,7 @@ final class _CameraRationaleScreenState
 }
 
 final class PairingScannerScreen extends ConsumerStatefulWidget {
-  const PairingScannerScreen({this.cameraPreviewBuilder, super.key});
-
-  final WidgetBuilder? cameraPreviewBuilder;
+  const PairingScannerScreen({super.key});
 
   @override
   ConsumerState<PairingScannerScreen> createState() =>
@@ -182,49 +179,35 @@ final class PairingScannerScreen extends ConsumerStatefulWidget {
 final class _PairingScannerScreenState
     extends ConsumerState<PairingScannerScreen>
     with WidgetsBindingObserver {
-  late final MobileScannerController _controller;
   bool _handled = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _controller = MobileScannerController(
-      autoStart: true,
-      formats: const [BarcodeFormat.qrCode],
-      detectionSpeed: DetectionSpeed.noDuplicates,
-    );
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(_controller.dispose());
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && !_handled) {
-      unawaited(_controller.start());
+      unawaited(ref.read(pairingScannerAdapterProvider).start());
     } else if (state != AppLifecycleState.resumed) {
-      unawaited(_controller.stop());
+      unawaited(ref.read(pairingScannerAdapterProvider).stop());
     }
   }
 
-  Future<void> _detected(BarcodeCapture capture) async {
+  Future<void> _detected(String candidate) async {
     if (_handled) {
       return;
     }
-    final candidate = capture.barcodes
-        .map((barcode) => barcode.rawValue)
-        .whereType<String>()
-        .firstOrNull;
-    if (candidate == null) {
-      return;
-    }
     _handled = true;
-    await _controller.stop();
+    await ref.read(pairingScannerAdapterProvider).stop();
     await ref.read(pairingControllerProvider.notifier).submit(candidate);
   }
 
@@ -242,7 +225,9 @@ final class _PairingScannerScreenState
         actions: [
           IconButton(
             tooltip: strings.toggleFlash,
-            onPressed: _controller.toggleTorch,
+            onPressed: () => unawaited(
+              ref.read(pairingScannerAdapterProvider).toggleTorch(),
+            ),
             icon: const Icon(Icons.flash_on_outlined),
           ),
         ],
@@ -263,15 +248,9 @@ final class _PairingScannerScreenState
                 container: true,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(WafloRadius.card),
-                  child:
-                      widget.cameraPreviewBuilder?.call(context) ??
-                      MobileScanner(
-                        key: const Key('pairing-scanner'),
-                        controller: _controller,
-                        onDetect: _detected,
-                        placeholderBuilder: (context) =>
-                            const Center(child: CircularProgressIndicator()),
-                      ),
+                  child: ref
+                      .watch(pairingScannerAdapterProvider)
+                      .buildPreview(context, onDetected: _detected),
                 ),
               ),
             ),
@@ -362,6 +341,7 @@ final class _PairingProgressScreen extends StatelessWidget {
       PairingProgress.validating => strings.pairingValidating,
       PairingProgress.creatingIdentity => strings.pairingCreatingIdentity,
       PairingProgress.claiming => strings.pairingClaiming,
+      PairingProgress.recoveringChallenge => strings.pairingRecovering,
       PairingProgress.signing => strings.pairingSigning,
       PairingProgress.completing => strings.pairingCompleting,
       PairingProgress.saving => strings.pairingSaving,

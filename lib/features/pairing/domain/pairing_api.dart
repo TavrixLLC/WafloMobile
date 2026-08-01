@@ -50,6 +50,22 @@ final class PairingClaimResult {
   final String message;
 }
 
+final class PairingChallengeResult {
+  const PairingChallengeResult({
+    required this.pairingPublicId,
+    required this.challenge,
+    required this.challengeExpiresAt,
+    required this.signatureAlgorithm,
+    required this.message,
+  });
+
+  final String pairingPublicId;
+  final String challenge;
+  final DateTime challengeExpiresAt;
+  final String signatureAlgorithm;
+  final String message;
+}
+
 final class PairingCompleteCommand {
   const PairingCompleteCommand({
     required this.pairingPublicId,
@@ -66,5 +82,6 @@ final class PairingCompleteCommand {
 
 abstract interface class PairingApi {
   Future<PairingClaimResult> claim(PairingClaimCommand command);
+  Future<PairingChallengeResult> challenge(String pairingPublicId);
   Future<StaffDeviceSession> complete(PairingCompleteCommand command);
 }

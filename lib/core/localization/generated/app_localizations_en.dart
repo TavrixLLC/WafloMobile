@@ -110,6 +110,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairingClaiming => 'Claiming the pairing session';
 
   @override
+  String get pairingRecovering => 'Recovering the secure pairing challenge';
+
+  @override
   String get pairingSigning => 'Signing the secure challenge';
 
   @override
@@ -157,6 +160,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get platformAndroid => 'Android';
+
+  @override
+  String get organizationLabel => 'Organization';
+
+  @override
+  String get staffLabel => 'Staff member';
+
+  @override
+  String get deviceStatusLabel => 'Device status';
+
+  @override
+  String get currentLocationLabel => 'Current location';
+
+  @override
+  String get locationsTitle => 'Assigned locations';
+
+  @override
+  String get earningCapability => 'Earning';
+
+  @override
+  String get redemptionCapability => 'Redemption';
+
+  @override
+  String get capabilityAllowed => 'Allowed';
+
+  @override
+  String get capabilityBlocked => 'Not allowed';
+
+  @override
+  String get updatePolicyLabel => 'Update policy';
+
+  @override
+  String minimumSupportedVersion(Object version) {
+    return 'Minimum supported version: $version';
+  }
+
+  @override
+  String get appVersionCurrent => 'This app version is supported';
 
   @override
   String assignedLocations(num count) {

@@ -8,6 +8,7 @@ import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
+import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/session_manager.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 
@@ -75,18 +76,58 @@ void main() {
     expect(harness.api.refreshCalls, 1);
   });
 
-  test('refresh failure preserves current secure session', () async {
-    final harness = await _Harness.create();
-    harness.api.failure = const ApiFailure(
-      'STAFF_DEVICE_NOT_ACTIVE',
-      httpStatus: 401,
-    );
-    await expectLater(
-      harness.manager.refreshSingleFlight(),
-      throwsA(isA<ApiFailure>()),
-    );
-    expect((await harness.sessionRepository.read())?.sessionId, isNotNull);
-  });
+  test(
+    'inactive refresh clears unusable session and requires recovery',
+    () async {
+      final harness = await _Harness.create();
+      harness.api.failure = const ApiFailure(
+        'STAFF_DEVICE_NOT_ACTIVE',
+        httpStatus: 401,
+      );
+      await expectLater(
+        harness.manager.refreshSingleFlight(),
+        throwsA(isA<ApiFailure>()),
+      );
+      expect(await harness.sessionRepository.read(), isNull);
+      expect(
+        (await harness.lifecycleRepository.read())?.state,
+        LocalLifecycleState.recoveryRequired,
+      );
+    },
+  );
+
+  test(
+    'server rotation plus local replacement failure retains identity and requires recovery',
+    () async {
+      final store = _FailReplacementStore();
+      final sessions = StaffDeviceSessionRepository(store);
+      await sessions.replaceAtomically(fixtureSession());
+      final identity = DeviceIdentityRepository(store);
+      await identity.loadOrCreate();
+      final lifecycle = LocalLifecycleRepository(store);
+      final transactions = PairingTransactionRepository(store);
+      final manager = SessionManager(
+        sessions,
+        _FakeSessionApi(),
+        identity,
+        PreferencesRepository(await SharedPreferences.getInstance()),
+        lifecycleRepository: lifecycle,
+        transactionRepository: transactions,
+      );
+      store.failSessionWrites = true;
+
+      await expectLater(
+        manager.refreshSingleFlight(),
+        throwsA(isA<SecurePersistenceFailure>()),
+      );
+
+      expect(await sessions.read(), isNull);
+      expect(await identity.load(), isNotNull);
+      final marker = await lifecycle.read();
+      expect(marker?.state, LocalLifecycleState.recoveryRequired);
+      expect(marker?.reason, 'REFRESH_ROTATED_LOCAL_REPLACEMENT_FAILED');
+    },
+  );
 
   test('logout clears session, key, and cached context even offline', () async {
     final harness = await _Harness.create();
@@ -97,6 +138,10 @@ void main() {
     expect(await harness.sessionRepository.read(), isNull);
     expect(await harness.identityRepository.load(), isNull);
     expect(harness.preferencesRepository.readSafeContext(), isNull);
+    expect(
+      (await harness.lifecycleRepository.read())?.state,
+      LocalLifecycleState.loggedOut,
+    );
   });
 }
 
@@ -107,6 +152,7 @@ final class _Harness {
     required this.sessionRepository,
     required this.identityRepository,
     required this.preferencesRepository,
+    required this.lifecycleRepository,
   });
 
   final SessionManager manager;
@@ -114,6 +160,7 @@ final class _Harness {
   final StaffDeviceSessionRepository sessionRepository;
   final DeviceIdentityRepository identityRepository;
   final PreferencesRepository preferencesRepository;
+  final LocalLifecycleRepository lifecycleRepository;
 
   static Future<_Harness> create() async {
     final secureStore = MemorySecureKeyValueStore();
@@ -122,6 +169,8 @@ final class _Harness {
       fixtureSession(expiresAt: DateTime.utc(2026)),
     );
     final identityRepository = DeviceIdentityRepository(secureStore);
+    final transactionRepository = PairingTransactionRepository(secureStore);
+    final lifecycleRepository = LocalLifecycleRepository(secureStore);
     final preferencesRepository = PreferencesRepository(
       await SharedPreferences.getInstance(),
     );
@@ -132,12 +181,15 @@ final class _Harness {
         api,
         identityRepository,
         preferencesRepository,
+        lifecycleRepository: lifecycleRepository,
+        transactionRepository: transactionRepository,
         now: () => DateTime.utc(2026, DateTime.july, 30),
       ),
       api: api,
       sessionRepository: sessionRepository,
       identityRepository: identityRepository,
       preferencesRepository: preferencesRepository,
+      lifecycleRepository: lifecycleRepository,
     );
   }
 }
@@ -178,5 +230,24 @@ final class _FakeSessionApi implements DeviceSessionApi {
       throw problem;
     }
     return fixtureSession(sessionId: '00000000-0000-4000-8000-000000000298');
+  }
+}
+
+final class _FailReplacementStore implements SecureKeyValueStore {
+  final MemorySecureKeyValueStore _delegate = MemorySecureKeyValueStore();
+  bool failSessionWrites = false;
+
+  @override
+  Future<void> delete(String key) => _delegate.delete(key);
+
+  @override
+  Future<String?> read(String key) => _delegate.read(key);
+
+  @override
+  Future<void> write(String key, String value) {
+    if (failSessionWrites && key == 'staff_device.session.v1') {
+      throw StateError('Simulated rotated-session write failure.');
+    }
+    return _delegate.write(key, value);
   }
 }

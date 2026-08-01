@@ -118,13 +118,21 @@ void main() {
     await tester.pumpWidget(_homeHarness());
     await tester.pumpAndSettle();
     expect(find.text('Device ready'), findsOneWidget);
-    expect(find.text('Scan customer'), findsOneWidget);
-    expect(find.text('Recent operations'), findsOneWidget);
+    expect(find.text('Fixture Coffee'), findsOneWidget);
+    expect(find.textContaining('Fixture Staff'), findsOneWidget);
+    expect(find.textContaining('Main branch'), findsWidgets);
     await tester.scrollUntilVisible(
-      find.text('Manager approvals'),
-      180,
+      find.text('Scan customer'),
+      240,
       scrollable: find.byType(Scrollable).first,
     );
+    expect(find.text('Scan customer'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Manager approvals'),
+      240,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Recent operations'), findsOneWidget);
     expect(find.text('Manager approvals'), findsOneWidget);
     expect(find.text('Not available in M1'), findsWidgets);
   });

@@ -1,0 +1,18 @@
+{
+  "scenario": "claim-response-ambiguous-then-recover",
+  "request": {
+    "pairingPublicId": "50000000-0000-4000-8000-000000000001"
+  },
+  "response": {
+    "data": {
+      "pairingPublicId": "50000000-0000-4000-8000-000000000001",
+      "challenge": "fixture-challenge-not-valid-for-any-environment",
+      "challengeExpiresAt": "2026-08-01T12:02:00.000Z",
+      "signatureAlgorithm": "Ed25519",
+      "message": "waflo-pair-challenge-v1\n50000000-0000-4000-8000-000000000001\nfixture-challenge-not-valid-for-any-environment\nfixture-installation-not-valid"
+    },
+    "requestId": "60000000-0000-4000-8000-000000000001"
+  },
+  "pairingSecretIncluded": false,
+  "organizationOrStaffDataIncluded": false
+}

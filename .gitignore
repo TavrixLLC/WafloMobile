@@ -28,6 +28,12 @@ migrate_working_dir/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
+android/local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+Pods/
+DerivedData/
 
 # Local runtime/evidence output
 build/
@@ -39,6 +45,7 @@ coverage/
 artifacts/handoff-m1/raw-test-output/*
 !artifacts/handoff-m1/raw-test-output/README.md
 !artifacts/handoff-m1/raw-test-output/*.txt
+!artifacts/handoff-m1-round-1/raw-test-output/*.log
 .pub-cache/
 .pub/
 /build/

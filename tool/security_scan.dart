@@ -40,7 +40,8 @@ Future<void> main() async {
         normalized.startsWith('test/') ||
         normalized.startsWith('integration_test/') ||
         normalized.startsWith('docs/') ||
-        normalized.startsWith('artifacts/handoff-m1/');
+        normalized.startsWith('artifacts/handoff-m1/') ||
+        normalized.startsWith('artifacts/handoff-m1-round-1/');
     if (!fixtureOrEvidence && credentialLiteral.hasMatch(text)) {
       problems.add('Credential-like literal in runtime source: $normalized');
     }

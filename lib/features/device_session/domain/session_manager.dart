@@ -5,6 +5,7 @@ import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
+import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 
 final class LogoutResult {
@@ -19,13 +20,19 @@ final class SessionManager {
     this._api,
     this._identityRepository,
     this._preferencesRepository, {
+    required LocalLifecycleRepository lifecycleRepository,
+    required PairingTransactionRepository transactionRepository,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  }) : _lifecycleRepository = lifecycleRepository,
+       _transactionRepository = transactionRepository,
+       _now = now ?? DateTime.now;
 
   final StaffDeviceSessionRepository _sessionRepository;
   final DeviceSessionApi _api;
   final DeviceIdentityRepository _identityRepository;
   final PreferencesRepository _preferencesRepository;
+  final LocalLifecycleRepository _lifecycleRepository;
+  final PairingTransactionRepository _transactionRepository;
   final DateTime Function() _now;
   Future<StaffDeviceSession>? _refreshInFlight;
 
@@ -58,12 +65,23 @@ final class SessionManager {
     if (current == null) {
       throw const ApiFailure('STAFF_DEVICE_NOT_ACTIVE', httpStatus: 401);
     }
-    final replacement = await _api.refresh(current);
+    late final StaffDeviceSession replacement;
+    try {
+      replacement = await _api.refresh(current);
+    } on AppFailure catch (failure) {
+      await _handleConclusiveBlockedFailure(failure);
+      rethrow;
+    }
     try {
       await _sessionRepository.replaceAtomically(replacement);
+      await _lifecycleRepository.mark(LocalLifecycleState.paired);
       return replacement;
     } on SecurePersistenceFailure {
       await _sessionRepository.clear();
+      await _lifecycleRepository.mark(
+        LocalLifecycleState.recoveryRequired,
+        reason: 'REFRESH_ROTATED_LOCAL_REPLACEMENT_FAILED',
+      );
       rethrow;
     }
   }
@@ -78,7 +96,13 @@ final class SessionManager {
     if (refreshIfExpired && session.isExpired(_now())) {
       session = await refreshSingleFlight();
     }
-    final context = await _api.getContext(session);
+    late final AuthoritativeDeviceContext context;
+    try {
+      context = await _api.getContext(session);
+    } on AppFailure catch (failure) {
+      await _handleConclusiveBlockedFailure(failure);
+      rethrow;
+    }
     await _preferencesRepository.setSafeContext(
       SafeContextCache(
         role: context.role,
@@ -103,7 +127,24 @@ final class SessionManager {
     }
     await _sessionRepository.clear();
     await _identityRepository.delete();
+    await _transactionRepository.clear();
     await _preferencesRepository.clearSafeContext();
+    await _lifecycleRepository.mark(LocalLifecycleState.loggedOut);
     return LogoutResult(serverReached: serverReached);
+  }
+
+  Future<void> _handleConclusiveBlockedFailure(AppFailure failure) async {
+    final disposition = classifyFailure(failure);
+    if (disposition != FailureDisposition.deviceRevoked &&
+        disposition != FailureDisposition.deviceCompromised &&
+        disposition != FailureDisposition.sessionExpired) {
+      return;
+    }
+    await _sessionRepository.clear();
+    await _lifecycleRepository.mark(
+      LocalLifecycleState.recoveryRequired,
+      reason: failure.safeCode,
+      requestId: failure.requestId,
+    );
   }
 }
