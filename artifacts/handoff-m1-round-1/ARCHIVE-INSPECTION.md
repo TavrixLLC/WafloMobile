@@ -8,11 +8,11 @@ and scans text for home-directory and SDK assignments.
 
 Archive result:
 
-- Source commit: `9cf0c89`
+- Source commit: `c58f8ab`
 - Filename: `waflo-mobile-m1-round-1-portable-source.zip`
-- Size: 1,365,175 bytes
+- Size: 1,365,229 bytes
 - Entries: 393
-- SHA-256: `d9d0906df20d58e835da320cb20373014c4cd3fe2a8208617f2ca4f3d1bde289`
+- SHA-256: `cabf9c758519fb411bd775d0bbbb869c8008b6a30ce6092b2e75f472730a6ca1`
 - Extraction and archive scan: PASS
 
 Final raw output is `raw-test-output/archive-scan-final.log`. The extracted source can
