@@ -77,8 +77,18 @@ Future<void> main(List<String> arguments) async {
         ),
         caseSensitive: false,
       ),
-      RegExp('/' 'Users/' r'[^/<\s]+/', caseSensitive: false),
-      RegExp('/' 'home/' r'[^/<\s]+/', caseSensitive: false),
+      RegExp(
+        '/'
+        'Users/'
+        r'[^/<\s]+/',
+        caseSensitive: false,
+      ),
+      RegExp(
+        '/'
+        'home/'
+        r'[^/<\s]+/',
+        caseSensitive: false,
+      ),
       RegExp(r'flutter\.sdk\s*=', caseSensitive: false),
       RegExp(r'sdk\.dir\s*=', caseSensitive: false),
       RegExp(r'FLUTTER_ROOT\s*=', caseSensitive: false),
