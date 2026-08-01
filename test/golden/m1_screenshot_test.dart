@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -42,7 +44,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await expectLater(
       find.byType(MaterialApp),
-      matchesGoldenFile('goldens/$name.png'),
+      matchesGoldenFile(
+        Platform.isLinux ? 'goldens/linux/$name.png' : 'goldens/$name.png',
+      ),
     );
   }
 
