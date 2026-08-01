@@ -15,7 +15,9 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
-  final listing = await Process.run('tar', ['-tf', archive.path]);
+  final listing = Platform.isWindows
+      ? await Process.run('tar', ['-tf', archive.path])
+      : await Process.run('unzip', ['-Z1', archive.path]);
   if (listing.exitCode != 0) {
     stderr.writeln('Unable to list the portable archive safely.');
     exitCode = 1;
@@ -58,12 +60,14 @@ Future<void> main(List<String> arguments) async {
     'waflo-mobile-archive-scan-',
   );
   try {
-    final extracted = await Process.run('tar', [
-      '-xf',
-      archive.path,
-      '-C',
-      extraction.path,
-    ]);
+    final extracted = Platform.isWindows
+        ? await Process.run('tar', ['-xf', archive.path, '-C', extraction.path])
+        : await Process.run('unzip', [
+            '-q',
+            archive.path,
+            '-d',
+            extraction.path,
+          ]);
     if (extracted.exitCode != 0) {
       stderr.writeln('Portable archive extraction failed.');
       exitCode = 1;
