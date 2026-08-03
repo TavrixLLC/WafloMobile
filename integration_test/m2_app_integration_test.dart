@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -150,9 +149,7 @@ void main() {
     // 14 milestone redemption.
     final milestoneApi = _EmulatorLoyaltyApi(
       membership: _membership(6, managerApproval: false),
-      redemption: RedemptionOperationResult.fromJson(
-        _fixture('redeem-milestone.fixture.json'),
-      ),
+      redemption: _milestoneRedemptionResult(),
     );
     final milestoneContainer = _container(
       api: milestoneApi,
@@ -210,9 +207,7 @@ void main() {
     // 16 final redeem and 17 exact 0/goal all-empty result.
     final finalApi = _EmulatorLoyaltyApi(
       membership: finalReady,
-      redemption: RedemptionOperationResult.fromJson(
-        _fixture('redeem-final-reset.fixture.json'),
-      ),
+      redemption: _finalRedemptionResult(),
     );
     final finalContainer = _container(
       api: finalApi,
@@ -248,9 +243,7 @@ void main() {
         'OPERATION_RESULT_UNKNOWN',
         responseReceived: false,
       ),
-      recovery: CommandRecoveryResult.fromJson(
-        _fixture('operation-completed.fixture.json'),
-      ),
+      recovery: _completedStampRecovery(),
     );
     final ambiguousStampContainer = _container(
       api: ambiguousStampApi,
@@ -449,11 +442,7 @@ final class _EmulatorLoyaltyApi implements LoyaltyOperationsApi {
     issueCommandIds.add(commandId);
     final failure = issueFailure;
     if (failure != null) throw failure;
-    return _stampReceipts.putIfAbsent(
-      commandId,
-      () =>
-          StampOperationResult.fromJson(_fixture('stamp-success.fixture.json')),
-    );
+    return _stampReceipts.putIfAbsent(commandId, _successfulStampResult);
   }
 
   @override
@@ -464,76 +453,189 @@ final class _EmulatorLoyaltyApi implements LoyaltyOperationsApi {
     required RedemptionOperationInput input,
   }) async {
     redeemCommandIds.add(commandId);
-    return redemption ??
-        RedemptionOperationResult.fromJson(
-          _fixture('redeem-milestone.fixture.json'),
-        );
+    return redemption ?? _milestoneRedemptionResult();
   }
 
   @override
   Future<CommandRecoveryResult> commandStatus(String commandId) async =>
-      recovery ??
-      CommandRecoveryResult.fromJson(
-        _fixture('operation-processing.fixture.json'),
-      );
+      recovery ?? _processingRecovery();
 }
 
 ResolvedMembership _membership(int progress, {bool managerApproval = true}) {
-  final value = _fixture('membership-resolve.fixture.json');
-  final membership = value['membership']! as Map<String, Object?>;
-  final policy = value['operationPolicy']! as Map<String, Object?>;
-  value['progress'] = progress;
-  membership['progress'] = progress;
-  value['rewardReady'] = progress == 8;
-  membership['rewardReady'] = progress == 8;
-  membership['projectionVersion'] = progress + 1;
-  policy['remainingProgressCapacity'] = 8 - progress;
-  policy['effectiveMaximumStampAmount'] = (8 - progress).clamp(0, 5);
-  if (progress == 8) {
-    value['availableRewards'] = [
-      <String, Object?>{
-        'entitlementPublicId': '40000000-0000-4000-8000-000000000002',
-        'type': 'FREE_ITEM',
-        'finalReward': true,
-        'threshold': 8,
-        'name': 'Fixture final reward',
-        'description': 'A sanitized final reward.',
-        'redemptionInstructions': 'Follow merchant instructions.',
-        'status': 'AVAILABLE',
-        'redemptionCount': 0,
-        'maximumRedemptionCount': 1,
-        'expiresAt': null,
-        'requiresManagerApproval': false,
-      },
-    ];
-  } else if (!managerApproval) {
-    for (final reward in value['availableRewards']! as List<Object?>) {
-      (reward! as Map<String, Object?>)['requiresManagerApproval'] = false;
-    }
-  }
-  return ResolvedMembership.fromJson(value, allowInsecureAssets: false);
+  const goal = 8;
+  final finalReward = progress == goal;
+  return ResolvedMembership(
+    membershipPublicId: 'mem_fixture_not_a_credential',
+    customerDisplayName: 'Sanitized Customer',
+    programName: 'Fixture Loyalty Card',
+    status: MembershipStatus.active,
+    progress: StampProgress.validated(progress: progress, goal: goal),
+    completedCycles: 0,
+    projectionVersion: progress + 1,
+    rewardReady: finalReward,
+    locationEligibility: const LocationEligibility(
+      earning: true,
+      redemption: true,
+    ),
+    operationPolicy: MembershipOperationPolicy(
+      maximumStampAmountPerOperation: 5,
+      remainingProgressCapacity: goal - progress,
+      effectiveMaximumStampAmount: (goal - progress).clamp(0, 5),
+      dailyLimitEnabled: true,
+      dailyMaximumStampAmount: 6,
+      dailyRemainingStampAmount: 4,
+      operationalLocalDate: DateTime.utc(2026, DateTime.august, 2),
+      operationalTimezone: 'Asia/Baghdad',
+      purchaseRequirementEnabled: true,
+      minimumPurchaseAmountMinor: 10000,
+      purchaseCurrency: 'IQD',
+      merchantTransactionReferenceAllowed: true,
+      merchantTransactionReferenceRequired: false,
+      managerOverridePossibleForRole: true,
+    ),
+    stampArtwork: StampArtwork(
+      filledAssetUrl: Uri.parse(
+        'https://api.example.invalid/v1/public/program-assets/'
+        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      ),
+      emptyAssetUrl: Uri.parse(
+        'https://api.example.invalid/v1/public/program-assets/'
+        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      ),
+      filledAssetDigest:
+          'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      emptyAssetDigest:
+          'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      accessibleLabel:
+          'Loyalty progress with two stamp states: filled and empty',
+      backgroundColor: '#F7F4EE',
+      foregroundColor: '#222222',
+    ),
+    availableRewards: [
+      AvailableReward(
+        entitlementPublicId: finalReward
+            ? '40000000-0000-4000-8000-000000000002'
+            : '40000000-0000-4000-8000-000000000001',
+        kind: RewardKind.freeItem,
+        finalReward: finalReward,
+        threshold: finalReward ? goal : 4,
+        name: finalReward ? 'Fixture final reward' : 'Fixture milestone',
+        description: finalReward
+            ? 'A sanitized final reward.'
+            : 'A sanitized deterministic reward.',
+        redemptionInstructions: 'Follow merchant instructions.',
+        status: RewardAvailability.available,
+        redemptionCount: 0,
+        maximumRedemptionCount: finalReward ? 1 : 2,
+        expiresAt: finalReward
+            ? null
+            : DateTime.utc(2026, DateTime.september, 1, 12),
+        requiresManagerApproval: finalReward ? false : managerApproval,
+      ),
+    ],
+    resolvedAt: DateTime.utc(2026, DateTime.august, 2, 12),
+    requestId: '10000000-0000-4000-8000-000000000001',
+  );
 }
-
-Map<String, Object?> _fixture(String name) =>
-    jsonDecode(File('contracts/w4/m2/$name').readAsStringSync())
-        as Map<String, Object?>;
 
 StampOperationResult _milestoneStampResult() {
-  final redemption = _fixture('redeem-milestone.fixture.json');
-  return StampOperationResult.fromJson(<String, Object?>{
-    'operationPublicId': '30000000-0000-4000-8000-000000000005',
-    'commandId': '20000000-0000-4000-8000-000000000005',
-    'replayed': false,
-    'beforeProgress': 5,
-    'progress': 6,
-    'goal': 8,
-    'rewardReady': false,
-    'completedCycles': 0,
-    'projectionVersion': 7,
-    'unlockedRewards': [redemption['reward']],
-    'requestId': redemption['requestId'],
-  });
+  return StampOperationResult(
+    operationPublicId: '30000000-0000-4000-8000-000000000005',
+    commandId: '20000000-0000-4000-8000-000000000005',
+    replayed: false,
+    beforeProgress: 5,
+    progress: StampProgress.validated(progress: 6, goal: 8),
+    rewardReady: false,
+    completedCycles: 0,
+    projectionVersion: 7,
+    unlockedRewards: [_milestoneRewardReceipt()],
+    requestId: '10000000-0000-4000-8000-000000000001',
+  );
 }
+
+StampOperationResult _successfulStampResult() =>
+    StampOperationResult.fromJson(_successfulStampResultJson());
+
+Map<String, Object?> _successfulStampResultJson() => <String, Object?>{
+  'operationPublicId': '30000000-0000-4000-8000-000000000001',
+  'commandId': _commandId,
+  'replayed': false,
+  'beforeProgress': 2,
+  'progress': 3,
+  'goal': 8,
+  'rewardReady': false,
+  'completedCycles': 0,
+  'projectionVersion': 3,
+  'unlockedRewards': <Object?>[],
+  'requestId': '10000000-0000-4000-8000-000000000001',
+};
+
+RewardReceipt _milestoneRewardReceipt() => const RewardReceipt(
+  entitlementPublicId: '40000000-0000-4000-8000-000000000001',
+  kind: RewardKind.freeItem,
+  finalReward: false,
+  name: 'Fixture milestone',
+  description: 'A sanitized deterministic reward.',
+  status: 'PARTIALLY_REDEEMED',
+);
+
+RedemptionOperationResult _milestoneRedemptionResult() =>
+    RedemptionOperationResult(
+      operationPublicId: '30000000-0000-4000-8000-000000000003',
+      commandId: '20000000-0000-4000-8000-000000000003',
+      replayed: false,
+      redemptionPublicId: '50000000-0000-4000-8000-000000000001',
+      reward: _milestoneRewardReceipt(),
+      progress: StampProgress.validated(progress: 6, goal: 8),
+      rewardReady: false,
+      completedCycles: 0,
+      projectionVersion: 7,
+      requestId: '10000000-0000-4000-8000-000000000001',
+    );
+
+RedemptionOperationResult _finalRedemptionResult() => RedemptionOperationResult(
+  operationPublicId: '30000000-0000-4000-8000-000000000004',
+  commandId: '20000000-0000-4000-8000-000000000004',
+  replayed: false,
+  redemptionPublicId: '50000000-0000-4000-8000-000000000002',
+  reward: const RewardReceipt(
+    entitlementPublicId: '40000000-0000-4000-8000-000000000002',
+    kind: RewardKind.freeItem,
+    finalReward: true,
+    name: 'Fixture final reward',
+    description: 'A sanitized deterministic final reward.',
+    status: 'REDEEMED',
+  ),
+  progress: StampProgress.validated(progress: 0, goal: 8),
+  rewardReady: false,
+  completedCycles: 1,
+  projectionVersion: 11,
+  requestId: '10000000-0000-4000-8000-000000000001',
+);
+
+CommandRecoveryResult _processingRecovery() => CommandRecoveryResult(
+  commandId: '20000000-0000-4000-8000-000000000005',
+  operationPublicId: '30000000-0000-4000-8000-000000000005',
+  operationType: CommandOperationType.stamp,
+  status: CommandRecoveryStatus.processing,
+  safeFailureCode: null,
+  result: null,
+  createdAt: DateTime.utc(2026, DateTime.august, 2, 12),
+  completedAt: null,
+  requestId: '10000000-0000-4000-8000-000000000001',
+);
+
+CommandRecoveryResult _completedStampRecovery() => CommandRecoveryResult(
+  commandId: _commandId,
+  operationPublicId: '30000000-0000-4000-8000-000000000001',
+  operationType: CommandOperationType.stamp,
+  status: CommandRecoveryStatus.completed,
+  safeFailureCode: null,
+  result: _successfulStampResultJson(),
+  createdAt: DateTime.utc(2026, DateTime.august, 2, 12),
+  completedAt: DateTime.utc(2026, DateTime.august, 2, 12, 0, 1),
+  requestId: '10000000-0000-4000-8000-000000000001',
+);
 
 final class _FixtureImageLoader implements StampImageLoader {
   const _FixtureImageLoader();
