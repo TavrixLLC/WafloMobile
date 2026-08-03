@@ -380,4 +380,297 @@ class AppLocalizationsAr extends AppLocalizations {
   String requestReference(Object requestId) {
     return 'مرجع الطلب: $requestId';
   }
+
+  @override
+  String get m2ScannerTitle => 'مسح عضوية العميل';
+
+  @override
+  String get m2ScannerInstructions =>
+      'ضع رمز عضوية وافلو للعميل داخل الإطار. لن يُعرض الرمز أو يُحفظ.';
+
+  @override
+  String get resolvingMembership => 'جارٍ التحقق من العضوية بأمان';
+
+  @override
+  String get membershipTitle => 'العضوية';
+
+  @override
+  String get customerLabel => 'العميل';
+
+  @override
+  String get programLabel => 'البرنامج';
+
+  @override
+  String get membershipStatusLabel => 'حالة العضوية';
+
+  @override
+  String get membershipStatusActive => 'نشطة';
+
+  @override
+  String get membershipStatusSuspended => 'معلّقة';
+
+  @override
+  String get membershipStatusExpired => 'منتهية';
+
+  @override
+  String get membershipStatusRevoked => 'ملغاة';
+
+  @override
+  String progressOf(Object goal, Object progress) {
+    return '$progress من $goal طوابع';
+  }
+
+  @override
+  String completedCycles(Object count) {
+    return 'الدورات المكتملة: $count';
+  }
+
+  @override
+  String resolvedAt(Object time) {
+    return 'تم التحقق $time';
+  }
+
+  @override
+  String get rewardReady => 'المكافأة النهائية جاهزة';
+
+  @override
+  String get earningAvailable => 'إضافة الطوابع متاحة هنا';
+
+  @override
+  String get redemptionAvailable => 'استرداد المكافآت متاح هنا';
+
+  @override
+  String get stampAmount => 'عدد الطوابع';
+
+  @override
+  String projectedProgress(Object goal, Object progress) {
+    return 'بعد الموافقة: $progress من $goal';
+  }
+
+  @override
+  String get purchaseAmount => 'مبلغ الشراء';
+
+  @override
+  String requiredCurrency(Object currency) {
+    return 'العملة المطلوبة: $currency';
+  }
+
+  @override
+  String purchaseMinimum(Object amount) {
+    return 'الحد الأدنى للشراء: $amount';
+  }
+
+  @override
+  String get transactionReference => 'مرجع المعاملة';
+
+  @override
+  String get optionalLabel => 'اختياري';
+
+  @override
+  String get continueToReview => 'مراجعة العملية';
+
+  @override
+  String get reviewStampTitle => 'مراجعة إصدار الطوابع';
+
+  @override
+  String get confirmStamp => 'تأكيد إصدار الطوابع';
+
+  @override
+  String get issuingStamps => 'جارٍ إصدار الطوابع بأمان';
+
+  @override
+  String get stampSuccessTitle => 'تم إصدار الطوابع';
+
+  @override
+  String stampsIssued(num count) {
+    return 'تم إصدار $count طابع';
+  }
+
+  @override
+  String get rewardUnlocked => 'تم فتح مكافأة';
+
+  @override
+  String get scanNextCustomer => 'مسح العميل التالي';
+
+  @override
+  String get rewardsTitle => 'المكافآت المتاحة';
+
+  @override
+  String get milestoneReward => 'مكافأة مرحلية';
+
+  @override
+  String get finalReward => 'المكافأة النهائية';
+
+  @override
+  String thresholdLabel(Object count) {
+    return 'الحد: $count طوابع';
+  }
+
+  @override
+  String expirationLabel(Object date) {
+    return 'تنتهي في $date';
+  }
+
+  @override
+  String redemptionCount(Object count, Object maximum) {
+    return 'استُردت $count من $maximum';
+  }
+
+  @override
+  String get managerApprovalRequired => 'موافقة المدير مطلوبة';
+
+  @override
+  String get managerApprovalBody =>
+      'لا يمكن استرداد هذه المكافأة في M2. استخدم مسار مدير معتمداً عند توفره.';
+
+  @override
+  String get redeem => 'استرداد المكافأة';
+
+  @override
+  String get redemptionReviewTitle => 'مراجعة استرداد المكافأة';
+
+  @override
+  String finalResetWarning(Object goal) {
+    return 'بعد الاسترداد ستكتمل هذه الدورة وتعود بطاقة الطوابع إلى 0 من $goal.';
+  }
+
+  @override
+  String get confirmRedemption => 'تأكيد الاسترداد';
+
+  @override
+  String get redeemingReward => 'جارٍ استرداد المكافأة بأمان';
+
+  @override
+  String get redemptionSuccessTitle => 'تم استرداد المكافأة';
+
+  @override
+  String get progressUnchanged => 'تقدم الطوابع لم يتغير.';
+
+  @override
+  String cycleResetComplete(Object goal) {
+    return 'اكتملت الدورة وعاد التقدم إلى 0 من $goal.';
+  }
+
+  @override
+  String get pendingOperationTitle => 'نتيجة العملية قيد الانتظار';
+
+  @override
+  String get pendingOperationBody =>
+      'لا تبدأ عملية جديدة. تحقق من نتيجة الأمر الأصلي عند توفر الاتصال.';
+
+  @override
+  String get checkStatus => 'التحقق من النتيجة';
+
+  @override
+  String get dismissRecovery => 'العودة للرئيسية';
+
+  @override
+  String get rescanRequired =>
+      'امسح عضوية العميل مجدداً قبل إعادة محاولة الأمر نفسه.';
+
+  @override
+  String get offlineOperationsBlocked =>
+      'تتطلب عمليات الولاء اتصالاً بالإنترنت.';
+
+  @override
+  String get noCapabilitiesBody =>
+      'هذا الموقع لا يسمح بإضافة الطوابع أو الاسترداد. حدّث سياق الجهاز أو تواصل مع مدير.';
+
+  @override
+  String get notAvailableInM2 => 'غير متاح في M2';
+
+  @override
+  String get refreshRequired => 'تحديث السياق';
+
+  @override
+  String operationReferenceSuffix(Object suffix) {
+    return 'مرجع العملية ينتهي بـ $suffix';
+  }
+
+  @override
+  String get done => 'تم';
+
+  @override
+  String get finalReady =>
+      'جميع الطوابع ممتلئة. استرد المكافأة النهائية قبل إضافة طوابع أخرى.';
+
+  @override
+  String get m2CredentialInvalid =>
+      'رمز العضوية غير صالح. اطلب من العميل إظهار رمز جديد.';
+
+  @override
+  String get m2MembershipBlocked =>
+      'هذه العضوية أو البرنامج غير متاح لعمليات الولاء.';
+
+  @override
+  String get m2ProgramMismatch => 'تغيّر البرنامج. امسح العضوية مجدداً.';
+
+  @override
+  String get m2LocationBlocked => 'هذه العملية غير مصرح بها في الموقع الحالي.';
+
+  @override
+  String get m2StampPolicyBlocked => 'عدد الطوابع المحدد غير مسموح.';
+
+  @override
+  String get m2DailyLimit => 'تم بلوغ الحد اليومي للطوابع.';
+
+  @override
+  String get m2PurchaseRequired => 'أدخل مبلغ الشراء المطلوب.';
+
+  @override
+  String get m2CurrencyMismatch =>
+      'استخدم العملة الدقيقة المطلوبة من البرنامج.';
+
+  @override
+  String get m2PurchaseThreshold => 'مبلغ الشراء أقل من الحد المطلوب.';
+
+  @override
+  String get m2FinalPending =>
+      'استرد المكافأة النهائية قبل إصدار طوابع إضافية.';
+
+  @override
+  String get m2RewardUnavailable => 'هذه المكافأة لم تعد متاحة.';
+
+  @override
+  String get m2RewardExpired => 'انتهت صلاحية هذه المكافأة.';
+
+  @override
+  String get m2RewardRedeemed => 'تم استرداد هذه المكافأة مسبقاً.';
+
+  @override
+  String get m2ManagerApproval => 'يلزم مسار مدير معتمد، ولن يتجاوزه التطبيق.';
+
+  @override
+  String get m2IdempotencyConflict =>
+      'تفاصيل العملية الأصلية لا تطابق هذا الأمر. تواصل مع الدعم.';
+
+  @override
+  String get m2OperationNotFound => 'لم يتم العثور على الأمر الأصلي.';
+
+  @override
+  String get m2OperationProcessing => 'العملية الأصلية ما زالت قيد المعالجة.';
+
+  @override
+  String get m2OperationFailed => 'فشلت العملية الأصلية ولم يُسجل نجاح.';
+
+  @override
+  String get m2BillingBlocked => 'عمليات الولاء غير متاحة لهذه المؤسسة.';
+
+  @override
+  String get m2RiskBlocked => 'حظرت وافلو العملية للمراجعة الأمنية.';
+
+  @override
+  String get m2RateLimited => 'طلبات كثيرة جداً. انتظر قليلاً ثم تحقق مجدداً.';
+
+  @override
+  String get m2ContractError =>
+      'أعادت وافلو استجابة غير آمنة أو غير متوافقة، لذا عُطلت العمليات.';
+
+  @override
+  String get m2RecoveryExpired =>
+      'تحتاج هذه النتيجة المعلقة إلى دعم وافلو قبل محاولة عملية أخرى.';
+
+  @override
+  String get m2ResultUnknown =>
+      'نتيجة الخادم غير معروفة. لا تكرر العملية، بل تحقق من حالتها.';
 }

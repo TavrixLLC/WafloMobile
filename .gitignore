@@ -38,6 +38,7 @@ DerivedData/
 # Local runtime/evidence output
 build/
 coverage/
+test/golden/failures/
 *.log
 .env
 .env.*

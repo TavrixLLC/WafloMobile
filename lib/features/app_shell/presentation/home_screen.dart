@@ -15,6 +15,7 @@ final class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final boot = ref.watch(bootControllerProvider);
+    final m2 = ref.watch(m2OperationControllerProvider);
     final deviceContext = boot.context;
     final online = ref
         .watch(connectivityProvider)
@@ -28,6 +29,11 @@ final class HomeScreen extends ConsumerWidget {
         : DateFormat.yMd(
             Localizations.localeOf(context).toLanguageTag(),
           ).add_Hm().format(deviceContext.synchronizedAt.toLocal());
+    final hasCapability =
+        deviceContext != null &&
+        (deviceContext.currentLocation.earningAllowed ||
+            deviceContext.currentLocation.redemptionAllowed);
+    final canScan = online && hasCapability && m2.pendingOperation == null;
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.appTitle),
@@ -165,20 +171,66 @@ final class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: WafloSpacing.md),
-              _UnavailableTile(
+              if (m2.pendingOperation != null) ...[
+                WafloStatusBanner(
+                  icon: Icons.hourglass_top_outlined,
+                  message: strings.pendingOperationBody,
+                  color: WafloColors.warning,
+                ),
+                const SizedBox(height: WafloSpacing.sm),
+                Card(
+                  child: ListTile(
+                    minTileHeight: 56,
+                    leading: const Icon(Icons.manage_search_outlined),
+                    title: Text(strings.pendingOperationTitle),
+                    subtitle: Text(strings.checkStatus),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.go('/loyalty'),
+                  ),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+              ],
+              if (!hasCapability) ...[
+                WafloStatusBanner(
+                  icon: Icons.location_off_outlined,
+                  message: strings.noCapabilitiesBody,
+                  color: WafloColors.warning,
+                ),
+                const SizedBox(height: WafloSpacing.sm),
+                OutlinedButton.icon(
+                  onPressed: ref
+                      .read(bootControllerProvider.notifier)
+                      .refreshContext,
+                  icon: const Icon(Icons.refresh),
+                  label: Text(strings.refreshRequired),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+              ],
+              _ActionTile(
                 icon: Icons.qr_code_scanner,
                 title: strings.scanCustomer,
-                subtitle: strings.availableInNextPhase,
+                subtitle: online
+                    ? hasCapability
+                          ? strings.m2ScannerInstructions
+                          : strings.noCapabilitiesBody
+                    : strings.offlineOperationsBlocked,
+                enabled: canScan,
+                onTap: () {
+                  ref
+                      .read(m2OperationControllerProvider.notifier)
+                      .startScanning();
+                  context.go('/loyalty');
+                },
               ),
               _UnavailableTile(
                 icon: Icons.receipt_long_outlined,
                 title: strings.recentOperations,
-                subtitle: strings.availableInNextPhase,
+                subtitle: strings.notAvailableInM2,
               ),
               _UnavailableTile(
                 icon: Icons.approval_outlined,
                 title: strings.managerApprovals,
-                subtitle: strings.availableInNextPhase,
+                subtitle: strings.notAvailableInM2,
               ),
             ],
           ),
@@ -204,6 +256,35 @@ final class HomeScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+final class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    child: ListTile(
+      minTileHeight: 64,
+      enabled: enabled,
+      leading: Icon(icon),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: enabled ? onTap : null,
+    ),
+  );
 }
 
 final class _Capabilities extends StatelessWidget {

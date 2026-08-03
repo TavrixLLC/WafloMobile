@@ -19,6 +19,14 @@ Future<void> main() async {
   final usablePairingQr = RegExp(
     r'waflo-pair-v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{40,}\.[A-Za-z0-9_-]+',
   );
+  final usableCustomerQr = RegExp(
+    r'(?:waflo-(?:membership|customer)|customer-membership)-(?!credential-fixture)[A-Za-z0-9_.-]{40,}',
+    caseSensitive: false,
+  );
+  final persistedQrField = RegExp(
+    r'pending[^\n]{0,120}(?:qrPayload|customerQr)|(?:qrPayload|customerQr)[^\n]{0,120}pending',
+    caseSensitive: false,
+  );
 
   for (final path in tracked) {
     final normalized = path.replaceAll('\\', '/');
@@ -49,6 +57,15 @@ Future<void> main() async {
     if (!fixtureOrEvidence && usablePairingQr.hasMatch(text)) {
       problems.add('Pairing QR literal in runtime source: $normalized');
     }
+    if (usableCustomerQr.hasMatch(text)) {
+      problems.add('Usable customer QR literal: $normalized');
+    }
+    if (normalized.startsWith('lib/core/operation_recovery/') &&
+        persistedQrField.hasMatch(text)) {
+      problems.add(
+        'Customer QR field in pending-operation journal: $normalized',
+      );
+    }
   }
 
   if (problems.isNotEmpty) {
@@ -57,7 +74,7 @@ Future<void> main() async {
     return;
   }
   stdout.writeln(
-    'Security scan passed: ${tracked.length} tracked files; no forbidden backend artifacts, private keys, or runtime credential literals.',
+    'Security scan passed: ${tracked.length} tracked files; no backend runtime, private key, usable QR, persisted customer QR, or runtime credential literal was found.',
   );
 }
 

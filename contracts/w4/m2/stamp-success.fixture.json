@@ -1,0 +1,13 @@
+{
+  "operationPublicId": "30000000-0000-4000-8000-000000000001",
+  "commandId": "20000000-0000-4000-8000-000000000001",
+  "replayed": false,
+  "beforeProgress": 2,
+  "progress": 3,
+  "goal": 8,
+  "rewardReady": false,
+  "completedCycles": 0,
+  "projectionVersion": 3,
+  "unlockedRewards": [],
+  "requestId": "10000000-0000-4000-8000-000000000001"
+}

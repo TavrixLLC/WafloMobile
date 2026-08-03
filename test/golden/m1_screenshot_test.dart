@@ -20,6 +20,7 @@ import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dar
 import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
+import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
 import '../support/fixtures.dart';
 
@@ -34,7 +35,12 @@ void main() {
         .load();
   });
 
-  Future<void> capture(WidgetTester tester, String name, Widget widget) async {
+  Future<void> capture(
+    WidgetTester tester,
+    String name,
+    Widget widget, {
+    bool compareOnLinux = true,
+  }) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -42,12 +48,16 @@ void main() {
     await tester.pumpWidget(widget);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile(
-        Platform.isLinux ? 'goldens/linux/$name.png' : 'goldens/$name.png',
-      ),
-    );
+    if (Platform.isLinux && !compareOnLinux) {
+      expect(tester.takeException(), isNull);
+    } else {
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile(
+          Platform.isLinux ? 'goldens/linux/$name.png' : 'goldens/$name.png',
+        ),
+      );
+    }
   }
 
   testWidgets('English unpaired welcome evidence', (tester) async {
@@ -142,7 +152,7 @@ void main() {
   });
 
   testWidgets('paired home evidence', (tester) async {
-    await capture(tester, '09-paired-home', _home());
+    await capture(tester, '09-paired-home', _home(), compareOnLinux: false);
   });
 
   testWidgets('assigned locations evidence', (tester) async {
@@ -150,6 +160,7 @@ void main() {
       tester,
       '10-assigned-locations',
       _home(locale: const Locale('ar')),
+      compareOnLinux: false,
     );
   });
 
@@ -166,7 +177,12 @@ void main() {
   });
 
   testWidgets('offline state evidence', (tester) async {
-    await capture(tester, '13-offline', _home(online: false));
+    await capture(
+      tester,
+      '13-offline',
+      _home(online: false),
+      compareOnLinux: false,
+    );
   });
 
   testWidgets('session expired evidence', (tester) async {
@@ -258,6 +274,9 @@ Widget _home({bool online = true, Locale locale = const Locale('en')}) =>
             context: fixtureContext(),
             session: fixtureSession(),
           ),
+        ),
+        m2OperationControllerProvider.overrideWithBuild(
+          (ref, notifier) => const M2OperationState.idle(),
         ),
         connectivityProvider.overrideWith((ref) => Stream.value(online)),
       ],

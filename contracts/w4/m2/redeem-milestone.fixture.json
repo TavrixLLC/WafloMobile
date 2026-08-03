@@ -1,0 +1,20 @@
+{
+  "operationPublicId": "30000000-0000-4000-8000-000000000003",
+  "commandId": "20000000-0000-4000-8000-000000000003",
+  "replayed": false,
+  "redemptionPublicId": "50000000-0000-4000-8000-000000000001",
+  "reward": {
+    "entitlementPublicId": "40000000-0000-4000-8000-000000000001",
+    "type": "FREE_ITEM",
+    "finalReward": false,
+    "name": "Fixture milestone",
+    "description": "A sanitized deterministic reward.",
+    "status": "PARTIALLY_REDEEMED"
+  },
+  "progress": 6,
+  "goal": 8,
+  "rewardReady": false,
+  "completedCycles": 0,
+  "projectionVersion": 7,
+  "requestId": "10000000-0000-4000-8000-000000000001"
+}

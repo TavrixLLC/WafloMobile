@@ -1,4 +1,4 @@
-name: Flutter M1 Repair Round 1 iOS
+name: Flutter M2 iOS
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m1-round-1-ios-${{ github.ref }}
+  group: flutter-m2-ios-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -28,9 +28,9 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1 unit tests
+      - name: M1 and M2 unit tests
         run: flutter test test/unit --reporter expanded
-      - name: M1 widget tests
+      - name: M1 and M2 widget tests
         run: flutter test test/widget --reporter expanded
       - name: Development no-sign build
         run: flutter build ios -t lib/main_development.dart --no-codesign --flavor development --debug --dart-define-from-file=config/development.json

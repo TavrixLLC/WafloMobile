@@ -254,7 +254,11 @@ final class BootController extends Notifier<BootState> {
 
   Future<void> logout() async {
     await ref.read(sessionManagerProvider).logout();
+    await ref.read(pendingOperationStoreProvider).clear();
     ref.read(pairingControllerProvider.notifier).reset();
+    await ref
+        .read(m2OperationControllerProvider.notifier)
+        .acknowledgeAndReset();
     state = const BootState(stage: BootStage.unpaired);
   }
 
@@ -262,6 +266,7 @@ final class BootController extends Notifier<BootState> {
     await ref.read(sessionRepositoryProvider).clear();
     await ref.read(identityRepositoryProvider).delete();
     await ref.read(pairingTransactionRepositoryProvider).clear();
+    await ref.read(pendingOperationStoreProvider).clear();
     await ref.read(preferencesRepositoryProvider).clearSafeContext();
     await ref
         .read(localLifecycleRepositoryProvider)
@@ -272,6 +277,13 @@ final class BootController extends Notifier<BootState> {
 
   void _setFailure(AppFailure failure) {
     final disposition = classifyFailure(failure);
+    if (disposition == FailureDisposition.deviceRevoked ||
+        disposition == FailureDisposition.deviceCompromised ||
+        disposition == FailureDisposition.sessionExpired) {
+      unawaited(
+        ref.read(m2OperationControllerProvider.notifier).onSessionBlocked(),
+      );
+    }
     final preserveSession =
         disposition == FailureDisposition.updateRequired ||
         disposition == FailureDisposition.backendUnavailable;

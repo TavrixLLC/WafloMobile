@@ -1,0 +1,123 @@
+00:00 +0: loading C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart
+00:00 +0: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 01 claim creates an ephemeral claimed pairing
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~1: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 02 challenge recovers the exact claimed message
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~2: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 03 complete establishes a signed device session
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~3: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 04 device-context returns authoritative safe context
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~4: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 05 refresh rotates the real W4 session
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~5: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 06 the old refresh token is rejected after rotation
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~6: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 07 revoked is a real backend state and clears session
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~7: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 08 compromised is distinct and clears session
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~8: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 09 expired session is distinct and clears credentials
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~9: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 10 update-required blocks but preserves the session
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~10: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real W4 development contract gate 11 logout revokes W4 and clears all local credentials
+  Skip: Run tool/run_real_w4_contract_gate.dart against approved development W4.
+00:00 +0 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: (setUpAll)
+00:00 +0 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +1 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +2 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +3 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +4 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +5 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +6 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +7 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +8 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +9 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +10 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +11 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +12 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +13 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +14 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: Arabic unpaired welcome evidence
+00:01 +15 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: Arabic unpaired welcome evidence
+00:01 +16 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:01 +17 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:01 +18 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:01 +19 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:01 +20 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:01 +21 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:01 +22 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +23 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +24 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +25 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +26 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +27 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +28 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +29 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +30 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +31 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +32 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +33 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +34 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +35 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +36 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +37 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +38 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +39 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +40 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +41 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +42 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +43 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +44 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +45 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +46 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +47 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +48 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +49 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +50 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +51 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +52 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +53 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +54 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:02 +55 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +56 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +57 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +58 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +59 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +60 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +61 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +62 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +63 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +64 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +65 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +66 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +67 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +68 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +69 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +70 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +71 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +72 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +73 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +74 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +75 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +76 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +77 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +78 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:03 +79 ~11: C:/Users/3ma/Documents/waflo mobile/test/golden/m2_screenshot_test.dart: M2 25-screen Flutter evidence set
+00:04 +80 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:04 +81 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: customer scanner is explicit and never renders QR text
+00:04 +82 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: customer scanner is explicit and never renders QR text
+00:04 +83 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: customer scanner is explicit and never renders QR text
+00:04 +84 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: customer scanner is explicit and never renders QR text
+00:05 +85 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: customer scanner is explicit and never renders QR text
+00:05 +86 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: paired M1 shell remains intact while M2 scan is activated
+00:05 +87 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: resolve loading and membership projections render safely
+00:05 +88 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: resolve loading and membership projections render safely
+00:05 +89 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: blocked screens cover all required explicit states
+00:05 +90 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: stamp selector and purchase requirement are accessible
+00:05 +91 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: stamp selector and purchase requirement are accessible
+00:05 +92 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: manual fallback never renders the pairing secret as text
+00:05 +93 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: manual fallback never renders the pairing secret as text
+00:05 +94 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: reward list blocks Manager flow and shows final warning
+00:05 +95 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: milestone and final redemption success stay exact
+00:05 +96 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: pending result and stable errors are actionable
+00:05 +97 ~11: C:/Users/3ma/Documents/waflo mobile/test/widget/m2_screens_test.dart: Arabic RTL, large text, dark theme, and concise semantics work
+00:06 +98 ~11: All tests passed!

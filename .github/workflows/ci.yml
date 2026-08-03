@@ -1,4 +1,4 @@
-name: Flutter M1 Repair Round 1
+name: Flutter M2 Online Loyalty Operations
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m1-round-1-${{ github.ref }}
+  group: flutter-m2-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -32,38 +32,42 @@ jobs:
         run: flutter --version
       - name: Dependencies
         run: flutter pub get
-      - name: Generation drift
+      - name: Contract checksums and generation drift
         run: |
+          dart run tool/verify_m2_contracts.dart
           dart run tool/generate_w4_client.dart --check
           flutter gen-l10n
-          git diff --exit-code -- contracts/w4 lib/core/api/generated lib/core/localization/generated
+          git diff --exit-code -- contracts/w4 lib/core/api/generated lib/core/api/generated_m2 lib/core/localization/generated
       - name: Format
         run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - name: Analyze fatal
         run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1 unit tests
+      - name: M1 and M2 unit tests
         run: flutter test test/unit --coverage --reporter expanded
-      - name: M1 widget tests
+      - name: M1 and M2 widget tests
         run: flutter test test/widget --reporter expanded
-      - name: M1 golden tests
+      - name: M1 regression and M2 screenshot tests
         run: flutter test test/golden --reporter expanded
       - name: Security scan
         run: dart run tool/security_scan.dart
       - name: Portable archive scan
-        run: dart run tool/archive_scan.dart artifacts/handoff-m1-round-1/waflo-mobile-m1-round-1-portable-source.zip
+        run: |
+          dart run tool/archive_scan.dart artifacts/handoff-m1-round-1/waflo-mobile-m1-round-1-portable-source.zip
+          dart run tool/archive_scan.dart artifacts/handoff-m2/waflo-mobile-m2-portable-source.zip
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: linux-m1-evidence
+          name: linux-m2-evidence
           path: |
             coverage/lcov.info
             test/golden/goldens/*.png
+            test/golden/goldens/m2/*.png
             test/golden/failures/*_testImage.png
           if-no-files-found: warn
           retention-days: 14
 
   android-emulator:
-    name: Android emulator / 21 app integration tests
+    name: Android emulator / M1 regression and M2 24-scenario matrix
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -94,6 +98,7 @@ jobs:
           script: |
             flutter test integration_test/m1_app_integration_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m1_pairing_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
+            flutter test integration_test/m2_app_integration_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
 
   android-builds:
     name: Android / development debug and release builds
@@ -119,13 +124,13 @@ jobs:
         run: flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
       - uses: actions/upload-artifact@v4
         with:
-          name: android-m1-apks
+          name: android-m2-apks
           path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
           retention-days: 14
 
   real-w4-contract:
-    name: Approved W4 / 11 real contract tests
+    name: Approved W4 / M1 and M2 real contract gates
     runs-on: [self-hosted, windows, x64, waflo-w4-approved]
     timeout-minutes: 30
     env:
@@ -146,4 +151,6 @@ jobs:
           }
       - name: Real W4 development contract gate
         shell: pwsh
-        run: dart run tool/run_real_w4_contract_gate.dart
+        run: |
+          dart run tool/run_real_w4_contract_gate.dart
+          dart run tool/run_real_w4_m2_contract_gate.dart

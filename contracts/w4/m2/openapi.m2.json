@@ -1,0 +1,2254 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Waflo Staff Mobile M2 Contract",
+    "version": "w4-m2-1.0.0",
+    "description": "M1 pairing/session/context plus the M2 mobile operations subset. QR payloads are bearer credentials and must never be logged or retained for recovery."
+  },
+  "paths": {
+    "/v1/staff/devices/pairing/claim": {
+      "post": {
+        "operationId": "staffDevicePairingClaim",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevicePairingClaimRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/M1GenericResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/devices/pairing/challenge": {
+      "post": {
+        "operationId": "staffDevicePairingChallenge",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevicePairingChallengeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/M1GenericResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/devices/pairing/complete": {
+      "post": {
+        "operationId": "staffDevicePairingComplete",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevicePairingCompleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/M1GenericResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/devices/session/refresh": {
+      "post": {
+        "operationId": "staffDeviceSessionRefresh",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffDeviceSessionRefreshRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/M1GenericResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/devices/session/logout": {
+      "post": {
+        "operationId": "staffDeviceSessionLogout",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/M1GenericResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/device-context": {
+      "get": {
+        "operationId": "staffDeviceContext",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/M1GenericResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/memberships/resolve": {
+      "post": {
+        "operationId": "resolveMembershipM2",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MembershipResolveRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/MembershipResolveResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/operations/stamps": {
+      "post": {
+        "operationId": "issueStampsM2",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StampRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/StampResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/operations/redeem": {
+      "post": {
+        "operationId": "redeemRewardM2",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedemptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/RedemptionResult"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/operations/{operationPublicId}": {
+      "get": {
+        "operationId": "operationStatusByPublicIdM2",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "operationPublicId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CommandStatus"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/staff/operations/commands/{commandId}": {
+      "get": {
+        "operationId": "operationStatusByCommandIdM2",
+        "security": [
+          {
+            "StaffDeviceSigned": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commandId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful typed response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "requestId"
+                  ],
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/CommandStatus"
+                    },
+                    "requestId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Stable error envelope. Localize from error.code, never error.message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "StaffDeviceSigned": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-waflo-signature",
+        "description": "Approved W4 Ed25519 request envelope. Also requires Device authorization, device/session IDs, request ID, timestamp, nonce and body SHA-256 headers."
+      }
+    },
+    "parameters": {
+      "IdempotencyKey": {
+        "in": "header",
+        "name": "x-idempotency-key",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Stable command UUID. Retain it for ambiguous-result recovery."
+      }
+    },
+    "schemas": {
+      "CreateDevicePairingSessionRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "staffMemberId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "locations": {
+            "minItems": 1,
+            "maxItems": 50,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "locationId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "earningAllowed": {
+                  "type": "boolean"
+                },
+                "redemptionAllowed": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "locationId",
+                "earningAllowed",
+                "redemptionAllowed"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "deviceLabelSuggestion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "expiresInMinutes": {
+            "default": 10,
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 30
+          }
+        },
+        "required": [
+          "staffMemberId",
+          "locations",
+          "expiresInMinutes"
+        ],
+        "additionalProperties": false
+      },
+      "DevicePairingClaimRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "pairingToken": {
+            "type": "string",
+            "minLength": 80,
+            "maxLength": 512
+          },
+          "installationId": {
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 160
+          },
+          "publicKey": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 1024
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "IOS",
+              "ANDROID",
+              "TEST_CLIENT"
+            ]
+          },
+          "appVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "osVersion": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "model": {
+            "type": "string",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "pairingToken",
+          "installationId",
+          "publicKey",
+          "platform",
+          "appVersion"
+        ],
+        "additionalProperties": false
+      },
+      "DevicePairingChallengeRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "pairingPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        },
+        "required": [
+          "pairingPublicId"
+        ],
+        "additionalProperties": false
+      },
+      "DevicePairingCompleteRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "pairingPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "challenge": {
+            "type": "string",
+            "minLength": 32,
+            "maxLength": 256
+          },
+          "signature": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 256
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "pairingPublicId",
+          "challenge",
+          "signature"
+        ],
+        "additionalProperties": false
+      },
+      "StaffDeviceSessionRefreshRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 512
+          }
+        },
+        "required": [
+          "refreshToken"
+        ],
+        "additionalProperties": false
+      },
+      "MembershipResolveRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "qrPayload": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 220
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ar"
+            ]
+          }
+        },
+        "required": [
+          "qrPayload"
+        ],
+        "additionalProperties": false
+      },
+      "MembershipResolveResult": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "membership": {
+            "type": "object",
+            "properties": {
+              "publicId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ACTIVE",
+                  "SUSPENDED",
+                  "EXPIRED",
+                  "REVOKED"
+                ]
+              },
+              "customerDisplayName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "programName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "progress": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "goal": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "rewardReady": {
+                "type": "boolean"
+              },
+              "completedCycles": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "projectionVersion": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "publicId",
+              "status",
+              "customerDisplayName",
+              "programName",
+              "progress",
+              "goal",
+              "rewardReady",
+              "completedCycles",
+              "projectionVersion"
+            ],
+            "additionalProperties": false
+          },
+          "membershipPublicId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80
+          },
+          "customerDisplayName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "programName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "goal": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "rewardReady": {
+            "type": "boolean"
+          },
+          "completedCycles": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "membershipStatus": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "EXPIRED",
+              "REVOKED"
+            ]
+          },
+          "locationEligibility": {
+            "type": "object",
+            "properties": {
+              "earning": {
+                "type": "boolean"
+              },
+              "redemption": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "earning",
+              "redemption"
+            ],
+            "additionalProperties": false
+          },
+          "operationPolicy": {
+            "type": "object",
+            "properties": {
+              "minimumStampAmount": {
+                "type": "number",
+                "const": 1
+              },
+              "maximumStampAmountPerOperation": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "remainingProgressCapacity": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "effectiveMaximumStampAmount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "dailyLimitEnabled": {
+                "type": "boolean"
+              },
+              "dailyMaximumStampAmount": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "dailyRemainingStampAmount": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "operationalLocalDate": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "operationalTimezone": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "purchaseRequirementEnabled": {
+                "type": "boolean"
+              },
+              "minimumPurchaseAmountMinor": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "purchaseCurrency": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "merchantTransactionReferenceAllowed": {
+                "type": "boolean"
+              },
+              "merchantTransactionReferenceRequired": {
+                "type": "boolean"
+              },
+              "managerOverridePossibleForRole": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "minimumStampAmount",
+              "maximumStampAmountPerOperation",
+              "remainingProgressCapacity",
+              "effectiveMaximumStampAmount",
+              "dailyLimitEnabled",
+              "dailyMaximumStampAmount",
+              "dailyRemainingStampAmount",
+              "operationalLocalDate",
+              "operationalTimezone",
+              "purchaseRequirementEnabled",
+              "minimumPurchaseAmountMinor",
+              "purchaseCurrency",
+              "merchantTransactionReferenceAllowed",
+              "merchantTransactionReferenceRequired",
+              "managerOverridePossibleForRole"
+            ],
+            "additionalProperties": false
+          },
+          "stampVisual": {
+            "type": "object",
+            "properties": {
+              "states": {
+                "type": "array",
+                "items": [
+                  {
+                    "type": "string",
+                    "const": "FILLED"
+                  },
+                  {
+                    "type": "string",
+                    "const": "EMPTY"
+                  }
+                ]
+              },
+              "filledAssetUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "emptyAssetUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "filledAssetDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "emptyAssetDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "accessibleLabel": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "backgroundColor": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "foregroundColor": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}$"
+              }
+            },
+            "required": [
+              "states",
+              "filledAssetUrl",
+              "emptyAssetUrl",
+              "filledAssetDigest",
+              "emptyAssetDigest",
+              "accessibleLabel",
+              "backgroundColor",
+              "foregroundColor"
+            ],
+            "additionalProperties": false
+          },
+          "availableRewards": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entitlementPublicId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "TEXT_REWARD",
+                    "FREE_ITEM",
+                    "DISCOUNT_DESCRIPTION",
+                    "CUSTOM"
+                  ]
+                },
+                "finalReward": {
+                  "type": "boolean"
+                },
+                "threshold": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 240
+                },
+                "redemptionInstructions": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "maxLength": 4000
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "AVAILABLE",
+                    "PARTIALLY_REDEEMED"
+                  ]
+                },
+                "redemptionCount": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "maximumRedemptionCount": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "expiresAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "requiresManagerApproval": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "entitlementPublicId",
+                "type",
+                "finalReward",
+                "threshold",
+                "name",
+                "description",
+                "redemptionInstructions",
+                "status",
+                "redemptionCount",
+                "maximumRedemptionCount",
+                "expiresAt",
+                "requiresManagerApproval"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "resolvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "membership",
+          "membershipPublicId",
+          "customerDisplayName",
+          "programName",
+          "progress",
+          "goal",
+          "rewardReady",
+          "completedCycles",
+          "membershipStatus",
+          "locationEligibility",
+          "operationPolicy",
+          "stampVisual",
+          "availableRewards",
+          "resolvedAt",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "StampRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "qrPayload": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 220
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ar"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          },
+          "purchaseAmountMinor": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2147483647
+          },
+          "purchaseCurrency": {},
+          "merchantTransactionReference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "pattern": "^[\\p{L}\\p{N}._:/ -]+$"
+          },
+          "managerOverride": {
+            "type": "object",
+            "properties": {
+              "approvalPublicId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "dailyCap": {
+                "default": false,
+                "type": "boolean"
+              },
+              "purchasePolicy": {
+                "default": false,
+                "type": "boolean"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "approvalPublicId",
+              "dailyCap",
+              "purchasePolicy",
+              "reason"
+            ],
+            "additionalProperties": false
+          },
+          "clientObservedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+          }
+        },
+        "required": [
+          "qrPayload",
+          "amount"
+        ],
+        "additionalProperties": false
+      },
+      "StampResult": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "operationPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "commandId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "replayed": {
+            "type": "boolean"
+          },
+          "beforeProgress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "goal": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "rewardReady": {
+            "type": "boolean"
+          },
+          "completedCycles": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "projectionVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "unlockedRewards": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "entitlementPublicId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "TEXT_REWARD",
+                    "FREE_ITEM",
+                    "DISCOUNT_DESCRIPTION",
+                    "CUSTOM"
+                  ]
+                },
+                "finalReward": {
+                  "type": "boolean"
+                },
+                "threshold": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 240
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "AVAILABLE",
+                    "PARTIALLY_REDEEMED"
+                  ]
+                },
+                "expiresAt": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "format": "date-time",
+                      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "requiresManagerApproval": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "entitlementPublicId",
+                "type",
+                "finalReward",
+                "threshold",
+                "name",
+                "description",
+                "status",
+                "expiresAt",
+                "requiresManagerApproval"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "operationPublicId",
+          "commandId",
+          "replayed",
+          "beforeProgress",
+          "progress",
+          "goal",
+          "rewardReady",
+          "completedCycles",
+          "projectionVersion",
+          "unlockedRewards",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "RedemptionRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "qrPayload": {
+            "type": "string",
+            "minLength": 40,
+            "maxLength": 220
+          },
+          "locale": {
+            "type": "string",
+            "enum": [
+              "en",
+              "ar"
+            ]
+          },
+          "rewardEntitlementPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "managerApprovalPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 240
+          }
+        },
+        "required": [
+          "qrPayload",
+          "rewardEntitlementPublicId"
+        ],
+        "additionalProperties": false
+      },
+      "RedemptionResult": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "operationPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "commandId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "replayed": {
+            "type": "boolean"
+          },
+          "redemptionPublicId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "reward": {
+            "type": "object",
+            "properties": {
+              "entitlementPublicId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "TEXT_REWARD",
+                  "FREE_ITEM",
+                  "DISCOUNT_DESCRIPTION",
+                  "CUSTOM"
+                ]
+              },
+              "finalReward": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "AVAILABLE",
+                  "PARTIALLY_REDEEMED",
+                  "REDEEMED"
+                ]
+              }
+            },
+            "required": [
+              "entitlementPublicId",
+              "type",
+              "finalReward",
+              "name",
+              "description",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "progress": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "goal": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "rewardReady": {
+            "type": "boolean"
+          },
+          "completedCycles": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "projectionVersion": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        "required": [
+          "operationPublicId",
+          "commandId",
+          "replayed",
+          "redemptionPublicId",
+          "reward",
+          "progress",
+          "goal",
+          "rewardReady",
+          "completedCycles",
+          "projectionVersion",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "CommandStatus": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "operationPublicId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "operationType": {
+                "type": "string",
+                "enum": [
+                  "STAMP",
+                  "REDEMPTION"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "const": "PROCESSING"
+              },
+              "safeFailureCode": {
+                "type": "null"
+              },
+              "result": {
+                "type": "null"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "completedAt": {
+                "type": "null"
+              },
+              "requestId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "commandId",
+              "operationPublicId",
+              "operationType",
+              "status",
+              "safeFailureCode",
+              "result",
+              "createdAt",
+              "completedAt",
+              "requestId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "operationPublicId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "operationType": {
+                "type": "string",
+                "enum": [
+                  "STAMP",
+                  "REDEMPTION"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "const": "FAILED"
+              },
+              "safeFailureCode": {
+                "type": "string",
+                "enum": [
+                  "MEMBERSHIP_CREDENTIAL_INVALID",
+                  "MEMBERSHIP_NOT_OPERATIONAL",
+                  "PROGRAM_NOT_OPERATIONAL",
+                  "PROGRAM_VERSION_MISMATCH",
+                  "LOCATION_NOT_AUTHORIZED",
+                  "LOCATION_EARNING_DISABLED",
+                  "LOCATION_REDEMPTION_DISABLED",
+                  "STAFF_ASSIGNMENT_REQUIRED",
+                  "STAMP_AMOUNT_INVALID",
+                  "STAMP_OPERATION_LIMIT_EXCEEDED",
+                  "DAILY_STAMP_LIMIT_REACHED",
+                  "PURCHASE_AMOUNT_REQUIRED",
+                  "PURCHASE_CURRENCY_MISMATCH",
+                  "PURCHASE_THRESHOLD_NOT_MET",
+                  "FINAL_REWARD_PENDING_REDEMPTION",
+                  "REWARD_NOT_AVAILABLE",
+                  "REWARD_EXPIRED",
+                  "REWARD_ALREADY_REDEEMED",
+                  "MANAGER_APPROVAL_REQUIRED",
+                  "MANAGER_APPROVAL_INVALID",
+                  "OPERATION_IDEMPOTENCY_CONFLICT",
+                  "OPERATION_NOT_FOUND",
+                  "OPERATION_IN_PROGRESS",
+                  "OPERATION_FAILED",
+                  "OPERATION_BILLING_BLOCKED",
+                  "RISK_HARD_BLOCK",
+                  "RATE_LIMITED",
+                  "VALIDATION_FAILED",
+                  "DEVICE_PAIRING_INVALID",
+                  "DEVICE_PAIRING_EXPIRED",
+                  "DEVICE_PAIRING_ALREADY_USED",
+                  "DEVICE_PAIRING_ALREADY_ACTIVE",
+                  "STAFF_DEVICE_NOT_ACTIVE",
+                  "STAFF_DEVICE_NOT_FOUND",
+                  "STAFF_DEVICE_SIGNATURE_INVALID",
+                  "STAFF_DEVICE_BODY_DIGEST_INVALID",
+                  "STAFF_DEVICE_NONCE_REPLAYED",
+                  "STAFF_DEVICE_CLOCK_SKEW"
+                ]
+              },
+              "result": {
+                "type": "null"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "completedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "requestId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "commandId",
+              "operationPublicId",
+              "operationType",
+              "status",
+              "safeFailureCode",
+              "result",
+              "createdAt",
+              "completedAt",
+              "requestId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "operationPublicId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "operationType": {
+                "type": "string",
+                "const": "STAMP"
+              },
+              "status": {
+                "type": "string",
+                "const": "COMPLETED"
+              },
+              "safeFailureCode": {
+                "type": "null"
+              },
+              "result": {
+                "type": "object",
+                "properties": {
+                  "operationPublicId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "commandId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "replayed": {
+                    "type": "boolean"
+                  },
+                  "beforeProgress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "goal": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "rewardReady": {
+                    "type": "boolean"
+                  },
+                  "completedCycles": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "projectionVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "unlockedRewards": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "entitlementPublicId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "TEXT_REWARD",
+                            "FREE_ITEM",
+                            "DISCOUNT_DESCRIPTION",
+                            "CUSTOM"
+                          ]
+                        },
+                        "finalReward": {
+                          "type": "boolean"
+                        },
+                        "threshold": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 120
+                        },
+                        "description": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 240
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "AVAILABLE",
+                            "PARTIALLY_REDEEMED"
+                          ]
+                        },
+                        "expiresAt": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "date-time",
+                              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "requiresManagerApproval": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "entitlementPublicId",
+                        "type",
+                        "finalReward",
+                        "threshold",
+                        "name",
+                        "description",
+                        "status",
+                        "expiresAt",
+                        "requiresManagerApproval"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "requestId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  }
+                },
+                "required": [
+                  "operationPublicId",
+                  "commandId",
+                  "replayed",
+                  "beforeProgress",
+                  "progress",
+                  "goal",
+                  "rewardReady",
+                  "completedCycles",
+                  "projectionVersion",
+                  "unlockedRewards",
+                  "requestId"
+                ],
+                "additionalProperties": false
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "completedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "requestId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "commandId",
+              "operationPublicId",
+              "operationType",
+              "status",
+              "safeFailureCode",
+              "result",
+              "createdAt",
+              "completedAt",
+              "requestId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "commandId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "operationPublicId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "operationType": {
+                "type": "string",
+                "const": "REDEMPTION"
+              },
+              "status": {
+                "type": "string",
+                "const": "COMPLETED"
+              },
+              "safeFailureCode": {
+                "type": "null"
+              },
+              "result": {
+                "type": "object",
+                "properties": {
+                  "operationPublicId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "commandId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "replayed": {
+                    "type": "boolean"
+                  },
+                  "redemptionPublicId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "reward": {
+                    "type": "object",
+                    "properties": {
+                      "entitlementPublicId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "TEXT_REWARD",
+                          "FREE_ITEM",
+                          "DISCOUNT_DESCRIPTION",
+                          "CUSTOM"
+                        ]
+                      },
+                      "finalReward": {
+                        "type": "boolean"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      "description": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "AVAILABLE",
+                          "PARTIALLY_REDEEMED",
+                          "REDEEMED"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "entitlementPublicId",
+                      "type",
+                      "finalReward",
+                      "name",
+                      "description",
+                      "status"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "progress": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "goal": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "rewardReady": {
+                    "type": "boolean"
+                  },
+                  "completedCycles": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "projectionVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "requestId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160
+                  }
+                },
+                "required": [
+                  "operationPublicId",
+                  "commandId",
+                  "replayed",
+                  "redemptionPublicId",
+                  "reward",
+                  "progress",
+                  "goal",
+                  "rewardReady",
+                  "completedCycles",
+                  "projectionVersion",
+                  "requestId"
+                ],
+                "additionalProperties": false
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "completedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+              },
+              "requestId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "commandId",
+              "operationPublicId",
+              "operationType",
+              "status",
+              "safeFailureCode",
+              "result",
+              "createdAt",
+              "completedAt",
+              "requestId"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StampVisual": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "states": {
+            "type": "array",
+            "items": [
+              {
+                "type": "string",
+                "const": "FILLED"
+              },
+              {
+                "type": "string",
+                "const": "EMPTY"
+              }
+            ]
+          },
+          "filledAssetUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "emptyAssetUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "filledAssetDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "emptyAssetDigest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "accessibleLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          },
+          "backgroundColor": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          },
+          "foregroundColor": {
+            "type": "string",
+            "pattern": "^#[0-9A-Fa-f]{6}$"
+          }
+        },
+        "required": [
+          "states",
+          "filledAssetUrl",
+          "emptyAssetUrl",
+          "filledAssetDigest",
+          "emptyAssetDigest",
+          "accessibleLabel",
+          "backgroundColor",
+          "foregroundColor"
+        ],
+        "additionalProperties": false
+      },
+      "M1GenericResult": {
+        "type": "object",
+        "description": "Approved M1 response retained from the W4 signed Staff-device contract.",
+        "additionalProperties": true
+      },
+      "ErrorEnvelope": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message",
+              "requestId"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string",
+                "description": "Diagnostic only; never mobile UI copy."
+              },
+              "details": {
+                "type": "object",
+                "additionalProperties": true
+              },
+              "requestId": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

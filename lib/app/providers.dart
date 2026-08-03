@@ -11,15 +11,20 @@ import 'package:waflo_staff/core/api/api_error_decoder.dart';
 import 'package:waflo_staff/core/api/generated/staff_device_pairing/staff_device_pairing_client.dart';
 import 'package:waflo_staff/core/crypto/device_identity.dart';
 import 'package:waflo_staff/core/crypto/request_signing.dart';
+import 'package:waflo_staff/core/idempotency/business_command_id.dart';
+import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/core/logging/safe_logger.dart';
 import 'package:waflo_staff/core/network/dio_factory.dart';
+import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
+import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
 import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/session_manager.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
+import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
 import 'package:waflo_staff/features/pairing/data/generated_pairing_api.dart';
 import 'package:waflo_staff/features/pairing/data/platform_device_metadata.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_api.dart';
@@ -28,6 +33,7 @@ import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
 import 'package:waflo_staff/features/settings/presentation/preferences_controllers.dart';
+import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
 final environmentProvider = Provider<AppEnvironment>(
   (ref) => throw StateError('AppEnvironment was not bootstrapped.'),
@@ -44,6 +50,11 @@ final safeLoggerProvider = Provider<SafeLogger>(
 final preferencesRepositoryProvider = Provider<PreferencesRepository>(
   (ref) => PreferencesRepository(ref.watch(sharedPreferencesProvider)),
 );
+final pendingOperationStoreProvider = Provider<PendingOperationStore>(
+  (ref) => SharedPreferencesPendingOperationStore(
+    ref.watch(sharedPreferencesProvider),
+  ),
+);
 final apiErrorDecoderProvider = Provider<ApiErrorDecoder>(
   (ref) => const ApiErrorDecoder(),
 );
@@ -52,6 +63,12 @@ final publicDioProvider = Provider<Dio>(
 );
 final signedDioProvider = Provider<Dio>(
   (ref) => const DioFactory().create(ref.watch(environmentProvider)),
+);
+final stampAssetDioProvider = Provider<Dio>(
+  (ref) => const DioFactory().create(ref.watch(environmentProvider)),
+);
+final stampImageCacheProvider = Provider<StampImageLoader>(
+  (ref) => DigestImageCache(ref.watch(stampAssetDioProvider)),
 );
 final identityRepositoryProvider = Provider<DeviceIdentityRepository>(
   (ref) => DeviceIdentityRepository(ref.watch(secureStoreProvider)),
@@ -86,8 +103,17 @@ final pairingScannerAdapterProvider =
       ref.onDispose(() => unawaited(adapter.dispose()));
       return adapter;
     });
+final customerScannerAdapterProvider =
+    Provider.autoDispose<CustomerScannerAdapter>((ref) {
+      final adapter = MobileCustomerScannerAdapter();
+      ref.onDispose(() => unawaited(adapter.dispose()));
+      return adapter;
+    });
 final requestSignerProvider = Provider<DeviceRequestSigner>(
   (ref) => DeviceRequestSigner(ref.watch(identityRepositoryProvider)),
+);
+final businessCommandIdGeneratorProvider = Provider<BusinessCommandIdGenerator>(
+  (ref) => const UuidBusinessCommandIdGenerator(),
 );
 final deviceSessionApiProvider = Provider<DeviceSessionApi>(
   (ref) => SignedDeviceApi(
@@ -104,6 +130,17 @@ final sessionManagerProvider = Provider<SessionManager>(
     ref.watch(preferencesRepositoryProvider),
     lifecycleRepository: ref.watch(localLifecycleRepositoryProvider),
     transactionRepository: ref.watch(pairingTransactionRepositoryProvider),
+  ),
+);
+final loyaltyOperationsApiProvider = Provider<LoyaltyOperationsApi>(
+  (ref) => SignedLoyaltyOperationsApi(
+    dio: ref.watch(signedDioProvider),
+    signer: ref.watch(requestSignerProvider),
+    errorDecoder: ref.watch(apiErrorDecoderProvider),
+    sessionRepository: ref.watch(sessionRepositoryProvider),
+    refreshSession: ref.watch(sessionManagerProvider).refreshSingleFlight,
+    allowInsecureAssets:
+        ref.watch(environmentProvider).flavor == AppFlavor.development,
   ),
 );
 final pairingFlowServiceProvider = Provider<PairingFlowService>(
@@ -137,6 +174,10 @@ final bootControllerProvider = NotifierProvider<BootController, BootState>(
 final pairingControllerProvider =
     NotifierProvider<PairingController, PairingViewState>(
       PairingController.new,
+    );
+final m2OperationControllerProvider =
+    NotifierProvider<M2OperationController, M2OperationState>(
+      M2OperationController.new,
     );
 final localeControllerProvider = NotifierProvider<LocaleController, Locale?>(
   LocaleController.new,

@@ -38,6 +38,11 @@ Future<void> main(List<String> arguments) async {
     r'\.iml$',
     caseSensitive: false,
   );
+  final sensitivePath = RegExp(
+    r'(^|/)(\.env(?:\.[^/]+)?|credentials?|private[-_]?keys?|runtime[-_]?pending|customer[-_]?data)(/|$)|'
+    r'\.(pem|p12|pfx|key|jks|keystore|sqlite|sqlite3|db)$',
+    caseSensitive: false,
+  );
   for (final entry in entries) {
     final segments = entry.split('/');
     if (entry.startsWith('/') ||
@@ -48,6 +53,9 @@ Future<void> main(List<String> arguments) async {
     }
     if (forbiddenPath.hasMatch(entry)) {
       problems.add('Machine-generated archive entry: $entry');
+    }
+    if (sensitivePath.hasMatch(entry)) {
+      problems.add('Sensitive archive entry: $entry');
     }
   }
   if (problems.isNotEmpty) {
@@ -98,6 +106,20 @@ Future<void> main(List<String> arguments) async {
       RegExp(r'FLUTTER_ROOT\s*=', caseSensitive: false),
       RegExp(r'ANDROID_HOME\s*=', caseSensitive: false),
     ];
+    final sensitiveText = <RegExp>[
+      RegExp(r'-----BEGIN (?:RSA |EC )?PRIVATE KEY-----'),
+      RegExp(
+        r'waflo-pair-v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{40,}\.[A-Za-z0-9_-]+',
+      ),
+      RegExp(
+        r'(?:waflo-(?:membership|customer)|customer-membership)-(?!credential-fixture)[A-Za-z0-9_.-]{40,}',
+        caseSensitive: false,
+      ),
+      RegExp(
+        r'"(?:accessToken|refreshToken|signature|nonce|privateKey)"\s*:\s*"(?!\[REDACTED\])[^"\r\n]{16,}"',
+        caseSensitive: false,
+      ),
+    ];
     await for (final entity in extraction.list(recursive: true)) {
       if (entity is! File || _isBinary(entity.path)) continue;
       String text;
@@ -107,8 +129,23 @@ Future<void> main(List<String> arguments) async {
         continue;
       }
       if (machineText.any((pattern) => pattern.hasMatch(text))) {
-        final relative = entity.path.substring(extraction.path.length + 1);
+        final relative = entity.path
+            .substring(extraction.path.length + 1)
+            .replaceAll('\\', '/');
         problems.add('Machine-specific absolute path in: $relative');
+      }
+      final relative = entity.path
+          .substring(extraction.path.length + 1)
+          .replaceAll('\\', '/');
+      final approvedM1Synthetic = const <String>{
+        'contracts/w4/deterministic-fixtures.json',
+        'contracts/w4/request-signing.fixture.json',
+        'test/unit/boundaries_test.dart',
+        'test/widget/m1_screens_test.dart',
+      }.contains(relative);
+      if (!approvedM1Synthetic &&
+          sensitiveText.any((pattern) => pattern.hasMatch(text))) {
+        problems.add('Sensitive credential-like content in: $relative');
       }
     }
   } finally {
@@ -121,7 +158,7 @@ Future<void> main(List<String> arguments) async {
     return;
   }
   stdout.writeln(
-    'Archive scan passed: ${entries.length} entries; exclusions, extraction, and absolute-path checks are clean.',
+    'Archive scan passed: ${entries.length} entries; exclusions, extraction, absolute-path, and credential checks are clean.',
   );
 }
 

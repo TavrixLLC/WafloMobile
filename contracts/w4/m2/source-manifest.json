@@ -1,0 +1,100 @@
+{
+  "version": "w4-m2-1",
+  "generatedAt": "2026-07-31T23:45:18+03:00",
+  "backendCommitSha": "16e0b4077510073777040450b84af9b055cf2a33",
+  "migrationStatus": "NO_SCHEMA_CHANGE_REQUIRED",
+  "latestMigration": "20260731010000_w4_repair_round1",
+  "contractChecksum": "7300c3d577fd532fd3613edd7375cdac74f8062de297651c4b0c39791b149328",
+  "sourceFiles": [
+    {
+      "path": "package.json",
+      "sha256": "e03837ad35846f8212303c93ffebbe44555c8baa133bd12b4ad2d5f9c963251d"
+    },
+    {
+      "path": "packages/contracts/src/index.ts",
+      "sha256": "19066b4f7050b49a2d9709a03c9ee5a6f4a0cf58bfc782a7cb5955a06524698f"
+    },
+    {
+      "path": "packages/contracts/src/m2.ts",
+      "sha256": "1738d8725886b2281ee0f1d5d1256bebc288222291515dc4fa6d3a20b40a8ddd"
+    },
+    {
+      "path": "packages/contracts/src/w4.ts",
+      "sha256": "290370fdd2c715b22f09ad644dbc7bfb8ba1bacc99596604dbf7bae0acf9182f"
+    },
+    {
+      "path": "apps/api/src/loyalty/m2-mobile-contract.ts",
+      "sha256": "061b3e8cc709b1a609745ca1b49f1bc953b727fd1a703f54d2c1a47edde32d87"
+    },
+    {
+      "path": "apps/api/src/loyalty/loyalty-operation.service.ts",
+      "sha256": "b1e0cb20bec8e86d297872cbf66b2eef684e8e2d65af8ea32b3d8cce7f3a67a1"
+    },
+    {
+      "path": "apps/api/src/loyalty/staff-operations.controller.ts",
+      "sha256": "5623b08b004ccd2b95351d90344c16c132af3501ad6627d3d3e1d30909f9449e"
+    },
+    {
+      "path": "apps/api/src/programs/public-program-assets.controller.ts",
+      "sha256": "675780b74fd8946eaa2a5dc76bb1caabf7942a2fe13229e3f5c4a4c7af4a9d39"
+    },
+    {
+      "path": "apps/api/src/programs/m2-visual-fallback.ts",
+      "sha256": "b54c14185e08576b408603978f1845500e76cd0f1849ba13859d8d9159d4dda1"
+    },
+    {
+      "path": "apps/api/src/app.module.ts",
+      "sha256": "87555cf2f2a11c84b4590f46a8afe564db756e14789fa134f16d869093a5fd3f"
+    },
+    {
+      "path": "tests/unit/w4-m2-mobile-contract.test.ts",
+      "sha256": "d0d6c0c740c047e8d35c8f80026cca9581581340d7d8e90ab2437c09b5268c26"
+    },
+    {
+      "path": "tests/http/w4-staff-operations.test.ts",
+      "sha256": "50e08c183210d76b6a91231af42cd8c50cc05a8a2086cc59a228cc640f589735"
+    },
+    {
+      "path": "tests/concurrency/w4-loyalty-concurrency.test.ts",
+      "sha256": "c2d61ef17d105a1252ef358888f08668f912c011ee83c81712bb25cddc60a2fa"
+    },
+    {
+      "path": "tests/concurrency/w4-operational-races.test.ts",
+      "sha256": "709c2db574af5cec041bf6c3bfb1cd0d81c3e6f9ef76b39fbdc4f3a363e50477"
+    },
+    {
+      "path": "scripts/generate-m2-mobile-contracts.mts",
+      "sha256": "0b7996a078d2c38735c48c9b9761f6a5ec68f234ea0d52e36e64187f5a031025"
+    },
+    {
+      "path": "scripts/run-m2-quality-gate.mjs",
+      "sha256": "bae60013482fd9873b55f00f78fd15ef7b597ec63eea0eb2888c31a8b3199442"
+    },
+    {
+      "path": "scripts/verify-m2-portable-archive.mjs",
+      "sha256": "5daecf1be14387b0ce6b3c5215a526bf062de0e3d34abf16ee0881206413548d"
+    },
+    {
+      "path": "docs/w4/m2-mobile-contract.md",
+      "sha256": "7fb6a7d28e0b46070e5a4605e18a77e89e93768a8909690aad289520f943bccf"
+    },
+    {
+      "path": "docs/w4/m2-membership-resolve.md",
+      "sha256": "f14f3333ffd20743a40e872e449fe477719ca809dec459d69acca02a5aadda89"
+    },
+    {
+      "path": "docs/w4/m2-operation-results.md",
+      "sha256": "7252b7bcf206ebc10568a1436542161a52c834bbae50fd26c4ee8117531b8b59"
+    },
+    {
+      "path": "docs/w4/m2-command-recovery.md",
+      "sha256": "58ee40957dad7095b880e635e3914d672015833092490ecd5976bce56f0edf9d"
+    },
+    {
+      "path": "docs/w4/m2-stamp-visual.md",
+      "sha256": "7bdc187461971263f7801703ca04cbd1de988f9a01406184743031f65aedc8da"
+    }
+  ],
+  "containsCredentials": false,
+  "containsRealQrValues": false
+}

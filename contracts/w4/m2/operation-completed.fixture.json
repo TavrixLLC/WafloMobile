@@ -1,0 +1,23 @@
+{
+  "commandId": "20000000-0000-4000-8000-000000000001",
+  "operationPublicId": "30000000-0000-4000-8000-000000000001",
+  "operationType": "STAMP",
+  "status": "COMPLETED",
+  "safeFailureCode": null,
+  "result": {
+    "operationPublicId": "30000000-0000-4000-8000-000000000001",
+    "commandId": "20000000-0000-4000-8000-000000000001",
+    "replayed": false,
+    "beforeProgress": 2,
+    "progress": 3,
+    "goal": 8,
+    "rewardReady": false,
+    "completedCycles": 0,
+    "projectionVersion": 3,
+    "unlockedRewards": [],
+    "requestId": "10000000-0000-4000-8000-000000000001"
+  },
+  "createdAt": "2026-08-02T12:00:00.000Z",
+  "completedAt": "2026-08-02T12:00:01.000Z",
+  "requestId": "10000000-0000-4000-8000-000000000001"
+}

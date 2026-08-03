@@ -383,4 +383,313 @@ class AppLocalizationsEn extends AppLocalizations {
   String requestReference(Object requestId) {
     return 'Request reference: $requestId';
   }
+
+  @override
+  String get m2ScannerTitle => 'Scan customer membership';
+
+  @override
+  String get m2ScannerInstructions =>
+      'Place the customer Waflo membership QR inside the frame. The code is not displayed or saved.';
+
+  @override
+  String get resolvingMembership => 'Resolving membership securely';
+
+  @override
+  String get membershipTitle => 'Membership';
+
+  @override
+  String get customerLabel => 'Customer';
+
+  @override
+  String get programLabel => 'Program';
+
+  @override
+  String get membershipStatusLabel => 'Membership status';
+
+  @override
+  String get membershipStatusActive => 'Active';
+
+  @override
+  String get membershipStatusSuspended => 'Suspended';
+
+  @override
+  String get membershipStatusExpired => 'Expired';
+
+  @override
+  String get membershipStatusRevoked => 'Revoked';
+
+  @override
+  String progressOf(Object goal, Object progress) {
+    return '$progress of $goal stamps';
+  }
+
+  @override
+  String completedCycles(Object count) {
+    return 'Completed cycles: $count';
+  }
+
+  @override
+  String resolvedAt(Object time) {
+    return 'Resolved $time';
+  }
+
+  @override
+  String get rewardReady => 'Final reward ready';
+
+  @override
+  String get earningAvailable => 'Earning is available here';
+
+  @override
+  String get redemptionAvailable => 'Redemption is available here';
+
+  @override
+  String get stampAmount => 'Stamp amount';
+
+  @override
+  String projectedProgress(Object goal, Object progress) {
+    return 'After approval: $progress of $goal';
+  }
+
+  @override
+  String get purchaseAmount => 'Purchase amount';
+
+  @override
+  String requiredCurrency(Object currency) {
+    return 'Required currency: $currency';
+  }
+
+  @override
+  String purchaseMinimum(Object amount) {
+    return 'Minimum purchase: $amount';
+  }
+
+  @override
+  String get transactionReference => 'Transaction reference';
+
+  @override
+  String get optionalLabel => 'Optional';
+
+  @override
+  String get continueToReview => 'Review operation';
+
+  @override
+  String get reviewStampTitle => 'Review stamp issuance';
+
+  @override
+  String get confirmStamp => 'Confirm stamp issuance';
+
+  @override
+  String get issuingStamps => 'Issuing stamps securely';
+
+  @override
+  String get stampSuccessTitle => 'Stamps issued';
+
+  @override
+  String stampsIssued(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stamps issued',
+      one: '1 stamp issued',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get rewardUnlocked => 'Reward unlocked';
+
+  @override
+  String get scanNextCustomer => 'Scan next customer';
+
+  @override
+  String get rewardsTitle => 'Available rewards';
+
+  @override
+  String get milestoneReward => 'Milestone reward';
+
+  @override
+  String get finalReward => 'Final reward';
+
+  @override
+  String thresholdLabel(Object count) {
+    return 'Threshold: $count stamps';
+  }
+
+  @override
+  String expirationLabel(Object date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String redemptionCount(Object count, Object maximum) {
+    return 'Redeemed $count of $maximum';
+  }
+
+  @override
+  String get managerApprovalRequired => 'Manager approval required';
+
+  @override
+  String get managerApprovalBody =>
+      'This reward cannot be redeemed in M2. Use an approved Manager flow when it becomes available.';
+
+  @override
+  String get redeem => 'Redeem reward';
+
+  @override
+  String get redemptionReviewTitle => 'Review reward redemption';
+
+  @override
+  String finalResetWarning(Object goal) {
+    return 'After redemption, this cycle will complete and the stamp card will reset to 0 of $goal.';
+  }
+
+  @override
+  String get confirmRedemption => 'Confirm redemption';
+
+  @override
+  String get redeemingReward => 'Redeeming reward securely';
+
+  @override
+  String get redemptionSuccessTitle => 'Reward redeemed';
+
+  @override
+  String get progressUnchanged => 'Stamp progress is unchanged.';
+
+  @override
+  String cycleResetComplete(Object goal) {
+    return 'Cycle completed. Progress reset to 0 of $goal.';
+  }
+
+  @override
+  String get pendingOperationTitle => 'Operation result pending';
+
+  @override
+  String get pendingOperationBody =>
+      'Do not start a new operation. Check the original command result when the connection is available.';
+
+  @override
+  String get checkStatus => 'Check result';
+
+  @override
+  String get dismissRecovery => 'Return home';
+
+  @override
+  String get rescanRequired =>
+      'Scan the customer membership again before retrying the same command.';
+
+  @override
+  String get offlineOperationsBlocked =>
+      'Loyalty operations require an online connection.';
+
+  @override
+  String get noCapabilitiesBody =>
+      'This location permits neither earning nor redemption. Refresh the device context or contact a Manager.';
+
+  @override
+  String get notAvailableInM2 => 'Not available in M2';
+
+  @override
+  String get refreshRequired => 'Refresh context';
+
+  @override
+  String operationReferenceSuffix(Object suffix) {
+    return 'Operation reference ending $suffix';
+  }
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get finalReady =>
+      'All stamps are filled. Redeem the final reward before earning more.';
+
+  @override
+  String get m2CredentialInvalid =>
+      'This membership code is invalid. Ask the customer to show a fresh code.';
+
+  @override
+  String get m2MembershipBlocked =>
+      'This membership or program is not available for loyalty operations.';
+
+  @override
+  String get m2ProgramMismatch =>
+      'The program changed. Scan the membership again.';
+
+  @override
+  String get m2LocationBlocked =>
+      'This operation is not authorized at the current location.';
+
+  @override
+  String get m2StampPolicyBlocked =>
+      'The selected stamp amount is not permitted.';
+
+  @override
+  String get m2DailyLimit => 'The daily stamp allowance has been reached.';
+
+  @override
+  String get m2PurchaseRequired => 'Enter the required purchase amount.';
+
+  @override
+  String get m2CurrencyMismatch =>
+      'Use the exact currency required by the program.';
+
+  @override
+  String get m2PurchaseThreshold =>
+      'The purchase amount does not meet the required minimum.';
+
+  @override
+  String get m2FinalPending =>
+      'Redeem the final reward before issuing more stamps.';
+
+  @override
+  String get m2RewardUnavailable => 'This reward is no longer available.';
+
+  @override
+  String get m2RewardExpired => 'This reward has expired.';
+
+  @override
+  String get m2RewardRedeemed => 'This reward was already redeemed.';
+
+  @override
+  String get m2ManagerApproval =>
+      'An approved Manager flow is required. This app will not bypass it.';
+
+  @override
+  String get m2IdempotencyConflict =>
+      'The original operation details do not match this command. Contact support.';
+
+  @override
+  String get m2OperationNotFound => 'The original command was not found.';
+
+  @override
+  String get m2OperationProcessing =>
+      'The original operation is still processing.';
+
+  @override
+  String get m2OperationFailed =>
+      'The original operation failed and no success was recorded.';
+
+  @override
+  String get m2BillingBlocked =>
+      'Loyalty operations are unavailable for this organization.';
+
+  @override
+  String get m2RiskBlocked =>
+      'Waflo blocked this operation for security review.';
+
+  @override
+  String get m2RateLimited =>
+      'Too many requests. Wait briefly, then check again.';
+
+  @override
+  String get m2ContractError =>
+      'Waflo returned an unsafe or incompatible response. Operations are disabled.';
+
+  @override
+  String get m2RecoveryExpired =>
+      'This pending result needs Waflo support before another operation is attempted.';
+
+  @override
+  String get m2ResultUnknown =>
+      'The server result is unknown. Do not repeat the operation; check its status.';
 }

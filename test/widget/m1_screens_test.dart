@@ -16,6 +16,7 @@ import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
+import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
 import '../support/fixtures.dart';
 
@@ -112,7 +113,7 @@ void main() {
     expect(find.textContaining('assigned location'), findsOneWidget);
   });
 
-  testWidgets('paired shell marks all M2 destinations unavailable', (
+  testWidgets('paired M1 shell remains intact while M2 scan is activated', (
     tester,
   ) async {
     await tester.pumpWidget(_homeHarness());
@@ -134,7 +135,7 @@ void main() {
     );
     expect(find.text('Recent operations'), findsOneWidget);
     expect(find.text('Manager approvals'), findsOneWidget);
-    expect(find.text('Not available in M1'), findsWidgets);
+    expect(find.text('Not available in M2'), findsNWidgets(2));
   });
 
   testWidgets('settings exposes only M1 preferences and safe controls', (
@@ -233,6 +234,9 @@ Widget _homeHarness() => ProviderScope(
       ),
     ),
     connectivityProvider.overrideWith((ref) => Stream.value(true)),
+    m2OperationControllerProvider.overrideWithBuild(
+      (ref, notifier) => const M2OperationState.idle(),
+    ),
   ],
   child: const _LocalizedApp(child: HomeScreen()),
 );

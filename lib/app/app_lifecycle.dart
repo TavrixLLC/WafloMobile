@@ -40,6 +40,7 @@ final class _AppLifecycleBoundaryState
         state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {
       setState(() => _privacyCover = true);
+      ref.read(m2OperationControllerProvider.notifier).onBackground();
     }
   }
 

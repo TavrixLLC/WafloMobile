@@ -763,6 +763,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Request reference: {requestId}'**
   String requestReference(Object requestId);
+
+  /// No description provided for @m2ScannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan customer membership'**
+  String get m2ScannerTitle;
+
+  /// No description provided for @m2ScannerInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the customer Waflo membership QR inside the frame. The code is not displayed or saved.'**
+  String get m2ScannerInstructions;
+
+  /// No description provided for @resolvingMembership.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolving membership securely'**
+  String get resolvingMembership;
+
+  /// No description provided for @membershipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get membershipTitle;
+
+  /// No description provided for @customerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerLabel;
+
+  /// No description provided for @programLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Program'**
+  String get programLabel;
+
+  /// No description provided for @membershipStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership status'**
+  String get membershipStatusLabel;
+
+  /// No description provided for @membershipStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get membershipStatusActive;
+
+  /// No description provided for @membershipStatusSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get membershipStatusSuspended;
+
+  /// No description provided for @membershipStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get membershipStatusExpired;
+
+  /// No description provided for @membershipStatusRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get membershipStatusRevoked;
+
+  /// No description provided for @progressOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{progress} of {goal} stamps'**
+  String progressOf(Object goal, Object progress);
+
+  /// No description provided for @completedCycles.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed cycles: {count}'**
+  String completedCycles(Object count);
+
+  /// No description provided for @resolvedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved {time}'**
+  String resolvedAt(Object time);
+
+  /// No description provided for @rewardReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Final reward ready'**
+  String get rewardReady;
+
+  /// No description provided for @earningAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Earning is available here'**
+  String get earningAvailable;
+
+  /// No description provided for @redemptionAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Redemption is available here'**
+  String get redemptionAvailable;
+
+  /// No description provided for @stampAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp amount'**
+  String get stampAmount;
+
+  /// No description provided for @projectedProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'After approval: {progress} of {goal}'**
+  String projectedProgress(Object goal, Object progress);
+
+  /// No description provided for @purchaseAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase amount'**
+  String get purchaseAmount;
+
+  /// No description provided for @requiredCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Required currency: {currency}'**
+  String requiredCurrency(Object currency);
+
+  /// No description provided for @purchaseMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum purchase: {amount}'**
+  String purchaseMinimum(Object amount);
+
+  /// No description provided for @transactionReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction reference'**
+  String get transactionReference;
+
+  /// No description provided for @optionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optionalLabel;
+
+  /// No description provided for @continueToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review operation'**
+  String get continueToReview;
+
+  /// No description provided for @reviewStampTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review stamp issuance'**
+  String get reviewStampTitle;
+
+  /// No description provided for @confirmStamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm stamp issuance'**
+  String get confirmStamp;
+
+  /// No description provided for @issuingStamps.
+  ///
+  /// In en, this message translates to:
+  /// **'Issuing stamps securely'**
+  String get issuingStamps;
+
+  /// No description provided for @stampSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamps issued'**
+  String get stampSuccessTitle;
+
+  /// No description provided for @stampsIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stamp issued} other{{count} stamps issued}}'**
+  String stampsIssued(num count);
+
+  /// No description provided for @rewardUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward unlocked'**
+  String get rewardUnlocked;
+
+  /// No description provided for @scanNextCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan next customer'**
+  String get scanNextCustomer;
+
+  /// No description provided for @rewardsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Available rewards'**
+  String get rewardsTitle;
+
+  /// No description provided for @milestoneReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestone reward'**
+  String get milestoneReward;
+
+  /// No description provided for @finalReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Final reward'**
+  String get finalReward;
+
+  /// No description provided for @thresholdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Threshold: {count} stamps'**
+  String thresholdLabel(Object count);
+
+  /// No description provided for @expirationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String expirationLabel(Object date);
+
+  /// No description provided for @redemptionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeemed {count} of {maximum}'**
+  String redemptionCount(Object count, Object maximum);
+
+  /// No description provided for @managerApprovalRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager approval required'**
+  String get managerApprovalRequired;
+
+  /// No description provided for @managerApprovalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This reward cannot be redeemed in M2. Use an approved Manager flow when it becomes available.'**
+  String get managerApprovalBody;
+
+  /// No description provided for @redeem.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem reward'**
+  String get redeem;
+
+  /// No description provided for @redemptionReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review reward redemption'**
+  String get redemptionReviewTitle;
+
+  /// No description provided for @finalResetWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'After redemption, this cycle will complete and the stamp card will reset to 0 of {goal}.'**
+  String finalResetWarning(Object goal);
+
+  /// No description provided for @confirmRedemption.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm redemption'**
+  String get confirmRedemption;
+
+  /// No description provided for @redeemingReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeeming reward securely'**
+  String get redeemingReward;
+
+  /// No description provided for @redemptionSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward redeemed'**
+  String get redemptionSuccessTitle;
+
+  /// No description provided for @progressUnchanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp progress is unchanged.'**
+  String get progressUnchanged;
+
+  /// No description provided for @cycleResetComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle completed. Progress reset to 0 of {goal}.'**
+  String cycleResetComplete(Object goal);
+
+  /// No description provided for @pendingOperationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation result pending'**
+  String get pendingOperationTitle;
+
+  /// No description provided for @pendingOperationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not start a new operation. Check the original command result when the connection is available.'**
+  String get pendingOperationBody;
+
+  /// No description provided for @checkStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Check result'**
+  String get checkStatus;
+
+  /// No description provided for @dismissRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Return home'**
+  String get dismissRecovery;
+
+  /// No description provided for @rescanRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the customer membership again before retrying the same command.'**
+  String get rescanRequired;
+
+  /// No description provided for @offlineOperationsBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty operations require an online connection.'**
+  String get offlineOperationsBlocked;
+
+  /// No description provided for @noCapabilitiesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This location permits neither earning nor redemption. Refresh the device context or contact a Manager.'**
+  String get noCapabilitiesBody;
+
+  /// No description provided for @notAvailableInM2.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available in M2'**
+  String get notAvailableInM2;
+
+  /// No description provided for @refreshRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh context'**
+  String get refreshRequired;
+
+  /// No description provided for @operationReferenceSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation reference ending {suffix}'**
+  String operationReferenceSuffix(Object suffix);
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @finalReady.
+  ///
+  /// In en, this message translates to:
+  /// **'All stamps are filled. Redeem the final reward before earning more.'**
+  String get finalReady;
+
+  /// No description provided for @m2CredentialInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This membership code is invalid. Ask the customer to show a fresh code.'**
+  String get m2CredentialInvalid;
+
+  /// No description provided for @m2MembershipBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This membership or program is not available for loyalty operations.'**
+  String get m2MembershipBlocked;
+
+  /// No description provided for @m2ProgramMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The program changed. Scan the membership again.'**
+  String get m2ProgramMismatch;
+
+  /// No description provided for @m2LocationBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This operation is not authorized at the current location.'**
+  String get m2LocationBlocked;
+
+  /// No description provided for @m2StampPolicyBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected stamp amount is not permitted.'**
+  String get m2StampPolicyBlocked;
+
+  /// No description provided for @m2DailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The daily stamp allowance has been reached.'**
+  String get m2DailyLimit;
+
+  /// No description provided for @m2PurchaseRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the required purchase amount.'**
+  String get m2PurchaseRequired;
+
+  /// No description provided for @m2CurrencyMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the exact currency required by the program.'**
+  String get m2CurrencyMismatch;
+
+  /// No description provided for @m2PurchaseThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase amount does not meet the required minimum.'**
+  String get m2PurchaseThreshold;
+
+  /// No description provided for @m2FinalPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem the final reward before issuing more stamps.'**
+  String get m2FinalPending;
+
+  /// No description provided for @m2RewardUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This reward is no longer available.'**
+  String get m2RewardUnavailable;
+
+  /// No description provided for @m2RewardExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This reward has expired.'**
+  String get m2RewardExpired;
+
+  /// No description provided for @m2RewardRedeemed.
+  ///
+  /// In en, this message translates to:
+  /// **'This reward was already redeemed.'**
+  String get m2RewardRedeemed;
+
+  /// No description provided for @m2ManagerApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'An approved Manager flow is required. This app will not bypass it.'**
+  String get m2ManagerApproval;
+
+  /// No description provided for @m2IdempotencyConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The original operation details do not match this command. Contact support.'**
+  String get m2IdempotencyConflict;
+
+  /// No description provided for @m2OperationNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The original command was not found.'**
+  String get m2OperationNotFound;
+
+  /// No description provided for @m2OperationProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'The original operation is still processing.'**
+  String get m2OperationProcessing;
+
+  /// No description provided for @m2OperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The original operation failed and no success was recorded.'**
+  String get m2OperationFailed;
+
+  /// No description provided for @m2BillingBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty operations are unavailable for this organization.'**
+  String get m2BillingBlocked;
+
+  /// No description provided for @m2RiskBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Waflo blocked this operation for security review.'**
+  String get m2RiskBlocked;
+
+  /// No description provided for @m2RateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Wait briefly, then check again.'**
+  String get m2RateLimited;
+
+  /// No description provided for @m2ContractError.
+  ///
+  /// In en, this message translates to:
+  /// **'Waflo returned an unsafe or incompatible response. Operations are disabled.'**
+  String get m2ContractError;
+
+  /// No description provided for @m2RecoveryExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This pending result needs Waflo support before another operation is attempted.'**
+  String get m2RecoveryExpired;
+
+  /// No description provided for @m2ResultUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The server result is unknown. Do not repeat the operation; check its status.'**
+  String get m2ResultUnknown;
 }
 
 class _AppLocalizationsDelegate

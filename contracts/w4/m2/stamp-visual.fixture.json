@@ -1,0 +1,13 @@
+{
+  "states": [
+    "FILLED",
+    "EMPTY"
+  ],
+  "filledAssetUrl": "https://api.example.invalid/v1/public/program-assets/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "emptyAssetUrl": "https://api.example.invalid/v1/public/program-assets/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "filledAssetDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "emptyAssetDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "accessibleLabel": "Loyalty progress with two stamp states: filled and empty",
+  "backgroundColor": "#F7F4EE",
+  "foregroundColor": "#222222"
+}

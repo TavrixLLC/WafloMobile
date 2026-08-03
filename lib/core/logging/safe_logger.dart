@@ -26,8 +26,11 @@ final class SensitiveRedactor {
     r'waflo-pair-v1\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+',
   );
   static final RegExp _sensitiveJson = RegExp(
-    r'("?(?:accessToken|refreshToken|pairingToken|privateKey|publicKey|signature|nonce|challenge|secret)"?\s*[:=]\s*")([^"]+)(")',
+    r'("?(?:accessToken|refreshToken|pairingToken|qrPayload|customerDisplayName|membershipPublicId|entitlementPublicId|merchantTransactionReference|purchaseReference|privateKey|publicKey|signature|nonce|challenge|requestBody|secret)"?\s*[:=]\s*")([^"]+)(")',
     caseSensitive: false,
+  );
+  static final RegExp _customerCredential = RegExp(
+    r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{40,220}(?![A-Za-z0-9_-])',
   );
 
   String redact(String value) => value
@@ -36,6 +39,7 @@ final class SensitiveRedactor {
         (match) => '${match.group(1)}[REDACTED]',
       )
       .replaceAll(_pairingToken, '[REDACTED_PAIRING]')
+      .replaceAll(_customerCredential, '[REDACTED_CREDENTIAL]')
       .replaceAllMapped(
         _sensitiveJson,
         (match) => '${match.group(1)}[REDACTED]${match.group(3)}',
