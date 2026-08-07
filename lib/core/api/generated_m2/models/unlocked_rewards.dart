@@ -4,37 +4,27 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'type.dart';
-import 'status2.dart';
-
 part 'unlocked_rewards.g.dart';
 
 @JsonSerializable()
 class UnlockedRewards {
   const UnlockedRewards({
-    required this.entitlementPublicId,
-    required this.type,
-    required this.finalReward,
+    required this.publicId,
     required this.threshold,
-    required this.name,
-    required this.description,
     required this.status,
-    required this.expiresAt,
-    required this.requiresManagerApproval,
+    required this.finalValue,
   });
 
   factory UnlockedRewards.fromJson(Map<String, Object?> json) =>
       _$UnlockedRewardsFromJson(json);
 
-  final String entitlementPublicId;
-  final Type type;
-  final bool finalReward;
+  final String publicId;
   final int threshold;
-  final String name;
-  final String description;
-  final Status2 status;
-  final DateTime? expiresAt;
-  final bool requiresManagerApproval;
+  final String status;
+
+  /// The name has been replaced because it contains a keyword. Original name: `final`.
+  @JsonKey(name: 'final')
+  final bool finalValue;
 
   Map<String, Object?> toJson() => _$UnlockedRewardsToJson(this);
 }

@@ -6,51 +6,56 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'available_rewards.dart';
 import 'location_eligibility.dart';
-import 'membership.dart';
+import 'membership_resolve_result_locale.dart';
 import 'membership_resolve_result_membership_status.dart';
-import 'operation_policy.dart';
-import 'stamp_visual.dart';
+import 'operation_limits.dart';
+import 'purchase_requirement.dart';
+import 'stamp_visuals.dart';
 
 part 'membership_resolve_result.g.dart';
 
 @JsonSerializable()
 class MembershipResolveResult {
   const MembershipResolveResult({
-    required this.membership,
     required this.membershipPublicId,
+    required this.membershipStatus,
     required this.customerDisplayName,
     required this.programName,
+    required this.locale,
     required this.progress,
     required this.goal,
     required this.rewardReady,
     required this.completedCycles,
-    required this.membershipStatus,
+    required this.projectionVersion,
     required this.locationEligibility,
-    required this.operationPolicy,
-    required this.stampVisual,
+    required this.operationLimits,
+    required this.operationalTimezone,
+    required this.operationalDate,
+    required this.purchaseRequirement,
+    required this.stampVisuals,
     required this.availableRewards,
-    required this.resolvedAt,
-    required this.requestId,
   });
 
   factory MembershipResolveResult.fromJson(Map<String, Object?> json) =>
       _$MembershipResolveResultFromJson(json);
 
-  final Membership membership;
   final String membershipPublicId;
+  final MembershipResolveResultMembershipStatus membershipStatus;
   final String customerDisplayName;
   final String programName;
+  final MembershipResolveResultLocale locale;
   final int progress;
   final int goal;
   final bool rewardReady;
   final int completedCycles;
-  final MembershipResolveResultMembershipStatus membershipStatus;
+  final int projectionVersion;
   final LocationEligibility locationEligibility;
-  final OperationPolicy operationPolicy;
-  final StampVisual stampVisual;
+  final OperationLimits operationLimits;
+  final String operationalTimezone;
+  final DateTime operationalDate;
+  final PurchaseRequirement purchaseRequirement;
+  final StampVisuals stampVisuals;
   final List<AvailableRewards> availableRewards;
-  final DateTime resolvedAt;
-  final String requestId;
 
   Map<String, Object?> toJson() => _$MembershipResolveResultToJson(this);
 }

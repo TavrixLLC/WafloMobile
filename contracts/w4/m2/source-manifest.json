@@ -1,100 +1,61 @@
 {
-  "version": "w4-m2-1",
-  "generatedAt": "2026-07-31T23:45:18+03:00",
-  "backendCommitSha": "16e0b4077510073777040450b84af9b055cf2a33",
-  "migrationStatus": "NO_SCHEMA_CHANGE_REQUIRED",
-  "latestMigration": "20260731010000_w4_repair_round1",
-  "contractChecksum": "7300c3d577fd532fd3613edd7375cdac74f8062de297651c4b0c39791b149328",
-  "sourceFiles": [
-    {
-      "path": "package.json",
-      "sha256": "e03837ad35846f8212303c93ffebbe44555c8baa133bd12b4ad2d5f9c963251d"
-    },
-    {
-      "path": "packages/contracts/src/index.ts",
-      "sha256": "19066b4f7050b49a2d9709a03c9ee5a6f4a0cf58bfc782a7cb5955a06524698f"
-    },
-    {
-      "path": "packages/contracts/src/m2.ts",
-      "sha256": "1738d8725886b2281ee0f1d5d1256bebc288222291515dc4fa6d3a20b40a8ddd"
-    },
-    {
-      "path": "packages/contracts/src/w4.ts",
-      "sha256": "290370fdd2c715b22f09ad644dbc7bfb8ba1bacc99596604dbf7bae0acf9182f"
-    },
-    {
-      "path": "apps/api/src/loyalty/m2-mobile-contract.ts",
-      "sha256": "061b3e8cc709b1a609745ca1b49f1bc953b727fd1a703f54d2c1a47edde32d87"
-    },
-    {
-      "path": "apps/api/src/loyalty/loyalty-operation.service.ts",
-      "sha256": "b1e0cb20bec8e86d297872cbf66b2eef684e8e2d65af8ea32b3d8cce7f3a67a1"
-    },
-    {
-      "path": "apps/api/src/loyalty/staff-operations.controller.ts",
-      "sha256": "5623b08b004ccd2b95351d90344c16c132af3501ad6627d3d3e1d30909f9449e"
-    },
-    {
-      "path": "apps/api/src/programs/public-program-assets.controller.ts",
-      "sha256": "675780b74fd8946eaa2a5dc76bb1caabf7942a2fe13229e3f5c4a4c7af4a9d39"
-    },
-    {
-      "path": "apps/api/src/programs/m2-visual-fallback.ts",
-      "sha256": "b54c14185e08576b408603978f1845500e76cd0f1849ba13859d8d9159d4dda1"
-    },
-    {
-      "path": "apps/api/src/app.module.ts",
-      "sha256": "87555cf2f2a11c84b4590f46a8afe564db756e14789fa134f16d869093a5fd3f"
-    },
-    {
-      "path": "tests/unit/w4-m2-mobile-contract.test.ts",
-      "sha256": "d0d6c0c740c047e8d35c8f80026cca9581581340d7d8e90ab2437c09b5268c26"
-    },
-    {
-      "path": "tests/http/w4-staff-operations.test.ts",
-      "sha256": "50e08c183210d76b6a91231af42cd8c50cc05a8a2086cc59a228cc640f589735"
-    },
-    {
-      "path": "tests/concurrency/w4-loyalty-concurrency.test.ts",
-      "sha256": "c2d61ef17d105a1252ef358888f08668f912c011ee83c81712bb25cddc60a2fa"
-    },
-    {
-      "path": "tests/concurrency/w4-operational-races.test.ts",
-      "sha256": "709c2db574af5cec041bf6c3bfb1cd0d81c3e6f9ef76b39fbdc4f3a363e50477"
-    },
-    {
-      "path": "scripts/generate-m2-mobile-contracts.mts",
-      "sha256": "0b7996a078d2c38735c48c9b9761f6a5ec68f234ea0d52e36e64187f5a031025"
-    },
-    {
-      "path": "scripts/run-m2-quality-gate.mjs",
-      "sha256": "bae60013482fd9873b55f00f78fd15ef7b597ec63eea0eb2888c31a8b3199442"
-    },
-    {
-      "path": "scripts/verify-m2-portable-archive.mjs",
-      "sha256": "5daecf1be14387b0ce6b3c5215a526bf062de0e3d34abf16ee0881206413548d"
-    },
-    {
-      "path": "docs/w4/m2-mobile-contract.md",
-      "sha256": "7fb6a7d28e0b46070e5a4605e18a77e89e93768a8909690aad289520f943bccf"
-    },
-    {
-      "path": "docs/w4/m2-membership-resolve.md",
-      "sha256": "f14f3333ffd20743a40e872e449fe477719ca809dec459d69acca02a5aadda89"
-    },
-    {
-      "path": "docs/w4/m2-operation-results.md",
-      "sha256": "7252b7bcf206ebc10568a1436542161a52c834bbae50fd26c4ee8117531b8b59"
-    },
-    {
-      "path": "docs/w4/m2-command-recovery.md",
-      "sha256": "58ee40957dad7095b880e635e3914d672015833092490ecd5976bce56f0edf9d"
-    },
-    {
-      "path": "docs/w4/m2-stamp-visual.md",
-      "sha256": "7bdc187461971263f7801703ca04cbd1de988f9a01406184743031f65aedc8da"
-    }
-  ],
-  "containsCredentials": false,
-  "containsRealQrValues": false
+  "contractVersion": "waflo-m2-mobile-contract-v1",
+  "generatorVersion": "waflo-m2-contract-generator-v1",
+  "backendCommitSha": "0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e",
+  "parentCommitSha": "2b0000c5541cff0128804992780aaa80853e2655",
+  "reconstruction": {
+    "classification": "PARTIAL_W4_RECOVERY_WITH_M2_COMPATIBILITY_RECONSTRUCTION",
+    "historicalM2CommitRecovered": false
+  },
+  "generatedFiles": {
+    "openapi.m2.json": "2161bbedbc42546ef2af9a22d769881cd31fc8d52167c054c6dd995201b9e70b",
+    "m2.schema.json": "217a8e0ab330b11167930f1777d7492d6293a1450ac1d9205254c29aa6df00e6",
+    "stable-error-codes.m2.json": "59349378e95f3848d4b650991ba865410d97fa0e2a40c9eaa4707d019de31075",
+    "membership-resolve.fixture.json": "ba9e9ad6bde013faba56f3c5f8656c51960706b1cd30c06f519d26f4c606faaa",
+    "stamp-success.fixture.json": "925a86e686b73b5abb0ce6b935dc10c00f85f90784ffee06a71dc7a20f6a43ab",
+    "stamp-final-ready.fixture.json": "1efe5ada363b927896426ec5d5971f35a40779698b6f5a699f7a1159570a5bc0",
+    "redeem-milestone.fixture.json": "6e77536ec10aab96b3daf89acce1100d224a8f570568b9ae305d501e0a8cf764",
+    "redeem-final-reset.fixture.json": "4893fdf332617c908ee1e311b5cfe4d3c5e63e933a53c01187757e0429783b8c",
+    "operation-processing.fixture.json": "4cc210e5639f068ce82a75c7566c78a430cb501597aeb4c4aaf6fb552eb490b6",
+    "operation-failed.fixture.json": "4b6357f130bae29d52043272f0ccbb6e1bbf8fa6ae4cabd735dc43451bb630f2",
+    "operation-completed.fixture.json": "f1341fa97af4b58527bad0d840bf6ac411c772c7c7dde5fab758d2282e2da9aa",
+    "stamp-visual.fixture.json": "2d7e0be50e3fc9e83ca89aecb054d040c3b6bfe1068d076f54b1e0c531a50e6b"
+  },
+  "bundleSha256": "3e2c57f136bcfc4a270b51fd85ffd0e8e96832c8e12ba85dedecb17457d645ae",
+  "sourceFiles": {
+    "package.json": "c73b045ebaa6ceb2a964c9613ba2ce5fb7807b25ee271d4416160ef79ccf5561",
+    "pnpm-lock.yaml": "6967b79e85e9a0db4fb7f1fd08571b412220d24a9f812beb830903671ab590be",
+    "turbo.json": "ee00b179d4aacababb8fc2428e5e6b558987358915e678feeb9c68fc927fb194",
+    "packages/contracts/src/index.ts": "19066b4f7050b49a2d9709a03c9ee5a6f4a0cf58bfc782a7cb5955a06524698f",
+    "packages/contracts/src/m2.ts": "5f206c471e81ad63f2c41f1ae9859a31ec3c76cf012a6792fce8467699a19810",
+    "packages/contracts/src/w4.ts": "b3809f7896a36fda3d91772c7c1503725e1edd88a44fe96e35ee8fd9f631e7bc",
+    "packages/config/src/index.ts": "d3d9cea8c34ab0ece0e282158016b62d4e02c9c3567cb2c22a846e3105ae1a59",
+    "packages/staff-device-security/src/index.ts": "acf2f4fe317ad0a8cd01fbf49293e09bb3cd8ac6d6cfb07ef1f9879295ca8cdc",
+    ".env.example": "8ae18311e54662f366cd4fdb670e265a6f54b0d27bfe1d3047665ee70a4cc675",
+    "apps/api/src/common/request-context.ts": "2b3e9c2c2964b0061f4f8ef010ad025e56485747b66213544594f1c5f7d7504c",
+    "apps/api/src/security/guards.ts": "a0d2da5788793ddf4818c5d6638e1190a4b9d26bef78c2a14d5769a9ccb92191",
+    "apps/api/src/loyalty/staff-operations.controller.ts": "980e6ae0431000f74ee550944a7c9ac4463174910e8d911968a2271775962884",
+    "apps/api/src/loyalty/loyalty-operation.service.ts": "0445c99088d15eaebaff24a68062735371a8e7b5b8cbb3e6078273eae022e556",
+    "apps/api/src/staff-devices/staff-device.service.ts": "376dccc37967cb32d0e96584b4e3836c8ce9b233c41bd21ecd60e1c39a252a79",
+    "apps/api/src/staff-devices/staff-device.controller.ts": "e8c7304e339e10471c262cf65d51574b86043d13846e97cbbf970d3d75e6db0a",
+    "scripts/generate-m2-mobile-contracts.mjs": "0ebdcb7c269eca12ce6ddf6d69891890b9adf940ea71a45b1a1523b8a90ba74f",
+    "scripts/verify-m2-mobile-contracts.mjs": "f113f1359a8068fd06dde2f87949e1b54382fd94b366d0c800fc12f46c37406c",
+    "tests/unit/m2-mobile-contracts.test.ts": "7a7efc9fa80aa4d99bf3a7fc13a01f1b0ffc1d47e7ec2a1f6fe7f147c440472b",
+    "tests/http/w4-staff-operations.test.ts": "ba2b965aafc3c00d231f0ad64dbde8f815b810480815d7bd0296b547ecc6e507",
+    "tests/concurrency/w4-loyalty-concurrency.test.ts": "b871f2fcd398f49c0946b527bb19490a8d9030c1e91640025e943295197f302e",
+    "docs/w4/flutter-handoff.md": "e2d0c3552f1224cbd41ed3c9c9d6c1fb75ceb4606cf9f44ca7980408bf975e80",
+    "docs/w4/m2-mobile-compatibility.md": "7f53836cede2089ac40d314e629fd42345a5748975f68f70c21c6d27945d7477"
+  },
+  "migrations": {
+    "migrationCount": 24,
+    "migrationAddedForM2": false
+  },
+  "safety": {
+    "containsValidQrCredential": false,
+    "containsAccessToken": false,
+    "containsPrivateKey": false,
+    "containsSigningSecret": false,
+    "containsCustomerEmailOrPhone": false,
+    "fixturesAreSynthetic": true
+  }
 }

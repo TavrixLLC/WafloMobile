@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
@@ -23,8 +21,9 @@ final class TwoStateStampGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = _color(artwork.backgroundColor);
-    final foreground = _color(artwork.foregroundColor);
+    final colors = Theme.of(context).colorScheme;
+    final background = colors.surfaceContainerLow;
+    final foreground = colors.primary;
     return Semantics(
       label: semanticLabel,
       container: true,
@@ -40,13 +39,7 @@ final class TwoStateStampGrid extends StatelessWidget {
               runSpacing: 10,
               children: [
                 for (final slot in progress.slots)
-                  _StampSlot(
-                    state: slot,
-                    artwork: artwork,
-                    cache: cache,
-                    allowInsecureAssets: allowInsecureAssets,
-                    foreground: foreground,
-                  ),
+                  _StampSlot(state: slot, foreground: foreground),
               ],
             ),
           ),
@@ -54,55 +47,25 @@ final class TwoStateStampGrid extends StatelessWidget {
       ),
     );
   }
-
-  static Color _color(String value) =>
-      Color(int.parse(value.substring(1), radix: 16) | 0xFF000000);
 }
 
 final class _StampSlot extends StatelessWidget {
-  const _StampSlot({
-    required this.state,
-    required this.artwork,
-    required this.cache,
-    required this.allowInsecureAssets,
-    required this.foreground,
-  });
+  const _StampSlot({required this.state, required this.foreground});
 
   final StampSlotState state;
-  final StampArtwork artwork;
-  final StampImageLoader cache;
-  final bool allowInsecureAssets;
   final Color foreground;
 
   @override
   Widget build(BuildContext context) {
     final filled = state == StampSlotState.filled;
-    final future = cache.load(
-      url: filled ? artwork.filledAssetUrl : artwork.emptyAssetUrl,
-      digest: filled ? artwork.filledAssetDigest : artwork.emptyAssetDigest,
-      allowInsecure: allowInsecureAssets,
-    );
     return SizedBox.square(
       dimension: 52,
-      child: FutureBuilder<Uint8List>(
-        future: future,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Image.memory(
-              snapshot.requireData,
-              fit: BoxFit.contain,
-              gaplessPlayback: true,
-              filterQuality: FilterQuality.medium,
-            );
-          }
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              color: filled ? foreground : Colors.transparent,
-              border: Border.all(color: foreground, width: 2),
-              shape: BoxShape.circle,
-            ),
-          );
-        },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: filled ? foreground : Colors.transparent,
+          border: Border.all(color: foreground, width: 2),
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }

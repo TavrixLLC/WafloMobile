@@ -28,9 +28,7 @@ void main() {
           'OPERATION_RESULT_UNKNOWN',
           responseReceived: false,
         ),
-        recovery: CommandRecoveryResult.fromJson(
-          _fixture('operation-completed.fixture.json'),
-        ),
+        recovery: _recoveryFixture('operation-completed.fixture.json'),
       );
       final container = _container(api: api, store: store);
       addTearDown(container.dispose);
@@ -58,7 +56,7 @@ void main() {
 
       final recovered = container.read(m2OperationControllerProvider);
       expect(recovered.stage, M2OperationStage.stampSucceeded);
-      expect(recovered.stampResult?.progress.progress, 3);
+      expect(recovered.stampResult?.progress.progress, 5);
       expect(api.issueCommandIds, hasLength(1));
     },
   );
@@ -76,9 +74,7 @@ void main() {
       );
     final api = _FakeLoyaltyApi(
       membership: _membership(2),
-      recovery: CommandRecoveryResult.fromJson(
-        _fixture('operation-completed.fixture.json'),
-      ),
+      recovery: _recoveryFixture('operation-completed.fixture.json'),
     );
     final container = _container(api: api, store: store);
     addTearDown(container.dispose);
@@ -97,6 +93,73 @@ void main() {
     expect(api.resolveCalls, 0);
     expect(api.issueCommandIds, isEmpty);
   });
+
+  test(
+    'PROCESSING after restart keeps the same command and blocks scan',
+    () async {
+      final store = MemoryPendingOperationStore()
+        ..value = PendingOperationRecord(
+          commandId: '20000000-0000-4000-8000-000000000001',
+          operationType: PendingOperationType.stamp,
+          membershipPublicId: 'mem_fixture_not_a_credential',
+          stampAmount: 1,
+          createdAt: DateTime.now().toUtc(),
+          lastCheckedAt: null,
+          status: PendingOperationStatus.processing,
+        );
+      final api = _FakeLoyaltyApi(
+        membership: _membership(2),
+        recovery: _recoveryFixture('operation-processing.fixture.json'),
+      );
+      final container = _container(api: api, store: store);
+      addTearDown(container.dispose);
+      final controller = container.read(m2OperationControllerProvider.notifier);
+
+      await controller.recoverPending();
+      controller.startScanning();
+
+      final state = container.read(m2OperationControllerProvider);
+      expect(state.stage, M2OperationStage.stampAmbiguous);
+      expect(state.pendingOperation?.commandId, store.value?.commandId);
+      expect(store.value?.status, PendingOperationStatus.processing);
+      expect(api.resolveCalls, 0);
+      expect(api.issueCommandIds, isEmpty);
+    },
+  );
+
+  test(
+    'FAILED after restart exposes safe failure without a new mutation',
+    () async {
+      final store = MemoryPendingOperationStore()
+        ..value = PendingOperationRecord(
+          commandId: '20000000-0000-4000-8000-000000000001',
+          operationType: PendingOperationType.stamp,
+          membershipPublicId: 'mem_fixture_not_a_credential',
+          stampAmount: 1,
+          createdAt: DateTime.now().toUtc(),
+          lastCheckedAt: null,
+          status: PendingOperationStatus.processing,
+        );
+      final api = _FakeLoyaltyApi(
+        membership: _membership(2),
+        recovery: _recoveryFixture('operation-failed.fixture.json'),
+      );
+      final container = _container(api: api, store: store);
+      addTearDown(container.dispose);
+      final controller = container.read(m2OperationControllerProvider.notifier);
+
+      await controller.recoverPending();
+      controller.startScanning();
+
+      final state = container.read(m2OperationControllerProvider);
+      expect(state.stage, M2OperationStage.policyBlocked);
+      expect(state.failure?.safeCode, 'PURCHASE_CURRENCY_MISMATCH');
+      expect(store.value?.status, PendingOperationStatus.failed);
+      expect(state.pendingOperation?.commandId, store.value?.commandId);
+      expect(api.resolveCalls, 0);
+      expect(api.issueCommandIds, isEmpty);
+    },
+  );
 
   test('leaving recovery view keeps the pending command blocking scans', () {
     final store = MemoryPendingOperationStore()
@@ -287,10 +350,7 @@ final class _FakeLoyaltyApi implements LoyaltyOperationsApi {
 
   @override
   Future<CommandRecoveryResult> commandStatus(String commandId) async =>
-      recovery ??
-      CommandRecoveryResult.fromJson(
-        _fixture('operation-processing.fixture.json'),
-      );
+      recovery ?? _recoveryFixture('operation-processing.fixture.json');
 }
 
 const _credential =
@@ -298,25 +358,19 @@ const _credential =
 
 ResolvedMembership _membership(int progress) {
   final value = _fixture('membership-resolve.fixture.json');
-  final membership = value['membership']! as Map<String, Object?>;
-  final policy = value['operationPolicy']! as Map<String, Object?>;
+  final limits = value['operationLimits']! as Map<String, Object?>;
   value['progress'] = progress;
-  membership['progress'] = progress;
   value['rewardReady'] = progress == 8;
-  membership['rewardReady'] = progress == 8;
-  membership['projectionVersion'] = progress + 1;
-  policy['remainingProgressCapacity'] = 8 - progress;
-  policy['effectiveMaximumStampAmount'] = (8 - progress).clamp(0, 5);
+  value['projectionVersion'] = progress + 1;
+  limits['dailyRemainingStamps'] = (8 - progress).clamp(0, 4);
   if (progress == 8) {
     value['availableRewards'] = [
       <String, Object?>{
-        'entitlementPublicId': '40000000-0000-4000-8000-000000000002',
-        'type': 'FREE_ITEM',
+        'publicId': '40000000-0000-4000-8000-000000000002',
         'finalReward': true,
         'threshold': 8,
         'name': 'Fixture final reward',
         'description': 'A sanitized final reward.',
-        'redemptionInstructions': 'Follow merchant instructions.',
         'status': 'AVAILABLE',
         'redemptionCount': 0,
         'maximumRedemptionCount': 1,
@@ -324,6 +378,10 @@ ResolvedMembership _membership(int progress) {
         'requiresManagerApproval': false,
       },
     ];
+  } else {
+    final rewards = value['availableRewards']! as List<Object?>;
+    final reward = rewards.single! as Map<String, Object?>;
+    reward['requiresManagerApproval'] = true;
   }
   return ResolvedMembership.fromJson(value, allowInsecureAssets: false);
 }
@@ -331,3 +389,14 @@ ResolvedMembership _membership(int progress) {
 Map<String, Object?> _fixture(String name) =>
     jsonDecode(File('contracts/w4/m2/$name').readAsStringSync())
         as Map<String, Object?>;
+
+CommandRecoveryResult _recoveryFixture(String name) {
+  final value = _fixture(name);
+  const commandId = '20000000-0000-4000-8000-000000000001';
+  value['commandId'] = commandId;
+  final result = value['result'];
+  if (result is Map<String, Object?>) {
+    result['commandId'] = commandId;
+  }
+  return CommandRecoveryResult.fromJson(value);
+}

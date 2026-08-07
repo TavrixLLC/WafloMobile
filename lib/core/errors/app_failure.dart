@@ -59,7 +59,8 @@ FailureDisposition classifyFailure(AppFailure failure) =>
       'DEVICE_PAIRING_INVALID' => FailureDisposition.pairingInvalid,
       'STAFF_DEVICE_REVOKED' => FailureDisposition.deviceRevoked,
       'STAFF_DEVICE_COMPROMISED' => FailureDisposition.deviceCompromised,
-      'APP_UPDATE_REQUIRED' => FailureDisposition.updateRequired,
+      'APP_UPDATE_REQUIRED' ||
+      'STAFF_APP_VERSION_UNSUPPORTED' => FailureDisposition.updateRequired,
       'STAFF_DEVICE_SESSION_EXPIRED' ||
       'STAFF_DEVICE_NOT_ACTIVE' => FailureDisposition.sessionExpired,
       'BACKEND_UNAVAILABLE' => FailureDisposition.backendUnavailable,

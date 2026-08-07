@@ -1,6 +1,5 @@
 import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
-import 'package:waflo_staff/features/reward_redemption/domain/redemption_models.dart';
 
 final class StampOperationInput {
   const StampOperationInput({
@@ -14,6 +13,30 @@ final class StampOperationInput {
   final int? purchaseAmountMinor;
   final String? purchaseCurrency;
   final String? merchantTransactionReference;
+}
+
+final class UnlockedReward {
+  const UnlockedReward({
+    required this.publicId,
+    required this.threshold,
+    required this.status,
+    required this.finalReward,
+  });
+
+  final String publicId;
+  final int threshold;
+  final String status;
+  final bool finalReward;
+
+  static UnlockedReward fromJson(Map<String, Object?> json) {
+    final status = _boundedString(json, 'status', 40);
+    return UnlockedReward(
+      publicId: _uuid(json, 'publicId'),
+      threshold: _positiveInteger(json, 'threshold'),
+      status: status,
+      finalReward: _boolean(json, 'final'),
+    );
+  }
 }
 
 final class StampOperationResult {
@@ -38,10 +61,13 @@ final class StampOperationResult {
   final bool rewardReady;
   final int completedCycles;
   final int projectionVersion;
-  final List<RewardReceipt> unlockedRewards;
-  final String requestId;
+  final List<UnlockedReward> unlockedRewards;
+  final String? requestId;
 
-  static StampOperationResult fromJson(Map<String, Object?> json) {
+  static StampOperationResult fromJson(
+    Map<String, Object?> json, {
+    String? responseRequestId,
+  }) {
     final before = _nonNegativeInteger(json, 'beforeProgress');
     final progress = StampProgress.validated(
       progress: _nonNegativeInteger(json, 'progress'),
@@ -63,9 +89,15 @@ final class StampOperationResult {
           if (value is! Map<String, Object?>) {
             throw const M2ContractViolation('STAMP_REWARD_INVALID');
           }
-          return RewardReceipt.fromJson(value);
+          return UnlockedReward.fromJson(value);
         })
         .toList(growable: false);
+    final embeddedRequestId = _nullableBoundedString(json, 'requestId', 160);
+    if (embeddedRequestId != null &&
+        responseRequestId != null &&
+        embeddedRequestId != responseRequestId) {
+      throw const M2ContractViolation('REQUEST_ID_MISMATCH');
+    }
     return StampOperationResult(
       operationPublicId: _uuid(json, 'operationPublicId'),
       commandId: _uuid(json, 'commandId'),
@@ -76,7 +108,7 @@ final class StampOperationResult {
       completedCycles: _nonNegativeInteger(json, 'completedCycles'),
       projectionVersion: _nonNegativeInteger(json, 'projectionVersion'),
       unlockedRewards: rewards,
-      requestId: _boundedString(json, 'requestId', 160),
+      requestId: responseRequestId ?? embeddedRequestId,
     );
   }
 }
@@ -95,6 +127,17 @@ String _boundedString(Map<String, Object?> json, String key, int maximum) {
     throw M2ContractViolation('${key.toUpperCase()}_INVALID');
   }
   return value;
+}
+
+String? _nullableBoundedString(
+  Map<String, Object?> json,
+  String key,
+  int maximum,
+) {
+  if (json[key] == null) {
+    return null;
+  }
+  return _boundedString(json, key, maximum);
 }
 
 bool _boolean(Map<String, Object?> json, String key) {

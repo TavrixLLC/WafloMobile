@@ -26,10 +26,16 @@ if (!["localhost", "127.0.0.1", "::1"].includes(databaseUrl.hostname)) {
 
 const source = (path) => pathToFileURL(resolve(backendRoot, path)).href;
 process.stdout.write("W4_CONTRACT_FIXTURE_BOOT source=verified\n");
-const [{ createApiApplication }, { PrismaService }, { createPairingToken }] =
+const [
+  { createApiApplication },
+  { PrismaService },
+  { CustomerSecurityService },
+  { createPairingToken },
+] =
   await Promise.all([
     import(source("apps/api/dist/app.js")),
     import(source("apps/api/dist/database/prisma.service.js")),
+    import(source("apps/api/dist/customer/customer-security.service.js")),
     import(source("packages/staff-device-security/dist/index.js")),
   ]);
 
@@ -37,9 +43,18 @@ process.stdout.write("W4_CONTRACT_FIXTURE_BOOT imports=ready\n");
 const app = await createApiApplication({ logger: false });
 process.stdout.write("W4_CONTRACT_FIXTURE_BOOT application=ready\n");
 const prisma = app.get(PrismaService).client;
+const customerSecurity = app.get(CustomerSecurityService);
 const trackedPairings = new Set();
 const trackedInstallations = new Set();
+const trackedMemberships = new Set();
+const trackedCustomers = new Set();
 let closed = false;
+
+const ORGANIZATION_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+const COOKIE_PROGRAM_ID = "c0000000-0000-4000-8000-000000000001";
+const COOKIE_VERSION_ID = "c1000000-0000-4000-8000-000000000001";
+const PURCHASE_PROGRAM_ID = "e0000000-0000-4000-8000-000000000001";
+const PURCHASE_VERSION_ID = "e1000000-0000-4000-8000-000000000001";
 
 await app.listen(apiPort, "127.0.0.1");
 process.stdout.write("W4_CONTRACT_FIXTURE_BOOT api=listening\n");
@@ -146,6 +161,65 @@ async function createPairing() {
   return { pairingQr: pairing.token };
 }
 
+async function createMembership(body) {
+  const purchaseProgram = body.program === "purchase";
+  if (!purchaseProgram && body.program !== "cookie") {
+    throw new Error("Membership fixture program must be cookie or purchase.");
+  }
+  const customerId = randomUUID();
+  const membershipId = randomUUID();
+  const membershipPublicId = `mem_${randomUUID().replaceAll("-", "")}`;
+  const credential = customerSecurity.createCredential(1);
+  await prisma.$transaction(async (transaction) => {
+    await transaction.customer.create({
+      data: {
+        id: customerId,
+        organizationId: ORGANIZATION_ID,
+        displayName: "W4 mobile M2 synthetic fixture",
+        preferredLocale: "EN",
+      },
+    });
+    await transaction.membership.create({
+      data: {
+        id: membershipId,
+        organizationId: ORGANIZATION_ID,
+        customerId,
+        programId: purchaseProgram ? PURCHASE_PROGRAM_ID : COOKIE_PROGRAM_ID,
+        enrollmentProgramVersionId: purchaseProgram
+          ? PURCHASE_VERSION_ID
+          : COOKIE_VERSION_ID,
+        publicMembershipId: membershipPublicId,
+      },
+    });
+    await transaction.membershipProgressProjection.create({
+      data: {
+        membershipId,
+        organizationId: ORGANIZATION_ID,
+        currentCycleStampCount: 0,
+        completedCycleCount: 0,
+        currentCycleNumber: 1,
+        rewardReady: false,
+        projectionVersion: 0,
+        lastLedgerSequence: 0,
+      },
+    });
+    await transaction.membershipCredential.create({
+      data: {
+        organizationId: ORGANIZATION_ID,
+        membershipId,
+        credentialVersion: 1,
+        publicCredentialId: credential.publicCredentialId,
+        secretVersion: credential.secretVersion,
+        secretHash: credential.secretHash,
+        status: "ACTIVE",
+      },
+    });
+  });
+  trackedCustomers.add(customerId);
+  trackedMemberships.add(membershipId);
+  return { membershipQr: credential.payload, membershipPublicId };
+}
+
 async function trackedDevice(devicePublicId) {
   if (typeof devicePublicId !== "string") throw new Error("devicePublicId is required.");
   const device = await prisma.staffDevice.findUnique({ where: { publicId: devicePublicId } });
@@ -202,6 +276,70 @@ async function setState(body) {
   return { status: "ok" };
 }
 
+async function createCommand(body) {
+  const device = await trackedDevice(body.devicePublicId);
+  const membership = await prisma.membership.findUnique({
+    where: { publicMembershipId: body.membershipPublicId },
+  });
+  if (!membership || !trackedMemberships.has(membership.id)) {
+    throw new Error("Refusing to create a command outside this fixture run.");
+  }
+  if (body.status !== "PROCESSING" && body.status !== "FAILED") {
+    throw new Error("Command fixture status must be PROCESSING or FAILED.");
+  }
+  const location = await prisma.staffDeviceLocation.findFirst({
+    where: { staffDeviceId: device.id, active: true },
+    orderBy: { locationId: "asc" },
+  });
+  if (!location) throw new Error("Temporary device has no active Location.");
+  const commandId = randomUUID();
+  await prisma.loyaltyOperationCommand.create({
+    data: {
+      organizationId: device.organizationId,
+      membershipId: membership.id,
+      operationType: "ISSUE_STAMP",
+      idempotencyKey: commandId,
+      requestFingerprint: commandId.replaceAll("-", "").repeat(2),
+      status: body.status,
+      safeFailureCode:
+        body.status === "FAILED" ? "PURCHASE_CURRENCY_MISMATCH" : null,
+      actorMemberId: device.organizationMemberId,
+      actorDeviceId: device.id,
+      locationId: location.locationId,
+      ...(body.status === "FAILED" ? { completedAt: new Date() } : {}),
+    },
+  });
+  return { commandId };
+}
+
+async function deleteMembershipData(membershipIds, customerIds) {
+  if (membershipIds.length === 0 && customerIds.length === 0) return;
+  const membershipWhere = { membershipId: { in: membershipIds } };
+  await prisma.$transaction(async (transaction) => {
+    await transaction.operationalRiskSignal.deleteMany({ where: membershipWhere });
+    await transaction.operationalAnalyticsFact.deleteMany({ where: membershipWhere });
+    await transaction.managerApprovalChallenge.deleteMany({ where: membershipWhere });
+    await transaction.rewardRedemption.deleteMany({ where: membershipWhere });
+    await transaction.rewardExpiryCommand.deleteMany({ where: membershipWhere });
+    await transaction.rewardEntitlement.deleteMany({ where: membershipWhere });
+    await transaction.loyaltyLedgerEntry.deleteMany({ where: membershipWhere });
+    await transaction.loyaltyOperationCommand.deleteMany({ where: membershipWhere });
+    await transaction.projectionRebuildCommand.deleteMany({ where: membershipWhere });
+    await transaction.publicWalletAsset.deleteMany({ where: membershipWhere });
+    await transaction.walletCommand.deleteMany({ where: membershipWhere });
+    await transaction.walletPassInstance.deleteMany({ where: membershipWhere });
+    await transaction.membershipTransferEvent.deleteMany({ where: membershipWhere });
+    await transaction.membershipTransferCommand.deleteMany({ where: membershipWhere });
+    await transaction.membershipAccessSession.deleteMany({ where: membershipWhere });
+    await transaction.customerConsent.deleteMany({ where: membershipWhere });
+    await transaction.enrollmentCommand.deleteMany({ where: membershipWhere });
+    await transaction.membershipCredential.deleteMany({ where: membershipWhere });
+    await transaction.membershipProgressProjection.deleteMany({ where: membershipWhere });
+    await transaction.membership.deleteMany({ where: { id: { in: membershipIds } } });
+    await transaction.customer.deleteMany({ where: { id: { in: customerIds } } });
+  });
+}
+
 async function deleteInstallations(installations) {
   if (installations.size === 0) return;
   const devices = await prisma.staffDevice.findMany({
@@ -227,6 +365,14 @@ async function deleteInstallations(installations) {
 }
 
 async function cleanupStaleFixtureData() {
+  const staleCustomers = await prisma.customer.findMany({
+    where: { displayName: "W4 mobile M2 synthetic fixture" },
+    select: { id: true, memberships: { select: { id: true } } },
+  });
+  await deleteMembershipData(
+    staleCustomers.flatMap((customer) => customer.memberships.map((membership) => membership.id)),
+    staleCustomers.map((customer) => customer.id),
+  );
   const stalePairings = await prisma.devicePairingSession.findMany({
     where: { deviceLabelSuggestion: "M1 ephemeral contract device" },
     select: { publicId: true, claimedInstallationId: true },
@@ -248,6 +394,7 @@ async function cleanupStaleFixtureData() {
 }
 
 async function cleanup() {
+  await deleteMembershipData([...trackedMemberships], [...trackedCustomers]);
   for (const publicId of trackedPairings) {
     const pairing = await prisma.devicePairingSession.findUnique({ where: { publicId } });
     if (pairing?.claimedInstallationId) trackedInstallations.add(pairing.claimedInstallationId);
@@ -262,6 +409,8 @@ async function cleanup() {
   }
   trackedInstallations.clear();
   trackedPairings.clear();
+  trackedMemberships.clear();
+  trackedCustomers.clear();
   return { status: "clean" };
 }
 
@@ -273,6 +422,14 @@ const control = createServer(async (request, response) => {
     }
     if (request.method === "POST" && request.url === "/fixture/create") {
       send(response, 200, await createPairing());
+      return;
+    }
+    if (request.method === "POST" && request.url === "/fixture/membership") {
+      send(response, 200, await createMembership(await readJson(request)));
+      return;
+    }
+    if (request.method === "POST" && request.url === "/fixture/command") {
+      send(response, 200, await createCommand(await readJson(request)));
       return;
     }
     if (request.method === "POST" && request.url === "/fixture/state") {

@@ -9,6 +9,7 @@ import 'package:waflo_staff/core/api/api_error_decoder.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/logging/safe_logger.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
+import 'package:waflo_staff/core/version/mobile_semantic_version.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 
 void main() {
@@ -51,6 +52,47 @@ void main() {
         classifyFailure(const ApiFailure('APP_UPDATE_REQUIRED')),
         FailureDisposition.updateRequired,
       );
+      expect(
+        classifyFailure(
+          const ApiFailure('STAFF_APP_VERSION_UNSUPPORTED', httpStatus: 426),
+        ),
+        FailureDisposition.updateRequired,
+      );
+    },
+  );
+
+  test('HTTP 426 stable app-version error maps to Update Required', () {
+    final response = Response<Object?>(
+      requestOptions: RequestOptions(path: '/v1/staff/device-context'),
+      statusCode: 426,
+      data: {
+        'error': {
+          'code': 'STAFF_APP_VERSION_UNSUPPORTED',
+          'message': 'diagnostic text',
+          'requestId': 'request-426',
+        },
+      },
+    );
+    final failure = const ApiErrorDecoder().decode(
+      DioException(requestOptions: response.requestOptions, response: response),
+    );
+    expect(failure.httpStatus, 426);
+    expect(failure.safeCode, 'STAFF_APP_VERSION_UNSUPPORTED');
+    expect(classifyFailure(failure), FailureDisposition.updateRequired);
+  });
+
+  test(
+    'pairing sends strict package semantic version without build metadata',
+    () {
+      expect(strictMobileSemanticVersion('1.2.3'), '1.2.3');
+      expect(strictMobileSemanticVersion('1.2.3+123'), '1.2.3');
+      for (final invalid in ['1.2', '01.2.3', '1.2.3-beta', '1.2.3+']) {
+        expect(
+          () => strictMobileSemanticVersion(invalid),
+          throwsA(isA<ConfigurationFailure>()),
+          reason: invalid,
+        );
+      }
     },
   );
 

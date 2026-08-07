@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:waflo_staff/core/api/api_error_decoder.dart';
 import 'package:waflo_staff/core/crypto/request_signing.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
+import 'package:waflo_staff/core/money/minor_unit_money.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/pending_operation/domain/command_recovery.dart';
@@ -87,10 +88,9 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
     final membership = ResolvedMembership.fromJson(
       _jsonMap(wrapper['data']),
       allowInsecureAssets: _allowInsecureAssets,
+      responseRequestId: requestId,
+      receivedAt: DateTime.now(),
     );
-    if (membership.requestId != requestId) {
-      throw const M2ContractViolation('REQUEST_ID_MISMATCH');
-    }
     return membership;
   }
 
@@ -103,14 +103,16 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
   }) async {
     _validateQr(qrPayload);
     _validateLocale(locale);
+    final purchaseCurrency = input.purchaseCurrency == null
+        ? null
+        : CurrencyMetadata.normalizeCode(input.purchaseCurrency!);
     final body = <String, Object?>{
       'qrPayload': qrPayload,
       'locale': locale,
       'amount': input.amount,
       if (input.purchaseAmountMinor != null)
         'purchaseAmountMinor': input.purchaseAmountMinor,
-      if (input.purchaseCurrency != null)
-        'purchaseCurrency': input.purchaseCurrency,
+      'purchaseCurrency': ?purchaseCurrency,
       if (input.merchantTransactionReference != null)
         'merchantTransactionReference': input.merchantTransactionReference,
       'clientObservedAt': DateTime.now().toUtc().toIso8601String(),
@@ -124,8 +126,11 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
     );
     final wrapper = _jsonMap(response.data);
     final requestId = _requestId(wrapper);
-    final result = StampOperationResult.fromJson(_jsonMap(wrapper['data']));
-    if (result.requestId != requestId || result.commandId != commandId) {
+    final result = StampOperationResult.fromJson(
+      _jsonMap(wrapper['data']),
+      responseRequestId: requestId,
+    );
+    if (result.commandId != commandId) {
       throw const M2ContractViolation('STAMP_RESPONSE_ID_MISMATCH');
     }
     return result;
@@ -155,8 +160,9 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
     final requestId = _requestId(wrapper);
     final result = RedemptionOperationResult.fromJson(
       _jsonMap(wrapper['data']),
+      responseRequestId: requestId,
     );
-    if (result.requestId != requestId || result.commandId != commandId) {
+    if (result.commandId != commandId) {
       throw const M2ContractViolation('REDEMPTION_RESPONSE_ID_MISMATCH');
     }
     return result;
@@ -173,8 +179,11 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
     );
     final wrapper = _jsonMap(response.data);
     final requestId = _requestId(wrapper);
-    final result = CommandRecoveryResult.fromJson(_jsonMap(wrapper['data']));
-    if (result.requestId != requestId || result.commandId != commandId) {
+    final result = CommandRecoveryResult.fromJson(
+      _jsonMap(wrapper['data']),
+      responseRequestId: requestId,
+    );
+    if (result.commandId != commandId) {
       throw const M2ContractViolation('COMMAND_RESPONSE_ID_MISMATCH');
     }
     return result;

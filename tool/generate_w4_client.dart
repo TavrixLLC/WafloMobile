@@ -12,45 +12,56 @@ Future<void> main(List<String> arguments) async {
     '${root.path}${Platform.pathSeparator}lib${Platform.pathSeparator}core'
     '${Platform.pathSeparator}api${Platform.pathSeparator}generated_m2',
   );
-  final beforeM1 = checkOnly ? await _hashTree(generatedM1) : null;
-  final beforeM2 = checkOnly ? await _hashTree(generatedM2) : null;
+  final beforeM1 = checkOnly ? await _readTree(generatedM1) : null;
+  final beforeM2 = checkOnly ? await _readTree(generatedM2) : null;
   final m2GeneratorConfig = await _prepareGeneratorInput(root);
 
-  for (final directory in [generatedM1, generatedM2]) {
-    if (directory.existsSync()) {
-      directory.deleteSync(recursive: true);
+  try {
+    for (final directory in [generatedM1, generatedM2]) {
+      if (directory.existsSync()) {
+        directory.deleteSync(recursive: true);
+      }
     }
-  }
 
-  await _run('dart', [
-    'run',
-    'swagger_parser',
-    '--file',
-    'swagger_parser.yaml',
-  ]);
-  _normalizeKnownGeneratorLimitations(generatedM1);
-  await _run('dart', [
-    'run',
-    'swagger_parser',
-    '--file',
-    m2GeneratorConfig.path,
-  ]);
-  await _run('dart', [
-    'run',
-    'build_runner',
-    'build',
-    '--delete-conflicting-outputs',
-  ]);
-  await _run('dart', ['format', generatedM1.path, generatedM2.path]);
+    await _run(Platform.resolvedExecutable, [
+      'run',
+      'swagger_parser',
+      '--file',
+      'swagger_parser.yaml',
+    ]);
+    _normalizeKnownGeneratorLimitations(generatedM1);
+    await _run(Platform.resolvedExecutable, [
+      'run',
+      'swagger_parser',
+      '--file',
+      m2GeneratorConfig.path,
+    ]);
+    await _run(Platform.resolvedExecutable, [
+      'run',
+      'build_runner',
+      'build',
+      '--delete-conflicting-outputs',
+    ]);
+    await _run(Platform.resolvedExecutable, [
+      'format',
+      generatedM1.path,
+      generatedM2.path,
+    ]);
 
-  if (checkOnly) {
-    final afterM1 = await _hashTree(generatedM1);
-    final afterM2 = await _hashTree(generatedM2);
-    if (!_sameTree(beforeM1!, afterM1) || !_sameTree(beforeM2!, afterM2)) {
-      stderr.writeln(
-        'Generated W4 client drift detected. Run dart run tool/generate_w4_client.dart.',
-      );
-      exitCode = 1;
+    if (checkOnly) {
+      final afterM1 = await _readTree(generatedM1);
+      final afterM2 = await _readTree(generatedM2);
+      if (!_sameTree(beforeM1!, afterM1) || !_sameTree(beforeM2!, afterM2)) {
+        stderr.writeln(
+          'Generated W4 client drift detected. Run dart run tool/generate_w4_client.dart.',
+        );
+        exitCode = 1;
+      }
+    }
+  } finally {
+    if (checkOnly) {
+      await _restoreTree(generatedM1, beforeM1!);
+      await _restoreTree(generatedM2, beforeM2!);
     }
   }
 }
@@ -109,12 +120,15 @@ Future<File> _prepareGeneratorInput(Directory root) async {
   }
 
   normalize(decoded);
-  if (normalizedTupleCount != 2) {
+  if (normalizedTupleCount != 0 && normalizedTupleCount != 2) {
     throw StateError(
-      'Expected two approved stamp-state tuples, found $normalizedTupleCount.',
+      'Expected zero or two approved stamp-state tuples, found '
+      '$normalizedTupleCount.',
     );
   }
+  _validateStampVisualStates(decoded);
   _normalizeCommandStatusForGenerator(decoded);
+  _normalizeOperationPublicStatusForGenerator(decoded);
 
   final temporary = Directory(
     '${root.path}${Platform.pathSeparator}.dart_tool'
@@ -148,93 +162,183 @@ swagger_parser:
   return config;
 }
 
+void _normalizeOperationPublicStatusForGenerator(Map<String, Object?> openApi) {
+  final components = openApi['components'];
+  final schemas = components is Map<String, Object?>
+      ? components['schemas']
+      : null;
+  final operationStatus = schemas is Map<String, Object?>
+      ? schemas['OperationPublicStatusResult']
+      : null;
+  final properties = operationStatus is Map<String, Object?>
+      ? operationStatus['properties']
+      : null;
+  if (properties is! Map<String, Object?>) {
+    throw const FormatException('Malformed M2 operation-status schema.');
+  }
+  final status = properties['status'];
+  final statuses = status is Map<String, Object?> ? status['enum'] : null;
+  const expectedStatuses = {'PROCESSING', 'COMPLETED', 'FAILED'};
+  if (statuses is! List<Object?> ||
+      statuses.toSet().difference(expectedStatuses).isNotEmpty ||
+      expectedStatuses.difference(statuses.toSet()).isNotEmpty) {
+    throw const FormatException('Unexpected M2 operation-status values.');
+  }
+  final resultPayload = properties['resultPayload'];
+  final outerVariants = resultPayload is Map<String, Object?>
+      ? resultPayload['anyOf']
+      : null;
+  if (outerVariants is! List<Object?> || outerVariants.length != 2) {
+    throw const FormatException('Unexpected M2 operation result union.');
+  }
+  final resultUnion = outerVariants
+      .whereType<Map<String, Object?>>()
+      .firstWhere(
+        (candidate) => candidate['anyOf'] is List<Object?>,
+        orElse: () => const {},
+      );
+  final resultVariants = resultUnion['anyOf'];
+  if (resultVariants is! List<Object?> || resultVariants.length != 3) {
+    throw const FormatException('Unexpected M2 operation result variants.');
+  }
+
+  // swagger_parser 1.44 cannot generate this nullable three-result union.
+  // Runtime adapters validate the authoritative payload before display.
+  properties['resultPayload'] = <String, Object?>{
+    'type': 'object',
+    'nullable': true,
+    'additionalProperties': true,
+  };
+}
+
+void _validateStampVisualStates(Map<String, Object?> openApi) {
+  final components = openApi['components'];
+  final schemas = components is Map<String, Object?>
+      ? components['schemas']
+      : null;
+  final membership = schemas is Map<String, Object?>
+      ? schemas['MembershipResolveResult']
+      : null;
+  final membershipProperties = membership is Map<String, Object?>
+      ? membership['properties']
+      : null;
+  final stampVisuals = membershipProperties is Map<String, Object?>
+      ? membershipProperties['stampVisuals']
+      : null;
+  final visualProperties = stampVisuals is Map<String, Object?>
+      ? stampVisuals['properties']
+      : null;
+  if (visualProperties is! Map<String, Object?> ||
+      visualProperties.keys.toSet().difference(const {
+        'filled',
+        'empty',
+      }).isNotEmpty ||
+      const {
+        'filled',
+        'empty',
+      }.difference(visualProperties.keys.toSet()).isNotEmpty) {
+    throw const FormatException('Unexpected M2 stamp visual states.');
+  }
+
+  String? stateFor(String key) {
+    final visual = visualProperties[key];
+    final properties = visual is Map<String, Object?>
+        ? visual['properties']
+        : null;
+    final state = properties is Map<String, Object?>
+        ? properties['state']
+        : null;
+    return state is Map<String, Object?> ? state['const'] as String? : null;
+  }
+
+  if (stateFor('filled') != 'FILLED' || stateFor('empty') != 'EMPTY') {
+    throw const FormatException('Unexpected M2 stamp visual constants.');
+  }
+}
+
 void _normalizeCommandStatusForGenerator(Map<String, Object?> openApi) {
   final components = openApi['components'];
   final schemas = components is Map<String, Object?>
       ? components['schemas']
       : null;
   final commandStatus = schemas is Map<String, Object?>
-      ? schemas['CommandStatus']
+      ? schemas['OperationCommandStatusResult']
       : null;
-  final variants = commandStatus is Map<String, Object?>
-      ? commandStatus['anyOf']
+  final properties = commandStatus is Map<String, Object?>
+      ? commandStatus['properties']
       : null;
-  if (variants is! List<Object?> || variants.length != 4) {
-    throw const FormatException('Unexpected M2 command-status union.');
+  if (properties is! Map<String, Object?>) {
+    throw const FormatException('Malformed M2 command-status schema.');
   }
-  final normalizedCommandStatus = commandStatus as Map<String, Object?>;
-
-  final statuses = <Object?>{};
-  for (final variant in variants) {
-    if (variant is! Map<String, Object?>) {
-      throw const FormatException('Malformed M2 command-status variant.');
-    }
-    final properties = variant['properties'];
-    if (properties is! Map<String, Object?>) {
-      throw const FormatException('Malformed M2 command-status properties.');
-    }
-    final status = properties['status'];
-    if (status is! Map<String, Object?>) {
-      throw const FormatException('Malformed M2 command status.');
-    }
-    statuses.add(status['const']);
-  }
-  if (!statuses.containsAll(const ['PROCESSING', 'FAILED', 'COMPLETED'])) {
+  final status = properties['status'];
+  final statuses = status is Map<String, Object?> ? status['enum'] : null;
+  if (statuses is! List<Object?> ||
+      statuses.toSet().difference(const {
+        'PROCESSING',
+        'COMPLETED',
+        'FAILED',
+      }).isNotEmpty ||
+      const {
+        'PROCESSING',
+        'COMPLETED',
+        'FAILED',
+      }.difference(statuses.toSet()).isNotEmpty) {
     throw const FormatException('Unexpected M2 command-status values.');
   }
+  final operationType = properties['operationType'];
+  final operationTypes = operationType is Map<String, Object?>
+      ? operationType['enum']
+      : null;
+  const expectedOperationTypes = {
+    'ISSUE_STAMP',
+    'REDEEM_REWARD',
+    'REVERSE_STAMP',
+    'REVERSE_REDEMPTION',
+    'MANUAL_ADJUSTMENT',
+    'SUSPEND_MEMBERSHIP',
+    'RESTORE_MEMBERSHIP',
+    'REVOKE_MEMBERSHIP',
+    'EXPIRE_REWARD',
+  };
+  if (operationTypes is! List<Object?> ||
+      operationTypes.toSet().difference(expectedOperationTypes).isNotEmpty ||
+      expectedOperationTypes.difference(operationTypes.toSet()).isNotEmpty) {
+    throw const FormatException('Unexpected M2 command operation types.');
+  }
+  final result = properties['result'];
+  final outerVariants = result is Map<String, Object?> ? result['anyOf'] : null;
+  if (outerVariants is! List<Object?> || outerVariants.length != 2) {
+    throw const FormatException('Unexpected M2 command result union.');
+  }
+  final resultUnion = outerVariants
+      .whereType<Map<String, Object?>>()
+      .firstWhere(
+        (candidate) => candidate['anyOf'] is List<Object?>,
+        orElse: () => const {},
+      );
+  final resultVariants = resultUnion['anyOf'];
+  if (resultVariants is! List<Object?> || resultVariants.length != 3) {
+    throw const FormatException('Unexpected M2 command result variants.');
+  }
 
-  // swagger_parser 1.44 cannot generate a valid Dart representation for this
-  // four-way JSON Schema union. The generator-only superset contains exactly
-  // the union's common fields. Runtime domain parsing validates each variant.
-  normalizedCommandStatus
-    ..clear()
-    ..addAll(<String, Object?>{
-      'type': 'object',
-      'properties': <String, Object?>{
-        'commandId': <String, Object?>{'type': 'string', 'format': 'uuid'},
-        'operationPublicId': <String, Object?>{
-          'type': 'string',
-          'format': 'uuid',
-          'nullable': true,
-        },
-        'operationType': <String, Object?>{
-          'type': 'string',
-          'enum': <String>['STAMP', 'REDEMPTION'],
-        },
-        'status': <String, Object?>{
-          'type': 'string',
-          'enum': <String>['PROCESSING', 'FAILED', 'COMPLETED'],
-        },
-        'safeFailureCode': <String, Object?>{
-          'type': 'string',
-          'nullable': true,
-        },
-        'result': <String, Object?>{
-          'type': 'object',
-          'nullable': true,
-          'additionalProperties': true,
-        },
-        'createdAt': <String, Object?>{'type': 'string', 'format': 'date-time'},
-        'completedAt': <String, Object?>{
-          'type': 'string',
-          'format': 'date-time',
-          'nullable': true,
-        },
-        'requestId': <String, Object?>{'type': 'string'},
-      },
-      'required': <String>[
-        'commandId',
-        'operationPublicId',
-        'operationType',
-        'status',
-        'safeFailureCode',
-        'result',
-        'createdAt',
-        'completedAt',
-        'requestId',
-      ],
-      'additionalProperties': false,
-    });
+  // swagger_parser 1.44 cannot generate this nullable three-result union.
+  // The generator-only field is a nullable map; runtime domain parsing below
+  // validates status, command ID, operation type, and the authoritative result
+  // shape before any success is displayed.
+  properties['result'] = <String, Object?>{
+    'type': 'object',
+    'nullable': true,
+    'additionalProperties': true,
+  };
+  properties['safeFailureCode'] = <String, Object?>{
+    'type': 'string',
+    'nullable': true,
+  };
+  properties['completedAt'] = <String, Object?>{
+    'type': 'string',
+    'format': 'date-time',
+    'nullable': true,
+  };
 }
 
 void _normalizeKnownGeneratorLimitations(Directory generated) {
@@ -259,35 +363,51 @@ void _normalizeKnownGeneratorLimitations(Directory generated) {
   client.writeAsStringSync(source.replaceFirst(duplicate, normalized));
 }
 
-Future<Map<String, String>> _hashTree(Directory directory) async {
+Future<Map<String, List<int>>> _readTree(Directory directory) async {
   if (!directory.existsSync()) {
     return const {};
   }
-  final result = <String, String>{};
+  final result = <String, List<int>>{};
   await for (final entity in directory.list(recursive: true)) {
     if (entity is! File) {
       continue;
     }
     final relative = entity.path.substring(directory.path.length + 1);
-    final digest = await Process.run('git', ['hash-object', entity.path]);
-    if (digest.exitCode != 0) {
-      throw StateError('Unable to hash $relative: ${digest.stderr}');
-    }
-    result[relative] = (digest.stdout as String).trim();
+    result[relative] = await entity.readAsBytes();
   }
   return result;
 }
 
-bool _sameTree(Map<String, String> left, Map<String, String> right) {
+bool _sameTree(Map<String, List<int>> left, Map<String, List<int>> right) {
   if (left.length != right.length) {
     return false;
   }
   for (final entry in left.entries) {
-    if (right[entry.key] != entry.value) {
+    final other = right[entry.key];
+    if (other == null ||
+        _canonicalGeneratedText(entry.value) !=
+            _canonicalGeneratedText(other)) {
       return false;
     }
   }
   return true;
+}
+
+String _canonicalGeneratedText(List<int> bytes) =>
+    utf8.decode(bytes).replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+
+Future<void> _restoreTree(
+  Directory directory,
+  Map<String, List<int>> snapshot,
+) async {
+  if (directory.existsSync()) {
+    await directory.delete(recursive: true);
+  }
+  for (final entry in snapshot.entries) {
+    final file = File('${directory.path}${Platform.pathSeparator}${entry.key}');
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(entry.value, flush: true);
+  }
 }
 
 Future<void> _run(String executable, List<String> arguments) async {

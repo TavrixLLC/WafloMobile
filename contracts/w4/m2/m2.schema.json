@@ -1,81 +1,45 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://contracts.waflo.invalid/w4/m2.schema.json",
-  "title": "Waflo W4 M2 Mobile Contract Schemas",
+  "$id": "https://contracts.waflo.local/m2.schema.json",
+  "title": "Waflo M2 Mobile Contracts",
+  "contractVersion": "waflo-m2-mobile-contract-v1",
   "$defs": {
-    "CreateDevicePairingSessionRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
+    "PurchaseCurrency": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 3,
+      "pattern": "^[A-Za-z]{3}$"
+    },
+    "StaffDeviceContextResult": {
       "type": "object",
       "properties": {
-        "staffMemberId": {
+        "organizationId": {
           "type": "string",
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
-        "locations": {
-          "minItems": 1,
-          "maxItems": 50,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "locationId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              "earningAllowed": {
-                "type": "boolean"
-              },
-              "redemptionAllowed": {
-                "type": "boolean"
-              }
-            },
-            "required": [
-              "locationId",
-              "earningAllowed",
-              "redemptionAllowed"
-            ],
-            "additionalProperties": false
-          }
-        },
-        "deviceLabelSuggestion": {
+        "role": {
           "type": "string",
-          "minLength": 1,
-          "maxLength": 120
+          "enum": [
+            "OWNER",
+            "MANAGER",
+            "STAFF"
+          ]
         },
-        "expiresInMinutes": {
-          "default": 10,
-          "type": "integer",
-          "minimum": 2,
-          "maximum": 30
-        }
-      },
-      "required": [
-        "staffMemberId",
-        "locations",
-        "expiresInMinutes"
-      ],
-      "additionalProperties": false
-    },
-    "DevicePairingClaimRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "object",
-      "properties": {
-        "pairingToken": {
+        "locationId": {
           "type": "string",
-          "minLength": 80,
-          "maxLength": 512
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
-        "installationId": {
+        "devicePublicId": {
           "type": "string",
-          "minLength": 16,
-          "maxLength": 160
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
-        "publicKey": {
+        "deviceSessionId": {
           "type": "string",
-          "minLength": 40,
-          "maxLength": 1024
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
         "platform": {
           "type": "string",
@@ -90,101 +54,41 @@
           "minLength": 1,
           "maxLength": 40
         },
-        "osVersion": {
+        "minimumSupportedAppVersion": {
           "type": "string",
-          "maxLength": 80
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
         },
-        "model": {
-          "type": "string",
-          "maxLength": 120
-        }
-      },
-      "required": [
-        "pairingToken",
-        "installationId",
-        "publicKey",
-        "platform",
-        "appVersion"
-      ],
-      "additionalProperties": false
-    },
-    "DevicePairingChallengeRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "object",
-      "properties": {
-        "pairingPublicId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-        }
-      },
-      "required": [
-        "pairingPublicId"
-      ],
-      "additionalProperties": false
-    },
-    "DevicePairingCompleteRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "object",
-      "properties": {
-        "pairingPublicId": {
-          "type": "string",
-          "format": "uuid",
-          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        "appVersionSupported": {
+          "type": "boolean",
+          "const": true
         },
-        "challenge": {
-          "type": "string",
-          "minLength": 32,
-          "maxLength": 256
-        },
-        "signature": {
-          "type": "string",
-          "minLength": 40,
-          "maxLength": 256
-        },
-        "displayName": {
+        "requestId": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 120
+          "maxLength": 160
         }
       },
       "required": [
-        "pairingPublicId",
-        "challenge",
-        "signature"
-      ],
-      "additionalProperties": false
-    },
-    "StaffDeviceSessionRefreshRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "object",
-      "properties": {
-        "refreshToken": {
-          "type": "string",
-          "minLength": 40,
-          "maxLength": 512
-        }
-      },
-      "required": [
-        "refreshToken"
+        "organizationId",
+        "role",
+        "locationId",
+        "devicePublicId",
+        "deviceSessionId",
+        "platform",
+        "appVersion",
+        "minimumSupportedAppVersion",
+        "appVersionSupported",
+        "requestId"
       ],
       "additionalProperties": false
     },
     "MembershipResolveRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
       "properties": {
         "qrPayload": {
           "type": "string",
           "minLength": 40,
           "maxLength": 220
-        },
-        "locale": {
-          "type": "string",
-          "enum": [
-            "en",
-            "ar"
-          ]
         }
       },
       "required": [
@@ -193,87 +97,38 @@
       "additionalProperties": false
     },
     "MembershipResolveResult": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
       "properties": {
-        "membership": {
-          "type": "object",
-          "properties": {
-            "publicId": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 80
-            },
-            "status": {
-              "type": "string",
-              "enum": [
-                "ACTIVE",
-                "SUSPENDED",
-                "EXPIRED",
-                "REVOKED"
-              ]
-            },
-            "customerDisplayName": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 120
-            },
-            "programName": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 120
-            },
-            "progress": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "goal": {
-              "type": "integer",
-              "exclusiveMinimum": 0,
-              "maximum": 9007199254740991
-            },
-            "rewardReady": {
-              "type": "boolean"
-            },
-            "completedCycles": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "projectionVersion": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            }
-          },
-          "required": [
-            "publicId",
-            "status",
-            "customerDisplayName",
-            "programName",
-            "progress",
-            "goal",
-            "rewardReady",
-            "completedCycles",
-            "projectionVersion"
-          ],
-          "additionalProperties": false
-        },
         "membershipPublicId": {
           "type": "string",
-          "minLength": 1,
+          "minLength": 8,
           "maxLength": 80
+        },
+        "membershipStatus": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "SUSPENDED",
+            "EXPIRED",
+            "REVOKED"
+          ]
         },
         "customerDisplayName": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 120
+          "maxLength": 160
         },
         "programName": {
           "type": "string",
           "minLength": 1,
           "maxLength": 120
+        },
+        "locale": {
+          "type": "string",
+          "enum": [
+            "en",
+            "ar"
+          ]
         },
         "progress": {
           "type": "integer",
@@ -293,14 +148,10 @@
           "minimum": 0,
           "maximum": 9007199254740991
         },
-        "membershipStatus": {
-          "type": "string",
-          "enum": [
-            "ACTIVE",
-            "SUSPENDED",
-            "EXPIRED",
-            "REVOKED"
-          ]
+        "projectionVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "locationEligibility": {
           "type": "object",
@@ -318,32 +169,15 @@
           ],
           "additionalProperties": false
         },
-        "operationPolicy": {
+        "operationLimits": {
           "type": "object",
           "properties": {
-            "minimumStampAmount": {
-              "type": "number",
-              "const": 1
-            },
-            "maximumStampAmountPerOperation": {
+            "maximumStampsPerOperation": {
               "type": "integer",
               "exclusiveMinimum": 0,
               "maximum": 9007199254740991
             },
-            "remainingProgressCapacity": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "effectiveMaximumStampAmount": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 9007199254740991
-            },
-            "dailyLimitEnabled": {
-              "type": "boolean"
-            },
-            "dailyMaximumStampAmount": {
+            "maximumStampsPerCustomerPerDay": {
               "anyOf": [
                 {
                   "type": "integer",
@@ -355,7 +189,7 @@
                 }
               ]
             },
-            "dailyRemainingStampAmount": {
+            "dailyRemainingStamps": {
               "anyOf": [
                 {
                   "type": "integer",
@@ -366,21 +200,32 @@
                   "type": "null"
                 }
               ]
-            },
-            "operationalLocalDate": {
-              "type": "string",
-              "format": "date",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-            },
-            "operationalTimezone": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 64
-            },
-            "purchaseRequirementEnabled": {
+            }
+          },
+          "required": [
+            "maximumStampsPerOperation",
+            "maximumStampsPerCustomerPerDay",
+            "dailyRemainingStamps"
+          ],
+          "additionalProperties": false
+        },
+        "operationalTimezone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "operationalDate": {
+          "type": "string",
+          "format": "date",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+        },
+        "purchaseRequirement": {
+          "type": "object",
+          "properties": {
+            "required": {
               "type": "boolean"
             },
-            "minimumPurchaseAmountMinor": {
+            "minimumAmountMinor": {
               "anyOf": [
                 {
                   "type": "integer",
@@ -392,7 +237,7 @@
                 }
               ]
             },
-            "purchaseCurrency": {
+            "currency": {
               "anyOf": [
                 {
                   "type": "string",
@@ -402,91 +247,72 @@
                   "type": "null"
                 }
               ]
-            },
-            "merchantTransactionReferenceAllowed": {
-              "type": "boolean"
-            },
-            "merchantTransactionReferenceRequired": {
-              "type": "boolean"
-            },
-            "managerOverridePossibleForRole": {
-              "type": "boolean"
             }
           },
           "required": [
-            "minimumStampAmount",
-            "maximumStampAmountPerOperation",
-            "remainingProgressCapacity",
-            "effectiveMaximumStampAmount",
-            "dailyLimitEnabled",
-            "dailyMaximumStampAmount",
-            "dailyRemainingStampAmount",
-            "operationalLocalDate",
-            "operationalTimezone",
-            "purchaseRequirementEnabled",
-            "minimumPurchaseAmountMinor",
-            "purchaseCurrency",
-            "merchantTransactionReferenceAllowed",
-            "merchantTransactionReferenceRequired",
-            "managerOverridePossibleForRole"
+            "required",
+            "minimumAmountMinor",
+            "currency"
           ],
           "additionalProperties": false
         },
-        "stampVisual": {
+        "stampVisuals": {
           "type": "object",
           "properties": {
-            "states": {
-              "type": "array",
-              "items": [
-                {
+            "filled": {
+              "type": "object",
+              "properties": {
+                "state": {
                   "type": "string",
                   "const": "FILLED"
                 },
-                {
+                "contentDigest": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "contentDigest"
+              ],
+              "additionalProperties": false
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "state": {
                   "type": "string",
                   "const": "EMPTY"
+                },
+                "contentDigest": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
-              ]
-            },
-            "filledAssetUrl": {
-              "type": "string",
-              "format": "uri"
-            },
-            "emptyAssetUrl": {
-              "type": "string",
-              "format": "uri"
-            },
-            "filledAssetDigest": {
-              "type": "string",
-              "pattern": "^[a-f0-9]{64}$"
-            },
-            "emptyAssetDigest": {
-              "type": "string",
-              "pattern": "^[a-f0-9]{64}$"
-            },
-            "accessibleLabel": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 240
-            },
-            "backgroundColor": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
-            },
-            "foregroundColor": {
-              "type": "string",
-              "pattern": "^#[0-9A-Fa-f]{6}$"
+              },
+              "required": [
+                "state",
+                "contentDigest"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
-            "states",
-            "filledAssetUrl",
-            "emptyAssetUrl",
-            "filledAssetDigest",
-            "emptyAssetDigest",
-            "accessibleLabel",
-            "backgroundColor",
-            "foregroundColor"
+            "filled",
+            "empty"
           ],
           "additionalProperties": false
         },
@@ -495,27 +321,10 @@
           "items": {
             "type": "object",
             "properties": {
-              "entitlementPublicId": {
+              "publicId": {
                 "type": "string",
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "TEXT_REWARD",
-                  "FREE_ITEM",
-                  "DISCOUNT_DESCRIPTION",
-                  "CUSTOM"
-                ]
-              },
-              "finalReward": {
-                "type": "boolean"
-              },
-              "threshold": {
-                "type": "integer",
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991
               },
               "name": {
                 "type": "string",
@@ -524,19 +333,15 @@
               },
               "description": {
                 "type": "string",
-                "minLength": 1,
                 "maxLength": 240
               },
-              "redemptionInstructions": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "maxLength": 4000
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+              "threshold": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "finalReward": {
+                "type": "boolean"
               },
               "status": {
                 "type": "string",
@@ -572,13 +377,11 @@
               }
             },
             "required": [
-              "entitlementPublicId",
-              "type",
-              "finalReward",
-              "threshold",
+              "publicId",
               "name",
               "description",
-              "redemptionInstructions",
+              "threshold",
+              "finalReward",
               "status",
               "redemptionCount",
               "maximumRedemptionCount",
@@ -587,52 +390,36 @@
             ],
             "additionalProperties": false
           }
-        },
-        "resolvedAt": {
-          "type": "string",
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-        },
-        "requestId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
         }
       },
       "required": [
-        "membership",
         "membershipPublicId",
+        "membershipStatus",
         "customerDisplayName",
         "programName",
+        "locale",
         "progress",
         "goal",
         "rewardReady",
         "completedCycles",
-        "membershipStatus",
+        "projectionVersion",
         "locationEligibility",
-        "operationPolicy",
-        "stampVisual",
-        "availableRewards",
-        "resolvedAt",
-        "requestId"
+        "operationLimits",
+        "operationalTimezone",
+        "operationalDate",
+        "purchaseRequirement",
+        "stampVisuals",
+        "availableRewards"
       ],
       "additionalProperties": false
     },
     "StampRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "type": "object",
       "properties": {
         "qrPayload": {
           "type": "string",
           "minLength": 40,
           "maxLength": 220
-        },
-        "locale": {
-          "type": "string",
-          "enum": [
-            "en",
-            "ar"
-          ]
         },
         "amount": {
           "type": "integer",
@@ -644,7 +431,12 @@
           "minimum": 0,
           "maximum": 2147483647
         },
-        "purchaseCurrency": {},
+        "purchaseCurrency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "pattern": "^[A-Za-z]{3}$"
+        },
         "merchantTransactionReference": {
           "type": "string",
           "minLength": 1,
@@ -675,8 +467,6 @@
           },
           "required": [
             "approvalPublicId",
-            "dailyCap",
-            "purchasePolicy",
             "reason"
           ],
           "additionalProperties": false
@@ -693,8 +483,7 @@
       ],
       "additionalProperties": false
     },
-    "StampResult": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
+    "StampOperationResult": {
       "type": "object",
       "properties": {
         "operationPublicId": {
@@ -743,79 +532,45 @@
           "items": {
             "type": "object",
             "properties": {
-              "entitlementPublicId": {
+              "publicId": {
                 "type": "string",
                 "format": "uuid",
                 "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              "type": {
-                "type": "string",
-                "enum": [
-                  "TEXT_REWARD",
-                  "FREE_ITEM",
-                  "DISCOUNT_DESCRIPTION",
-                  "CUSTOM"
-                ]
-              },
-              "finalReward": {
-                "type": "boolean"
               },
               "threshold": {
                 "type": "integer",
                 "exclusiveMinimum": 0,
                 "maximum": 9007199254740991
               },
-              "name": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 120
-              },
-              "description": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 240
-              },
               "status": {
                 "type": "string",
-                "enum": [
-                  "AVAILABLE",
-                  "PARTIALLY_REDEEMED"
-                ]
+                "minLength": 1,
+                "maxLength": 40
               },
-              "expiresAt": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "format": "date-time",
-                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
-              "requiresManagerApproval": {
+              "final": {
                 "type": "boolean"
               }
             },
             "required": [
-              "entitlementPublicId",
-              "type",
-              "finalReward",
+              "publicId",
               "threshold",
-              "name",
-              "description",
               "status",
-              "expiresAt",
-              "requiresManagerApproval"
+              "final"
             ],
             "additionalProperties": false
           }
         },
         "requestId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -833,21 +588,13 @@
       ],
       "additionalProperties": false
     },
-    "RedemptionRequest": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
+    "RedeemRequest": {
       "type": "object",
       "properties": {
         "qrPayload": {
           "type": "string",
           "minLength": 40,
           "maxLength": 220
-        },
-        "locale": {
-          "type": "string",
-          "enum": [
-            "en",
-            "ar"
-          ]
         },
         "rewardEntitlementPublicId": {
           "type": "string",
@@ -870,8 +617,7 @@
       ],
       "additionalProperties": false
     },
-    "RedemptionResult": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
+    "RedemptionOperationResult": {
       "type": "object",
       "properties": {
         "operationPublicId": {
@@ -892,54 +638,20 @@
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
         },
-        "reward": {
-          "type": "object",
-          "properties": {
-            "entitlementPublicId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "type": {
-              "type": "string",
-              "enum": [
-                "TEXT_REWARD",
-                "FREE_ITEM",
-                "DISCOUNT_DESCRIPTION",
-                "CUSTOM"
-              ]
-            },
-            "finalReward": {
-              "type": "boolean"
-            },
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 120
-            },
-            "description": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 240
-            },
-            "status": {
-              "type": "string",
-              "enum": [
-                "AVAILABLE",
-                "PARTIALLY_REDEEMED",
-                "REDEEMED"
-              ]
-            }
-          },
-          "required": [
-            "entitlementPublicId",
-            "type",
-            "finalReward",
-            "name",
-            "description",
-            "status"
-          ],
-          "additionalProperties": false
+        "rewardStatus": {
+          "type": "string",
+          "enum": [
+            "REDEEMED",
+            "PARTIALLY_REDEEMED"
+          ]
+        },
+        "finalReward": {
+          "type": "boolean"
+        },
+        "beforeProgress": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
         },
         "progress": {
           "type": "integer",
@@ -965,9 +677,16 @@
           "maximum": 9007199254740991
         },
         "requestId": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -975,7 +694,9 @@
         "commandId",
         "replayed",
         "redemptionPublicId",
-        "reward",
+        "rewardStatus",
+        "finalReward",
+        "beforeProgress",
         "progress",
         "goal",
         "rewardReady",
@@ -985,603 +706,781 @@
       ],
       "additionalProperties": false
     },
-    "CommandStatus": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "commandId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "operationPublicId": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "operationType": {
-              "type": "string",
-              "enum": [
-                "STAMP",
-                "REDEMPTION"
-              ]
-            },
-            "status": {
-              "type": "string",
-              "const": "PROCESSING"
-            },
-            "safeFailureCode": {
-              "type": "null"
-            },
-            "result": {
-              "type": "null"
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-            },
-            "completedAt": {
-              "type": "null"
-            },
-            "requestId": {
+    "ReverseOperationResult": {
+      "type": "object",
+      "properties": {
+        "operationPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "commandId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "reversedOperationPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "progress": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "rewardReady": {
+          "type": "boolean"
+        },
+        "completedCycles": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "projectionVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "requestId": {
+          "anyOf": [
+            {
               "type": "string",
               "minLength": 1,
               "maxLength": 160
-            }
-          },
-          "required": [
-            "commandId",
-            "operationPublicId",
-            "operationType",
-            "status",
-            "safeFailureCode",
-            "result",
-            "createdAt",
-            "completedAt",
-            "requestId"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "commandId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             },
-            "operationPublicId": {
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "operationPublicId",
+        "commandId",
+        "reversedOperationPublicId",
+        "replayed",
+        "progress",
+        "rewardReady",
+        "completedCycles",
+        "projectionVersion",
+        "requestId"
+      ],
+      "additionalProperties": false
+    },
+    "OperationCommandStatusResult": {
+      "type": "object",
+      "properties": {
+        "commandId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "operationPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "ISSUE_STAMP",
+            "REDEEM_REWARD",
+            "REVERSE_STAMP",
+            "REVERSE_REDEMPTION",
+            "MANUAL_ADJUSTMENT",
+            "SUSPEND_MEMBERSHIP",
+            "RESTORE_MEMBERSHIP",
+            "REVOKE_MEMBERSHIP",
+            "EXPIRE_REWARD"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PROCESSING",
+            "COMPLETED",
+            "FAILED"
+          ]
+        },
+        "result": {
+          "anyOf": [
+            {
               "anyOf": [
                 {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "operationType": {
-              "type": "string",
-              "enum": [
-                "STAMP",
-                "REDEMPTION"
-              ]
-            },
-            "status": {
-              "type": "string",
-              "const": "FAILED"
-            },
-            "safeFailureCode": {
-              "type": "string",
-              "enum": [
-                "MEMBERSHIP_CREDENTIAL_INVALID",
-                "MEMBERSHIP_NOT_OPERATIONAL",
-                "PROGRAM_NOT_OPERATIONAL",
-                "PROGRAM_VERSION_MISMATCH",
-                "LOCATION_NOT_AUTHORIZED",
-                "LOCATION_EARNING_DISABLED",
-                "LOCATION_REDEMPTION_DISABLED",
-                "STAFF_ASSIGNMENT_REQUIRED",
-                "STAMP_AMOUNT_INVALID",
-                "STAMP_OPERATION_LIMIT_EXCEEDED",
-                "DAILY_STAMP_LIMIT_REACHED",
-                "PURCHASE_AMOUNT_REQUIRED",
-                "PURCHASE_CURRENCY_MISMATCH",
-                "PURCHASE_THRESHOLD_NOT_MET",
-                "FINAL_REWARD_PENDING_REDEMPTION",
-                "REWARD_NOT_AVAILABLE",
-                "REWARD_EXPIRED",
-                "REWARD_ALREADY_REDEEMED",
-                "MANAGER_APPROVAL_REQUIRED",
-                "MANAGER_APPROVAL_INVALID",
-                "OPERATION_IDEMPOTENCY_CONFLICT",
-                "OPERATION_NOT_FOUND",
-                "OPERATION_IN_PROGRESS",
-                "OPERATION_FAILED",
-                "OPERATION_BILLING_BLOCKED",
-                "RISK_HARD_BLOCK",
-                "RATE_LIMITED",
-                "VALIDATION_FAILED",
-                "DEVICE_PAIRING_INVALID",
-                "DEVICE_PAIRING_EXPIRED",
-                "DEVICE_PAIRING_ALREADY_USED",
-                "DEVICE_PAIRING_ALREADY_ACTIVE",
-                "STAFF_DEVICE_NOT_ACTIVE",
-                "STAFF_DEVICE_NOT_FOUND",
-                "STAFF_DEVICE_SIGNATURE_INVALID",
-                "STAFF_DEVICE_BODY_DIGEST_INVALID",
-                "STAFF_DEVICE_NONCE_REPLAYED",
-                "STAFF_DEVICE_CLOCK_SKEW"
-              ]
-            },
-            "result": {
-              "type": "null"
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-            },
-            "completedAt": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "date-time",
-                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "requestId": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            }
-          },
-          "required": [
-            "commandId",
-            "operationPublicId",
-            "operationType",
-            "status",
-            "safeFailureCode",
-            "result",
-            "createdAt",
-            "completedAt",
-            "requestId"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "commandId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "operationPublicId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "operationType": {
-              "type": "string",
-              "const": "STAMP"
-            },
-            "status": {
-              "type": "string",
-              "const": "COMPLETED"
-            },
-            "safeFailureCode": {
-              "type": "null"
-            },
-            "result": {
-              "type": "object",
-              "properties": {
-                "operationPublicId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                "commandId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                "replayed": {
-                  "type": "boolean"
-                },
-                "beforeProgress": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "progress": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "goal": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "rewardReady": {
-                  "type": "boolean"
-                },
-                "completedCycles": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "projectionVersion": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "unlockedRewards": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "entitlementPublicId": {
-                        "type": "string",
-                        "format": "uuid",
-                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                      },
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "TEXT_REWARD",
-                          "FREE_ITEM",
-                          "DISCOUNT_DESCRIPTION",
-                          "CUSTOM"
-                        ]
-                      },
-                      "finalReward": {
-                        "type": "boolean"
-                      },
-                      "threshold": {
-                        "type": "integer",
-                        "exclusiveMinimum": 0,
-                        "maximum": 9007199254740991
-                      },
-                      "name": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 120
-                      },
-                      "description": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 240
-                      },
-                      "status": {
-                        "type": "string",
-                        "enum": [
-                          "AVAILABLE",
-                          "PARTIALLY_REDEEMED"
-                        ]
-                      },
-                      "expiresAt": {
-                        "anyOf": [
-                          {
-                            "type": "string",
-                            "format": "date-time",
-                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-                          },
-                          {
-                            "type": "null"
-                          }
-                        ]
-                      },
-                      "requiresManagerApproval": {
-                        "type": "boolean"
-                      }
-                    },
-                    "required": [
-                      "entitlementPublicId",
-                      "type",
-                      "finalReward",
-                      "threshold",
-                      "name",
-                      "description",
-                      "status",
-                      "expiresAt",
-                      "requiresManagerApproval"
-                    ],
-                    "additionalProperties": false
-                  }
-                },
-                "requestId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 160
-                }
-              },
-              "required": [
-                "operationPublicId",
-                "commandId",
-                "replayed",
-                "beforeProgress",
-                "progress",
-                "goal",
-                "rewardReady",
-                "completedCycles",
-                "projectionVersion",
-                "unlockedRewards",
-                "requestId"
-              ],
-              "additionalProperties": false
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-            },
-            "completedAt": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-            },
-            "requestId": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            }
-          },
-          "required": [
-            "commandId",
-            "operationPublicId",
-            "operationType",
-            "status",
-            "safeFailureCode",
-            "result",
-            "createdAt",
-            "completedAt",
-            "requestId"
-          ],
-          "additionalProperties": false
-        },
-        {
-          "type": "object",
-          "properties": {
-            "commandId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "operationPublicId": {
-              "type": "string",
-              "format": "uuid",
-              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-            },
-            "operationType": {
-              "type": "string",
-              "const": "REDEMPTION"
-            },
-            "status": {
-              "type": "string",
-              "const": "COMPLETED"
-            },
-            "safeFailureCode": {
-              "type": "null"
-            },
-            "result": {
-              "type": "object",
-              "properties": {
-                "operationPublicId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                "commandId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                "replayed": {
-                  "type": "boolean"
-                },
-                "redemptionPublicId": {
-                  "type": "string",
-                  "format": "uuid",
-                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                },
-                "reward": {
                   "type": "object",
                   "properties": {
-                    "entitlementPublicId": {
+                    "operationPublicId": {
                       "type": "string",
                       "format": "uuid",
                       "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                     },
-                    "type": {
+                    "commandId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "replayed": {
+                      "type": "boolean"
+                    },
+                    "beforeProgress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "goal": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "rewardReady": {
+                      "type": "boolean"
+                    },
+                    "completedCycles": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "projectionVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unlockedRewards": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "publicId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "threshold": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "status": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          "final": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "publicId",
+                          "threshold",
+                          "status",
+                          "final"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "requestId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "operationPublicId",
+                    "commandId",
+                    "replayed",
+                    "beforeProgress",
+                    "progress",
+                    "goal",
+                    "rewardReady",
+                    "completedCycles",
+                    "projectionVersion",
+                    "unlockedRewards",
+                    "requestId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "commandId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "replayed": {
+                      "type": "boolean"
+                    },
+                    "redemptionPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "rewardStatus": {
                       "type": "string",
                       "enum": [
-                        "TEXT_REWARD",
-                        "FREE_ITEM",
-                        "DISCOUNT_DESCRIPTION",
-                        "CUSTOM"
+                        "REDEEMED",
+                        "PARTIALLY_REDEEMED"
                       ]
                     },
                     "finalReward": {
                       "type": "boolean"
                     },
-                    "name": {
-                      "type": "string",
-                      "minLength": 1,
-                      "maxLength": 120
+                    "beforeProgress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
                     },
-                    "description": {
-                      "type": "string",
-                      "minLength": 1,
-                      "maxLength": 240
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
                     },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "AVAILABLE",
-                        "PARTIALLY_REDEEMED",
-                        "REDEEMED"
+                    "goal": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "rewardReady": {
+                      "type": "boolean"
+                    },
+                    "completedCycles": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "projectionVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "requestId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
                       ]
                     }
                   },
                   "required": [
-                    "entitlementPublicId",
-                    "type",
+                    "operationPublicId",
+                    "commandId",
+                    "replayed",
+                    "redemptionPublicId",
+                    "rewardStatus",
                     "finalReward",
-                    "name",
-                    "description",
-                    "status"
+                    "beforeProgress",
+                    "progress",
+                    "goal",
+                    "rewardReady",
+                    "completedCycles",
+                    "projectionVersion",
+                    "requestId"
                   ],
                   "additionalProperties": false
                 },
-                "progress": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "goal": {
-                  "type": "integer",
-                  "exclusiveMinimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "rewardReady": {
-                  "type": "boolean"
-                },
-                "completedCycles": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "projectionVersion": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "maximum": 9007199254740991
-                },
-                "requestId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 160
+                {
+                  "type": "object",
+                  "properties": {
+                    "operationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "commandId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "reversedOperationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "replayed": {
+                      "type": "boolean"
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "rewardReady": {
+                      "type": "boolean"
+                    },
+                    "completedCycles": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "projectionVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "requestId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "operationPublicId",
+                    "commandId",
+                    "reversedOperationPublicId",
+                    "replayed",
+                    "progress",
+                    "rewardReady",
+                    "completedCycles",
+                    "projectionVersion",
+                    "requestId"
+                  ],
+                  "additionalProperties": false
                 }
-              },
-              "required": [
-                "operationPublicId",
-                "commandId",
-                "replayed",
-                "redemptionPublicId",
-                "reward",
-                "progress",
-                "goal",
-                "rewardReady",
-                "completedCycles",
-                "projectionVersion",
-                "requestId"
-              ],
-              "additionalProperties": false
-            },
-            "createdAt": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-            },
-            "completedAt": {
-              "type": "string",
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
-            },
-            "requestId": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 160
-            }
-          },
-          "required": [
-            "commandId",
-            "operationPublicId",
-            "operationType",
-            "status",
-            "safeFailureCode",
-            "result",
-            "createdAt",
-            "completedAt",
-            "requestId"
-          ],
-          "additionalProperties": false
-        }
-      ]
-    },
-    "StampVisual": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "type": "object",
-      "properties": {
-        "states": {
-          "type": "array",
-          "items": [
-            {
-              "type": "string",
-              "const": "FILLED"
+              ]
             },
             {
-              "type": "string",
-              "const": "EMPTY"
+              "type": "null"
             }
           ]
         },
-        "filledAssetUrl": {
-          "type": "string",
-          "format": "uri"
+        "safeFailureCode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
-        "emptyAssetUrl": {
+        "createdAt": {
           "type": "string",
-          "format": "uri"
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
         },
-        "filledAssetDigest": {
-          "type": "string",
-          "pattern": "^[a-f0-9]{64}$"
-        },
-        "emptyAssetDigest": {
-          "type": "string",
-          "pattern": "^[a-f0-9]{64}$"
-        },
-        "accessibleLabel": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 240
-        },
-        "backgroundColor": {
-          "type": "string",
-          "pattern": "^#[0-9A-Fa-f]{6}$"
-        },
-        "foregroundColor": {
-          "type": "string",
-          "pattern": "^#[0-9A-Fa-f]{6}$"
+        "completedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
-        "states",
-        "filledAssetUrl",
-        "emptyAssetUrl",
-        "filledAssetDigest",
-        "emptyAssetDigest",
-        "accessibleLabel",
-        "backgroundColor",
-        "foregroundColor"
+        "commandId",
+        "operationPublicId",
+        "operationType",
+        "status",
+        "result",
+        "safeFailureCode",
+        "createdAt",
+        "completedAt"
+      ],
+      "additionalProperties": false
+    },
+    "OperationPublicStatusResult": {
+      "type": "object",
+      "properties": {
+        "publicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "operationPublicId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "commandId": {
+          "type": "string",
+          "format": "uuid",
+          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+        },
+        "operationType": {
+          "type": "string",
+          "enum": [
+            "ISSUE_STAMP",
+            "REDEEM_REWARD",
+            "REVERSE_STAMP",
+            "REVERSE_REDEMPTION",
+            "MANUAL_ADJUSTMENT",
+            "SUSPEND_MEMBERSHIP",
+            "RESTORE_MEMBERSHIP",
+            "REVOKE_MEMBERSHIP",
+            "EXPIRE_REWARD"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "PROCESSING",
+            "COMPLETED",
+            "FAILED"
+          ]
+        },
+        "resultProjectionVersion": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resultPayload": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "operationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "commandId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "replayed": {
+                      "type": "boolean"
+                    },
+                    "beforeProgress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "goal": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "rewardReady": {
+                      "type": "boolean"
+                    },
+                    "completedCycles": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "projectionVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "unlockedRewards": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "publicId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "threshold": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "status": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          "final": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "publicId",
+                          "threshold",
+                          "status",
+                          "final"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "requestId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "operationPublicId",
+                    "commandId",
+                    "replayed",
+                    "beforeProgress",
+                    "progress",
+                    "goal",
+                    "rewardReady",
+                    "completedCycles",
+                    "projectionVersion",
+                    "unlockedRewards",
+                    "requestId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "commandId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "replayed": {
+                      "type": "boolean"
+                    },
+                    "redemptionPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "rewardStatus": {
+                      "type": "string",
+                      "enum": [
+                        "REDEEMED",
+                        "PARTIALLY_REDEEMED"
+                      ]
+                    },
+                    "finalReward": {
+                      "type": "boolean"
+                    },
+                    "beforeProgress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "goal": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "rewardReady": {
+                      "type": "boolean"
+                    },
+                    "completedCycles": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "projectionVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "requestId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "operationPublicId",
+                    "commandId",
+                    "replayed",
+                    "redemptionPublicId",
+                    "rewardStatus",
+                    "finalReward",
+                    "beforeProgress",
+                    "progress",
+                    "goal",
+                    "rewardReady",
+                    "completedCycles",
+                    "projectionVersion",
+                    "requestId"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "operationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "commandId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "reversedOperationPublicId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "replayed": {
+                      "type": "boolean"
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "rewardReady": {
+                      "type": "boolean"
+                    },
+                    "completedCycles": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "projectionVersion": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "requestId": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "operationPublicId",
+                    "commandId",
+                    "reversedOperationPublicId",
+                    "replayed",
+                    "progress",
+                    "rewardReady",
+                    "completedCycles",
+                    "projectionVersion",
+                    "requestId"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "safeFailureCode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+        },
+        "completedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "publicId",
+        "operationPublicId",
+        "commandId",
+        "operationType",
+        "status",
+        "resultProjectionVersion",
+        "resultPayload",
+        "safeFailureCode",
+        "createdAt",
+        "completedAt"
       ],
       "additionalProperties": false
     }

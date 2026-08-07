@@ -1,73 +1,52 @@
 {
-  "membership": {
-    "publicId": "mem_fixture_not_a_credential",
-    "status": "ACTIVE",
-    "customerDisplayName": "Sanitized Customer",
-    "programName": "Fixture Loyalty Card",
-    "progress": 2,
-    "goal": 8,
-    "rewardReady": false,
-    "completedCycles": 0,
-    "projectionVersion": 2
-  },
-  "membershipPublicId": "mem_fixture_not_a_credential",
-  "customerDisplayName": "Sanitized Customer",
-  "programName": "Fixture Loyalty Card",
-  "progress": 2,
+  "membershipPublicId": "mem_1234567890abcdef1234567890abcdef",
+  "membershipStatus": "ACTIVE",
+  "customerDisplayName": "Synthetic customer",
+  "programName": "Synthetic coffee rewards",
+  "locale": "en",
+  "progress": 5,
   "goal": 8,
   "rewardReady": false,
-  "completedCycles": 0,
-  "membershipStatus": "ACTIVE",
+  "completedCycles": 1,
+  "projectionVersion": 15,
   "locationEligibility": {
     "earning": true,
     "redemption": true
   },
-  "operationPolicy": {
-    "minimumStampAmount": 1,
-    "maximumStampAmountPerOperation": 5,
-    "remainingProgressCapacity": 6,
-    "effectiveMaximumStampAmount": 5,
-    "dailyLimitEnabled": true,
-    "dailyMaximumStampAmount": 6,
-    "dailyRemainingStampAmount": 4,
-    "operationalLocalDate": "2026-08-02",
-    "operationalTimezone": "Asia/Baghdad",
-    "purchaseRequirementEnabled": true,
-    "minimumPurchaseAmountMinor": 10000,
-    "purchaseCurrency": "IQD",
-    "merchantTransactionReferenceAllowed": true,
-    "merchantTransactionReferenceRequired": false,
-    "managerOverridePossibleForRole": true
+  "operationLimits": {
+    "maximumStampsPerOperation": 5,
+    "maximumStampsPerCustomerPerDay": 10,
+    "dailyRemainingStamps": 4
   },
-  "stampVisual": {
-    "states": [
-      "FILLED",
-      "EMPTY"
-    ],
-    "filledAssetUrl": "https://api.example.invalid/v1/public/program-assets/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    "emptyAssetUrl": "https://api.example.invalid/v1/public/program-assets/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    "filledAssetDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    "emptyAssetDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-    "accessibleLabel": "Loyalty progress with two stamp states: filled and empty",
-    "backgroundColor": "#F7F4EE",
-    "foregroundColor": "#222222"
+  "operationalTimezone": "Asia/Baghdad",
+  "operationalDate": "2026-08-07",
+  "purchaseRequirement": {
+    "required": true,
+    "minimumAmountMinor": 5000,
+    "currency": "IQD"
+  },
+  "stampVisuals": {
+    "filled": {
+      "state": "FILLED",
+      "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "empty": {
+      "state": "EMPTY",
+      "contentDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
   },
   "availableRewards": [
     {
-      "entitlementPublicId": "40000000-0000-4000-8000-000000000001",
-      "type": "FREE_ITEM",
-      "finalReward": false,
+      "publicId": "10000000-0000-4000-8000-000000000001",
+      "name": "Synthetic milestone",
+      "description": "Separate from the active stamp grid.",
       "threshold": 4,
-      "name": "Fixture milestone",
-      "description": "A sanitized deterministic reward.",
-      "redemptionInstructions": "Follow merchant instructions.",
+      "finalReward": false,
       "status": "AVAILABLE",
       "redemptionCount": 0,
-      "maximumRedemptionCount": 2,
-      "expiresAt": "2026-09-01T12:00:00.000Z",
-      "requiresManagerApproval": true
+      "maximumRedemptionCount": 1,
+      "expiresAt": null,
+      "requiresManagerApproval": false
     }
-  ],
-  "resolvedAt": "2026-08-02T12:00:00.000Z",
-  "requestId": "10000000-0000-4000-8000-000000000001"
+  ]
 }

@@ -10,7 +10,9 @@ GetV1StaffOperationsOperationPublicIdResponse
 _$GetV1StaffOperationsOperationPublicIdResponseFromJson(
   Map<String, dynamic> json,
 ) => GetV1StaffOperationsOperationPublicIdResponse(
-  data: CommandStatus.fromJson(json['data'] as Map<String, dynamic>),
+  data: OperationPublicStatusResult.fromJson(
+    json['data'] as Map<String, dynamic>,
+  ),
   requestId: json['requestId'] as String,
 );
 

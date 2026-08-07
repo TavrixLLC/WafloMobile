@@ -24,7 +24,7 @@ Future<void> main(List<String> arguments) async {
   final manifest = jsonDecode(await manifestFile.readAsString());
   if (manifest is! Map<String, Object?> ||
       manifest['backendCommitSha'] is! String ||
-      manifest['sourceFiles'] is! List<Object?>) {
+      manifest['sourceFiles'] is! Map<String, Object?>) {
     _fail('The authoritative M2 source manifest is malformed.');
   }
 
@@ -40,20 +40,19 @@ Future<void> main(List<String> arguments) async {
   }
 
   final mismatches = <String>[];
-  for (final value in manifest['sourceFiles']! as List<Object?>) {
-    if (value is! Map<String, Object?> ||
-        value['path'] is! String ||
-        value['sha256'] is! String) {
+  final sourceFiles = manifest['sourceFiles']! as Map<String, Object?>;
+  for (final entry in sourceFiles.entries) {
+    if (entry.value is! String) {
       _fail('The authoritative M2 source manifest has an invalid entry.');
     }
-    final relative = value['path']! as String;
+    final relative = entry.key;
     final source = File(_join(backendRoot.path, relative));
     if (!source.existsSync()) {
       mismatches.add('$relative (missing)');
       continue;
     }
     final actual = sha256.convert(await source.readAsBytes()).toString();
-    if (actual != value['sha256']) mismatches.add('$relative (checksum)');
+    if (actual != entry.value) mismatches.add('$relative (checksum)');
   }
   if (mismatches.isNotEmpty) {
     _fail(
@@ -61,13 +60,64 @@ Future<void> main(List<String> arguments) async {
     );
   }
   stdout.writeln(
-    'Approved W4 M2 source verified: commit=$expectedCommit files=${(manifest['sourceFiles']! as List<Object?>).length}.',
+    'Approved W4 M2 source verified: commit=$expectedCommit files=${sourceFiles.length}.',
   );
 
   final node = Platform.isWindows ? 'node.exe' : 'node';
+  const focusedGates = <(String, List<String>, int)>[
+    (
+      'mobile contract unit',
+      ['unit', 'tests/unit/m2-mobile-contracts.test.ts'],
+      5,
+    ),
+    (
+      'signed Staff HTTP',
+      ['http', 'tests/http/w4-staff-operations.test.ts'],
+      6,
+    ),
+    (
+      'loyalty lifecycle',
+      [
+        'integration',
+        'tests/integration/w4-operational-domain.test.ts',
+        'tests/integration/w4-loyalty-lifecycle.test.ts',
+      ],
+      2,
+    ),
+    (
+      'loyalty concurrency',
+      ['concurrency', 'tests/concurrency/w4-loyalty-concurrency.test.ts'],
+      3,
+    ),
+  ];
+  var backendTestCount = 0;
+  for (final (label, arguments, testCount) in focusedGates) {
+    final code = await _runFocusedGate(
+      node: node,
+      backendRoot: backendRoot,
+      label: label,
+      arguments: arguments,
+    );
+    if (code != 0) {
+      _fail('Approved W4 M2 $label gate failed with exit code $code.');
+    }
+    backendTestCount += testCount;
+  }
+  stdout.writeln(
+    'REAL_W4_M2_CONTRACT_GATE_PASS backend=$expectedCommit tests=$backendTestCount cleanup=isolated-databases-dropped',
+  );
+}
+
+Future<int> _runFocusedGate({
+  required String node,
+  required Directory backendRoot,
+  required String label,
+  required List<String> arguments,
+}) async {
+  stdout.writeln('Starting approved W4 M2 $label gate.');
   final gate = await Process.start(
     node,
-    ['scripts/run-m2-quality-gate.mjs'],
+    ['scripts/run-isolated-vitest.mjs', ...arguments],
     workingDirectory: backendRoot.path,
     environment: {
       ...Platform.environment,
@@ -86,12 +136,7 @@ Future<void> main(List<String> arguments) async {
       .forEach((line) => stderr.writeln(_redact(line)));
   final code = await gate.exitCode;
   await Future.wait([stdoutDone, stderrDone]);
-  if (code != 0) {
-    _fail('Approved W4 M2 quality gate failed with exit code $code.');
-  }
-  stdout.writeln(
-    'REAL_W4_M2_CONTRACT_GATE_PASS backend=$expectedCommit cleanup=backend-gate-owned',
-  );
+  return code;
 }
 
 String? _argument(List<String> arguments, String prefix) {

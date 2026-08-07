@@ -42,12 +42,14 @@ final class LocationContext {
     required this.displayName,
     required this.earningAllowed,
     required this.redemptionAllowed,
+    this.capabilitiesKnown = true,
   });
 
   final String publicId;
   final String displayName;
   final bool earningAllowed;
   final bool redemptionAllowed;
+  final bool capabilitiesKnown;
 }
 
 final class AppUpdatePolicy {

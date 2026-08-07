@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:waflo_staff/core/api/generated_m2/models/stamp_request.dart';
 import 'package:waflo_staff/core/idempotency/business_command_id.dart';
 import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
@@ -25,13 +26,13 @@ void main() {
         allowInsecureAssets: false,
       );
 
-      expect(membership.progress.progress, 2);
+      expect(membership.progress.progress, 5);
       expect(membership.progress.goal, 8);
-      expect(membership.operationPolicy.effectiveMaximumStampAmount, 5);
-      expect(membership.operationPolicy.selectableMaximumStampAmount, 4);
+      expect(membership.operationPolicy.effectiveMaximumStampAmount, 3);
+      expect(membership.operationPolicy.selectableMaximumStampAmount, 3);
       expect(
         membership.availableRewards.single.requiresManagerApproval,
-        isTrue,
+        isFalse,
       );
     });
 
@@ -74,7 +75,7 @@ void main() {
       expect(stamp.progress.progress, 8);
       expect(stamp.rewardReady, isTrue);
       expect(stamp.unlockedRewards.single.finalReward, isTrue);
-      expect(redemption.reward.finalReward, isTrue);
+      expect(redemption.finalReward, isTrue);
       expect(redemption.progress.progress, 0);
       expect(redemption.rewardReady, isFalse);
     });
@@ -87,9 +88,39 @@ void main() {
         1234,
       );
       expect(
+        MinorUnitMoney.parse('12.34', currencyCode: 'usd').currencyCode,
+        'USD',
+      );
+      expect(
         MinorUnitMoney.parse('١٢٫٣٤٥', currencyCode: 'IQD').minorUnits,
         12345,
       );
+    });
+
+    test('purchase currency accepts only exactly three ASCII letters', () {
+      expect(CurrencyMetadata.normalizeCode('IQD'), 'IQD');
+      expect(CurrencyMetadata.normalizeCode('usd'), 'USD');
+      for (final invalid in ['US', 'USDD', '12A', r'US$', 'Iraqi Dinar']) {
+        expect(
+          () => CurrencyMetadata.normalizeCode(invalid),
+          throwsA(isA<MoneyInputException>()),
+          reason: invalid,
+        );
+      }
+    });
+
+    test('generated request rejects object and array purchase currencies', () {
+      const base = <String, Object?>{
+        'qrPayload':
+            'customer-membership-credential-fixture-000000000000000000000000',
+        'amount': 1,
+      };
+      for (final invalid in [<String, Object?>{}, <Object?>[]]) {
+        expect(
+          () => StampRequest.fromJson({...base, 'purchaseCurrency': invalid}),
+          throwsA(anything),
+        );
+      }
     });
 
     test(
@@ -209,10 +240,9 @@ void main() {
                 ).readAsStringSync(),
               )
               as Map<String, Object?>;
-      final errors = payload['errors']! as List<Object?>;
+      final errors = payload['codes']! as List<Object?>;
       for (final value in errors) {
-        final error = value! as Map<String, Object?>;
-        final code = error['code']! as String;
+        final code = value! as String;
         expect(
           strings.m2ErrorMessage(code),
           isNot(strings.genericError),

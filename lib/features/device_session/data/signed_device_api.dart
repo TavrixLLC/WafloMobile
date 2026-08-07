@@ -4,8 +4,11 @@ import 'package:dio/dio.dart';
 import 'package:waflo_staff/core/api/api_error_decoder.dart';
 import 'package:waflo_staff/core/api/generated/models/get_v1_staff_device_context_response.dart';
 import 'package:waflo_staff/core/api/generated/models/post_v1_staff_devices_session_refresh_response.dart';
+import 'package:waflo_staff/core/api/generated_m2/models/get_v1_staff_device_context_response.dart'
+    as m2;
 import 'package:waflo_staff/core/crypto/request_signing.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
+import 'package:waflo_staff/core/version/mobile_semantic_version.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
 
@@ -71,9 +74,12 @@ final class SignedDeviceApi implements DeviceSessionApi {
           body: null,
           session: current,
         );
-        final parsed = GetV1StaffDeviceContextResponse.fromJson(
-          _jsonMap(response.data),
-        );
+        final responseBody = _jsonMap(response.data);
+        final rawData = _jsonMap(responseBody['data']);
+        if (rawData.containsKey('appVersionSupported')) {
+          return parseM2ContextResponse(responseBody, current);
+        }
+        final parsed = GetV1StaffDeviceContextResponse.fromJson(responseBody);
         final data = parsed.data;
         if (data.device.publicId != current.devicePublicId) {
           throw const ApiFailure('DEVICE_CONTEXT_MISMATCH');
@@ -136,6 +142,62 @@ final class SignedDeviceApi implements DeviceSessionApi {
       }
     }
     throw const NetworkFailure();
+  }
+
+  static AuthoritativeDeviceContext parseM2ContextResponse(
+    Map<String, Object?> responseBody,
+    StaffDeviceSession current,
+  ) {
+    final parsed = m2.GetV1StaffDeviceContextResponse.fromJson(responseBody);
+    final data = parsed.data;
+    final role = data.role.json;
+    final platform = data.platform.json;
+    if (role == null ||
+        platform == null ||
+        data.organizationId != current.organizationId ||
+        data.locationId != current.locationId ||
+        data.devicePublicId != current.devicePublicId ||
+        data.deviceSessionId != current.sessionId ||
+        role != current.role ||
+        platform != current.devicePlatform ||
+        data.requestId != parsed.requestId) {
+      throw const ApiFailure('DEVICE_CONTEXT_MISMATCH');
+    }
+    if (!data.appVersionSupported) {
+      throw const ApiFailure('STAFF_APP_VERSION_UNSUPPORTED', httpStatus: 426);
+    }
+    if (!isStrictMobileSemanticVersion(data.appVersion) ||
+        !isStrictMobileSemanticVersion(data.minimumSupportedAppVersion)) {
+      throw const ApiFailure('INVALID_RESPONSE_BODY');
+    }
+    return AuthoritativeDeviceContext(
+      organization: OrganizationContext(
+        publicId: data.organizationId,
+        displayName: '',
+      ),
+      staff: StaffContext(publicId: '', displayName: '', role: role),
+      device: DeviceContextSummary(
+        publicId: data.devicePublicId,
+        displayName: current.deviceDisplayName,
+        status: current.deviceStatus,
+        platform: platform,
+        appVersion: data.appVersion,
+      ),
+      currentLocation: LocationContext(
+        publicId: data.locationId,
+        displayName: '',
+        earningAllowed: false,
+        redemptionAllowed: false,
+        capabilitiesKnown: false,
+      ),
+      assignedLocations: const [],
+      appPolicy: AppUpdatePolicy(
+        minimumSupportedVersion: data.minimumSupportedAppVersion,
+        updateRequired: false,
+      ),
+      requestId: parsed.requestId,
+      synchronizedAt: DateTime.now().toUtc(),
+    );
   }
 
   @override

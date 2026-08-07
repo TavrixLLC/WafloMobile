@@ -1,25 +1,20 @@
 {
-  "operationPublicId": "30000000-0000-4000-8000-000000000002",
-  "commandId": "20000000-0000-4000-8000-000000000002",
+  "operationPublicId": "20000000-0000-4000-8000-000000000002",
+  "commandId": "30000000-0000-4000-8000-000000000002",
   "replayed": false,
   "beforeProgress": 7,
   "progress": 8,
   "goal": 8,
   "rewardReady": true,
-  "completedCycles": 0,
-  "projectionVersion": 9,
+  "completedCycles": 1,
+  "projectionVersion": 17,
   "unlockedRewards": [
     {
-      "entitlementPublicId": "40000000-0000-4000-8000-000000000002",
-      "type": "FREE_ITEM",
-      "finalReward": true,
+      "publicId": "10000000-0000-4000-8000-000000000002",
       "threshold": 8,
-      "name": "Fixture final reward",
-      "description": "A sanitized deterministic final reward.",
       "status": "AVAILABLE",
-      "expiresAt": null,
-      "requiresManagerApproval": false
+      "final": true
     }
   ],
-  "requestId": "10000000-0000-4000-8000-000000000001"
+  "requestId": "synthetic-request-2"
 }

@@ -1,63 +1,63 @@
-00:00 +0: loading C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart
-00:00 +0: C:/Users/3ma/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real local W4 pairing, context, refresh, and logout
+00:00 +0: loading [USER_HOME_REDACTED]/Documents/waflo mobile/test/contract/real_backend_contract_test.dart
+00:00 +0: [USER_HOME_REDACTED]/Documents/waflo mobile/test/contract/real_backend_contract_test.dart: real local W4 pairing, context, refresh, and logout
   Skip: Set development-only WAFLO contract defines and start the seeded local backend.
-00:00 +0 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: (setUpAll)
-00:00 +0 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +1 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +2 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +3 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +4 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +5 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +6 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +7 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
-00:01 +8 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: Arabic unpaired welcome evidence
-00:01 +9 ~1: C:/Users/3ma/Documents/waflo mobile/test/unit/crypto_contract_test.dart: generates Ed25519 identity and exports standards-compliant SPKI
-00:01 +10 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
-00:01 +11 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
-00:01 +12 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
-00:01 +13 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
-00:01 +14 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
-00:01 +15 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
-00:01 +16 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing scanner evidence
-00:01 +17 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
-00:01 +18 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
-00:01 +19 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
-00:01 +20 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
-00:01 +21 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
-00:01 +22 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
-00:01 +23 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: expired pairing QR evidence
-00:01 +24 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing progress evidence
-00:02 +25 ~1: C:/Users/3ma/Documents/waflo mobile/test/unit/pairing_qr_test.dart: parses the approved W4 pairing QR shape
-00:02 +26 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
-00:02 +27 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
-00:02 +28 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
-00:02 +29 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
-00:02 +30 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: paired home evidence
-00:02 +31 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
-00:02 +32 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
-00:02 +33 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
-00:02 +34 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
-00:02 +35 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
-00:02 +36 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
-00:02 +37 ~1: C:/Users/3ma/Documents/waflo mobile/test/unit/session_lifecycle_test.dart: logout clears session, key, and cached context even offline
-00:02 +38 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: settings English evidence
-00:02 +39 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: settings Arabic evidence
-00:02 +40 ~1: C:/Users/3ma/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: offline state evidence
-00:02 +41 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:02 +42 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:02 +43 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:02 +44 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:02 +45 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:02 +46 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:03 +47 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:03 +48 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
-00:03 +49 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: Arabic welcome uses RTL direction
-00:03 +50 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: camera rationale offers continuation and a safe fallback
-00:03 +51 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: invalid and expired pairing states are safe and actionable
-00:03 +52 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: pairing progress and success announce safe state
-00:03 +53 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: paired shell marks all M2 destinations unavailable
-00:03 +54 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: settings exposes only M1 preferences and safe controls
-00:03 +55 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: blocked screens cover all required explicit states
-00:04 +56 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: large text scale remains renderable
-00:04 +57 ~1: C:/Users/3ma/Documents/waflo mobile/test/widget/m1_screens_test.dart: manual fallback never renders the pairing secret as text
+00:00 +0 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: (setUpAll)
+00:00 +0 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +1 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +2 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +3 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +4 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +5 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +6 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +7 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: English unpaired welcome evidence
+00:01 +8 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: Arabic unpaired welcome evidence
+00:01 +9 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/unit/crypto_contract_test.dart: generates Ed25519 identity and exports standards-compliant SPKI
+00:01 +10 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
+00:01 +11 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
+00:01 +12 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
+00:01 +13 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
+00:01 +14 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
+00:01 +15 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: camera rationale evidence
+00:01 +16 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing scanner evidence
+00:01 +17 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
+00:01 +18 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
+00:01 +19 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
+00:01 +20 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
+00:01 +21 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
+00:01 +22 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: invalid pairing QR evidence
+00:01 +23 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: expired pairing QR evidence
+00:01 +24 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing progress evidence
+00:02 +25 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/unit/pairing_qr_test.dart: parses the approved W4 pairing QR shape
+00:02 +26 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
+00:02 +27 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
+00:02 +28 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
+00:02 +29 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: pairing success evidence
+00:02 +30 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: paired home evidence
+00:02 +31 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
+00:02 +32 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
+00:02 +33 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
+00:02 +34 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
+00:02 +35 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
+00:02 +36 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: assigned locations evidence
+00:02 +37 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/unit/session_lifecycle_test.dart: logout clears session, key, and cached context even offline
+00:02 +38 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: settings English evidence
+00:02 +39 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: settings Arabic evidence
+00:02 +40 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/golden/m1_screenshot_test.dart: offline state evidence
+00:02 +41 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:02 +42 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:02 +43 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:02 +44 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:02 +45 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:02 +46 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:03 +47 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:03 +48 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: unpaired welcome is localized in English
+00:03 +49 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: Arabic welcome uses RTL direction
+00:03 +50 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: camera rationale offers continuation and a safe fallback
+00:03 +51 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: invalid and expired pairing states are safe and actionable
+00:03 +52 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: pairing progress and success announce safe state
+00:03 +53 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: paired shell marks all M2 destinations unavailable
+00:03 +54 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: settings exposes only M1 preferences and safe controls
+00:03 +55 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: blocked screens cover all required explicit states
+00:04 +56 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: large text scale remains renderable
+00:04 +57 ~1: [USER_HOME_REDACTED]/Documents/waflo mobile/test/widget/m1_screens_test.dart: manual fallback never renders the pairing secret as text
 00:04 +58 ~1: All tests passed!

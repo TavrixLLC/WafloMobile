@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'redemption_result.dart';
+import 'redemption_operation_result.dart';
 
 part 'post_v1_staff_operations_redeem_response.g.dart';
 
@@ -19,7 +19,7 @@ class PostV1StaffOperationsRedeemResponse {
     Map<String, Object?> json,
   ) => _$PostV1StaffOperationsRedeemResponseFromJson(json);
 
-  final RedemptionResult data;
+  final RedemptionOperationResult data;
   final String requestId;
 
   Map<String, Object?> toJson() =>

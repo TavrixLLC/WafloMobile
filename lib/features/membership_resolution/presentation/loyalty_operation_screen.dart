@@ -488,8 +488,6 @@ final class _RewardTile extends ConsumerWidget {
               ),
             ),
             if (expiration != null) Text(strings.expirationLabel(expiration)),
-            if (reward.redemptionInstructions != null)
-              Text(reward.redemptionInstructions!),
             if (reward.requiresManagerApproval)
               Text(
                 strings.managerApprovalRequired,
@@ -713,11 +711,11 @@ final class _StampSuccess extends ConsumerWidget {
             message: strings.rewardReady,
             color: WafloColors.success,
           ),
-        for (final reward in result.unlockedRewards)
-          ListTile(
-            leading: const Icon(Icons.card_giftcard_outlined),
-            title: Text(reward.name),
-            subtitle: Text('${strings.rewardUnlocked}: ${reward.description}'),
+        if (result.unlockedRewards.isNotEmpty)
+          WafloStatusBanner(
+            icon: Icons.info_outline,
+            message: strings.rewardUnlocked,
+            color: WafloColors.success,
           ),
         Text(
           strings.operationReferenceSuffix(_suffix(result.operationPublicId)),
@@ -741,13 +739,14 @@ final class _RedemptionSuccess extends ConsumerWidget {
     return _SuccessLayout(
       title: strings.redemptionSuccessTitle,
       children: [
+        if (state.selectedReward != null)
+          Text(
+            state.selectedReward!.name,
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
         Text(
-          result.reward.name,
-          style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          result.reward.finalReward
+          result.finalReward
               ? strings.cycleResetComplete(result.progress.goal)
               : strings.progressUnchanged,
           textAlign: TextAlign.center,

@@ -1,0 +1,6 @@
+Waflo Mobile M2 final reconciliation — Android local builds
+development debug with lib/main_development.dart and config/development.json: PASS
+staging release with lib/main_staging.dart and config/staging.json: PASS (69.3 MB)
+production release with lib/main_production.dart and config/production.json: PASS (69.3 MB)
+production merged manifest: applicationId app.waflo.staff; cleartext disabled; backup disabled
+production config: test adapter false; minimal logging; reserved host placeholder fails closed

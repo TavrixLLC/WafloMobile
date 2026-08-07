@@ -9,7 +9,7 @@ part of 'post_v1_staff_operations_stamps_response.dart';
 PostV1StaffOperationsStampsResponse
 _$PostV1StaffOperationsStampsResponseFromJson(Map<String, dynamic> json) =>
     PostV1StaffOperationsStampsResponse(
-      data: StampResult.fromJson(json['data'] as Map<String, dynamic>),
+      data: StampOperationResult.fromJson(json['data'] as Map<String, dynamic>),
       requestId: json['requestId'] as String,
     );
 

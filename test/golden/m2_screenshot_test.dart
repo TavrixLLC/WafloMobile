@@ -333,25 +333,19 @@ Widget _app({
 
 ResolvedMembership _membership(int progress) {
   final value = _fixture('membership-resolve.fixture.json');
-  final membership = value['membership']! as Map<String, Object?>;
-  final policy = value['operationPolicy']! as Map<String, Object?>;
+  final limits = value['operationLimits']! as Map<String, Object?>;
   value['progress'] = progress;
-  membership['progress'] = progress;
   value['rewardReady'] = progress == 8;
-  membership['rewardReady'] = progress == 8;
-  membership['projectionVersion'] = progress + 1;
-  policy['remainingProgressCapacity'] = 8 - progress;
-  policy['effectiveMaximumStampAmount'] = (8 - progress).clamp(0, 5);
+  value['projectionVersion'] = progress + 1;
+  limits['dailyRemainingStamps'] = (8 - progress).clamp(0, 4);
   if (progress == 8) {
     value['availableRewards'] = [
       <String, Object?>{
-        'entitlementPublicId': '40000000-0000-4000-8000-000000000002',
-        'type': 'FREE_ITEM',
+        'publicId': '40000000-0000-4000-8000-000000000002',
         'finalReward': true,
         'threshold': 8,
         'name': 'Fixture final reward',
         'description': 'A sanitized final reward.',
-        'redemptionInstructions': 'Follow merchant instructions.',
         'status': 'AVAILABLE',
         'redemptionCount': 0,
         'maximumRedemptionCount': 1,
@@ -360,7 +354,11 @@ ResolvedMembership _membership(int progress) {
       },
     ];
   }
-  return ResolvedMembership.fromJson(value, allowInsecureAssets: false);
+  return ResolvedMembership.fromJson(
+    value,
+    allowInsecureAssets: false,
+    receivedAt: DateTime(2026, DateTime.august, 7, 23, 40),
+  );
 }
 
 Map<String, Object?> _fixture(String name) =>
@@ -379,7 +377,14 @@ StampOperationResult _milestoneStampResult() {
     'rewardReady': false,
     'completedCycles': 0,
     'projectionVersion': 7,
-    'unlockedRewards': [redemption['reward']],
+    'unlockedRewards': [
+      <String, Object?>{
+        'publicId': '10000000-0000-4000-8000-000000000001',
+        'threshold': 4,
+        'status': 'AVAILABLE',
+        'final': false,
+      },
+    ],
     'requestId': redemption['requestId'],
   });
 }

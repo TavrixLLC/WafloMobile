@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'm1_generic_result.dart';
+import 'staff_device_context_result.dart';
 
 part 'get_v1_staff_device_context_response.g.dart';
 
@@ -18,7 +18,7 @@ class GetV1StaffDeviceContextResponse {
   factory GetV1StaffDeviceContextResponse.fromJson(Map<String, Object?> json) =>
       _$GetV1StaffDeviceContextResponseFromJson(json);
 
-  final M1GenericResult data;
+  final StaffDeviceContextResult data;
   final String requestId;
 
   Map<String, Object?> toJson() =>

@@ -5,6 +5,8 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
+const _authoritativeBackendSha = '0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e';
+
 Future<void> main(List<String> arguments) async {
   final backendRoot =
       _argument(arguments, '--backend-root=') ??
@@ -36,7 +38,8 @@ Future<void> main(List<String> arguments) async {
     'API_PORT': '$apiPort',
     'SCALE_LOCATION_LIMIT': '100',
     'SCALE_TEAM_LIMIT': '100',
-    'RATE_LIMIT_NAMESPACE': 'waflo-m1-contract-$runNamespace',
+    'RATE_LIMIT_NAMESPACE': 'waflo-m2-contract-$runNamespace',
+    'STAFF_MOBILE_MINIMUM_APP_VERSION': '1.0.0',
     'WAFLO_W4_BACKEND_ROOT': backend.path,
     'WAFLO_CONTRACT_API_PORT': '$apiPort',
     'WAFLO_CONTRACT_CONTROL_PORT': '$controlPort',
@@ -134,7 +137,7 @@ Future<void> main(List<String> arguments) async {
         'Real W4 contract gate failed with exit code $testExitCode.',
       );
     }
-    stdout.writeln('REAL_W4_CONTRACT_GATE_PASS tests=11 cleanup=verified');
+    stdout.writeln('REAL_W4_CONTRACT_GATE_PASS tests=26 cleanup=verified');
   } finally {
     if (Platform.isWindows) {
       await Process.run('taskkill', ['/PID', '${fixture.pid}', '/T', '/F']);
@@ -157,28 +160,49 @@ Future<void> _verifyApprovedBackend(
   Directory backendRoot,
 ) async {
   if (!backendRoot.existsSync()) _fail('Approved W4 checkout does not exist.');
+  final git = await Process.run(
+    'git',
+    ['rev-parse', 'HEAD'],
+    workingDirectory: backendRoot.path,
+    runInShell: Platform.isWindows,
+  );
+  if (git.exitCode != 0 ||
+      (git.stdout as String).trim() != _authoritativeBackendSha) {
+    _fail('Approved W4 checkout is not at $_authoritativeBackendSha.');
+  }
+  final trackedStatus = await Process.run(
+    'git',
+    ['status', '--porcelain', '--untracked-files=no'],
+    workingDirectory: backendRoot.path,
+    runInShell: Platform.isWindows,
+  );
+  if (trackedStatus.exitCode != 0 ||
+      (trackedStatus.stdout as String).trim().isNotEmpty) {
+    _fail('Approved W4 checkout has tracked working-tree changes.');
+  }
   final manifestFile = File(
-    _join(mobileRoot.path, 'contracts/w4/source-manifest.json'),
+    _join(mobileRoot.path, 'contracts/w4/m2/source-manifest.json'),
   );
   final manifest = jsonDecode(await manifestFile.readAsString());
-  if (manifest is! Map<String, Object?> || manifest['sourceFiles'] is! List) {
-    _fail('The authoritative W4 source manifest is invalid.');
+  if (manifest is! Map<String, Object?> ||
+      manifest['backendCommitSha'] != _authoritativeBackendSha ||
+      manifest['sourceFiles'] is! Map<String, Object?>) {
+    _fail('The authoritative M2 W4 source manifest is invalid.');
   }
   final mismatches = <String>[];
-  for (final entry in manifest['sourceFiles'] as List<Object?>) {
-    if (entry is! Map<String, Object?> ||
-        entry['path'] is! String ||
-        entry['sha256'] is! String) {
-      _fail('The authoritative W4 source manifest contains an invalid entry.');
+  final sourceFiles = manifest['sourceFiles']! as Map<String, Object?>;
+  for (final entry in sourceFiles.entries) {
+    if (entry.value is! String) {
+      _fail('The authoritative M2 source manifest contains an invalid entry.');
     }
-    final relative = entry['path'] as String;
+    final relative = entry.key;
     final file = File(_join(backendRoot.path, relative));
     if (!file.existsSync()) {
       mismatches.add('$relative (missing)');
       continue;
     }
     final actual = sha256.convert(await file.readAsBytes()).toString();
-    if (actual != entry['sha256']) mismatches.add('$relative (checksum)');
+    if (actual != entry.value) mismatches.add('$relative (checksum)');
   }
   if (mismatches.isNotEmpty) {
     _fail(
@@ -187,7 +211,7 @@ Future<void> _verifyApprovedBackend(
     );
   }
   stdout.writeln(
-    'Approved W4 source verified: ${manifest['backendCommitSha']} + manifest checksums.',
+    'Approved W4 source verified: $_authoritativeBackendSha + ${sourceFiles.length} manifest checksums.',
   );
 }
 

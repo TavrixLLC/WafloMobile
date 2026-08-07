@@ -9,3 +9,9 @@
 **/*.iml export-ignore
 **/Pods export-ignore
 **/DerivedData export-ignore
+
+# Checksum-controlled backend contract text must remain byte-stable on Windows.
+contracts/w4/**/*.json text eol=lf
+contracts/w4/**/*.md text eol=lf
+contracts/w4/**/*.yaml text eol=lf
+contracts/w4/**/*.yml text eol=lf

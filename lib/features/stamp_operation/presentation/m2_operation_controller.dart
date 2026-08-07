@@ -113,7 +113,8 @@ final class M2OperationController extends Notifier<M2OperationState> {
     }
     final context = ref.read(bootControllerProvider).context;
     if (context == null ||
-        (!context.currentLocation.earningAllowed &&
+        (context.currentLocation.capabilitiesKnown &&
+            !context.currentLocation.earningAllowed &&
             !context.currentLocation.redemptionAllowed)) {
       state = state.copyWith(stage: M2OperationStage.locationBlocked);
       return;
@@ -459,8 +460,7 @@ final class M2OperationController extends Notifier<M2OperationState> {
               finalReward: reward.finalReward,
             ),
           );
-      if (result.reward.entitlementPublicId != reward.entitlementPublicId ||
-          result.reward.finalReward != reward.finalReward ||
+      if (result.finalReward != reward.finalReward ||
           (!reward.finalReward &&
               result.progress.progress != membership.progress.progress)) {
         throw const M2ContractViolation('REDEMPTION_RESULT_PROJECTION_INVALID');
@@ -506,6 +506,9 @@ final class M2OperationController extends Notifier<M2OperationState> {
       final result = await ref
           .read(loyaltyOperationsApiProvider)
           .commandStatus(pending.commandId);
+      if (result.commandId != pending.commandId) {
+        throw const M2ContractViolation('COMMAND_RESPONSE_ID_MISMATCH');
+      }
       if ((pending.operationType == PendingOperationType.stamp &&
               result.operationType != CommandOperationType.stamp) ||
           (pending.operationType == PendingOperationType.redemption &&
@@ -542,22 +545,31 @@ final class M2OperationController extends Notifier<M2OperationState> {
             failure: failure,
           );
         case CommandRecoveryStatus.completed:
-          final completed = pending.checked(
-            at: DateTime.now(),
-            status: PendingOperationStatus.completed,
-          );
-          await ref.read(pendingOperationStoreProvider).write(completed);
           if (pending.operationType == PendingOperationType.stamp) {
-            final stamp = StampOperationResult.fromJson(result.result!);
+            final stamp = result.stampResult;
+            if (stamp == null) {
+              throw const M2ContractViolation('COMMAND_RESULT_INVALID');
+            }
+            final completed = pending.checked(
+              at: DateTime.now(),
+              status: PendingOperationStatus.completed,
+            );
+            await ref.read(pendingOperationStoreProvider).write(completed);
             state = state.copyWith(
               stage: M2OperationStage.stampSucceeded,
               stampResult: stamp,
               pendingOperation: completed,
             );
           } else {
-            final redemption = RedemptionOperationResult.fromJson(
-              result.result!,
+            final redemption = result.redemptionResult;
+            if (redemption == null) {
+              throw const M2ContractViolation('COMMAND_RESULT_INVALID');
+            }
+            final completed = pending.checked(
+              at: DateTime.now(),
+              status: PendingOperationStatus.completed,
             );
+            await ref.read(pendingOperationStoreProvider).write(completed);
             state = state.copyWith(
               stage: M2OperationStage.redemptionSucceeded,
               redemptionResult: redemption,

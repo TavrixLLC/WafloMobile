@@ -1,4 +1,6 @@
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
+import 'package:waflo_staff/features/reward_redemption/domain/redemption_models.dart';
+import 'package:waflo_staff/features/stamp_operation/domain/stamp_models.dart';
 
 enum CommandOperationType { stamp, redemption }
 
@@ -11,23 +13,30 @@ final class CommandRecoveryResult {
     required this.operationType,
     required this.status,
     required this.safeFailureCode,
-    required this.result,
+    required this.stampResult,
+    required this.redemptionResult,
     required this.createdAt,
     required this.completedAt,
     required this.requestId,
   });
 
   final String commandId;
-  final String? operationPublicId;
+  final String operationPublicId;
   final CommandOperationType operationType;
   final CommandRecoveryStatus status;
   final String? safeFailureCode;
-  final Map<String, Object?>? result;
+  final StampOperationResult? stampResult;
+  final RedemptionOperationResult? redemptionResult;
   final DateTime createdAt;
   final DateTime? completedAt;
-  final String requestId;
+  final String? requestId;
 
-  static CommandRecoveryResult fromJson(Map<String, Object?> json) {
+  static CommandRecoveryResult fromJson(
+    Map<String, Object?> json, {
+    String? responseRequestId,
+  }) {
+    final commandId = _uuid(json, 'commandId');
+    final operationPublicId = _uuid(json, 'operationPublicId');
     final status = switch (_string(json, 'status')) {
       'PROCESSING' => CommandRecoveryStatus.processing,
       'COMPLETED' => CommandRecoveryStatus.completed,
@@ -35,16 +44,10 @@ final class CommandRecoveryResult {
       _ => throw const M2ContractViolation('COMMAND_STATUS_UNKNOWN'),
     };
     final operationType = switch (_string(json, 'operationType')) {
-      'STAMP' => CommandOperationType.stamp,
-      'REDEMPTION' => CommandOperationType.redemption,
-      _ => throw const M2ContractViolation('COMMAND_TYPE_UNKNOWN'),
+      'ISSUE_STAMP' => CommandOperationType.stamp,
+      'REDEEM_REWARD' => CommandOperationType.redemption,
+      _ => throw const M2ContractViolation('COMMAND_TYPE_UNSUPPORTED'),
     };
-    final operationIdValue = json['operationPublicId'];
-    final operationId = operationIdValue == null
-        ? null
-        : operationIdValue is String && _isUuid(operationIdValue)
-        ? operationIdValue
-        : throw const M2ContractViolation('OPERATION_PUBLIC_ID_INVALID');
     final failureValue = json['safeFailureCode'];
     final failureCode = failureValue == null
         ? null
@@ -71,23 +74,49 @@ final class CommandRecoveryResult {
       throw const M2ContractViolation('COMMAND_PROCESSING_INVALID');
     }
     if (status == CommandRecoveryStatus.failed &&
-        (failureCode == null || result != null)) {
+        (failureCode == null || result != null || completedAt == null)) {
       throw const M2ContractViolation('COMMAND_FAILED_INVALID');
     }
     if (status == CommandRecoveryStatus.completed &&
-        (result == null || operationId == null || failureCode != null)) {
+        (result == null || failureCode != null || completedAt == null)) {
       throw const M2ContractViolation('COMMAND_COMPLETED_INVALID');
     }
+
+    StampOperationResult? stampResult;
+    RedemptionOperationResult? redemptionResult;
+    if (status == CommandRecoveryStatus.completed) {
+      switch (operationType) {
+        case CommandOperationType.stamp:
+          stampResult = StampOperationResult.fromJson(
+            result!,
+            responseRequestId: responseRequestId,
+          );
+          if (stampResult.commandId != commandId ||
+              stampResult.operationPublicId != operationPublicId) {
+            throw const M2ContractViolation('COMMAND_RESULT_ID_MISMATCH');
+          }
+        case CommandOperationType.redemption:
+          redemptionResult = RedemptionOperationResult.fromJson(
+            result!,
+            responseRequestId: responseRequestId,
+          );
+          if (redemptionResult.commandId != commandId ||
+              redemptionResult.operationPublicId != operationPublicId) {
+            throw const M2ContractViolation('COMMAND_RESULT_ID_MISMATCH');
+          }
+      }
+    }
     return CommandRecoveryResult(
-      commandId: _uuid(json, 'commandId'),
-      operationPublicId: operationId,
+      commandId: commandId,
+      operationPublicId: operationPublicId,
       operationType: operationType,
       status: status,
       safeFailureCode: failureCode,
-      result: result,
+      stampResult: stampResult,
+      redemptionResult: redemptionResult,
       createdAt: _dateTime(json, 'createdAt'),
       completedAt: completedAt,
-      requestId: _boundedString(json, 'requestId', 160),
+      requestId: responseRequestId,
     );
   }
 }
@@ -95,14 +124,6 @@ final class CommandRecoveryResult {
 String _string(Map<String, Object?> json, String key) {
   final value = json[key];
   if (value is! String) {
-    throw M2ContractViolation('${key.toUpperCase()}_INVALID');
-  }
-  return value;
-}
-
-String _boundedString(Map<String, Object?> json, String key, int maximum) {
-  final value = _string(json, key);
-  if (value.isEmpty || value.length > maximum) {
     throw M2ContractViolation('${key.toUpperCase()}_INVALID');
   }
   return value;

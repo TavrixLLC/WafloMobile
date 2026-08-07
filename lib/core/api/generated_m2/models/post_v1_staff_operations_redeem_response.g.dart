@@ -9,7 +9,9 @@ part of 'post_v1_staff_operations_redeem_response.dart';
 PostV1StaffOperationsRedeemResponse
 _$PostV1StaffOperationsRedeemResponseFromJson(Map<String, dynamic> json) =>
     PostV1StaffOperationsRedeemResponse(
-      data: RedemptionResult.fromJson(json['data'] as Map<String, dynamic>),
+      data: RedemptionOperationResult.fromJson(
+        json['data'] as Map<String, dynamic>,
+      ),
       requestId: json['requestId'] as String,
     );
 

@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'command_status.dart';
+import 'operation_command_status_result.dart';
 
 part 'get_v1_staff_operations_commands_command_id_response.g.dart';
 
@@ -19,7 +19,7 @@ class GetV1StaffOperationsCommandsCommandIdResponse {
     Map<String, Object?> json,
   ) => _$GetV1StaffOperationsCommandsCommandIdResponseFromJson(json);
 
-  final CommandStatus data;
+  final OperationCommandStatusResult data;
   final String requestId;
 
   Map<String, Object?> toJson() =>

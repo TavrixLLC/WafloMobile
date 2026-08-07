@@ -31,7 +31,8 @@ final class HomeScreen extends ConsumerWidget {
           ).add_Hm().format(deviceContext.synchronizedAt.toLocal());
     final hasCapability =
         deviceContext != null &&
-        (deviceContext.currentLocation.earningAllowed ||
+        (!deviceContext.currentLocation.capabilitiesKnown ||
+            deviceContext.currentLocation.earningAllowed ||
             deviceContext.currentLocation.redemptionAllowed);
     final canScan = online && hasCapability && m2.pendingOperation == null;
     return Scaffold(

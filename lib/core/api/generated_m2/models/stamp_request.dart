@@ -5,7 +5,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'manager_override.dart';
-import 'stamp_request_locale.dart';
 
 part 'stamp_request.g.dart';
 
@@ -14,7 +13,6 @@ class StampRequest {
   const StampRequest({
     required this.qrPayload,
     required this.amount,
-    this.locale,
     this.purchaseAmountMinor,
     this.purchaseCurrency,
     this.merchantTransactionReference,
@@ -26,10 +24,9 @@ class StampRequest {
       _$StampRequestFromJson(json);
 
   final String qrPayload;
-  final StampRequestLocale? locale;
   final int amount;
   final int? purchaseAmountMinor;
-  final dynamic purchaseCurrency;
+  final String? purchaseCurrency;
   final String? merchantTransactionReference;
   final ManagerOverride? managerOverride;
   final DateTime? clientObservedAt;

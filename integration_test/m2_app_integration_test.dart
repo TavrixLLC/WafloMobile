@@ -468,6 +468,7 @@ ResolvedMembership _membership(int progress, {bool managerApproval = true}) {
     membershipPublicId: 'mem_fixture_not_a_credential',
     customerDisplayName: 'Sanitized Customer',
     programName: 'Fixture Loyalty Card',
+    locale: 'en',
     status: MembershipStatus.active,
     progress: StampProgress.validated(progress: progress, goal: goal),
     completedCycles: 0,
@@ -489,41 +490,24 @@ ResolvedMembership _membership(int progress, {bool managerApproval = true}) {
       purchaseRequirementEnabled: true,
       minimumPurchaseAmountMinor: 10000,
       purchaseCurrency: 'IQD',
-      merchantTransactionReferenceAllowed: true,
-      merchantTransactionReferenceRequired: false,
-      managerOverridePossibleForRole: true,
     ),
     stampArtwork: StampArtwork(
-      filledAssetUrl: Uri.parse(
-        'https://api.example.invalid/v1/public/program-assets/'
-        'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      ),
-      emptyAssetUrl: Uri.parse(
-        'https://api.example.invalid/v1/public/program-assets/'
-        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      ),
       filledAssetDigest:
           'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       emptyAssetDigest:
           'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      accessibleLabel:
-          'Loyalty progress with two stamp states: filled and empty',
-      backgroundColor: '#F7F4EE',
-      foregroundColor: '#222222',
     ),
     availableRewards: [
       AvailableReward(
         entitlementPublicId: finalReward
             ? '40000000-0000-4000-8000-000000000002'
             : '40000000-0000-4000-8000-000000000001',
-        kind: RewardKind.freeItem,
         finalReward: finalReward,
         threshold: finalReward ? goal : 4,
         name: finalReward ? 'Fixture final reward' : 'Fixture milestone',
         description: finalReward
             ? 'A sanitized final reward.'
             : 'A sanitized deterministic reward.',
-        redemptionInstructions: 'Follow merchant instructions.',
         status: RewardAvailability.available,
         redemptionCount: 0,
         maximumRedemptionCount: finalReward ? 1 : 2,
@@ -570,13 +554,11 @@ Map<String, Object?> _successfulStampResultJson() => <String, Object?>{
   'requestId': '10000000-0000-4000-8000-000000000001',
 };
 
-RewardReceipt _milestoneRewardReceipt() => const RewardReceipt(
-  entitlementPublicId: '40000000-0000-4000-8000-000000000001',
-  kind: RewardKind.freeItem,
-  finalReward: false,
-  name: 'Fixture milestone',
-  description: 'A sanitized deterministic reward.',
+UnlockedReward _milestoneRewardReceipt() => const UnlockedReward(
+  publicId: '40000000-0000-4000-8000-000000000001',
+  threshold: 4,
   status: 'PARTIALLY_REDEEMED',
+  finalReward: false,
 );
 
 RedemptionOperationResult _milestoneRedemptionResult() =>
@@ -585,7 +567,9 @@ RedemptionOperationResult _milestoneRedemptionResult() =>
       commandId: '20000000-0000-4000-8000-000000000003',
       replayed: false,
       redemptionPublicId: '50000000-0000-4000-8000-000000000001',
-      reward: _milestoneRewardReceipt(),
+      rewardStatus: RedemptionRewardStatus.redeemed,
+      finalReward: false,
+      beforeProgress: 6,
       progress: StampProgress.validated(progress: 6, goal: 8),
       rewardReady: false,
       completedCycles: 0,
@@ -598,14 +582,9 @@ RedemptionOperationResult _finalRedemptionResult() => RedemptionOperationResult(
   commandId: '20000000-0000-4000-8000-000000000004',
   replayed: false,
   redemptionPublicId: '50000000-0000-4000-8000-000000000002',
-  reward: const RewardReceipt(
-    entitlementPublicId: '40000000-0000-4000-8000-000000000002',
-    kind: RewardKind.freeItem,
-    finalReward: true,
-    name: 'Fixture final reward',
-    description: 'A sanitized deterministic final reward.',
-    status: 'REDEEMED',
-  ),
+  rewardStatus: RedemptionRewardStatus.redeemed,
+  finalReward: true,
+  beforeProgress: 8,
   progress: StampProgress.validated(progress: 0, goal: 8),
   rewardReady: false,
   completedCycles: 1,
@@ -619,7 +598,8 @@ CommandRecoveryResult _processingRecovery() => CommandRecoveryResult(
   operationType: CommandOperationType.stamp,
   status: CommandRecoveryStatus.processing,
   safeFailureCode: null,
-  result: null,
+  stampResult: null,
+  redemptionResult: null,
   createdAt: DateTime.utc(2026, DateTime.august, 2, 12),
   completedAt: null,
   requestId: '10000000-0000-4000-8000-000000000001',
@@ -631,7 +611,8 @@ CommandRecoveryResult _completedStampRecovery() => CommandRecoveryResult(
   operationType: CommandOperationType.stamp,
   status: CommandRecoveryStatus.completed,
   safeFailureCode: null,
-  result: _successfulStampResultJson(),
+  stampResult: _successfulStampResult(),
+  redemptionResult: null,
   createdAt: DateTime.utc(2026, DateTime.august, 2, 12),
   completedAt: DateTime.utc(2026, DateTime.august, 2, 12, 0, 1),
   requestId: '10000000-0000-4000-8000-000000000001',

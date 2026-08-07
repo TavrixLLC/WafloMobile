@@ -44,7 +44,8 @@ extension WafloLocalizationX on AppLocalizations {
     'TRANSACTION_REFERENCE_CARD_LIKE' => m2PurchaseRequired,
     'PURCHASE_CURRENCY_MISMATCH' ||
     'PURCHASE_CURRENCY_INVALID' => m2CurrencyMismatch,
-    'PURCHASE_THRESHOLD_NOT_MET' => m2PurchaseThreshold,
+    'PURCHASE_THRESHOLD_NOT_MET' ||
+    'PURCHASE_AMOUNT_BELOW_MINIMUM' => m2PurchaseThreshold,
     'FINAL_REWARD_PENDING_REDEMPTION' => m2FinalPending,
     'REWARD_NOT_AVAILABLE' => m2RewardUnavailable,
     'REWARD_EXPIRED' => m2RewardExpired,
@@ -74,7 +75,8 @@ extension WafloLocalizationX on AppLocalizations {
     'STAFF_DEVICE_SESSION_EXPIRED' => sessionExpiredBody,
     'STAFF_DEVICE_REVOKED' => deviceRevokedBody,
     'STAFF_DEVICE_COMPROMISED' => deviceCompromisedBody,
-    'APP_UPDATE_REQUIRED' => updateRequiredBody,
+    'APP_UPDATE_REQUIRED' ||
+    'STAFF_APP_VERSION_UNSUPPORTED' => updateRequiredBody,
     'VALIDATION_FAILED' => validationError,
     'INVALID_RESPONSE_BODY' => m2ContractError,
     _ => genericError,

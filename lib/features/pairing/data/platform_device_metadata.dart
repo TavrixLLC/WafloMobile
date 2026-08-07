@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
+import 'package:waflo_staff/core/version/mobile_semantic_version.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_api.dart';
 
 final class PlatformDeviceMetadataProvider implements DeviceMetadataProvider {
@@ -18,11 +19,12 @@ final class PlatformDeviceMetadataProvider implements DeviceMetadataProvider {
   @override
   Future<SafeDeviceMetadata> load() async {
     final package = await _packageInfoLoader();
+    final appVersion = strictMobileSemanticVersion(package.version);
     if (Platform.isAndroid) {
       final android = await _deviceInfo.androidInfo;
       return SafeDeviceMetadata(
         platform: StaffMobilePlatform.android,
-        appVersion: package.version,
+        appVersion: appVersion,
         osVersion: android.version.release,
         model: android.model,
       );
@@ -31,7 +33,7 @@ final class PlatformDeviceMetadataProvider implements DeviceMetadataProvider {
       final ios = await _deviceInfo.iosInfo;
       return SafeDeviceMetadata(
         platform: StaffMobilePlatform.ios,
-        appVersion: package.version,
+        appVersion: appVersion,
         osVersion: ios.systemVersion,
         model: ios.utsname.machine,
       );

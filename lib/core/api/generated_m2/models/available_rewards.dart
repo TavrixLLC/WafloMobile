@@ -4,21 +4,18 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'type.dart';
-import 'status2.dart';
+import 'status.dart';
 
 part 'available_rewards.g.dart';
 
 @JsonSerializable()
 class AvailableRewards {
   const AvailableRewards({
-    required this.entitlementPublicId,
-    required this.type,
-    required this.finalReward,
-    required this.threshold,
+    required this.publicId,
     required this.name,
     required this.description,
-    required this.redemptionInstructions,
+    required this.threshold,
+    required this.finalReward,
     required this.status,
     required this.redemptionCount,
     required this.maximumRedemptionCount,
@@ -29,14 +26,12 @@ class AvailableRewards {
   factory AvailableRewards.fromJson(Map<String, Object?> json) =>
       _$AvailableRewardsFromJson(json);
 
-  final String entitlementPublicId;
-  final Type type;
-  final bool finalReward;
-  final int threshold;
+  final String publicId;
   final String name;
   final String description;
-  final String? redemptionInstructions;
-  final Status2 status;
+  final int threshold;
+  final bool finalReward;
+  final Status status;
   final int redemptionCount;
   final int maximumRedemptionCount;
   final DateTime? expiresAt;

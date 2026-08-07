@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'stamp_result.dart';
+import 'stamp_operation_result.dart';
 
 part 'post_v1_staff_operations_stamps_response.g.dart';
 
@@ -19,7 +19,7 @@ class PostV1StaffOperationsStampsResponse {
     Map<String, Object?> json,
   ) => _$PostV1StaffOperationsStampsResponseFromJson(json);
 
-  final StampResult data;
+  final StampOperationResult data;
   final String requestId;
 
   Map<String, Object?> toJson() =>

@@ -20,170 +20,7 @@ class _FallbackClient implements FallbackClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<PostV1StaffDevicesPairingClaimResponse> staffDevicePairingClaim({
-    required DevicePairingClaimRequest body,
-    RequestOptions? options,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(body.toJson());
-    final newOptions = newRequestOptions(options);
-    newOptions.extra.addAll(_extra);
-    newOptions.headers.addAll(_dio.options.headers);
-    newOptions.headers.addAll(_headers);
-    final _options = newOptions.copyWith(
-      method: 'POST',
-      baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
-      queryParameters: queryParameters,
-      path: '/v1/staff/devices/pairing/claim',
-    )..data = _data;
-    final _result = await _dio.fetch<Map<String, Object?>>(_options);
-    late PostV1StaffDevicesPairingClaimResponse _value;
-    try {
-      _value = PostV1StaffDevicesPairingClaimResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<PostV1StaffDevicesPairingChallengeResponse>
-  staffDevicePairingChallenge({
-    required DevicePairingChallengeRequest body,
-    RequestOptions? options,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(body.toJson());
-    final newOptions = newRequestOptions(options);
-    newOptions.extra.addAll(_extra);
-    newOptions.headers.addAll(_dio.options.headers);
-    newOptions.headers.addAll(_headers);
-    final _options = newOptions.copyWith(
-      method: 'POST',
-      baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
-      queryParameters: queryParameters,
-      path: '/v1/staff/devices/pairing/challenge',
-    )..data = _data;
-    final _result = await _dio.fetch<Map<String, Object?>>(_options);
-    late PostV1StaffDevicesPairingChallengeResponse _value;
-    try {
-      _value = PostV1StaffDevicesPairingChallengeResponse.fromJson(
-        _result.data!,
-      );
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<PostV1StaffDevicesPairingCompleteResponse> staffDevicePairingComplete({
-    required DevicePairingCompleteRequest body,
-    RequestOptions? options,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(body.toJson());
-    final newOptions = newRequestOptions(options);
-    newOptions.extra.addAll(_extra);
-    newOptions.headers.addAll(_dio.options.headers);
-    newOptions.headers.addAll(_headers);
-    final _options = newOptions.copyWith(
-      method: 'POST',
-      baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
-      queryParameters: queryParameters,
-      path: '/v1/staff/devices/pairing/complete',
-    )..data = _data;
-    final _result = await _dio.fetch<Map<String, Object?>>(_options);
-    late PostV1StaffDevicesPairingCompleteResponse _value;
-    try {
-      _value = PostV1StaffDevicesPairingCompleteResponse.fromJson(
-        _result.data!,
-      );
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<PostV1StaffDevicesSessionRefreshResponse> staffDeviceSessionRefresh({
-    required StaffDeviceSessionRefreshRequest body,
-    RequestOptions? options,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(body.toJson());
-    final newOptions = newRequestOptions(options);
-    newOptions.extra.addAll(_extra);
-    newOptions.headers.addAll(_dio.options.headers);
-    newOptions.headers.addAll(_headers);
-    final _options = newOptions.copyWith(
-      method: 'POST',
-      baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
-      queryParameters: queryParameters,
-      path: '/v1/staff/devices/session/refresh',
-    )..data = _data;
-    final _result = await _dio.fetch<Map<String, Object?>>(_options);
-    late PostV1StaffDevicesSessionRefreshResponse _value;
-    try {
-      _value = PostV1StaffDevicesSessionRefreshResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<PostV1StaffDevicesSessionLogoutResponse> staffDeviceSessionLogout({
-    RequestOptions? options,
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final newOptions = newRequestOptions(options);
-    newOptions.extra.addAll(_extra);
-    newOptions.headers.addAll(_dio.options.headers);
-    newOptions.headers.addAll(_headers);
-    final _options = newOptions.copyWith(
-      method: 'POST',
-      baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl),
-      queryParameters: queryParameters,
-      path: '/v1/staff/devices/session/logout',
-    )..data = _data;
-    final _result = await _dio.fetch<Map<String, Object?>>(_options);
-    late PostV1StaffDevicesSessionLogoutResponse _value;
-    try {
-      _value = PostV1StaffDevicesSessionLogoutResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<GetV1StaffDeviceContextResponse> staffDeviceContext({
+  Future<GetV1StaffDeviceContextResponse> getStaffMobileDeviceContext({
     RequestOptions? options,
   }) async {
     final _extra = <String, dynamic>{};
@@ -213,7 +50,8 @@ class _FallbackClient implements FallbackClient {
   }
 
   @override
-  Future<PostV1StaffMembershipsResolveResponse> resolveMembershipM2({
+  Future<PostV1StaffMembershipsResolveResponse>
+  resolveMembershipForStaffMobile({
     required MembershipResolveRequest body,
     RequestOptions? options,
   }) async {
@@ -245,7 +83,7 @@ class _FallbackClient implements FallbackClient {
   }
 
   @override
-  Future<PostV1StaffOperationsStampsResponse> issueStampsM2({
+  Future<PostV1StaffOperationsStampsResponse> issueStaffMobileStamps({
     required String xIdempotencyKey,
     required StampRequest body,
     RequestOptions? options,
@@ -279,9 +117,9 @@ class _FallbackClient implements FallbackClient {
   }
 
   @override
-  Future<PostV1StaffOperationsRedeemResponse> redeemRewardM2({
+  Future<PostV1StaffOperationsRedeemResponse> redeemStaffMobileReward({
     required String xIdempotencyKey,
-    required RedemptionRequest body,
+    required RedeemRequest body,
     RequestOptions? options,
   }) async {
     final _extra = <String, dynamic>{};
@@ -314,7 +152,7 @@ class _FallbackClient implements FallbackClient {
 
   @override
   Future<GetV1StaffOperationsOperationPublicIdResponse>
-  operationStatusByPublicIdM2({
+  getStaffMobileOperation({
     required String operationPublicId,
     RequestOptions? options,
   }) async {
@@ -348,7 +186,7 @@ class _FallbackClient implements FallbackClient {
 
   @override
   Future<GetV1StaffOperationsCommandsCommandIdResponse>
-  operationStatusByCommandIdM2({
+  recoverStaffMobileCommand({
     required String commandId,
     RequestOptions? options,
   }) async {

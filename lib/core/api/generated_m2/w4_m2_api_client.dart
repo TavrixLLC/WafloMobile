@@ -6,16 +6,16 @@ import 'package:dio/dio.dart';
 
 import 'fallback/fallback_client.dart';
 
-/// Waflo Staff Mobile M2 Contract `vw4-m2-1.0.0`.
+/// Waflo M2 Staff Mobile Compatibility API `vwaflo-m2-mobile-contract-v1`.
 ///
-/// M1 pairing/session/context plus the M2 mobile operations subset. QR payloads are bearer credentials and must never be logged or retained for recovery.
+/// Typed mobile compatibility surface over the authoritative signed W4 Staff-device API.
 class W4M2ApiClient {
   W4M2ApiClient(Dio dio, {String? baseUrl}) : _dio = dio, _baseUrl = baseUrl;
 
   final Dio _dio;
   final String? _baseUrl;
 
-  static String get version => 'w4-m2-1.0.0';
+  static String get version => 'waflo-m2-mobile-contract-v1';
 
   FallbackClient? _fallback;
 

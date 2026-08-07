@@ -9,7 +9,7 @@ part of 'get_v1_staff_device_context_response.dart';
 GetV1StaffDeviceContextResponse _$GetV1StaffDeviceContextResponseFromJson(
   Map<String, dynamic> json,
 ) => GetV1StaffDeviceContextResponse(
-  data: json['data'],
+  data: StaffDeviceContextResult.fromJson(json['data'] as Map<String, dynamic>),
   requestId: json['requestId'] as String,
 );
 

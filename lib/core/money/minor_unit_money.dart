@@ -32,13 +32,21 @@ final class CurrencyMetadata {
     'KRW': 0,
   };
 
-  static int fractionDigits(String currencyCode) {
-    if (!RegExp(r'^[A-Z]{3}$').hasMatch(currencyCode)) {
+  static String normalizeCode(String currencyCode) {
+    if (!RegExp(r'^[A-Za-z]{3}$').hasMatch(currencyCode)) {
       throw const MoneyInputException('PURCHASE_CURRENCY_INVALID');
     }
+    return currencyCode.toUpperCase();
+  }
+
+  static int fractionDigits(String currencyCode) {
+    final normalizedCode = normalizeCode(currencyCode);
     final digits =
-        _approvedOverrides[currencyCode] ??
-        NumberFormat.currency(locale: 'en', name: currencyCode).decimalDigits ??
+        _approvedOverrides[normalizedCode] ??
+        NumberFormat.currency(
+          locale: 'en',
+          name: normalizedCode,
+        ).decimalDigits ??
         2;
     if (digits < 0 || digits > 3) {
       throw const MoneyInputException('PURCHASE_CURRENCY_UNSUPPORTED');
@@ -59,7 +67,8 @@ final class MinorUnitMoney {
   final int fractionDigits;
 
   static MinorUnitMoney parse(String input, {required String currencyCode}) {
-    final fractionDigits = CurrencyMetadata.fractionDigits(currencyCode);
+    final normalizedCurrency = CurrencyMetadata.normalizeCode(currencyCode);
+    final fractionDigits = CurrencyMetadata.fractionDigits(normalizedCurrency);
     final normalized = _normalizeDigits(input.trim());
     if (normalized.isEmpty) {
       throw const MoneyInputException('PURCHASE_AMOUNT_REQUIRED');
@@ -94,7 +103,7 @@ final class MinorUnitMoney {
     }
     return MinorUnitMoney(
       minorUnits: whole * factor + fractionMinor,
-      currencyCode: currencyCode,
+      currencyCode: normalizedCurrency,
       fractionDigits: fractionDigits,
     );
   }

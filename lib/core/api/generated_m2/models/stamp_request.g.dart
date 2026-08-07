@@ -9,11 +9,8 @@ part of 'stamp_request.dart';
 StampRequest _$StampRequestFromJson(Map<String, dynamic> json) => StampRequest(
   qrPayload: json['qrPayload'] as String,
   amount: (json['amount'] as num).toInt(),
-  locale: json['locale'] == null
-      ? null
-      : StampRequestLocale.fromJson(json['locale'] as String),
   purchaseAmountMinor: (json['purchaseAmountMinor'] as num?)?.toInt(),
-  purchaseCurrency: json['purchaseCurrency'],
+  purchaseCurrency: json['purchaseCurrency'] as String?,
   merchantTransactionReference: json['merchantTransactionReference'] as String?,
   managerOverride: json['managerOverride'] == null
       ? null
@@ -28,7 +25,6 @@ StampRequest _$StampRequestFromJson(Map<String, dynamic> json) => StampRequest(
 Map<String, dynamic> _$StampRequestToJson(StampRequest instance) =>
     <String, dynamic>{
       'qrPayload': instance.qrPayload,
-      'locale': _$StampRequestLocaleEnumMap[instance.locale],
       'amount': instance.amount,
       'purchaseAmountMinor': instance.purchaseAmountMinor,
       'purchaseCurrency': instance.purchaseCurrency,
@@ -36,9 +32,3 @@ Map<String, dynamic> _$StampRequestToJson(StampRequest instance) =>
       'managerOverride': instance.managerOverride,
       'clientObservedAt': instance.clientObservedAt?.toIso8601String(),
     };
-
-const _$StampRequestLocaleEnumMap = {
-  StampRequestLocale.en: 'en',
-  StampRequestLocale.ar: 'ar',
-  StampRequestLocale.$unknown: r'$unknown',
-};

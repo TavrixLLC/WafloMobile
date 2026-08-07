@@ -24,8 +24,6 @@ enum MembershipStatus { active, suspended, expired, revoked }
 
 enum RewardAvailability { available, partiallyRedeemed }
 
-enum RewardKind { textReward, freeItem, discountDescription, custom }
-
 final class LocationEligibility {
   const LocationEligibility({required this.earning, required this.redemption});
 
@@ -35,60 +33,23 @@ final class LocationEligibility {
 
 final class StampArtwork {
   const StampArtwork({
-    required this.filledAssetUrl,
-    required this.emptyAssetUrl,
     required this.filledAssetDigest,
     required this.emptyAssetDigest,
-    required this.accessibleLabel,
-    required this.backgroundColor,
-    required this.foregroundColor,
   });
 
-  final Uri filledAssetUrl;
-  final Uri emptyAssetUrl;
-  final String filledAssetDigest;
-  final String emptyAssetDigest;
-  final String accessibleLabel;
-  final String backgroundColor;
-  final String foregroundColor;
+  final String? filledAssetDigest;
+  final String? emptyAssetDigest;
 
-  static StampArtwork fromJson(
-    Map<String, Object?> json, {
-    required bool allowInsecureAssets,
-  }) {
-    final states = json['states'];
-    if (states is! List<Object?> ||
-        states.length != 2 ||
-        states[0] != 'FILLED' ||
-        states[1] != 'EMPTY') {
+  static StampArtwork fromJson(Map<String, Object?> json) {
+    final filled = _map(json, 'filled');
+    final empty = _map(json, 'empty');
+    if (_string(filled, 'state') != 'FILLED' ||
+        _string(empty, 'state') != 'EMPTY') {
       throw const M2ContractViolation('STAMP_VISUAL_STATES_INVALID');
     }
-    final filledUrl = _uri(json, 'filledAssetUrl');
-    final emptyUrl = _uri(json, 'emptyAssetUrl');
-    if (!allowInsecureAssets &&
-        (filledUrl.scheme != 'https' || emptyUrl.scheme != 'https')) {
-      throw const M2ContractViolation('STAMP_VISUAL_HTTPS_REQUIRED');
-    }
-    final filledDigest = _digest(json, 'filledAssetDigest');
-    final emptyDigest = _digest(json, 'emptyAssetDigest');
-    if (filledUrl.pathSegments.lastOrNull != filledDigest ||
-        emptyUrl.pathSegments.lastOrNull != emptyDigest) {
-      throw const M2ContractViolation('STAMP_VISUAL_DIGEST_URL_MISMATCH');
-    }
-    final background = _string(json, 'backgroundColor');
-    final foreground = _string(json, 'foregroundColor');
-    if (!RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(background) ||
-        !RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(foreground)) {
-      throw const M2ContractViolation('STAMP_VISUAL_COLOR_INVALID');
-    }
     return StampArtwork(
-      filledAssetUrl: filledUrl,
-      emptyAssetUrl: emptyUrl,
-      filledAssetDigest: filledDigest,
-      emptyAssetDigest: emptyDigest,
-      accessibleLabel: _boundedString(json, 'accessibleLabel', 1, 240),
-      backgroundColor: background,
-      foregroundColor: foreground,
+      filledAssetDigest: _nullableDigest(filled, 'contentDigest'),
+      emptyAssetDigest: _nullableDigest(empty, 'contentDigest'),
     );
   }
 }
@@ -106,9 +67,6 @@ final class MembershipOperationPolicy {
     required this.purchaseRequirementEnabled,
     required this.minimumPurchaseAmountMinor,
     required this.purchaseCurrency,
-    required this.merchantTransactionReferenceAllowed,
-    required this.merchantTransactionReferenceRequired,
-    required this.managerOverridePossibleForRole,
   });
 
   final int maximumStampAmountPerOperation;
@@ -122,9 +80,12 @@ final class MembershipOperationPolicy {
   final bool purchaseRequirementEnabled;
   final int? minimumPurchaseAmountMinor;
   final String? purchaseCurrency;
-  final bool merchantTransactionReferenceAllowed;
-  final bool merchantTransactionReferenceRequired;
-  final bool managerOverridePossibleForRole;
+
+  // The request contract permits an optional reference but does not declare a
+  // policy that can make it mandatory. Server validation remains authoritative.
+  bool get merchantTransactionReferenceAllowed => true;
+  bool get merchantTransactionReferenceRequired => false;
+  bool get managerOverridePossibleForRole => false;
 
   int get selectableMaximumStampAmount => dailyLimitEnabled
       ? math.min(effectiveMaximumStampAmount, dailyRemainingStampAmount!)
@@ -134,90 +95,60 @@ final class MembershipOperationPolicy {
     Map<String, Object?> json, {
     required int expectedCapacity,
   }) {
-    if (_integer(json, 'minimumStampAmount') != 1) {
-      throw const M2ContractViolation('STAMP_MINIMUM_INVALID');
-    }
-    final maximum = _positiveInteger(json, 'maximumStampAmountPerOperation');
-    final capacity = _nonNegativeInteger(json, 'remainingProgressCapacity');
-    final effective = _nonNegativeInteger(json, 'effectiveMaximumStampAmount');
-    if (capacity != expectedCapacity) {
-      throw const M2ContractViolation('STAMP_CAPACITY_INCONSISTENT');
-    }
-    final dailyEnabled = _boolean(json, 'dailyLimitEnabled');
-    final dailyMaximum = _nullableInteger(json, 'dailyMaximumStampAmount');
-    final dailyRemaining = _nullableInteger(json, 'dailyRemainingStampAmount');
-    if (dailyEnabled &&
-        (dailyMaximum == null ||
-            dailyMaximum <= 0 ||
-            dailyRemaining == null ||
-            dailyRemaining < 0 ||
-            dailyRemaining > dailyMaximum)) {
+    final limits = _map(json, 'operationLimits');
+    final maximum = _positiveInteger(limits, 'maximumStampsPerOperation');
+    final dailyMaximum = _nullablePositiveInteger(
+      limits,
+      'maximumStampsPerCustomerPerDay',
+    );
+    final dailyRemaining = _nullableNonNegativeInteger(
+      limits,
+      'dailyRemainingStamps',
+    );
+    if ((dailyMaximum == null) != (dailyRemaining == null) ||
+        (dailyMaximum != null && dailyRemaining! > dailyMaximum)) {
       throw const M2ContractViolation('DAILY_STAMP_POLICY_INVALID');
     }
-    if (!dailyEnabled && (dailyMaximum != null || dailyRemaining != null)) {
-      throw const M2ContractViolation('DAILY_STAMP_POLICY_INCONSISTENT');
-    }
-    final expectedEffective = math.min(maximum, capacity);
-    if (effective != expectedEffective) {
-      throw const M2ContractViolation('STAMP_EFFECTIVE_MAX_INCONSISTENT');
-    }
 
-    final purchaseEnabled = _boolean(json, 'purchaseRequirementEnabled');
-    final minimumPurchase = _nullableInteger(
-      json,
-      'minimumPurchaseAmountMinor',
+    final purchase = _map(json, 'purchaseRequirement');
+    final purchaseRequired = _boolean(purchase, 'required');
+    final minimumPurchase = _nullableNonNegativeInteger(
+      purchase,
+      'minimumAmountMinor',
     );
-    final currencyValue = json['purchaseCurrency'];
+    final currencyValue = purchase['currency'];
     final currency = currencyValue == null
         ? null
-        : currencyValue is String
+        : currencyValue is String &&
+              RegExp(r'^[A-Z]{3}$').hasMatch(currencyValue)
         ? currencyValue
         : throw const M2ContractViolation('PURCHASE_CURRENCY_INVALID');
-    if (purchaseEnabled &&
-        (minimumPurchase == null ||
-            minimumPurchase <= 0 ||
-            currency == null ||
-            !RegExp(r'^[A-Z]{3}$').hasMatch(currency))) {
+    if (purchaseRequired && (minimumPurchase == null || currency == null)) {
       throw const M2ContractViolation('PURCHASE_POLICY_INVALID');
     }
-    if (!purchaseEnabled && (minimumPurchase != null || currency != null)) {
+    if (!purchaseRequired && (minimumPurchase != null || currency != null)) {
       throw const M2ContractViolation('PURCHASE_POLICY_INCONSISTENT');
     }
-    final referenceAllowed = _boolean(
-      json,
-      'merchantTransactionReferenceAllowed',
-    );
-    final referenceRequired = _boolean(
-      json,
-      'merchantTransactionReferenceRequired',
-    );
-    if (referenceRequired && !referenceAllowed) {
-      throw const M2ContractViolation('TRANSACTION_REFERENCE_POLICY_INVALID');
-    }
-    final operationalDate = _dateTime(json, 'operationalLocalDate');
+
+    final operationalDate = _dateTime(json, 'operationalDate');
     if (operationalDate.hour != 0 ||
         operationalDate.minute != 0 ||
-        operationalDate.second != 0) {
+        operationalDate.second != 0 ||
+        operationalDate.millisecond != 0) {
       throw const M2ContractViolation('OPERATIONAL_DATE_INVALID');
     }
     return MembershipOperationPolicy(
       maximumStampAmountPerOperation: maximum,
-      remainingProgressCapacity: capacity,
-      effectiveMaximumStampAmount: effective,
-      dailyLimitEnabled: dailyEnabled,
+      remainingProgressCapacity: expectedCapacity,
+      effectiveMaximumStampAmount: math.min(maximum, expectedCapacity),
+      dailyLimitEnabled: dailyMaximum != null,
       dailyMaximumStampAmount: dailyMaximum,
       dailyRemainingStampAmount: dailyRemaining,
       operationalLocalDate: operationalDate,
-      operationalTimezone: _boundedString(json, 'operationalTimezone', 1, 80),
-      purchaseRequirementEnabled: purchaseEnabled,
+      operationalTimezone: _boundedString(json, 'operationalTimezone', 1, 100),
+      purchaseRequirementEnabled: purchaseRequired,
       minimumPurchaseAmountMinor: minimumPurchase,
       purchaseCurrency: currency,
-      merchantTransactionReferenceAllowed: referenceAllowed,
-      merchantTransactionReferenceRequired: referenceRequired,
-      managerOverridePossibleForRole: _boolean(
-        json,
-        'managerOverridePossibleForRole',
-      ),
     );
   }
 }
@@ -225,12 +156,10 @@ final class MembershipOperationPolicy {
 final class AvailableReward {
   const AvailableReward({
     required this.entitlementPublicId,
-    required this.kind,
     required this.finalReward,
     required this.threshold,
     required this.name,
     required this.description,
-    required this.redemptionInstructions,
     required this.status,
     required this.redemptionCount,
     required this.maximumRedemptionCount,
@@ -239,12 +168,10 @@ final class AvailableReward {
   });
 
   final String entitlementPublicId;
-  final RewardKind kind;
   final bool finalReward;
   final int threshold;
   final String name;
   final String description;
-  final String? redemptionInstructions;
   final RewardAvailability status;
   final int redemptionCount;
   final int maximumRedemptionCount;
@@ -263,18 +190,11 @@ final class AvailableReward {
       throw const M2ContractViolation('REWARD_COUNT_INVALID');
     }
     return AvailableReward(
-      entitlementPublicId: _uuid(json, 'entitlementPublicId'),
-      kind: _rewardKind(_string(json, 'type')),
+      entitlementPublicId: _uuid(json, 'publicId'),
       finalReward: _boolean(json, 'finalReward'),
       threshold: _positiveInteger(json, 'threshold'),
       name: _boundedString(json, 'name', 1, 120),
-      description: _boundedString(json, 'description', 1, 240),
-      redemptionInstructions: _nullableBoundedString(
-        json,
-        'redemptionInstructions',
-        1,
-        240,
-      ),
+      description: _boundedString(json, 'description', 0, 240),
       status: switch (_string(json, 'status')) {
         'AVAILABLE' => RewardAvailability.available,
         'PARTIALLY_REDEEMED' => RewardAvailability.partiallyRedeemed,
@@ -293,6 +213,7 @@ final class ResolvedMembership {
     required this.membershipPublicId,
     required this.customerDisplayName,
     required this.programName,
+    required this.locale,
     required this.status,
     required this.progress,
     required this.completedCycles,
@@ -309,6 +230,7 @@ final class ResolvedMembership {
   final String membershipPublicId;
   final String customerDisplayName;
   final String programName;
+  final String locale;
   final MembershipStatus status;
   final StampProgress progress;
   final int completedCycles;
@@ -319,7 +241,7 @@ final class ResolvedMembership {
   final StampArtwork stampArtwork;
   final List<AvailableReward> availableRewards;
   final DateTime resolvedAt;
-  final String requestId;
+  final String? requestId;
 
   bool get operational => status == MembershipStatus.active;
   bool get earningAllowed =>
@@ -337,11 +259,12 @@ final class ResolvedMembership {
   static ResolvedMembership fromJson(
     Map<String, Object?> json, {
     required bool allowInsecureAssets,
+    String? responseRequestId,
+    DateTime? receivedAt,
   }) {
-    final membership = _map(json, 'membership');
-    final publicId = _string(json, 'membershipPublicId');
-    final customerName = _boundedString(json, 'customerDisplayName', 1, 160);
-    final programName = _boundedString(json, 'programName', 1, 160);
+    // Kept in the signature for flavor-compatible callers. The repaired
+    // contract exposes no asset URL, so insecure remote artwork is impossible.
+    assert(allowInsecureAssets || !allowInsecureAssets);
     final progressValue = _nonNegativeInteger(json, 'progress');
     final goal = _positiveInteger(json, 'goal');
     final progress = StampProgress.validated(
@@ -352,36 +275,16 @@ final class ResolvedMembership {
     if (rewardReady != (progressValue == goal)) {
       throw const M2ContractViolation('REWARD_READY_INCONSISTENT');
     }
-    final status = _membershipStatus(_string(json, 'membershipStatus'));
-    final completedCycles = _nonNegativeInteger(json, 'completedCycles');
-    final projectionVersion = _nonNegativeInteger(
-      membership,
-      'projectionVersion',
-    );
-    if (_string(membership, 'publicId') != publicId ||
-        _string(membership, 'customerDisplayName') != customerName ||
-        _string(membership, 'programName') != programName ||
-        _nonNegativeInteger(membership, 'progress') != progressValue ||
-        _positiveInteger(membership, 'goal') != goal ||
-        _boolean(membership, 'rewardReady') != rewardReady ||
-        _nonNegativeInteger(membership, 'completedCycles') != completedCycles ||
-        _membershipStatus(_string(membership, 'status')) != status) {
-      throw const M2ContractViolation('MEMBERSHIP_PROJECTION_MISMATCH');
+    final locale = _string(json, 'locale');
+    if (locale != 'en' && locale != 'ar') {
+      throw const M2ContractViolation('LOCALE_INVALID');
     }
     final eligibilityJson = _map(json, 'locationEligibility');
-    final eligibility = LocationEligibility(
-      earning: _boolean(eligibilityJson, 'earning'),
-      redemption: _boolean(eligibilityJson, 'redemption'),
-    );
-    final policy = MembershipOperationPolicy.fromJson(
-      _map(json, 'operationPolicy'),
-      expectedCapacity: goal - progressValue,
-    );
-    final rewardsJson = json['availableRewards'];
-    if (rewardsJson is! List<Object?>) {
+    final rewardsValue = json['availableRewards'];
+    if (rewardsValue is! List<Object?>) {
       throw const M2ContractViolation('REWARD_LIST_INVALID');
     }
-    final rewards = rewardsJson
+    final rewards = rewardsValue
         .map((value) {
           if (value is! Map<String, Object?>) {
             throw const M2ContractViolation('REWARD_INVALID');
@@ -399,23 +302,27 @@ final class ResolvedMembership {
       throw const M2ContractViolation('FINAL_REWARD_MISSING');
     }
     return ResolvedMembership(
-      membershipPublicId: publicId,
-      customerDisplayName: customerName,
-      programName: programName,
-      status: status,
+      membershipPublicId: _boundedString(json, 'membershipPublicId', 8, 80),
+      customerDisplayName: _boundedString(json, 'customerDisplayName', 1, 160),
+      programName: _boundedString(json, 'programName', 1, 120),
+      locale: locale,
+      status: _membershipStatus(_string(json, 'membershipStatus')),
       progress: progress,
-      completedCycles: completedCycles,
-      projectionVersion: projectionVersion,
+      completedCycles: _nonNegativeInteger(json, 'completedCycles'),
+      projectionVersion: _nonNegativeInteger(json, 'projectionVersion'),
       rewardReady: rewardReady,
-      locationEligibility: eligibility,
-      operationPolicy: policy,
-      stampArtwork: StampArtwork.fromJson(
-        _map(json, 'stampVisual'),
-        allowInsecureAssets: allowInsecureAssets,
+      locationEligibility: LocationEligibility(
+        earning: _boolean(eligibilityJson, 'earning'),
+        redemption: _boolean(eligibilityJson, 'redemption'),
       ),
+      operationPolicy: MembershipOperationPolicy.fromJson(
+        json,
+        expectedCapacity: goal - progressValue,
+      ),
+      stampArtwork: StampArtwork.fromJson(_map(json, 'stampVisuals')),
       availableRewards: rewards,
-      resolvedAt: _dateTime(json, 'resolvedAt').toUtc(),
-      requestId: _boundedString(json, 'requestId', 1, 160),
+      resolvedAt: (receivedAt ?? DateTime.now()).toUtc(),
+      requestId: responseRequestId,
     );
   }
 
@@ -430,14 +337,6 @@ MembershipStatus _membershipStatus(String value) => switch (value) {
   'EXPIRED' => MembershipStatus.expired,
   'REVOKED' => MembershipStatus.revoked,
   _ => throw const M2ContractViolation('MEMBERSHIP_STATUS_UNKNOWN'),
-};
-
-RewardKind _rewardKind(String value) => switch (value) {
-  'TEXT_REWARD' => RewardKind.textReward,
-  'FREE_ITEM' => RewardKind.freeItem,
-  'DISCOUNT_DESCRIPTION' => RewardKind.discountDescription,
-  'CUSTOM' => RewardKind.custom,
-  _ => throw const M2ContractViolation('REWARD_TYPE_UNKNOWN'),
 };
 
 Map<String, Object?> _map(Map<String, Object?> json, String key) {
@@ -467,18 +366,6 @@ String _boundedString(
     throw M2ContractViolation('${key.toUpperCase()}_INVALID');
   }
   return value;
-}
-
-String? _nullableBoundedString(
-  Map<String, Object?> json,
-  String key,
-  int minimum,
-  int maximum,
-) {
-  if (json[key] == null) {
-    return null;
-  }
-  return _boundedString(json, key, minimum, maximum);
 }
 
 bool _boolean(Map<String, Object?> json, String key) {
@@ -513,11 +400,18 @@ int _nonNegativeInteger(Map<String, Object?> json, String key) {
   return value;
 }
 
-int? _nullableInteger(Map<String, Object?> json, String key) {
+int? _nullablePositiveInteger(Map<String, Object?> json, String key) {
   if (json[key] == null) {
     return null;
   }
-  return _integer(json, key);
+  return _positiveInteger(json, key);
+}
+
+int? _nullableNonNegativeInteger(Map<String, Object?> json, String key) {
+  if (json[key] == null) {
+    return null;
+  }
+  return _nonNegativeInteger(json, key);
 }
 
 DateTime _dateTime(Map<String, Object?> json, String key) {
@@ -536,18 +430,12 @@ DateTime? _nullableDateTime(Map<String, Object?> json, String key) {
   return _dateTime(json, key).toUtc();
 }
 
-Uri _uri(Map<String, Object?> json, String key) {
-  final value = _string(json, key);
-  final uri = Uri.tryParse(value);
-  if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
-    throw M2ContractViolation('${key.toUpperCase()}_INVALID');
+String? _nullableDigest(Map<String, Object?> json, String key) {
+  final value = json[key];
+  if (value == null) {
+    return null;
   }
-  return uri;
-}
-
-String _digest(Map<String, Object?> json, String key) {
-  final value = _string(json, key).toLowerCase();
-  if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(value)) {
+  if (value is! String || !RegExp(r'^[a-f0-9]{64}$').hasMatch(value)) {
     throw M2ContractViolation('${key.toUpperCase()}_INVALID');
   }
   return value;

@@ -1,0 +1,10 @@
+Waflo Mobile M2 final reconciliation — local gate summary
+contract manifest/hash/LF verification: PASS
+generated Dart drift: PASS
+localization drift: PASS
+format: PASS
+analyzer fatal warnings/errors: PASS
+Flutter tests: 107 passed (68 unit, 18 widget, 21 golden); 26 Real W4-only scenarios disabled locally
+security scan: PASS (625 final tracked files)
+absolute-path scan: PASS (625 final tracked files)
+local Android AVD: unavailable; mandatory hosted emulator job pending

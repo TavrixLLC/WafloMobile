@@ -65,7 +65,7 @@ void main() {
       );
       await tester.pump();
       expect(find.text('$progress of 8 stamps'), findsWidgets);
-      expect(find.textContaining('Sanitized Customer'), findsOneWidget);
+      expect(find.textContaining('Synthetic customer'), findsOneWidget);
       expect(find.textContaining('mem_fixture'), findsNothing);
     }
   });
@@ -134,7 +134,7 @@ void main() {
       );
       await tester.pump();
       expect(find.text('Stamps issued'), findsWidgets);
-      expect(find.text('3 of 8 stamps'), findsWidgets);
+      expect(find.text('5 of 8 stamps'), findsWidgets);
       expect(find.textContaining('1 stamp issued'), findsOneWidget);
     },
   );
@@ -142,7 +142,7 @@ void main() {
   testWidgets('reward list blocks Manager flow and shows final warning', (
     tester,
   ) async {
-    final membership = _membership(2);
+    final membership = _membership(2, managerApproval: true);
     await tester.pumpWidget(
       _harness(
         M2OperationState(
@@ -325,27 +325,21 @@ final _environment = AppEnvironment(
   expectedNativeFlavor: AppFlavor.development,
 );
 
-ResolvedMembership _membership(int progress) {
+ResolvedMembership _membership(int progress, {bool managerApproval = false}) {
   final value = _fixture('membership-resolve.fixture.json');
-  final membership = value['membership']! as Map<String, Object?>;
-  final policy = value['operationPolicy']! as Map<String, Object?>;
+  final limits = value['operationLimits']! as Map<String, Object?>;
   value['progress'] = progress;
-  membership['progress'] = progress;
   value['rewardReady'] = progress == 8;
-  membership['rewardReady'] = progress == 8;
-  membership['projectionVersion'] = progress + 1;
-  policy['remainingProgressCapacity'] = 8 - progress;
-  policy['effectiveMaximumStampAmount'] = (8 - progress).clamp(0, 5);
+  value['projectionVersion'] = progress + 1;
+  limits['dailyRemainingStamps'] = (8 - progress).clamp(0, 4);
   if (progress == 8) {
     value['availableRewards'] = [
       <String, Object?>{
-        'entitlementPublicId': '40000000-0000-4000-8000-000000000002',
-        'type': 'FREE_ITEM',
+        'publicId': '40000000-0000-4000-8000-000000000002',
         'finalReward': true,
         'threshold': 8,
         'name': 'Fixture final reward',
         'description': 'A sanitized final reward.',
-        'redemptionInstructions': 'Follow merchant instructions.',
         'status': 'AVAILABLE',
         'redemptionCount': 0,
         'maximumRedemptionCount': 1,
@@ -353,6 +347,11 @@ ResolvedMembership _membership(int progress) {
         'requiresManagerApproval': false,
       },
     ];
+  } else if (managerApproval) {
+    final reward =
+        (value['availableRewards']! as List<Object?>).single!
+            as Map<String, Object?>;
+    reward['requiresManagerApproval'] = true;
   }
   return ResolvedMembership.fromJson(value, allowInsecureAssets: false);
 }
