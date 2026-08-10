@@ -23,6 +23,13 @@ const databaseUrl = new URL(process.env.DATABASE_URL ?? "");
 if (!["localhost", "127.0.0.1", "::1"].includes(databaseUrl.hostname)) {
   throw new Error("The W4 contract fixture only permits a local development database.");
 }
+const isolatedDatabaseName = process.env.WAFLO_TEST_DATABASE_NAME ?? "";
+if (!/^waflo_test_[a-z0-9_]+$/.test(isolatedDatabaseName)) {
+  throw new Error("The W4 contract fixture requires an isolated test database.");
+}
+if (decodeURIComponent(databaseUrl.pathname.slice(1)) !== isolatedDatabaseName) {
+  throw new Error("The W4 contract fixture database does not match its isolation scope.");
+}
 
 const source = (path) => pathToFileURL(resolve(backendRoot, path)).href;
 process.stdout.write("W4_CONTRACT_FIXTURE_BOOT source=verified\n");
@@ -394,24 +401,13 @@ async function cleanupStaleFixtureData() {
 }
 
 async function cleanup() {
-  await deleteMembershipData([...trackedMemberships], [...trackedCustomers]);
-  for (const publicId of trackedPairings) {
-    const pairing = await prisma.devicePairingSession.findUnique({ where: { publicId } });
-    if (pairing?.claimedInstallationId) trackedInstallations.add(pairing.claimedInstallationId);
-  }
-  if (trackedInstallations.size > 0) {
-    await deleteInstallations(trackedInstallations);
-  }
-  if (trackedPairings.size > 0) {
-    await prisma.devicePairingSession.deleteMany({
-      where: { publicId: { in: [...trackedPairings] } },
-    });
-  }
+  // Loyalty history is append-only by database policy. The enclosing gate
+  // force-drops this verified disposable database after the fixture exits.
   trackedInstallations.clear();
   trackedPairings.clear();
   trackedMemberships.clear();
   trackedCustomers.clear();
-  return { status: "clean" };
+  return { status: "isolated_database_ready_for_drop" };
 }
 
 const control = createServer(async (request, response) => {

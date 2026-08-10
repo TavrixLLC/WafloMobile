@@ -28,6 +28,9 @@ Future<void> main(List<String> arguments) async {
   if (!File(_join(backend.path, '.env')).existsSync()) {
     _fail('Approved W4 requires a local development .env file.');
   }
+  final baseDatabaseUrl = _readDatabaseUrl(File(_join(backend.path, '.env')));
+  final testDatabaseName = _testDatabaseName();
+  final testDatabaseUrl = _testDatabaseUrl(baseDatabaseUrl, testDatabaseName);
 
   final apiPort = await _availablePort();
   final controlPort = await _availablePort();
@@ -47,6 +50,8 @@ Future<void> main(List<String> arguments) async {
     'WAFLO_CONTRACT_CONTROL_PORT': '$controlPort',
     'WAFLO_CONTRACT_CONTROL_SECRET': controlSecret,
     'WAFLO_CONTRACT_ALLOW_LOCAL_DATABASE_MUTATION': 'EPHEMERAL_TEST_DATA_ONLY',
+    'DATABASE_URL': testDatabaseUrl,
+    'WAFLO_TEST_DATABASE_NAME': testDatabaseName,
   };
   final pnpm = Platform.isWindows ? 'pnpm.cmd' : 'pnpm';
   final build = await Process.run(
@@ -63,34 +68,48 @@ Future<void> main(List<String> arguments) async {
     _fail('Approved W4 build failed with exit code ${build.exitCode}.');
   }
 
-  final fixture = await Process.start(
-    'node',
-    [_join(mobileRoot.path, 'tool/w4_contract_fixture.mjs')],
-    workingDirectory: backend.path,
-    environment: fixtureEnvironment,
-    includeParentEnvironment: true,
-    runInShell: Platform.isWindows,
-  );
-
-  final ready = Completer<void>();
-  final fixtureOutput = fixture.stdout
-      .transform(utf8.decoder)
-      .transform(const LineSplitter());
-  final fixtureErrors = fixture.stderr
-      .transform(utf8.decoder)
-      .transform(const LineSplitter());
-  final outputSubscription = fixtureOutput.listen((line) {
-    stdout.writeln(_redact(line));
-    if (line.startsWith('W4_CONTRACT_FIXTURE_READY') && !ready.isCompleted) {
-      ready.complete();
-    }
-  });
-  final errorSubscription = fixtureErrors.listen(
-    (line) => stderr.writeln(_redact(line)),
-  );
-
+  Process? fixture;
+  StreamSubscription<String>? outputSubscription;
+  StreamSubscription<String>? errorSubscription;
+  var databaseCreated = false;
   var testExitCode = 1;
   try {
+    await _manageDatabase(
+      mobileRoot: mobileRoot,
+      backend: backend,
+      baseDatabaseUrl: baseDatabaseUrl,
+      databaseName: testDatabaseName,
+      mode: 'create',
+    );
+    databaseCreated = true;
+    await _prepareDatabase(backend, fixtureEnvironment);
+
+    fixture = await Process.start(
+      'node',
+      [_join(mobileRoot.path, 'tool/w4_contract_fixture.mjs')],
+      workingDirectory: backend.path,
+      environment: fixtureEnvironment,
+      includeParentEnvironment: true,
+      runInShell: Platform.isWindows,
+    );
+
+    final ready = Completer<void>();
+    final fixtureOutput = fixture.stdout
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    final fixtureErrors = fixture.stderr
+        .transform(utf8.decoder)
+        .transform(const LineSplitter());
+    outputSubscription = fixtureOutput.listen((line) {
+      stdout.writeln(_redact(line));
+      if (line.startsWith('W4_CONTRACT_FIXTURE_READY') && !ready.isCompleted) {
+        ready.complete();
+      }
+    });
+    errorSubscription = fixtureErrors.listen(
+      (line) => stderr.writeln(_redact(line)),
+    );
+
     await Future.any<void>([
       ready.future,
       Future<void>.delayed(
@@ -139,22 +158,134 @@ Future<void> main(List<String> arguments) async {
         'Real W4 contract gate failed with exit code $testExitCode.',
       );
     }
-    stdout.writeln('REAL_W4_CONTRACT_GATE_PASS tests=26 cleanup=verified');
   } finally {
-    if (Platform.isWindows) {
-      await Process.run('taskkill', ['/PID', '${fixture.pid}', '/T', '/F']);
-    } else {
-      fixture.kill(ProcessSignal.sigterm);
-      try {
-        await fixture.exitCode.timeout(const Duration(seconds: 20));
-      } on TimeoutException {
-        fixture.kill(ProcessSignal.sigkill);
+    if (fixture != null) {
+      if (Platform.isWindows) {
+        await Process.run('taskkill', ['/PID', '${fixture.pid}', '/T', '/F']);
+      } else {
+        fixture.kill(ProcessSignal.sigterm);
+        try {
+          await fixture.exitCode.timeout(const Duration(seconds: 20));
+        } on TimeoutException {
+          fixture.kill(ProcessSignal.sigkill);
+        }
       }
     }
-    await outputSubscription.cancel();
-    await errorSubscription.cancel();
+    await outputSubscription?.cancel();
+    await errorSubscription?.cancel();
+    if (databaseCreated) {
+      await _manageDatabase(
+        mobileRoot: mobileRoot,
+        backend: backend,
+        baseDatabaseUrl: baseDatabaseUrl,
+        databaseName: testDatabaseName,
+        mode: 'drop',
+      );
+    }
   }
+  stdout.writeln(
+    'REAL_W4_CONTRACT_GATE_PASS tests=26 cleanup=isolated-database-dropped',
+  );
   exitCode = testExitCode;
+}
+
+Future<void> _prepareDatabase(
+  Directory backend,
+  Map<String, String> environment,
+) async {
+  final pnpm = Platform.isWindows ? 'pnpm.cmd' : 'pnpm';
+  for (final task in const ['migrate:deploy', 'seed']) {
+    final result = await Process.run(
+      pnpm,
+      ['--filter', '@waflo/database', task],
+      workingDirectory: backend.path,
+      environment: environment,
+      includeParentEnvironment: true,
+      runInShell: Platform.isWindows,
+    );
+    stdout.write(_redact(result.stdout as String));
+    stderr.write(_redact(result.stderr as String));
+    if (result.exitCode != 0) {
+      throw StateError(
+        'Approved W4 isolated database $task failed with exit code '
+        '${result.exitCode}.',
+      );
+    }
+  }
+}
+
+Future<void> _manageDatabase({
+  required Directory mobileRoot,
+  required Directory backend,
+  required String baseDatabaseUrl,
+  required String databaseName,
+  required String mode,
+}) async {
+  final result = await Process.run(
+    'node',
+    [
+      _join(mobileRoot.path, 'tool/w4_isolated_database.mjs'),
+      mode,
+      databaseName,
+    ],
+    workingDirectory: backend.path,
+    environment: {
+      ...Platform.environment,
+      'WAFLO_W4_BACKEND_ROOT': backend.path,
+      'WAFLO_W4_BASE_DATABASE_URL': baseDatabaseUrl,
+    },
+    includeParentEnvironment: true,
+    runInShell: Platform.isWindows,
+  );
+  if (result.exitCode != 0) {
+    stderr.write(_redact(result.stderr as String));
+    throw StateError('Unable to $mode the isolated Real W4 database.');
+  }
+}
+
+String _readDatabaseUrl(File environmentFile) {
+  for (final rawLine in environmentFile.readAsLinesSync()) {
+    final line = rawLine.trim();
+    if (line.isEmpty || line.startsWith('#')) continue;
+    final separator = line.indexOf('=');
+    if (separator < 1 ||
+        line.substring(0, separator).trim() != 'DATABASE_URL') {
+      continue;
+    }
+    var value = line.substring(separator + 1).trim();
+    if (value.length >= 2 &&
+        ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'")))) {
+      value = value.substring(1, value.length - 1);
+    }
+    final uri = Uri.tryParse(value);
+    if (uri == null ||
+        (uri.scheme != 'postgres' && uri.scheme != 'postgresql') ||
+        !const {'localhost', '127.0.0.1', '::1'}.contains(uri.host) ||
+        uri.pathSegments.isEmpty) {
+      _fail('Approved W4 DATABASE_URL is not dedicated local PostgreSQL.');
+    }
+    return value;
+  }
+  _fail('Approved W4 .env does not define DATABASE_URL.');
+}
+
+String _testDatabaseName() {
+  final suffix = List<int>.generate(
+    6,
+    (_) => Random.secure().nextInt(256),
+  ).map((value) => value.toRadixString(16).padLeft(2, '0')).join();
+  return 'waflo_test_mobile_${DateTime.now().millisecondsSinceEpoch}_$suffix';
+}
+
+String _testDatabaseUrl(String baseUrl, String databaseName) {
+  final base = Uri.parse(baseUrl);
+  return base
+      .replace(
+        path: '/$databaseName',
+        queryParameters: {...base.queryParameters, 'schema': 'public'},
+      )
+      .toString();
 }
 
 String? _argument(List<String> arguments, String prefix) {
