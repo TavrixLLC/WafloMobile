@@ -26,7 +26,7 @@ Future<String> verifyApprovedRealW4Backend({
       '$repairedRealW4BackendSha.',
     );
   }
-  final parent = await _git(backendRoot, ['rev-parse', 'HEAD^']);
+  final parent = await _git(backendRoot, ['rev-parse', 'HEAD~1']);
   if (parent != historicalRealW4BackendSha) {
     _fail(
       'Approved W4 runtime repair is not directly based on '
