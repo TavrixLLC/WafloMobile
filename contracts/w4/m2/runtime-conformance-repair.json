@@ -1,0 +1,19 @@
+{
+  "version": "waflo-m2-runtime-conformance-repair-v1",
+  "classification": "BACKEND_RUNTIME_OMISSION",
+  "contractVersion": "waflo-m2-mobile-contract-v1",
+  "historicalBundleSha256": "3e2c57f136bcfc4a270b51fd85ffd0e8e96832c8e12ba85dedecb17457d645ae",
+  "historicalBackendCommitSha": "0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e",
+  "repairBackendCommitSha": "dbd20acafc3d7687866256e8e950a5b978ba4e29",
+  "contractSchemaChanged": false,
+  "contractVersionChanged": false,
+  "changedSourceFiles": {
+    "apps/api/src/staff-devices/staff-device.service.ts": "4accd8b4b95ef74fade57840b16a6c514f8a5c535adbe931c3f2a09222f413b0",
+    "tests/http/w4-staff-operations.test.ts": "7685c84b902ca2ac77b389a53c628001164b1fad7868de732101c480baed4e9e"
+  },
+  "pairingChallenge": {
+    "field": "signatureAlgorithm",
+    "required": true,
+    "canonicalValue": "Ed25519"
+  }
+}

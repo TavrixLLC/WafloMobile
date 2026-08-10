@@ -3,9 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:crypto/crypto.dart';
-
-const _authoritativeBackendSha = '0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e';
+import 'real_w4_backend_verifier.dart';
 
 Future<void> main(List<String> arguments) async {
   final backendRoot =
@@ -22,7 +20,11 @@ Future<void> main(List<String> arguments) async {
 
   final mobileRoot = Directory.current.absolute;
   final backend = Directory(backendRoot).absolute;
-  await _verifyApprovedBackend(mobileRoot, backend);
+  await verifyApprovedRealW4Backend(
+    mobileRoot: mobileRoot,
+    backendRoot: backend,
+    outputLabel: 'Approved W4 source',
+  );
   if (!File(_join(backend.path, '.env')).existsSync()) {
     _fail('Approved W4 requires a local development .env file.');
   }
@@ -153,66 +155,6 @@ Future<void> main(List<String> arguments) async {
     await errorSubscription.cancel();
   }
   exitCode = testExitCode;
-}
-
-Future<void> _verifyApprovedBackend(
-  Directory mobileRoot,
-  Directory backendRoot,
-) async {
-  if (!backendRoot.existsSync()) _fail('Approved W4 checkout does not exist.');
-  final git = await Process.run(
-    'git',
-    ['rev-parse', 'HEAD'],
-    workingDirectory: backendRoot.path,
-    runInShell: Platform.isWindows,
-  );
-  if (git.exitCode != 0 ||
-      (git.stdout as String).trim() != _authoritativeBackendSha) {
-    _fail('Approved W4 checkout is not at $_authoritativeBackendSha.');
-  }
-  final trackedStatus = await Process.run(
-    'git',
-    ['status', '--porcelain', '--untracked-files=no'],
-    workingDirectory: backendRoot.path,
-    runInShell: Platform.isWindows,
-  );
-  if (trackedStatus.exitCode != 0 ||
-      (trackedStatus.stdout as String).trim().isNotEmpty) {
-    _fail('Approved W4 checkout has tracked working-tree changes.');
-  }
-  final manifestFile = File(
-    _join(mobileRoot.path, 'contracts/w4/m2/source-manifest.json'),
-  );
-  final manifest = jsonDecode(await manifestFile.readAsString());
-  if (manifest is! Map<String, Object?> ||
-      manifest['backendCommitSha'] != _authoritativeBackendSha ||
-      manifest['sourceFiles'] is! Map<String, Object?>) {
-    _fail('The authoritative M2 W4 source manifest is invalid.');
-  }
-  final mismatches = <String>[];
-  final sourceFiles = manifest['sourceFiles']! as Map<String, Object?>;
-  for (final entry in sourceFiles.entries) {
-    if (entry.value is! String) {
-      _fail('The authoritative M2 source manifest contains an invalid entry.');
-    }
-    final relative = entry.key;
-    final file = File(_join(backendRoot.path, relative));
-    if (!file.existsSync()) {
-      mismatches.add('$relative (missing)');
-      continue;
-    }
-    final actual = sha256.convert(await file.readAsBytes()).toString();
-    if (actual != entry.value) mismatches.add('$relative (checksum)');
-  }
-  if (mismatches.isNotEmpty) {
-    _fail(
-      'W4 checkout does not match the authoritative source manifest: '
-      '${mismatches.join(', ')}',
-    );
-  }
-  stdout.writeln(
-    'Approved W4 source verified: $_authoritativeBackendSha + ${sourceFiles.length} manifest checksums.',
-  );
 }
 
 String? _argument(List<String> arguments, String prefix) {
