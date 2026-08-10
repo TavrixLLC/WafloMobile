@@ -1,15 +1,26 @@
 {
-  "version": "waflo-m2-runtime-conformance-repair-v1",
-  "classification": "BACKEND_RUNTIME_OMISSION",
+  "version": "waflo-m2-runtime-conformance-repair-v2",
+  "classifications": [
+    "BACKEND_RUNTIME_OMISSION",
+    "BACKEND_RUNTIME_VALUE_MISMATCH",
+    "BACKEND_ERROR_MAPPING_MISMATCH"
+  ],
   "contractVersion": "waflo-m2-mobile-contract-v1",
   "historicalBundleSha256": "3e2c57f136bcfc4a270b51fd85ffd0e8e96832c8e12ba85dedecb17457d645ae",
   "historicalBackendCommitSha": "0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e",
-  "repairBackendCommitSha": "dbd20acafc3d7687866256e8e950a5b978ba4e29",
+  "repairBackendCommitSha": "966454633519bff3d9aed277ce0bcf36f17d3d60",
+  "repairCommitShas": [
+    "dbd20acafc3d7687866256e8e950a5b978ba4e29",
+    "79a5ff7b224fbd0a1cf76a4d5eeb4e697b023435",
+    "966454633519bff3d9aed277ce0bcf36f17d3d60"
+  ],
   "contractSchemaChanged": false,
   "contractVersionChanged": false,
   "changedSourceFiles": {
+    "apps/api/src/security/guards.ts": "80b8756d0fc9f4a0c37fcd6998a8207fdc8a4a85a7f2ce6c00b1fd84c5db7a24",
     "apps/api/src/staff-devices/staff-device.service.ts": "4accd8b4b95ef74fade57840b16a6c514f8a5c535adbe931c3f2a09222f413b0",
-    "tests/http/w4-staff-operations.test.ts": "7685c84b902ca2ac77b389a53c628001164b1fad7868de732101c480baed4e9e"
+    "packages/staff-device-security/src/index.ts": "ea2acf859e4335226f568f77c454c11b08ba9f1b23a08eddd5c4cba06c442780",
+    "tests/http/w4-staff-operations.test.ts": "28bf10d7c1c7b066af24f160e7f5e05b55a38b0649c0f689cd6daf689a38164d"
   },
   "pairingChallenge": {
     "field": "signatureAlgorithm",

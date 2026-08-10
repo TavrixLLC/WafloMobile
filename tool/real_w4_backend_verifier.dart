@@ -4,10 +4,17 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 
 const historicalRealW4BackendSha = '0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e';
-const repairedRealW4BackendSha = 'dbd20acafc3d7687866256e8e950a5b978ba4e29';
+const pairingRepairBackendSha = 'dbd20acafc3d7687866256e8e950a5b978ba4e29';
+const requestCorrelationRepairBackendSha =
+    '79a5ff7b224fbd0a1cf76a4d5eeb4e697b023435';
+const repairedRealW4BackendSha = '966454633519bff3d9aed277ce0bcf36f17d3d60';
 const _historicalBundleSha =
     '3e2c57f136bcfc4a270b51fd85ffd0e8e96832c8e12ba85dedecb17457d645ae';
-const _repairClassification = 'BACKEND_RUNTIME_OMISSION';
+const _repairClassifications = <String>{
+  'BACKEND_RUNTIME_OMISSION',
+  'BACKEND_RUNTIME_VALUE_MISMATCH',
+  'BACKEND_ERROR_MAPPING_MISMATCH',
+};
 const _repairManifestPath = 'contracts/w4/m2/runtime-conformance-repair.json';
 
 Future<String> verifyApprovedRealW4Backend({
@@ -26,10 +33,19 @@ Future<String> verifyApprovedRealW4Backend({
       '$repairedRealW4BackendSha.',
     );
   }
-  final parent = await _git(backendRoot, ['rev-parse', 'HEAD~1']);
-  if (parent != historicalRealW4BackendSha) {
+  final repairCommits = (await _git(backendRoot, [
+    'rev-list',
+    '--reverse',
+    '$historicalRealW4BackendSha..$repairedRealW4BackendSha',
+  ])).split(RegExp(r'[\r\n]+')).where((sha) => sha.isNotEmpty).toList();
+  const expectedRepairCommits = <String>[
+    pairingRepairBackendSha,
+    requestCorrelationRepairBackendSha,
+    repairedRealW4BackendSha,
+  ];
+  if (!_sameList(repairCommits, expectedRepairCommits)) {
     _fail(
-      'Approved W4 runtime repair is not directly based on '
+      'Approved W4 runtime repair is not the verified commit chain from '
       '$historicalRealW4BackendSha.',
     );
   }
@@ -58,8 +74,19 @@ Future<String> verifyApprovedRealW4Backend({
   );
   final repairSources = repairManifest['changedSourceFiles'];
   final pairingRepair = repairManifest['pairingChallenge'];
-  if (repairManifest['version'] != 'waflo-m2-runtime-conformance-repair-v1' ||
-      repairManifest['classification'] != _repairClassification ||
+  final manifestClassifications = repairManifest['classifications'];
+  final manifestRepairCommits = repairManifest['repairCommitShas'];
+  if (repairManifest['version'] != 'waflo-m2-runtime-conformance-repair-v2' ||
+      manifestClassifications is! List<Object?> ||
+      manifestClassifications
+          .toSet()
+          .difference(_repairClassifications)
+          .isNotEmpty ||
+      _repairClassifications
+          .difference(manifestClassifications.toSet())
+          .isNotEmpty ||
+      manifestRepairCommits is! List<Object?> ||
+      !_sameList(manifestRepairCommits, expectedRepairCommits) ||
       repairManifest['contractVersion'] !=
           historicalManifest['contractVersion'] ||
       repairManifest['historicalBundleSha256'] != _historicalBundleSha ||
@@ -78,7 +105,9 @@ Future<String> verifyApprovedRealW4Backend({
   await _verifyHistoricalPairingContract(mobileRoot);
 
   const expectedChanges = <String>{
+    'apps/api/src/security/guards.ts',
     'apps/api/src/staff-devices/staff-device.service.ts',
+    'packages/staff-device-security/src/index.ts',
     'tests/http/w4-staff-operations.test.ts',
   };
   if (repairSources.keys.toSet().difference(expectedChanges).isNotEmpty ||
@@ -127,6 +156,14 @@ Future<String> verifyApprovedRealW4Backend({
     'changed=${repairSources.length}.',
   );
   return repairedRealW4BackendSha;
+}
+
+bool _sameList(List<Object?> actual, List<String> expected) {
+  if (actual.length != expected.length) return false;
+  for (var index = 0; index < expected.length; index++) {
+    if (actual[index] != expected[index]) return false;
+  }
+  return true;
 }
 
 Future<Map<String, Object?>> _readObject(File file, String failure) async {
