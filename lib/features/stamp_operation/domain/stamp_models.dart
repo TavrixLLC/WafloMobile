@@ -93,11 +93,6 @@ final class StampOperationResult {
         })
         .toList(growable: false);
     final embeddedRequestId = _nullableBoundedString(json, 'requestId', 160);
-    if (embeddedRequestId != null &&
-        responseRequestId != null &&
-        embeddedRequestId != responseRequestId) {
-      throw const M2ContractViolation('REQUEST_ID_MISMATCH');
-    }
     return StampOperationResult(
       operationPublicId: _uuid(json, 'operationPublicId'),
       commandId: _uuid(json, 'commandId'),

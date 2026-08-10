@@ -71,11 +71,6 @@ final class RedemptionOperationResult {
       throw const M2ContractViolation('MILESTONE_REDEMPTION_INVALID');
     }
     final embeddedRequestId = _nullableBoundedString(json, 'requestId', 160);
-    if (embeddedRequestId != null &&
-        responseRequestId != null &&
-        embeddedRequestId != responseRequestId) {
-      throw const M2ContractViolation('REQUEST_ID_MISMATCH');
-    }
     return RedemptionOperationResult(
       operationPublicId: _uuid(json, 'operationPublicId'),
       commandId: _uuid(json, 'commandId'),

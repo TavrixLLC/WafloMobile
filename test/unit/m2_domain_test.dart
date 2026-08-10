@@ -79,6 +79,27 @@ void main() {
       expect(redemption.progress.progress, 0);
       expect(redemption.rewardReady, isFalse);
     });
+
+    test('accepts committed result IDs inside later response envelopes', () {
+      const currentResponseRequestId = 'current-signed-http-request';
+      final stamp = StampOperationResult.fromJson(
+        _fixture('stamp-success.fixture.json'),
+        responseRequestId: currentResponseRequestId,
+      );
+      final redemption = RedemptionOperationResult.fromJson(
+        _fixture('redeem-final-reset.fixture.json'),
+        responseRequestId: currentResponseRequestId,
+      );
+      final recovered = CommandRecoveryResult.fromJson(
+        _fixture('operation-completed.fixture.json'),
+        responseRequestId: currentResponseRequestId,
+      );
+
+      expect(stamp.requestId, currentResponseRequestId);
+      expect(redemption.requestId, currentResponseRequestId);
+      expect(recovered.requestId, currentResponseRequestId);
+      expect(recovered.stampResult?.requestId, currentResponseRequestId);
+    });
   });
 
   group('minor-unit money and references', () {
