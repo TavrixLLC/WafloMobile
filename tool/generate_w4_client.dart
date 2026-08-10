@@ -361,6 +361,28 @@ void _normalizeKnownGeneratorLimitations(Directory generated) {
     );
   }
   client.writeAsStringSync(source.replaceFirst(duplicate, normalized));
+
+  final pairingClaim = File(
+    '${generated.path}${Platform.pathSeparator}models'
+    '${Platform.pathSeparator}device_pairing_claim_request.dart',
+  );
+  final pairingClaimSource = pairingClaim.readAsStringSync();
+  const defaultAnnotation =
+      '@JsonSerializable()\nclass DevicePairingClaimRequest';
+  const omitNullAnnotation =
+      '@JsonSerializable(includeIfNull: false)\nclass DevicePairingClaimRequest';
+  final annotationOccurrences = defaultAnnotation
+      .allMatches(pairingClaimSource)
+      .length;
+  if (annotationOccurrences != 1) {
+    throw StateError(
+      'Expected one generated pairing-claim serializer annotation, found '
+      '$annotationOccurrences.',
+    );
+  }
+  pairingClaim.writeAsStringSync(
+    pairingClaimSource.replaceFirst(defaultAnnotation, omitNullAnnotation),
+  );
 }
 
 Future<Map<String, List<int>>> _readTree(Directory directory) async {

@@ -28,8 +28,8 @@ Map<String, dynamic> _$DevicePairingClaimRequestToJson(
   'publicKey': instance.publicKey,
   'platform': _$DevicePairingClaimRequestPlatformEnumMap[instance.platform]!,
   'appVersion': instance.appVersion,
-  'osVersion': instance.osVersion,
-  'model': instance.model,
+  'osVersion': ?instance.osVersion,
+  'model': ?instance.model,
 };
 
 const _$DevicePairingClaimRequestPlatformEnumMap = {

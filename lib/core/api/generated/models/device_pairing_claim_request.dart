@@ -8,7 +8,7 @@ import 'device_pairing_claim_request_platform.dart';
 
 part 'device_pairing_claim_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class DevicePairingClaimRequest {
   const DevicePairingClaimRequest({
     required this.pairingToken,
