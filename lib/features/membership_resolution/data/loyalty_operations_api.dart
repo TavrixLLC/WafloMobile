@@ -80,7 +80,7 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
     final response = await _send(
       method: 'POST',
       path: _resolvePath,
-      body: <String, Object?>{'qrPayload': qrPayload, 'locale': locale},
+      body: <String, Object?>{'qrPayload': qrPayload},
       mutation: false,
     );
     final wrapper = _jsonMap(response.data);
@@ -108,7 +108,6 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
         : CurrencyMetadata.normalizeCode(input.purchaseCurrency!);
     final body = <String, Object?>{
       'qrPayload': qrPayload,
-      'locale': locale,
       'amount': input.amount,
       if (input.purchaseAmountMinor != null)
         'purchaseAmountMinor': input.purchaseAmountMinor,
@@ -150,7 +149,6 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
       path: _redeemPath,
       body: <String, Object?>{
         'qrPayload': qrPayload,
-        'locale': locale,
         'rewardEntitlementPublicId': input.entitlementPublicId,
       },
       mutation: true,
