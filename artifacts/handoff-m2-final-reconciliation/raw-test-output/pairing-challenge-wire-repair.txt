@@ -1,0 +1,15 @@
+PAIRING CHALLENGE POST-REPAIR WIRE AUDIT
+TimestampUtc=2026-08-10T12:37:11.4987435Z
+BackendRepairSha=dbd20acafc3d7687866256e8e950a5b978ba4e29
+BackendParentSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+MobileProductSha=b35ca7d973918496e13915880a492652ae6c5177
+ChallengeHttpStatus=200
+ChallengeDataKeys=challenge,challengeExpiresAt,message,pairingPublicId,signatureAlgorithm
+ContractCanonicalSignatureAlgorithm=Ed25519
+WireSignatureAlgorithm=Ed25519
+CompleteHttpStatus=200
+CompleteContainsDevice=True
+CompleteContainsSession=True
+CompleteContainsContext=True
+SensitiveValuesPrinted=false
+PostRepairWireAudit=PASS

@@ -1,0 +1,114 @@
+
+┃  ____ _ _ _ ____ ____ ____ ____ ____     ___  ____ ____ ____ ____ ____
+┃  [__  | | | |__| | __ | __ |___ |__/     |__] |__| |__/ [__  |___ |__/
+┃  ___] |_|_| |  | |__] |__] |___ |  \ ___ |    |  | |  \ ___] |___ |  \
+┃
+
+Generate...
+Found duplicate object name: Session2
+Found duplicate object name: Device2
+> w4_m1 vw4-m1-contract-v1:
+    2 rest clients, 11 requests, 33 data classes.
+    37 files with 1 304 lines of code.
+    [32mSuccess (0.218 seconds)[0m
+
+The generation was completed successfully. You can run the generation using build_runner.
+
+┃  ____ _ _ _ ____ ____ ____ ____ ____     ___  ____ ____ ____ ____ ____
+┃  [__  | | | |__| | __ | __ |___ |__/     |__] |__| |__/ [__  |___ |__/
+┃  ___] |_|_| |  | |__] |__] |___ |  \ ___ |    |  | |  \ ___] |___ |  \
+┃
+
+Generate...
+> w4_m2 vwaflo-m2-mobile-contract-v1:
+    1 rest clients, 6 requests, 36 data classes.
+    39 files with 1 280 lines of code.
+    [32mSuccess (0.177 seconds)[0m
+
+The generation was completed successfully. You can run the generation using build_runner.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s retrofit_generator on 164 inputs; integration_test/m1_app_integration_test.dart
+  0s retrofit_generator on 164 inputs: 1 skipped; integration_test/m1_pairing_flow_test.dart
+  1s retrofit_generator on 164 inputs: 154 skipped, 1 same, 9 no-op
+  0s json_serializable on 164 inputs; integration_test/m1_app_integration_test.dart
+  17s json_serializable on 164 inputs: 1 no-op; spent 13s analyzing, 3s resolving, 1s reading; integration_test/m1_pairing_flow_test.dart
+  17s json_serializable on 164 inputs: 124 skipped, 1 output, 39 no-op; spent 13s analyzing, 3s resolving, 1s reading
+  0s source_gen:combining_builder on 164 inputs; integration_test/m1_app_integration_test.dart
+  0s source_gen:combining_builder on 164 inputs: 106 skipped, 1 output, 54 same, 3 no-op
+  Built with build_runner/aot in 27s; wrote 57 outputs.
+Formatted <mobile-root>\lib\core\api\generated\export.dart
+Formatted <mobile-root>\lib\core\api\generated\models\api_error.dart
+Formatted <mobile-root>\lib\core\api\generated\models\app_policy.dart
+Formatted <mobile-root>\lib\core\api\generated\models\assigned_locations.dart
+Formatted <mobile-root>\lib\core\api\generated\models\context.dart
+Formatted <mobile-root>\lib\core\api\generated\models\current_location.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device2.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_claim_request.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_claim_request_platform.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_claim_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_complete_request.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_complete_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_recovery_request.dart
+Formatted <mobile-root>\lib\core\api\generated\models\device_pairing_recovery_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\error.dart
+Formatted <mobile-root>\lib\core\api\generated\models\get_v1_staff_device_context_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\mobile_staff_device_context.dart
+Formatted <mobile-root>\lib\core\api\generated\models\organization.dart
+Formatted <mobile-root>\lib\core\api\generated\models\platform.dart
+Formatted <mobile-root>\lib\core\api\generated\models\post_v1_staff_devices_pairing_challenge_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\post_v1_staff_devices_pairing_claim_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\post_v1_staff_devices_pairing_complete_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\post_v1_staff_devices_session_refresh_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\request_signing_fixture.dart
+Formatted <mobile-root>\lib\core\api\generated\models\request_signing_fixture_method.dart
+Formatted <mobile-root>\lib\core\api\generated\models\role.dart
+Formatted <mobile-root>\lib\core\api\generated\models\session.dart
+Formatted <mobile-root>\lib\core\api\generated\models\session2.dart
+Formatted <mobile-root>\lib\core\api\generated\models\staff.dart
+Formatted <mobile-root>\lib\core\api\generated\models\staff_device_session_refresh_request.dart
+Formatted <mobile-root>\lib\core\api\generated\models\staff_device_session_refresh_response.dart
+Formatted <mobile-root>\lib\core\api\generated\models\status.dart
+Formatted <mobile-root>\lib\core\api\generated\staff_device_pairing\staff_device_pairing_client.dart
+Formatted <mobile-root>\lib\core\api\generated\staff_operations\staff_operations_client.dart
+Formatted <mobile-root>\lib\core\api\generated\w4_m1_api_client.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\export.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\fallback\fallback_client.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\available_rewards.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\empty.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\filled.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\get_v1_staff_device_context_response.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\get_v1_staff_operations_commands_command_id_response.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\get_v1_staff_operations_operation_public_id_response.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\location_eligibility.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\manager_override.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\membership_resolve_request.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\membership_resolve_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\membership_resolve_result_locale.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\membership_resolve_result_membership_status.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_command_status_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_command_status_result_operation_type.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_command_status_result_status.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_limits.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_public_status_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_public_status_result_operation_type.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\operation_public_status_result_status.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\post_v1_staff_memberships_resolve_response.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\post_v1_staff_operations_redeem_response.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\post_v1_staff_operations_stamps_response.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\purchase_requirement.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\redeem_request.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\redemption_operation_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\redemption_operation_result_reward_status.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\reverse_operation_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\staff_device_context_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\staff_device_context_result_platform.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\staff_device_context_result_role.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\stamp_operation_result.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\stamp_request.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\stamp_visuals.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\status.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\models\unlocked_rewards.dart
+Formatted <mobile-root>\lib\core\api\generated_m2\w4_m2_api_client.dart
+Formatted 131 files (74 changed) in 0.36 seconds.
+Running build hooks...Running build hooks...

@@ -1,0 +1,3 @@
+00:00 +0: loading <mobile-root>/test/unit/generated_contract_test.dart
+00:00 +0: pairing claim omits unknown optional device metadata
+00:00 +1: All tests passed!

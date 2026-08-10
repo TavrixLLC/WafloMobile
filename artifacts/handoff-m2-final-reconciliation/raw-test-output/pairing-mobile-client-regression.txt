@@ -1,0 +1,122 @@
+
+┃  ____ _ _ _ ____ ____ ____ ____ ____     ___  ____ ____ ____ ____ ____
+┃  [__  | | | |__| | __ | __ |___ |__/     |__] |__| |__/ [__  |___ |__/
+┃  ___] |_|_| |  | |__] |__] |___ |  \ ___ |    |  | |  \ ___] |___ |  \
+┃
+
+Generate...
+Found duplicate object name: Session2
+Found duplicate object name: Device2
+> w4_m1 vw4-m1-contract-v1:
+    2 rest clients, 11 requests, 33 data classes.
+    37 files with 1 304 lines of code.
+    Success (0.256 seconds)
+
+The generation was completed successfully. You can run the generation using build_runner.
+
+┃  ____ _ _ _ ____ ____ ____ ____ ____     ___  ____ ____ ____ ____ ____
+┃  [__  | | | |__| | __ | __ |___ |__/     |__] |__| |__/ [__  |___ |__/
+┃  ___] |_|_| |  | |__] |__] |___ |  \ ___ |    |  | |  \ ___] |___ |  \
+┃
+
+Generate...
+> w4_m2 vwaflo-m2-mobile-contract-v1:
+    1 rest clients, 6 requests, 36 data classes.
+    39 files with 1 280 lines of code.
+    Success (0.241 seconds)
+
+The generation was completed successfully. You can run the generation using build_runner.
+W These options have been removed and were ignored: --delete-conflicting-outputs
+  0s retrofit_generator on 161 inputs; integration_test/m1_app_integration_test.dart
+  0s retrofit_generator on 161 inputs: 1 skipped; integration_test/m1_pairing_flow_test.dart
+  0s retrofit_generator on 161 inputs: 161 skipped
+  0s json_serializable on 161 inputs; integration_test/m1_app_integration_test.dart
+  0s json_serializable on 161 inputs: 161 skipped
+  0s source_gen:combining_builder on 161 inputs; integration_test/m1_app_integration_test.dart
+  1s source_gen:combining_builder on 161 inputs: 17 skipped, 28 same; lib/core/api/generated/staff_operations/staff_operations_client.dart
+  2s source_gen:combining_builder on 161 inputs: 106 skipped, 55 same; spent 1s reading
+  Built with build_runner/aot in 12s; wrote 55 outputs.
+Formatted <MOBILE_ROOT>\lib\core\api\generated\export.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\api_error.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\app_policy.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\assigned_locations.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\context.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\current_location.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device2.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_claim_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_claim_request_platform.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_claim_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_complete_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_complete_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_recovery_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\device_pairing_recovery_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\error.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\get_v1_staff_device_context_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\mobile_staff_device_context.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\organization.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\platform.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\post_v1_staff_devices_pairing_challenge_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\post_v1_staff_devices_pairing_claim_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\post_v1_staff_devices_pairing_complete_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\post_v1_staff_devices_session_refresh_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\request_signing_fixture.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\request_signing_fixture_method.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\role.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\session.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\session2.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\staff.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\staff_device_session_refresh_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\staff_device_session_refresh_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\models\status.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\staff_device_pairing\staff_device_pairing_client.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\staff_operations\staff_operations_client.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated\w4_m1_api_client.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\export.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\fallback\fallback_client.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\available_rewards.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\empty.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\filled.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\get_v1_staff_device_context_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\get_v1_staff_operations_commands_command_id_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\get_v1_staff_operations_operation_public_id_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\location_eligibility.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\manager_override.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\membership_resolve_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\membership_resolve_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\membership_resolve_result_locale.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\membership_resolve_result_membership_status.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_command_status_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_command_status_result_operation_type.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_command_status_result_status.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_limits.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_public_status_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_public_status_result_operation_type.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\operation_public_status_result_status.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\post_v1_staff_memberships_resolve_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\post_v1_staff_operations_redeem_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\post_v1_staff_operations_stamps_response.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\purchase_requirement.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\redeem_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\redemption_operation_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\redemption_operation_result_reward_status.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\reverse_operation_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\staff_device_context_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\staff_device_context_result_platform.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\staff_device_context_result_role.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\stamp_operation_result.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\stamp_request.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\stamp_visuals.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\status.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\models\unlocked_rewards.dart
+Formatted <MOBILE_ROOT>\lib\core\api\generated_m2\w4_m2_api_client.dart
+Formatted 131 files (74 changed) in 0.50 seconds.
+Running build hooks...Running build hooks...
+Flutter failed to open a file at "<FLUTTER_SDK>\bin\cache\lockfile". The flutter tool cannot access the file or directory.
+Please ensure that the SDK and/or project is installed in a location that has read/write permissions for the current user.
+00:00 +0: loading <MOBILE_ROOT>/test/unit/pairing_recovery_test.dart
+00:00 +0: lost claim response immediately attempts challenge recovery
+00:00 +1: claim-pending transaction survives restart without QR secret
+00:00 +2: restart in signing revalidates challenge and reuses signature
+00:00 +3: expired recovered challenge is conclusive and routes expired
+00:00 +4: All tests passed!

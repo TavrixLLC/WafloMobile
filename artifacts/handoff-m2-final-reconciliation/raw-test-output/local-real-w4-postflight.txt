@@ -1,0 +1,18 @@
+LOCAL REAL W4 POSTFLIGHT
+TimestampUtc=2026-08-10T11:50:19.7392944Z
+MobileSha=b35ca7d973918496e13915880a492652ae6c5177
+BackendSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+BackendTrackedTree=clean
+MobileProductSource=unchanged
+TemporaryWafloTestDatabases=0
+CapturedLogPotentialSecretHits=0
+FlutterExecuted=26
+FlutterPassed=1
+FlutterFailed=25
+BackendExecuted=16
+BackendPassed=16
+BackendFailed=0
+TotalExecuted=42
+TotalPassed=17
+TotalFailed=25
+Postflight=PASS

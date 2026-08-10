@@ -1,0 +1,318 @@
+Approved W4 source verified: 0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e + 22 manifest checksums.
+Scope: 18 of 27 workspace projects
+packages/auth build$ tsc -p tsconfig.json
+packages/contracts build$ tsc -p tsconfig.json
+packages/config build$ tsc -p tsconfig.json
+packages/customer-security build$ tsc -p tsconfig.json
+packages/auth build: Done
+packages/loyalty-ledger build$ tsc -p tsconfig.json
+packages/customer-security build: Done
+packages/loyalty-policy build$ tsc -p tsconfig.json
+packages/config build: Done
+packages/staff-device-security build$ tsc -p tsconfig.json
+packages/contracts build: Done
+packages/operational-analytics build$ tsc -p tsconfig.json
+packages/loyalty-ledger build: Done
+packages/qr-core build$ tsc -p tsconfig.json
+packages/loyalty-policy build: Done
+packages/security build$ tsc -p tsconfig.json
+packages/staff-device-security build: Done
+packages/stamp-engine build$ tsc -p tsconfig.json
+packages/operational-analytics build: Done
+packages/qr-core build: Done
+packages/security build: Done
+packages/stamp-engine build: Done
+packages/billing build$ tsc -p tsconfig.json
+packages/database build$ pnpm generate && tsc -p tsconfig.json
+packages/permissions build$ tsc -p tsconfig.json
+packages/wallet-core build$ tsc -p tsconfig.json
+packages/database build: $ prisma generate
+packages/wallet-core build: Done
+packages/billing build: Done
+packages/permissions build: Done
+packages/database build: â—‡ injected env (1) from ..\..\.env // tip: â—ˆ encrypted .env [www.dotenvx.com]
+packages/database build: Loaded Prisma config from prisma.config.ts.
+packages/database build: Prisma schema loaded from prisma\schema.prisma.
+packages/database build: âœ” Generated Prisma Client (7.9.0) to .\src\generated\prisma in 1.21s
+packages/database build: Done
+packages/wallet-apple build$ tsc -p tsconfig.json
+packages/wallet-google build$ tsc -p tsconfig.json
+packages/wallet-google build: Done
+packages/wallet-apple build: Done
+apps/api build$ nest build
+apps/api build: Done
+W4_CONTRACT_FIXTURE_BOOT source=verified
+W4_CONTRACT_FIXTURE_BOOT imports=ready
+W4_CONTRACT_FIXTURE_BOOT application=ready
+W4_CONTRACT_FIXTURE_BOOT api=listening
+W4_CONTRACT_FIXTURE_READY api=3270 control=3271
+
+┌─────────────────────────────────────────────────────────┐
+│ A new version of Flutter is available!                  │
+│                                                         │
+│ To update to the latest version, run "flutter upgrade". │
+└─────────────────────────────────────────────────────────┘
+00:00 +0: loading <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart
+00:00 +0: real W4 development contract gate (setUpAll)
+00:00 +0: real W4 development contract gate 01 claim creates an ephemeral claimed pairing
+00:00 +1: real W4 development contract gate 02 challenge recovers the exact claimed message
+00:00 +1 -1: real W4 development contract gate 02 challenge recovers the exact claimed message [E]
+  AppFailure(INTERNAL_ERROR, requestId: null)
+  package:waflo_staff/features/pairing/data/generated_pairing_api.dart 62:7  GeneratedPairingApi.challenge
+
+00:00 +1 -1: real W4 development contract gate 03 complete establishes a signed device session
+00:00 +1 -2: real W4 development contract gate 03 complete establishes a signed device session [E]
+  Null check operator used on a null value
+  test\contract\real_backend_contract_test.dart 542:33  _ContractDevice.complete
+  test\contract\real_backend_contract_test.dart 73:39   main.<fn>.<fn>
+
+00:00 +1 -2: real W4 development contract gate 04 device-context returns authoritative safe context
+00:00 +1 -3: real W4 development contract gate 04 device-context returns authoritative safe context [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/device_session/domain/session_manager.dart 97:7  SessionManager.loadContext
+
+00:00 +1 -3: real W4 development contract gate 05 refresh rotates the real W4 session
+00:00 +1 -4: real W4 development contract gate 05 refresh rotates the real W4 session [E]
+  LateInitializationError: Field 'session' has not been initialized.
+  test\contract\real_backend_contract_test.dart        _ContractDevice.session
+  test\contract\real_backend_contract_test.dart 91:30  main.<fn>.<fn>
+
+00:00 +1 -4: real W4 development contract gate 06 the old refresh token is rejected after rotation
+00:00 +1 -5: real W4 development contract gate 06 the old refresh token is rejected after rotation [E]
+  LateInitializationError: Local 'oldSession' has not been initialized.
+  dart:_internal                                 LateError._throwLocalNotInitialized
+  test\contract\real_backend_contract_test.dart  main.<fn>.<fn>
+
+00:00 +1 -5: real W4 development contract gate 07 revoked is a real backend state and clears session
+Running build hooks...Running build hooks...W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:00 +1 -6: real W4 development contract gate 07 revoked is a real backend state and clears session [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:00 +1 -6: real W4 development contract gate 08 compromised is distinct and clears session
+W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:00 +1 -7: real W4 development contract gate 08 compromised is distinct and clears session [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:00 +1 -7: real W4 development contract gate 09 expired session is distinct and clears credentials
+W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:01 +1 -8: real W4 development contract gate 09 expired session is distinct and clears credentials [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:01 +1 -8: real W4 development contract gate 10 update-required blocks but preserves the session
+W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:01 +1 -9: real W4 development contract gate 10 update-required blocks but preserves the session [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:01 +1 -9: real W4 development contract gate 11 logout revokes W4 and clears all local credentials
+W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:01 +1 -10: real W4 development contract gate 11 logout revokes W4 and clears all local credentials [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:01 +1 -10: real W4 development contract gate 12 real M2 purchase membership resolves through Flutter
+00:01 +1 -11: real W4 development contract gate 12 real M2 purchase membership resolves through Flutter [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -11: real W4 development contract gate 13 lowercase purchase currency is normalized and accepted
+00:01 +1 -12: real W4 development contract gate 13 lowercase purchase currency is normalized and accepted [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -12: real W4 development contract gate 14 compatible stamp replay returns the committed result
+00:01 +1 -13: real W4 development contract gate 14 compatible stamp replay returns the committed result [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -13: real W4 development contract gate 15 conflicting stamp replay is rejected authoritatively
+00:01 +1 -14: real W4 development contract gate 15 conflicting stamp replay is rejected authoritatively [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'OPERATION_IDEMPOTENCY_CONFLICT'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                            expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                          expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                                        _expectFailure
+                  test\contract\real_backend_contract_test.dart 218:15                                       main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: OPERATION_ ...
+                    Actual: STAFF_DEVI ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 218:15  main.<fn>.<fn>
+
+00:01 +1 -14: real W4 development contract gate 16 wrong purchase currency is a safe backend rejection
+00:01 +1 -15: real W4 development contract gate 16 wrong purchase currency is a safe backend rejection [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'PURCHASE_CURRENCY_MISMATCH'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                            expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                          expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                                        _expectFailure
+                  test\contract\real_backend_contract_test.dart 234:15                                       main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: PURCHASE_C ...
+                    Actual: STAFF_DEVI ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 234:15  main.<fn>.<fn>
+
+00:01 +1 -15: real W4 development contract gate 17 COMPLETED command returns its typed stamp result
+00:01 +1 -16: real W4 development contract gate 17 COMPLETED command returns its typed stamp result [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -16: real W4 development contract gate 18 PROCESSING command remains pending without a result
+00:01 +1 -17: real W4 development contract gate 18 PROCESSING command remains pending without a result [E]
+  LateInitializationError: Field 'session' has not been initialized.
+  test\contract\real_backend_contract_test.dart         _ContractDevice.session
+  test\contract\real_backend_contract_test.dart 259:19  main.<fn>.<fn>
+
+00:01 +1 -17: real W4 development contract gate 19 FAILED command returns only its safe failure code
+00:01 +1 -18: real W4 development contract gate 19 FAILED command returns only its safe failure code [E]
+  LateInitializationError: Field 'session' has not been initialized.
+  test\contract\real_backend_contract_test.dart         _ContractDevice.session
+  test\contract\real_backend_contract_test.dart 271:19  main.<fn>.<fn>
+
+00:01 +1 -18: real W4 development contract gate 20 command lookup is hidden from another device
+W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:01 +1 -19: real W4 development contract gate 20 command lookup is hidden from another device [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:01 +1 -19: real W4 development contract gate 21 real M2 resolve accepts Arabic without changing authority
+00:01 +1 -20: real W4 development contract gate 21 real M2 resolve accepts Arabic without changing authority [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -20: real W4 development contract gate 22 milestone reward is unlocked outside the stamp grid
+00:01 +1 -21: real W4 development contract gate 22 milestone reward is unlocked outside the stamp grid [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -21: real W4 development contract gate 23 final reward reaches ready with all stamps filled
+00:01 +1 -22: real W4 development contract gate 23 final reward reaches ready with all stamps filled [E]
+  AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+
+00:01 +1 -22: real W4 development contract gate 24 an extra stamp is blocked while final reward is pending
+00:01 +1 -23: real W4 development contract gate 24 an extra stamp is blocked while final reward is pending [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'FINAL_REWARD_PENDING_REDEMPTION'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: null)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 264:7  SignedLoyaltyOperationsApi._activeSession
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                            expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                          expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                                        _expectFailure
+                  test\contract\real_backend_contract_test.dart 335:17                                       main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: FINAL_REWA ...
+                    Actual: STAFF_DEVI ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 335:17  main.<fn>.<fn>
+
+00:01 +1 -23: real W4 development contract gate 25 final redemption returns authoritative zero projection
+00:01 +1 -24: real W4 development contract gate 25 final redemption returns authoritative zero projection [E]
+  LateInitializationError: Local 'finalReadyStamp' has not been initialized.
+  dart:_internal                                 LateError._throwLocalNotInitialized
+  test\contract\real_backend_contract_test.dart  main.<fn>.<fn>
+
+00:01 +1 -24: real W4 development contract gate 26 unsupported iOS semantic version returns HTTP 426
+W4 fixture control failure:
+Invalid `prisma.devicePairingSession.create()` invocation:
+
+
+Unique constraint failed on the fields: (`intended_staff_member_id`)
+00:02 +1 -25: real W4 development contract gate 26 unsupported iOS semantic version returns HTTP 426 [E]
+  DioException [bad response]: This exception was thrown because the response has a status code of 500 and RequestOptions.validateStatus was configured to throw for this status code.
+  The status code of 500 has the following meaning: "Server error - the server failed to fulfil an apparently valid request"
+  Read more about status codes at https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  In order to resolve this exception you typically have either to verify and fix your request code or you have to fix the server code.
+
+  package:dio/src/dio_mixin.dart 587:7  DioMixin.fetch
+
+00:02 +1 -25: real W4 development contract gate (tearDownAll)
+00:02 +1 -25: Some tests failed.
+
+Failing tests:
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 02 challenge recovers the exact claimed message
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 03 complete establishes a signed device session
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 04 device-context returns authoritative safe context
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 05 refresh rotates the real W4 session
+  ... and 21 more
+Unhandled exception:
+Bad state: Real W4 contract gate failed with exit code 1.
+#0      main (file:///<MOBILE_ROOT>/tool/run_real_w4_contract_gate.dart:136:7)
+<asynchronous suspension>

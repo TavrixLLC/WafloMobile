@@ -10,12 +10,20 @@
 | Strict purchase currency | PASS locally |
 | Command recovery states | PASS locally |
 | HTTP 426 update-required | PASS locally |
-| iOS camera purpose copy | PASS by source inspection; macOS CI pending |
-| M1/M2 Flutter regression | PASS locally |
-| Android builds | PASS locally |
+| iOS camera purpose copy | PASS by source inspection and macOS CI |
+| M1/M2 Flutter regression | PASS locally and in hosted Linux/Android emulator jobs |
+| Android builds | PASS locally and hosted: development debug, staging release, production release |
 | Portable archive | PASS — 573 entries; exclusion, path, and credential scans clean |
-| Hosted CI and iOS builds | BLOCKED — branch push rejected with HTTP 403; no runs triggered |
-| Real W4 gate at repaired backend SHA | BLOCKED — approved runner job could not be triggered |
+| Hosted CI and iOS builds | PASS: Linux, Android emulator/build, and macOS/iOS jobs completed successfully |
+| Pairing challenge runtime conformance | PASS: wire returns required canonical `Ed25519`; signed completion succeeds |
+| Pairing focused regression | PASS: backend HTTP 6/6; Mobile pairing unit 4/4; generated drift clean |
+| Contract schema/version preservation | PASS: historical M1/M2 schemas, version, and M2 bundle unchanged |
+| Local Real W4 functional execution | PASS: all 42 executed and passed; backend 16/16, Flutter 26/26 |
+| Remaining Real W4 compatibility | PASS: all 16 post-pairing Flutter failures were root-caused and repaired |
+| Backend build/typecheck | PASS as part of the exact Flutter gate |
+| Disposable database cleanup | PASS: zero `waflo_test_*` databases remain; append-only ledger guard preserved |
+| Formal approved-runner GitHub closure | BLOCKED: job `93016388147` completed/cancelled without a runner; 0/42 executed |
 | No M3A features | PASS by changed-path and diff review |
 
-Full approval remains withheld until repository write access is supplied, the focused branch is pushed, and every external gate passes.
+Local functional compatibility is complete. Full approval remains withheld only
+until an approved self-hosted runner executes the formal GitHub Real W4 job.

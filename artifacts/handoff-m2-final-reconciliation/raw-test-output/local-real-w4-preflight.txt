@@ -1,0 +1,13 @@
+LOCAL REAL W4 PREFLIGHT
+TimestampUtc=2026-08-10T11:40:36.2086932Z
+MobileSha=b35ca7d973918496e13915880a492652ae6c5177
+BackendSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+BackendTrackedTree=clean
+MobileProductSource=unchanged
+BackendEnv=repo-local-present-and-git-ignored
+WAFLO_W4_BACKEND_ROOT=dedicated-historical-test-checkout
+Node=v24.12.0
+pnpm=11.5.2
+PowerShell=7.6.4
+PostgreSQLService=Running
+Preflight=PASS

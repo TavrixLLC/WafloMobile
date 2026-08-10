@@ -1,0 +1,349 @@
+Approved W4 M2 source verified: repair=966454633519bff3d9aed277ce0bcf36f17d3d60 base=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e files=22 changed=4.
+Starting approved W4 M2 mobile contract unit gate.
+
+[isolated-vitest] Running unit.
+
+ RUN  v4.1.10 <backend-root>
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  17:05:05
+   Duration  1.10s (transform 214ms, setup 0ms, import 525ms, tests 36ms, environment 0ms)
+
+Starting approved W4 M2 signed Staff HTTP gate.
+[isolated-vitest] Creating waflo_test_msnazv8d_14308_96d762d2.
+Running build hooks...Running build hooks...$ prisma migrate deploy
+◇ injected env (0) from ..\..\.env // tip: ◈ encrypted .env [www.dotenvx.com]
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "waflo_test_msnazv8d_14308_96d762d2", schema "public" at "127.0.0.1:5432"
+
+24 migrations found in prisma/migrations
+
+Applying migration `20260727125444_init`
+Applying migration `20260727125500_security_constraints`
+Applying migration `20260727190000_repair_round_1_invariants`
+Applying migration `20260727230000_repair_round_2`
+Applying migration `20260728095038_w2_loyalty_studio`
+Applying migration `20260728130000_w2_partial_invariants`
+Applying migration `20260728142000_w2_validation_warnings`
+Applying migration `20260728143000_w2_version_abandon`
+Applying migration `20260728144000_w2_test_event_reward_set_null`
+Applying migration `20260728145000_w2_integrity_triggers`
+Applying migration `20260728170000_w2_round2_test_events`
+Applying migration `20260728190000_w2_round3_template_preview_guards`
+Applying migration `20260728200000_w2_round3_preview_revision`
+Applying migration `20260729120000_w2_round4_asset_semantic_identity`
+Applying migration `20260729153000_w3_customer_membership_wallet`
+Applying migration `20260729160000_w3_session_credential_binding`
+Applying migration `20260729200000_w3_round1_wallet_sync_and_registration`
+Applying migration `20260729203000_w3_wallet_sync_stable_cursor`
+Applying migration `20260729213000_w3_round2_apple_update_sequence`
+Applying migration `20260730140156_w4_loyalty_operations`
+Applying migration `20260730141019_w4_device_session_location`
+Applying migration `20260730142000_w4_export_filters`
+Applying migration `20260730143000_w4_reset_policy_width`
+Applying migration `20260731010000_w4_repair_round1`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260727125444_init/
+    └─ migration.sql
+  └─ 20260727125500_security_constraints/
+    └─ migration.sql
+  └─ 20260727190000_repair_round_1_invariants/
+    └─ migration.sql
+  └─ 20260727230000_repair_round_2/
+    └─ migration.sql
+  └─ 20260728095038_w2_loyalty_studio/
+    └─ migration.sql
+  └─ 20260728130000_w2_partial_invariants/
+    └─ migration.sql
+  └─ 20260728142000_w2_validation_warnings/
+    └─ migration.sql
+  └─ 20260728143000_w2_version_abandon/
+    └─ migration.sql
+  └─ 20260728144000_w2_test_event_reward_set_null/
+    └─ migration.sql
+  └─ 20260728145000_w2_integrity_triggers/
+    └─ migration.sql
+  └─ 20260728170000_w2_round2_test_events/
+    └─ migration.sql
+  └─ 20260728190000_w2_round3_template_preview_guards/
+    └─ migration.sql
+  └─ 20260728200000_w2_round3_preview_revision/
+    └─ migration.sql
+  └─ 20260729120000_w2_round4_asset_semantic_identity/
+    └─ migration.sql
+  └─ 20260729153000_w3_customer_membership_wallet/
+    └─ migration.sql
+  └─ 20260729160000_w3_session_credential_binding/
+    └─ migration.sql
+  └─ 20260729200000_w3_round1_wallet_sync_and_registration/
+    └─ migration.sql
+  └─ 20260729203000_w3_wallet_sync_stable_cursor/
+    └─ migration.sql
+  └─ 20260729213000_w3_round2_apple_update_sequence/
+    └─ migration.sql
+  └─ 20260730140156_w4_loyalty_operations/
+    └─ migration.sql
+  └─ 20260730141019_w4_device_session_location/
+    └─ migration.sql
+  └─ 20260730142000_w4_export_filters/
+    └─ migration.sql
+  └─ 20260730143000_w4_reset_policy_width/
+    └─ migration.sql
+  └─ 20260731010000_w4_repair_round1/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+$ prisma db seed
+◇ injected env (0) from ..\..\.env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Loaded Prisma config from prisma.config.ts.
+
+Running seed command `tsx prisma/seed.ts` ...
+Waflo W4 deterministic development data seeded.
+
+The seed command has been executed.
+
+[isolated-vitest] Running http.
+
+ RUN  v4.1.10 <backend-root>
+
+(node:19136) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  17:05:26
+   Duration  10.08s (transform 1.95s, setup 44ms, import 6.66s, tests 2.87s, environment 0ms)
+
+[isolated-vitest] Dropping waflo_test_msnazv8d_14308_96d762d2.
+Starting approved W4 M2 loyalty lifecycle gate.
+[isolated-vitest] Creating waflo_test_msnb0irp_18508_b15ba0a9.
+$ prisma migrate deploy
+◇ injected env (0) from ..\..\.env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "waflo_test_msnb0irp_18508_b15ba0a9", schema "public" at "127.0.0.1:5432"
+
+24 migrations found in prisma/migrations
+
+Applying migration `20260727125444_init`
+Applying migration `20260727125500_security_constraints`
+Applying migration `20260727190000_repair_round_1_invariants`
+Applying migration `20260727230000_repair_round_2`
+Applying migration `20260728095038_w2_loyalty_studio`
+Applying migration `20260728130000_w2_partial_invariants`
+Applying migration `20260728142000_w2_validation_warnings`
+Applying migration `20260728143000_w2_version_abandon`
+Applying migration `20260728144000_w2_test_event_reward_set_null`
+Applying migration `20260728145000_w2_integrity_triggers`
+Applying migration `20260728170000_w2_round2_test_events`
+Applying migration `20260728190000_w2_round3_template_preview_guards`
+Applying migration `20260728200000_w2_round3_preview_revision`
+Applying migration `20260729120000_w2_round4_asset_semantic_identity`
+Applying migration `20260729153000_w3_customer_membership_wallet`
+Applying migration `20260729160000_w3_session_credential_binding`
+Applying migration `20260729200000_w3_round1_wallet_sync_and_registration`
+Applying migration `20260729203000_w3_wallet_sync_stable_cursor`
+Applying migration `20260729213000_w3_round2_apple_update_sequence`
+Applying migration `20260730140156_w4_loyalty_operations`
+Applying migration `20260730141019_w4_device_session_location`
+Applying migration `20260730142000_w4_export_filters`
+Applying migration `20260730143000_w4_reset_policy_width`
+Applying migration `20260731010000_w4_repair_round1`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260727125444_init/
+    └─ migration.sql
+  └─ 20260727125500_security_constraints/
+    └─ migration.sql
+  └─ 20260727190000_repair_round_1_invariants/
+    └─ migration.sql
+  └─ 20260727230000_repair_round_2/
+    └─ migration.sql
+  └─ 20260728095038_w2_loyalty_studio/
+    └─ migration.sql
+  └─ 20260728130000_w2_partial_invariants/
+    └─ migration.sql
+  └─ 20260728142000_w2_validation_warnings/
+    └─ migration.sql
+  └─ 20260728143000_w2_version_abandon/
+    └─ migration.sql
+  └─ 20260728144000_w2_test_event_reward_set_null/
+    └─ migration.sql
+  └─ 20260728145000_w2_integrity_triggers/
+    └─ migration.sql
+  └─ 20260728170000_w2_round2_test_events/
+    └─ migration.sql
+  └─ 20260728190000_w2_round3_template_preview_guards/
+    └─ migration.sql
+  └─ 20260728200000_w2_round3_preview_revision/
+    └─ migration.sql
+  └─ 20260729120000_w2_round4_asset_semantic_identity/
+    └─ migration.sql
+  └─ 20260729153000_w3_customer_membership_wallet/
+    └─ migration.sql
+  └─ 20260729160000_w3_session_credential_binding/
+    └─ migration.sql
+  └─ 20260729200000_w3_round1_wallet_sync_and_registration/
+    └─ migration.sql
+  └─ 20260729203000_w3_wallet_sync_stable_cursor/
+    └─ migration.sql
+  └─ 20260729213000_w3_round2_apple_update_sequence/
+    └─ migration.sql
+  └─ 20260730140156_w4_loyalty_operations/
+    └─ migration.sql
+  └─ 20260730141019_w4_device_session_location/
+    └─ migration.sql
+  └─ 20260730142000_w4_export_filters/
+    └─ migration.sql
+  └─ 20260730143000_w4_reset_policy_width/
+    └─ migration.sql
+  └─ 20260731010000_w4_repair_round1/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+$ prisma db seed
+◇ injected env (0) from ..\..\.env // tip: ⌁ auth for agents [www.vestauth.com]
+Loaded Prisma config from prisma.config.ts.
+
+Running seed command `tsx prisma/seed.ts` ...
+Waflo W4 deterministic development data seeded.
+
+The seed command has been executed.
+
+[isolated-vitest] Running integration.
+
+ RUN  v4.1.10 <backend-root>
+
+(node:7192) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:18936) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  17:05:54
+   Duration  18.26s (transform 2.09s, setup 62ms, import 12.07s, tests 5.06s, environment 0ms)
+
+[isolated-vitest] Dropping waflo_test_msnb0irp_18508_b15ba0a9.
+Starting approved W4 M2 loyalty concurrency gate.
+[isolated-vitest] Creating waflo_test_msnb1aai_20456_4a31d447.
+$ prisma migrate deploy
+◇ injected env (0) from ..\..\.env // tip: ⌁ auth for agents [www.vestauth.com]
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "waflo_test_msnb1aai_20456_4a31d447", schema "public" at "127.0.0.1:5432"
+
+24 migrations found in prisma/migrations
+
+Applying migration `20260727125444_init`
+Applying migration `20260727125500_security_constraints`
+Applying migration `20260727190000_repair_round_1_invariants`
+Applying migration `20260727230000_repair_round_2`
+Applying migration `20260728095038_w2_loyalty_studio`
+Applying migration `20260728130000_w2_partial_invariants`
+Applying migration `20260728142000_w2_validation_warnings`
+Applying migration `20260728143000_w2_version_abandon`
+Applying migration `20260728144000_w2_test_event_reward_set_null`
+Applying migration `20260728145000_w2_integrity_triggers`
+Applying migration `20260728170000_w2_round2_test_events`
+Applying migration `20260728190000_w2_round3_template_preview_guards`
+Applying migration `20260728200000_w2_round3_preview_revision`
+Applying migration `20260729120000_w2_round4_asset_semantic_identity`
+Applying migration `20260729153000_w3_customer_membership_wallet`
+Applying migration `20260729160000_w3_session_credential_binding`
+Applying migration `20260729200000_w3_round1_wallet_sync_and_registration`
+Applying migration `20260729203000_w3_wallet_sync_stable_cursor`
+Applying migration `20260729213000_w3_round2_apple_update_sequence`
+Applying migration `20260730140156_w4_loyalty_operations`
+Applying migration `20260730141019_w4_device_session_location`
+Applying migration `20260730142000_w4_export_filters`
+Applying migration `20260730143000_w4_reset_policy_width`
+Applying migration `20260731010000_w4_repair_round1`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260727125444_init/
+    └─ migration.sql
+  └─ 20260727125500_security_constraints/
+    └─ migration.sql
+  └─ 20260727190000_repair_round_1_invariants/
+    └─ migration.sql
+  └─ 20260727230000_repair_round_2/
+    └─ migration.sql
+  └─ 20260728095038_w2_loyalty_studio/
+    └─ migration.sql
+  └─ 20260728130000_w2_partial_invariants/
+    └─ migration.sql
+  └─ 20260728142000_w2_validation_warnings/
+    └─ migration.sql
+  └─ 20260728143000_w2_version_abandon/
+    └─ migration.sql
+  └─ 20260728144000_w2_test_event_reward_set_null/
+    └─ migration.sql
+  └─ 20260728145000_w2_integrity_triggers/
+    └─ migration.sql
+  └─ 20260728170000_w2_round2_test_events/
+    └─ migration.sql
+  └─ 20260728190000_w2_round3_template_preview_guards/
+    └─ migration.sql
+  └─ 20260728200000_w2_round3_preview_revision/
+    └─ migration.sql
+  └─ 20260729120000_w2_round4_asset_semantic_identity/
+    └─ migration.sql
+  └─ 20260729153000_w3_customer_membership_wallet/
+    └─ migration.sql
+  └─ 20260729160000_w3_session_credential_binding/
+    └─ migration.sql
+  └─ 20260729200000_w3_round1_wallet_sync_and_registration/
+    └─ migration.sql
+  └─ 20260729203000_w3_wallet_sync_stable_cursor/
+    └─ migration.sql
+  └─ 20260729213000_w3_round2_apple_update_sequence/
+    └─ migration.sql
+  └─ 20260730140156_w4_loyalty_operations/
+    └─ migration.sql
+  └─ 20260730141019_w4_device_session_location/
+    └─ migration.sql
+  └─ 20260730142000_w4_export_filters/
+    └─ migration.sql
+  └─ 20260730143000_w4_reset_policy_width/
+    └─ migration.sql
+  └─ 20260731010000_w4_repair_round1/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+$ prisma db seed
+◇ injected env (0) from ..\..\.env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+Loaded Prisma config from prisma.config.ts.
+
+Running seed command `tsx prisma/seed.ts` ...
+Waflo W4 deterministic development data seeded.
+
+The seed command has been executed.
+
+[isolated-vitest] Running concurrency.
+
+ RUN  v4.1.10 <backend-root>
+
+(node:19728) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  17:06:29
+   Duration  10.81s (transform 1.98s, setup 44ms, import 6.88s, tests 3.36s, environment 0ms)
+
+[isolated-vitest] Dropping waflo_test_msnb1aai_20456_4a31d447.
+REAL_W4_M2_CONTRACT_GATE_PASS backend=966454633519bff3d9aed277ce0bcf36f17d3d60 tests=16 cleanup=isolated-databases-dropped

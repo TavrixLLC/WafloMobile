@@ -1,0 +1,36 @@
+Mobile branch: fix/m2-mobile-final-reconciliation
+Mobile SHA: b35ca7d973918496e13915880a492652ae6c5177
+
+Workflow: Flutter M2 Online Loyalty Operations
+Run ID: 31224658248
+Run status: completed
+Run conclusion: cancelled
+Linux job 93016388146: completed / success; 68 unit, 18 widget, 21 golden
+Android emulator job 93016388183: completed / success; 18 M1 app, 3 M1 pairing, 1 M2 integration
+Android build job 93016388081: completed / success; development debug, staging release, production release
+Real W4 job 93016388147: completed / cancelled / no runner accepted / no steps / 0 tests executed
+Real W4 labels: self-hosted, windows, x64, waflo-w4-approved
+Required backend SHA: 0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+
+Workflow: Flutter M2 iOS
+Run ID: 31224658284
+Run status: completed
+Run conclusion: success
+macOS/iOS job 93016388364: completed / success; 68 unit, 18 widget, camera copy, three no-sign builds
+
+Local exact-entrypoint execution on 2026-08-10 is functional evidence, not GitHub closure:
+Flutter real-contract: 26 executed / 1 passed / 25 failed
+Backend compatibility: 16 executed / 16 passed / 0 failed
+Combined: 42 executed / 17 passed / 25 failed
+Root failure: backend pairing-challenge response omits required signatureAlgorithm
+Source state after execution: both pinned SHAs unchanged; backend tracked tree clean; Mobile product source unchanged
+
+Local pairing runtime-conformance repair execution on 2026-08-10:
+Backend repair SHA: dbd20acafc3d7687866256e8e950a5b978ba4e29
+Mobile verification SHA: 03e5a6fc9e3039d8ad18b9b271ea1e18e64bd7f7
+Mobile product base SHA: b35ca7d973918496e13915880a492652ae6c5177
+Flutter real-contract: 26 executed / 10 passed / 16 failed
+Backend compatibility: 16 executed / 16 passed / 0 failed
+Combined: 42 executed / 26 passed / 16 failed
+Pairing claim, challenge recovery, and signed completion: passed
+Formal GitHub closure: not rerun

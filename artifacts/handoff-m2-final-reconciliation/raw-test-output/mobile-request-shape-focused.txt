@@ -1,0 +1,28 @@
+00:00 +0: loading <mobile-root>/test/unit/loyalty_operations_api_test.dart
+00:00 +0: signed M2 request bodies omit the UI locale
+00:00 +0 -1: signed M2 request bodies omit the UI locale [E]
+  Expected: throws <Instance of 'ApiFailure'>
+    Actual: <Instance of 'Future<ResolvedMembership>'>
+     Which: threw LocalSecurityFailure:<AppFailure(LOCAL_KEY_MISSING, requestId: null)>
+            stack package:waflo_staff/core/crypto/device_identity.dart 104:7  DeviceIdentityRepository.signUtf8
+                  ===== asynchronous gap ===========================
+                  package:matcher                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8           expectLater
+                  test\unit\loyalty_operations_api_test.dart 33:11            main.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                  _CustomZone.registerUnaryCallback
+                  test\unit\loyalty_operations_api_test.dart 20:5             main.<fn>
+
+            which is not an instance of 'ApiFailure'
+
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test\unit\loyalty_operations_api_test.dart 33:11   main.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                         _CustomZone.registerUnaryCallback
+  test\unit\loyalty_operations_api_test.dart 20:5    main.<fn>
+
+00:00 +0 -1: Some tests failed.
+
+Failing tests:
+  <mobile-root>/test/unit/loyalty_operations_api_test.dart: signed M2 request bodies omit the UI locale

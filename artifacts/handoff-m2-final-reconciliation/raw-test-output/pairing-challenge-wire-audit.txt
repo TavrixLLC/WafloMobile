@@ -1,0 +1,12 @@
+PAIRING CHALLENGE WIRE AUDIT
+TimestampUtc=2026-08-10T12:21:07.8106048Z
+BackendSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+MobileSha=b35ca7d973918496e13915880a492652ae6c5177
+HttpStatus=200
+EnvelopeKeys=data,requestId
+DataKeys=challenge,challengeExpiresAt,message,pairingPublicId
+ContractRequiresSignatureAlgorithm=True
+ContractCanonicalSignatureAlgorithm=Ed25519
+WireContainsSignatureAlgorithm=False
+SensitiveValuesPrinted=false
+WireAudit=PASS

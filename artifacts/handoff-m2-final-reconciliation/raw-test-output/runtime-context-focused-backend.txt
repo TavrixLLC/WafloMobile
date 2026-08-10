@@ -1,0 +1,110 @@
+[isolated-vitest] Creating waflo_test_msn9mo4e_9432_63a6ce82.
+$ prisma migrate deploy
+◇ injected env (0) from ..\..\.env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "waflo_test_msn9mo4e_9432_63a6ce82", schema "public" at "127.0.0.1:5432"
+
+24 migrations found in prisma/migrations
+
+Applying migration `20260727125444_init`
+Applying migration `20260727125500_security_constraints`
+Applying migration `20260727190000_repair_round_1_invariants`
+Applying migration `20260727230000_repair_round_2`
+Applying migration `20260728095038_w2_loyalty_studio`
+Applying migration `20260728130000_w2_partial_invariants`
+Applying migration `20260728142000_w2_validation_warnings`
+Applying migration `20260728143000_w2_version_abandon`
+Applying migration `20260728144000_w2_test_event_reward_set_null`
+Applying migration `20260728145000_w2_integrity_triggers`
+Applying migration `20260728170000_w2_round2_test_events`
+Applying migration `20260728190000_w2_round3_template_preview_guards`
+Applying migration `20260728200000_w2_round3_preview_revision`
+Applying migration `20260729120000_w2_round4_asset_semantic_identity`
+Applying migration `20260729153000_w3_customer_membership_wallet`
+Applying migration `20260729160000_w3_session_credential_binding`
+Applying migration `20260729200000_w3_round1_wallet_sync_and_registration`
+Applying migration `20260729203000_w3_wallet_sync_stable_cursor`
+Applying migration `20260729213000_w3_round2_apple_update_sequence`
+Applying migration `20260730140156_w4_loyalty_operations`
+Applying migration `20260730141019_w4_device_session_location`
+Applying migration `20260730142000_w4_export_filters`
+Applying migration `20260730143000_w4_reset_policy_width`
+Applying migration `20260731010000_w4_repair_round1`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260727125444_init/
+    └─ migration.sql
+  └─ 20260727125500_security_constraints/
+    └─ migration.sql
+  └─ 20260727190000_repair_round_1_invariants/
+    └─ migration.sql
+  └─ 20260727230000_repair_round_2/
+    └─ migration.sql
+  └─ 20260728095038_w2_loyalty_studio/
+    └─ migration.sql
+  └─ 20260728130000_w2_partial_invariants/
+    └─ migration.sql
+  └─ 20260728142000_w2_validation_warnings/
+    └─ migration.sql
+  └─ 20260728143000_w2_version_abandon/
+    └─ migration.sql
+  └─ 20260728144000_w2_test_event_reward_set_null/
+    └─ migration.sql
+  └─ 20260728145000_w2_integrity_triggers/
+    └─ migration.sql
+  └─ 20260728170000_w2_round2_test_events/
+    └─ migration.sql
+  └─ 20260728190000_w2_round3_template_preview_guards/
+    └─ migration.sql
+  └─ 20260728200000_w2_round3_preview_revision/
+    └─ migration.sql
+  └─ 20260729120000_w2_round4_asset_semantic_identity/
+    └─ migration.sql
+  └─ 20260729153000_w3_customer_membership_wallet/
+    └─ migration.sql
+  └─ 20260729160000_w3_session_credential_binding/
+    └─ migration.sql
+  └─ 20260729200000_w3_round1_wallet_sync_and_registration/
+    └─ migration.sql
+  └─ 20260729203000_w3_wallet_sync_stable_cursor/
+    └─ migration.sql
+  └─ 20260729213000_w3_round2_apple_update_sequence/
+    └─ migration.sql
+  └─ 20260730140156_w4_loyalty_operations/
+    └─ migration.sql
+  └─ 20260730141019_w4_device_session_location/
+    └─ migration.sql
+  └─ 20260730142000_w4_export_filters/
+    └─ migration.sql
+  └─ 20260730143000_w4_reset_policy_width/
+    └─ migration.sql
+  └─ 20260731010000_w4_repair_round1/
+    └─ migration.sql
+
+All migrations have been successfully applied.
+$ prisma db seed
+◇ injected env (0) from ..\..\.env // tip: ⌁ auth for agents [www.vestauth.com]
+Loaded Prisma config from prisma.config.ts.
+
+Running seed command `tsx prisma/seed.ts` ...
+Waflo W4 deterministic development data seeded.
+
+The seed command has been executed.
+
+[isolated-vitest] Running http.
+
+ RUN  v4.1.10 <backend-root>
+
+(node:18760) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  16:27:08
+   Duration  10.28s (transform 1.95s, setup 44ms, import 6.73s, tests 2.99s, environment 0ms)
+
+[isolated-vitest] Dropping waflo_test_msn9mo4e_9432_63a6ce82.

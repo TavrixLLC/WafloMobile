@@ -1,0 +1,18 @@
+LOCAL REAL W4 FINAL AUDIT
+TimestampUtc=2026-08-10T12:01:42.9446741Z
+MobileSha=b35ca7d973918496e13915880a492652ae6c5177
+BackendSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+BackendTrackedTree=clean
+MobileProductSource=unchanged
+HandoffStatusEntries=14
+FlutterNamedScenariosExecuted=26
+FlutterPassed=1
+FlutterFailed=25
+BackendPassed=16
+BackendFailed=0
+TotalExecuted=42
+TotalPassed=17
+TotalFailed=25
+GitDiffCheck=PASS
+FormalGithubJob=completed-cancelled-0-of-42
+FinalAudit=PASS

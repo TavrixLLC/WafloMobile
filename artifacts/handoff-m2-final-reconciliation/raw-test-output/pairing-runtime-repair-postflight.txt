@@ -1,0 +1,24 @@
+M2 PAIRING REPAIR POSTFLIGHT
+TimestampUtc=2026-08-10T12:47:54.0578405Z
+MobileProductBaseSha=b35ca7d973918496e13915880a492652ae6c5177
+MobileVerificationSha=03e5a6fc9e3039d8ad18b9b271ea1e18e64bd7f7
+BackendHistoricalSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+BackendRepairSha=dbd20acafc3d7687866256e8e950a5b978ba4e29
+BackendTrackedTree=clean
+MobileProductSource=unchanged
+MobileVerificationPaths=4
+MobileWorkingChanges=handoff-only
+TemporaryWafloTestDatabases=0
+AbsolutePathScan=PASS
+SecurityScan=PASS
+PairingClaimChallengeComplete=PASS
+FlutterExecuted=26
+FlutterPassed=10
+FlutterFailed=16
+BackendExecuted=16
+BackendPassed=16
+BackendFailed=0
+TotalExecuted=42
+TotalPassed=26
+TotalFailed=16
+Postflight=PASS

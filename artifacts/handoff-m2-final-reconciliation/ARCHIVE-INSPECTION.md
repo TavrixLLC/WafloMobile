@@ -10,4 +10,9 @@ Archive result:
 - SHA-256: `7b09bb53cd7b5c14795e66f487166e4a1b874533c67513b3118d6f7c3b534eb3`
 - reproducibility: exported from the Git tree (no commit-ID ZIP metadata) with timestamp fixed at `2026-08-08T00:00:00Z`; `/artifacts` excluded
 - exclusion, extraction, absolute-path, and credential scan: pass
+
+The existing portable archive remains the immutable M2 final-reconciliation
+source archive for commit `b35ca7d973918496e13915880a492652ae6c5177`.
+Runtime-conformance repairs are additive follow-up commits and are evidenced by
+sanitized logs in this handoff; the historical archive was not rewritten.
 - forbidden build/runtime/generated machine paths: none

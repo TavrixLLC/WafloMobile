@@ -1,0 +1,22 @@
+M2 PAIRING CONTRACT REPAIR FINAL AUDIT
+TimestampUtc=2026-08-10T12:51:11.9116888Z
+Classification=BACKEND_RUNTIME_OMISSION
+ContractSchemaChanged=false
+ContractVersionChanged=false
+HistoricalBundleChanged=false
+BackendHistoricalSha=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e
+BackendRepairSha=dbd20acafc3d7687866256e8e950a5b978ba4e29
+MobileProductBaseSha=b35ca7d973918496e13915880a492652ae6c5177
+MobileVerificationSha=03e5a6fc9e3039d8ad18b9b271ea1e18e64bd7f7
+FocusedBackend=6/6
+MobilePairingUnit=4/4
+PairingWireClaimChallengeComplete=PASS
+FlutterRealW4=10/26
+BackendRealW4=16/16
+TotalRealW4=26/42
+EveryRequestedTestExecuted=true
+RemainingNonPairingFailures=16
+TemporaryWafloTestDatabases=0
+BackendTrackedTree=clean
+MobileProductSource=unchanged
+FinalAudit=PASS

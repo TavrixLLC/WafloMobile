@@ -1,0 +1,352 @@
+Approved W4 source verified: repair=dbd20acafc3d7687866256e8e950a5b978ba4e29 base=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e files=22 changed=2.
+Scope: 18 of 27 workspace projects
+packages/auth build$ tsc -p tsconfig.json
+packages/contracts build$ tsc -p tsconfig.json
+packages/customer-security build$ tsc -p tsconfig.json
+packages/config build$ tsc -p tsconfig.json
+packages/auth build: Done
+packages/loyalty-ledger build$ tsc -p tsconfig.json
+packages/customer-security build: Done
+packages/loyalty-policy build$ tsc -p tsconfig.json
+packages/config build: Done
+packages/staff-device-security build$ tsc -p tsconfig.json
+packages/contracts build: Done
+packages/operational-analytics build$ tsc -p tsconfig.json
+packages/loyalty-ledger build: Done
+packages/qr-core build$ tsc -p tsconfig.json
+packages/loyalty-policy build: Done
+packages/security build$ tsc -p tsconfig.json
+packages/staff-device-security build: Done
+packages/stamp-engine build$ tsc -p tsconfig.json
+packages/operational-analytics build: Done
+packages/qr-core build: Done
+packages/security build: Done
+packages/stamp-engine build: Done
+packages/database build$ pnpm generate && tsc -p tsconfig.json
+packages/billing build$ tsc -p tsconfig.json
+packages/permissions build$ tsc -p tsconfig.json
+packages/wallet-core build$ tsc -p tsconfig.json
+packages/database build: $ prisma generate
+packages/wallet-core build: Done
+packages/permissions build: Done
+packages/billing build: Done
+packages/database build: â—‡ injected env (1) from ..\..\.env // tip: âŒ˜ custom filepath { path: '/custom/path/.env' }
+packages/database build: Loaded Prisma config from prisma.config.ts.
+packages/database build: Prisma schema loaded from prisma\schema.prisma.
+packages/database build: âœ” Generated Prisma Client (7.9.0) to .\src\generated\prisma in 1.24s
+packages/database build: Done
+packages/wallet-apple build$ tsc -p tsconfig.json
+packages/wallet-google build$ tsc -p tsconfig.json
+packages/wallet-google build: Done
+packages/wallet-apple build: Done
+apps/api build$ nest build
+apps/api build: Done
+W4_CONTRACT_FIXTURE_BOOT source=verified
+W4_CONTRACT_FIXTURE_BOOT imports=ready
+W4_CONTRACT_FIXTURE_BOOT application=ready
+W4_CONTRACT_FIXTURE_BOOT api=listening
+W4_CONTRACT_FIXTURE_READY api=64849 control=64850
+00:00 +0: loading <mobile-root>/test/contract/real_backend_contract_test.dart
+00:00 +0: real W4 development contract gate (setUpAll)
+00:00 +0: real W4 development contract gate 01 claim creates an ephemeral claimed pairing
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"8ced8a64-b0d3-494c-8d44-af0d4c816fc8","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+00:00 +1: real W4 development contract gate 02 challenge recovers the exact claimed message
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"8ced8a64-b0d3-494c-8d44-af0d4c816fc8","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+00:00 +2: real W4 development contract gate 03 complete establishes a signed device session
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"272dac59-80ff-4e9b-a88f-01b2689cad01","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"3cdbfefb-b884-4a20-825a-5c748a841ae3",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:47.951Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+00:00 +3: real W4 development contract gate 04 device-context returns authoritative safe context
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/device-context","status":200,"payload":{"data":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111","devicePublicId":"272dac59-80ff-4e9b-a88f-01b2689cad01","deviceSessionId":"3cdbfefb-b884-4a20-825a-5c748a841ae3","platform":"ANDROID","appVersion":"1.0.0","minimumSupportedAppVersion":"1.0.0","appVersionSupported":true,"requestId":"[REDACTED]"},"requestId":"[REDACTED]"}}
+00:00 +3 -1: real W4 development contract gate 04 device-context returns authoritative safe context [E]
+  AppFailure(DEVICE_CONTEXT_MISMATCH, requestId: null)
+  package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+
+00:00 +3 -1: real W4 development contract gate 05 refresh rotates the real W4 session
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/session/refresh","status":200,"payload":{"data":{"session":{"id":"55d1c476-bde2-48f8-a387-dd0da60bc131",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:48.256Z"}},"requestId":"[REDACTED]"}}
+00:00 +4 -1: real W4 development contract gate 06 the old refresh token is rejected after rotation
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/session/refresh","status":401,"payload":{"error":{"code":"STAFF_DEVICE_NOT_ACTIVE","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:00 +5 -1: real W4 development contract gate 07 revoked is a real backend state and clears session
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"226040c8-3bbe-4539-b0ed-14065fc4a344","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"226040c8-3bbe-4539-b0ed-14065fc4a344","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"7065e376-d8a4-428f-9827-7f285282052d","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"e028109d-846f-4914-bf57-f70ba2cb6ab9",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:48.428Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/device-context","status":401,"payload":{"error":{"code":"STAFF_DEVICE_NOT_ACTIVE","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:01 +5 -2: real W4 development contract gate 07 revoked is a real backend state and clears session [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_DEVICE_REVOKED'
+    Actual: <Instance of 'Future<AuthoritativeDeviceContext>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: req-a)>
+            stack package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                              expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                            _expectFailure
+                  test\contract\real_backend_contract_test.dart 115:15                           main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                     _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 113:24                           main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: ... FF_DEVICE_REVOKED
+                    Actual: ... FF_DEVICE_NOT_ACTIVE ...
+                                          ^
+                   Differ at offset 13
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 115:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 113:24  main.<fn>.<fn>
+
+00:01 +5 -2: real W4 development contract gate 08 compromised is distinct and clears session
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"c99e4547-98a5-42c8-9eb7-7367aee3e16d","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"c99e4547-98a5-42c8-9eb7-7367aee3e16d","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"8ad53151-7589-4348-a865-29ed22e0fed8","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"52fa6ffb-7bcd-4286-9f1b-87c4a851cba1",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:48.622Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/device-context","status":401,"payload":{"error":{"code":"STAFF_DEVICE_NOT_ACTIVE","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:01 +5 -3: real W4 development contract gate 08 compromised is distinct and clears session [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_DEVICE_COMPROMISED'
+    Actual: <Instance of 'Future<AuthoritativeDeviceContext>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: req-e)>
+            stack package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                              expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                            _expectFailure
+                  test\contract\real_backend_contract_test.dart 125:15                           main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                     _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 123:24                           main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: ... FF_DEVICE_COMPROMISE ...
+                    Actual: ... FF_DEVICE_NOT_ACTIVE ...
+                                          ^
+                   Differ at offset 13
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 125:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 123:24  main.<fn>.<fn>
+
+00:01 +5 -3: real W4 development contract gate 09 expired session is distinct and clears credentials
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"11307d08-3db8-49a8-a7c2-50e2430117af","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"11307d08-3db8-49a8-a7c2-50e2430117af","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"60ecafd9-0a81-4b88-8944-f60863227056","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"05476c98-5f94-43de-b1cb-30bc3ada17ea",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:48.768Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/device-context","status":401,"payload":{"error":{"code":"STAFF_DEVICE_NOT_ACTIVE","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:01 +5 -4: real W4 development contract gate 09 expired session is distinct and clears credentials [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_DEVICE_SESSION_EXPIRED'
+    Actual: <Instance of 'Future<AuthoritativeDeviceContext>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: req-i)>
+            stack package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                              expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                            _expectFailure
+                  test\contract\real_backend_contract_test.dart 135:15                           main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                     _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 133:24                           main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: ... FF_DEVICE_SESSION_EX ...
+                    Actual: ... FF_DEVICE_NOT_ACTIVE ...
+                                          ^
+                   Differ at offset 13
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 135:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 133:24  main.<fn>.<fn>
+
+00:01 +5 -4: real W4 development contract gate 10 update-required blocks but preserves the session
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"d9195608-aa64-47d2-abc6-4a3d97f7e842","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"d9195608-aa64-47d2-abc6-4a3d97f7e842","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"b80ee486-5e71-4824-b1b6-34363e6c488a","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"729c83b7-64ba-4582-b922-1c108ec294dd",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:48.916Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/device-context","status":426,"payload":{"error":{"code":"STAFF_APP_VERSION_UNSUPPORTED","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:01 +6 -4: real W4 development contract gate 11 logout revokes W4 and clears all local credentials
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"2d472fdf-b3ea-4282-aebc-65dd4f229af7","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"2d472fdf-b3ea-4282-aebc-65dd4f229af7","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"5d5a483b-5e30-4615-aac7-0eae907ce53f","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"4a9b4105-2424-4272-90ff-56c2a082a0d0",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:49.050Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/session/logout","status":204,"payload":null}
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/device-context","status":401,"payload":{"error":{"code":"STAFF_DEVICE_NOT_ACTIVE","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"d0cd009e-e4b4-48c8-b840-188fed4c79d3","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"d0cd009e-e4b4-48c8-b840-188fed4c79d3","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"2ce1e7c1-0613-449d-affd-c17cf8898733","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"0c7ba3c2-e005-4da1-aa13-6fab8b5095cb",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:49.180Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/session/logout","status":204,"payload":null}
+00:01 +7 -4: real W4 development contract gate 12 real M2 purchase membership resolves through Flutter
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/memberships/resolve","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:01 +7 -5: real W4 development contract gate 12 real M2 purchase membership resolves through Flutter [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-w)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:01 +7 -5: real W4 development contract gate 13 lowercase purchase currency is normalized and accepted
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/operations/stamps","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:01 +7 -6: real W4 development contract gate 13 lowercase purchase currency is normalized and accepted [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-x)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:01 +7 -6: real W4 development contract gate 14 compatible stamp replay returns the committed result
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/operations/stamps","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +7 -7: real W4 development contract gate 14 compatible stamp replay returns the committed result [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-y)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +7 -7: real W4 development contract gate 15 conflicting stamp replay is rejected authoritatively
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/operations/stamps","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +7 -8: real W4 development contract gate 15 conflicting stamp replay is rejected authoritatively [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'OPERATION_IDEMPOTENCY_CONFLICT'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-z)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                           expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                                         _expectFailure
+                  test\contract\real_backend_contract_test.dart 219:15                                        main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: OPERATION_ ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 219:15  main.<fn>.<fn>
+
+00:02 +7 -8: real W4 development contract gate 16 wrong purchase currency is a safe backend rejection
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/operations/stamps","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +7 -9: real W4 development contract gate 16 wrong purchase currency is a safe backend rejection [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'PURCHASE_CURRENCY_MISMATCH'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-10)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                           expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                                         _expectFailure
+                  test\contract\real_backend_contract_test.dart 235:15                                        main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: PURCHASE_C ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 235:15  main.<fn>.<fn>
+
+00:02 +7 -9: real W4 development contract gate 17 COMPLETED command returns its typed stamp result
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/operations/commands/0e290ad9-91c7-42a1-9ef7-afe9ab7cef36","status":404,"payload":{"error":{"code":"OPERATION_NOT_FOUND","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:02 +7 -10: real W4 development contract gate 17 COMPLETED command returns its typed stamp result [E]
+  AppFailure(OPERATION_NOT_FOUND, requestId: req-11)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +7 -10: real W4 development contract gate 18 PROCESSING command remains pending without a result
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/operations/commands/294af5ec-02c6-4445-b90e-6d3c68fdacb4","status":200,"payload":{"data":{"commandId":"294af5ec-02c6-4445-b90e-6d3c68fdacb4","operationPublicId":"d9e18d68-88b8-404b-83a1-677b0fa289d4","operationType":"ISSUE_STAMP","status":"PROCESSING","result":null,"safeFailureCode":null,"createdAt":"2026-08-10T13:11:49.550Z","completedAt":null},"requestId":"[REDACTED]"}}
+00:02 +8 -10: real W4 development contract gate 19 FAILED command returns only its safe failure code
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/operations/commands/649f2732-bf95-4389-b043-b8a77f399c30","status":200,"payload":{"data":{"commandId":"649f2732-bf95-4389-b043-b8a77f399c30","operationPublicId":"7002b2ef-a103-43f2-a82d-44659913b9e3","operationType":"ISSUE_STAMP","status":"FAILED","result":null,"safeFailureCode":"PURCHASE_CURRENCY_MISMATCH","createdAt":"2026-08-10T13:11:49.590Z","completedAt":"2026-08-10T13:11:49.589Z"},"requestId":"[REDACTED]"}}
+00:02 +9 -10: real W4 development contract gate 20 command lookup is hidden from another device
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":200,"payload":{"data":{"pairingPublicId":"2e0494de-a664-479c-947d-3d53df8c0d40","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/challenge","status":200,"payload":{"data":{"pairingPublicId":"2e0494de-a664-479c-947d-3d53df8c0d40","challenge":"[REDACTED]","challengeExpiresAt":"[REDACTED]","signatureAlgorithm":"[REDACTED]","message":"[REDACTED]"},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/complete","status":200,"payload":{"data":{"device":{"publicId":"34549c85-01a5-4758-a067-cf46dd58ed35","displayName":"[REDACTED]","platform":"ANDROID","status":"ACTIVE"},"session":{"id":"5a6e9220-7069-40f8-ad4b-ee6dcfe0642d",$1[REDACTED]$2,$1[REDACTED]$2,"expiresAt":"2026-09-09T13:11:49.682Z"},"context":{"organizationId":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","role":"STAFF","locationId":"a1111111-1111-4111-8111-111111111111"}},"requestId":"[REDACTED]"}}
+WIRE_AUDIT {"method":"GET","path":"/v1/staff/operations/commands/0e290ad9-91c7-42a1-9ef7-afe9ab7cef36","status":404,"payload":{"error":{"code":"OPERATION_NOT_FOUND","message":"[REDACTED]","requestId":"[REDACTED]"}}}
+00:02 +10 -10: real W4 development contract gate 21 real M2 resolve accepts Arabic without changing authority
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/memberships/resolve","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +10 -11: real W4 development contract gate 21 real M2 resolve accepts Arabic without changing authority [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-18)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +10 -11: real W4 development contract gate 22 milestone reward is unlocked outside the stamp grid
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/memberships/resolve","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +10 -12: real W4 development contract gate 22 milestone reward is unlocked outside the stamp grid [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-19)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +10 -12: real W4 development contract gate 23 final reward reaches ready with all stamps filled
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/operations/stamps","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +10 -13: real W4 development contract gate 23 final reward reaches ready with all stamps filled [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-1a)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +10 -13: real W4 development contract gate 24 an extra stamp is blocked while final reward is pending
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/operations/stamps","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +10 -14: real W4 development contract gate 24 an extra stamp is blocked while final reward is pending [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'FINAL_REWARD_PENDING_REDEMPTION'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-1b)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                           expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                                         _expectFailure
+                  test\contract\real_backend_contract_test.dart 336:17                                        main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: FINAL_REWA ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 336:17  main.<fn>.<fn>
+
+00:02 +10 -14: real W4 development contract gate 25 final redemption returns authoritative zero projection
+00:02 +10 -15: real W4 development contract gate 25 final redemption returns authoritative zero projection [E]
+  LateInitializationError: Local 'finalReadyStamp' has not been initialized.
+  dart:_internal                                 LateError._throwLocalNotInitialized
+  test\contract\real_backend_contract_test.dart  main.<fn>.<fn>
+
+00:02 +10 -15: real W4 development contract gate 26 unsupported iOS semantic version returns HTTP 426
+WIRE_AUDIT {"method":"POST","path":"/v1/staff/devices/pairing/claim","status":422,"payload":{"error":{"code":"VALIDATION_FAILED","message":"[REDACTED]","details":{"fields":[{"path":"osVersion","message":"[REDACTED]"},{"path":"model","message":"[REDACTED]"}]},"requestId":"[REDACTED]"}}}
+00:02 +10 -16: real W4 development contract gate 26 unsupported iOS semantic version returns HTTP 426 [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_APP_VERSION_UNSUPPORTED'
+    Actual: <Instance of 'Future<PairingClaimResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-1c)>
+            stack package:waflo_staff/features/pairing/data/generated_pairing_api.dart 43:7  GeneratedPairingApi.claim
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                            expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                          expectLater
+                  test\contract\real_backend_contract_test.dart 401:9                        _expectFailure
+                  test\contract\real_backend_contract_test.dart 376:15                       main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                 _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 369:29                       main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: STAFF_APP_ ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 401:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 376:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 369:29  main.<fn>.<fn>
+
+00:02 +10 -16: real W4 development contract gate (tearDownAll)
+00:02 +10 -16: Some tests failed.
+
+Failing tests:
+  <mobile-root>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 04 device-context returns authoritative safe context
+  <mobile-root>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 07 revoked is a real backend state and clears session
+  <mobile-root>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 08 compromised is distinct and clears session
+  <mobile-root>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 09 expired session is distinct and clears credentials
+  ... and 12 more
+Running build hooks...Running build hooks...Unhandled exception:
+Bad state: Real W4 contract gate failed with exit code 1.
+#0      main (<mobile-root>/tool/run_real_w4_contract_gate.dart:138:7)
+<asynchronous suspension>

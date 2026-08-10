@@ -1,0 +1,304 @@
+Approved W4 source verified: repair=dbd20acafc3d7687866256e8e950a5b978ba4e29 base=0cc39d9ecb39a34fdbd91498e55b6d6ac35c281e files=22 changed=2.
+Scope: 18 of 27 workspace projects
+packages/auth build$ tsc -p tsconfig.json
+packages/contracts build$ tsc -p tsconfig.json
+packages/config build$ tsc -p tsconfig.json
+packages/customer-security build$ tsc -p tsconfig.json
+packages/auth build: Done
+packages/loyalty-ledger build$ tsc -p tsconfig.json
+packages/customer-security build: Done
+packages/loyalty-policy build$ tsc -p tsconfig.json
+packages/config build: Done
+packages/staff-device-security build$ tsc -p tsconfig.json
+packages/contracts build: Done
+packages/operational-analytics build$ tsc -p tsconfig.json
+packages/loyalty-ledger build: Done
+packages/qr-core build$ tsc -p tsconfig.json
+packages/loyalty-policy build: Done
+packages/security build$ tsc -p tsconfig.json
+packages/staff-device-security build: Done
+packages/stamp-engine build$ tsc -p tsconfig.json
+packages/operational-analytics build: Done
+packages/qr-core build: Done
+packages/security build: Done
+packages/stamp-engine build: Done
+packages/billing build$ tsc -p tsconfig.json
+packages/database build$ pnpm generate && tsc -p tsconfig.json
+packages/permissions build$ tsc -p tsconfig.json
+packages/wallet-core build$ tsc -p tsconfig.json
+packages/database build: $ prisma generate
+packages/wallet-core build: Done
+packages/permissions build: Done
+packages/billing build: Done
+packages/database build: â—‡ injected env (1) from ..\..\.env // tip: âŒ˜ suppress logs { quiet: true }
+packages/database build: Loaded Prisma config from prisma.config.ts.
+packages/database build: Prisma schema loaded from prisma\schema.prisma.
+packages/database build: âœ” Generated Prisma Client (7.9.0) to .\src\generated\prisma in 1.24s
+packages/database build: Done
+packages/wallet-apple build$ tsc -p tsconfig.json
+packages/wallet-google build$ tsc -p tsconfig.json
+packages/wallet-google build: Done
+packages/wallet-apple build: Done
+apps/api build$ nest build
+apps/api build: Done
+W4_CONTRACT_FIXTURE_BOOT source=verified
+W4_CONTRACT_FIXTURE_BOOT imports=ready
+W4_CONTRACT_FIXTURE_BOOT application=ready
+W4_CONTRACT_FIXTURE_BOOT api=listening
+W4_CONTRACT_FIXTURE_READY api=42767 control=42768
+00:00 +0: loading <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart
+00:00 +0: real W4 development contract gate (setUpAll)
+00:00 +0: real W4 development contract gate 01 claim creates an ephemeral claimed pairing
+00:00 +1: real W4 development contract gate 02 challenge recovers the exact claimed message
+00:00 +2: real W4 development contract gate 03 complete establishes a signed device session
+00:00 +3: real W4 development contract gate 04 device-context returns authoritative safe context
+00:00 +3 -1: real W4 development contract gate 04 device-context returns authoritative safe context [E]
+  AppFailure(DEVICE_CONTEXT_MISMATCH, requestId: null)
+  package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+
+00:00 +3 -1: real W4 development contract gate 05 refresh rotates the real W4 session
+00:00 +4 -1: real W4 development contract gate 06 the old refresh token is rejected after rotation
+00:00 +5 -1: real W4 development contract gate 07 revoked is a real backend state and clears session
+00:01 +5 -2: real W4 development contract gate 07 revoked is a real backend state and clears session [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_DEVICE_REVOKED'
+    Actual: <Instance of 'Future<AuthoritativeDeviceContext>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: req-a)>
+            stack package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                              expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                            _expectFailure
+                  test\contract\real_backend_contract_test.dart 114:15                           main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                     _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 112:24                           main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: ... FF_DEVICE_REVOKED
+                    Actual: ... FF_DEVICE_NOT_ACTIVE ...
+                                          ^
+                   Differ at offset 13
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 114:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 112:24  main.<fn>.<fn>
+
+00:01 +5 -2: real W4 development contract gate 08 compromised is distinct and clears session
+00:01 +5 -3: real W4 development contract gate 08 compromised is distinct and clears session [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_DEVICE_COMPROMISED'
+    Actual: <Instance of 'Future<AuthoritativeDeviceContext>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: req-e)>
+            stack package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                              expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                            _expectFailure
+                  test\contract\real_backend_contract_test.dart 124:15                           main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                     _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 122:24                           main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: ... FF_DEVICE_COMPROMISE ...
+                    Actual: ... FF_DEVICE_NOT_ACTIVE ...
+                                          ^
+                   Differ at offset 13
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 124:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 122:24  main.<fn>.<fn>
+
+00:01 +5 -3: real W4 development contract gate 09 expired session is distinct and clears credentials
+00:01 +5 -4: real W4 development contract gate 09 expired session is distinct and clears credentials [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_DEVICE_SESSION_EXPIRED'
+    Actual: <Instance of 'Future<AuthoritativeDeviceContext>'>
+     Which: threw ApiFailure:<AppFailure(STAFF_DEVICE_NOT_ACTIVE, requestId: req-i)>
+            stack package:waflo_staff/features/device_session/data/signed_device_api.dart 141:9  SignedDeviceApi.getContext
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                              expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                            _expectFailure
+                  test\contract\real_backend_contract_test.dart 134:15                           main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                     _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 132:24                           main.<fn>.<fn>
+
+            which has `safeCode` with value 'STAFF_DEVICE_NOT_ACTIVE' which is different.
+                  Expected: ... FF_DEVICE_SESSION_EX ...
+                    Actual: ... FF_DEVICE_NOT_ACTIVE ...
+                                          ^
+                   Differ at offset 13
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 134:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 132:24  main.<fn>.<fn>
+
+00:01 +5 -4: real W4 development contract gate 10 update-required blocks but preserves the session
+00:01 +6 -4: real W4 development contract gate 11 logout revokes W4 and clears all local credentials
+00:01 +7 -4: real W4 development contract gate 12 real M2 purchase membership resolves through Flutter
+00:01 +7 -5: real W4 development contract gate 12 real M2 purchase membership resolves through Flutter [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-w)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:01 +7 -5: real W4 development contract gate 13 lowercase purchase currency is normalized and accepted
+00:01 +7 -6: real W4 development contract gate 13 lowercase purchase currency is normalized and accepted [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-x)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:01 +7 -6: real W4 development contract gate 14 compatible stamp replay returns the committed result
+00:01 +7 -7: real W4 development contract gate 14 compatible stamp replay returns the committed result [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-y)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:01 +7 -7: real W4 development contract gate 15 conflicting stamp replay is rejected authoritatively
+00:01 +7 -8: real W4 development contract gate 15 conflicting stamp replay is rejected authoritatively [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'OPERATION_IDEMPOTENCY_CONFLICT'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-z)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                           expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                                         _expectFailure
+                  test\contract\real_backend_contract_test.dart 218:15                                        main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: OPERATION_ ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 218:15  main.<fn>.<fn>
+
+00:01 +7 -8: real W4 development contract gate 16 wrong purchase currency is a safe backend rejection
+00:02 +7 -9: real W4 development contract gate 16 wrong purchase currency is a safe backend rejection [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'PURCHASE_CURRENCY_MISMATCH'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-10)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                           expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                                         _expectFailure
+                  test\contract\real_backend_contract_test.dart 234:15                                        main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: PURCHASE_C ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 234:15  main.<fn>.<fn>
+
+00:02 +7 -9: real W4 development contract gate 17 COMPLETED command returns its typed stamp result
+00:02 +7 -10: real W4 development contract gate 17 COMPLETED command returns its typed stamp result [E]
+  AppFailure(OPERATION_NOT_FOUND, requestId: req-11)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +7 -10: real W4 development contract gate 18 PROCESSING command remains pending without a result
+00:02 +8 -10: real W4 development contract gate 19 FAILED command returns only its safe failure code
+00:02 +9 -10: real W4 development contract gate 20 command lookup is hidden from another device
+00:02 +10 -10: real W4 development contract gate 21 real M2 resolve accepts Arabic without changing authority
+00:02 +10 -11: real W4 development contract gate 21 real M2 resolve accepts Arabic without changing authority [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-18)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +10 -11: real W4 development contract gate 22 milestone reward is unlocked outside the stamp grid
+00:02 +10 -12: real W4 development contract gate 22 milestone reward is unlocked outside the stamp grid [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-19)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +10 -12: real W4 development contract gate 23 final reward reaches ready with all stamps filled
+00:02 +10 -13: real W4 development contract gate 23 final reward reaches ready with all stamps filled [E]
+  AppFailure(VALIDATION_FAILED, requestId: req-1a)
+  package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+
+00:02 +10 -13: real W4 development contract gate 24 an extra stamp is blocked while final reward is pending
+00:02 +10 -14: real W4 development contract gate 24 an extra stamp is blocked while final reward is pending [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'FINAL_REWARD_PENDING_REDEMPTION'
+    Actual: <Instance of 'Future<StampOperationResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-1b)>
+            stack package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart 231:11  SignedLoyaltyOperationsApi._send
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                                           expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                                         _expectFailure
+                  test\contract\real_backend_contract_test.dart 335:17                                        main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: FINAL_REWA ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 335:17  main.<fn>.<fn>
+
+00:02 +10 -14: real W4 development contract gate 25 final redemption returns authoritative zero projection
+00:02 +10 -15: real W4 development contract gate 25 final redemption returns authoritative zero projection [E]
+  LateInitializationError: Local 'finalReadyStamp' has not been initialized.
+  dart:_internal                                 LateError._throwLocalNotInitialized
+  test\contract\real_backend_contract_test.dart  main.<fn>.<fn>
+
+00:02 +10 -15: real W4 development contract gate 26 unsupported iOS semantic version returns HTTP 426
+00:02 +10 -16: real W4 development contract gate 26 unsupported iOS semantic version returns HTTP 426 [E]
+  Expected: throws <Instance of 'ApiFailure'> with `safeCode`: 'STAFF_APP_VERSION_UNSUPPORTED'
+    Actual: <Instance of 'Future<PairingClaimResult>'>
+     Which: threw ApiFailure:<AppFailure(VALIDATION_FAILED, requestId: req-1c)>
+            stack package:waflo_staff/features/pairing/data/generated_pairing_api.dart 43:7  GeneratedPairingApi.claim
+                  ===== asynchronous gap ===========================
+                  package:matcher                                                            expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8                          expectLater
+                  test\contract\real_backend_contract_test.dart 400:9                        _expectFailure
+                  test\contract\real_backend_contract_test.dart 375:15                       main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                                 _CustomZone.registerUnaryCallback
+                  test\contract\real_backend_contract_test.dart 368:29                       main.<fn>.<fn>
+
+            which has `safeCode` with value 'VALIDATION_FAILED' which is different.
+                  Expected: STAFF_APP_ ...
+                    Actual: VALIDATION ...
+                            ^
+                   Differ at offset 0
+
+  package:matcher                                       expectLater
+  package:flutter_test/src/widget_tester.dart 507:8     expectLater
+  test\contract\real_backend_contract_test.dart 400:9   _expectFailure
+  test\contract\real_backend_contract_test.dart 375:15  main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                            _CustomZone.registerUnaryCallback
+  test\contract\real_backend_contract_test.dart 368:29  main.<fn>.<fn>
+
+00:02 +10 -16: real W4 development contract gate (tearDownAll)
+00:02 +10 -16: Some tests failed.
+
+Failing tests:
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 04 device-context returns authoritative safe context
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 07 revoked is a real backend state and clears session
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 08 compromised is distinct and clears session
+  <MOBILE_ROOT>/test/contract/real_backend_contract_test.dart: real W4 development contract gate 09 expired session is distinct and clears credentials
+  ... and 12 more
+Running build hooks...Running build hooks...Unhandled exception:
+Bad state: Real W4 contract gate failed with exit code 1.
+#0      main (file:///<MOBILE_ROOT>/tool/run_real_w4_contract_gate.dart:138:7)
+<asynchronous suspension>
