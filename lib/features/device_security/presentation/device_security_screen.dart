@@ -115,6 +115,7 @@ final class DeviceSecurityScreen extends ConsumerWidget {
             ),
             const SizedBox(height: WafloSpacing.sm),
             TextButton.icon(
+              key: const Key('sign-out'),
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),

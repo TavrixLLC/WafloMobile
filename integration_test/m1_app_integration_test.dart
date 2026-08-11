@@ -71,7 +71,7 @@ void main() {
     await LocalLifecycleRepository(store).mark(LocalLifecycleState.pairing);
     final api = _AppPairingApi(installationId: identity.installationId);
     await _AppHarness.pump(tester, store: store, pairingApi: api);
-    expect(find.text('Device ready'), findsOneWidget);
+    expect(find.text('Device paired'), findsOneWidget);
     expect(api.challengeCalls, 1);
   });
 
@@ -97,7 +97,7 @@ void main() {
     final harness = await _pairedThroughScanner(tester);
     await tester.tap(find.byKey(const Key('pairing-success-continue')));
     await _pumpFrames(tester);
-    expect(find.text('Device ready'), findsOneWidget);
+    _expectTaskFirstHome();
     expect(
       (await LocalLifecycleRepository(harness.store).read())?.state,
       LocalLifecycleState.paired,
@@ -108,8 +108,10 @@ void main() {
     tester,
   ) async {
     await _AppHarness.pump(tester, restored: true);
+    _expectTaskFirstHome();
     expect(find.text('Fixture Coffee'), findsOneWidget);
-    expect(find.textContaining('Fixture Staff'), findsOneWidget);
+    expect(find.text('Main branch'), findsOneWidget);
+    expect(find.textContaining('Fixture Staff'), findsNothing);
   });
 
   testWidgets('08 refresh is single-flight in the real app container', (
@@ -171,18 +173,18 @@ void main() {
         ),
       ],
     );
-    await _AppHarness.pump(
+    final harness = await _AppHarness.pump(
       tester,
       restored: true,
       sessionApi: _AppSessionApi(context: context),
     );
-    expect(find.text('2 assigned locations'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Airport branch'),
-      220,
-      scrollable: find.byType(Scrollable).first,
+    _expectTaskFirstHome();
+    expect(
+      harness.container.read(bootControllerProvider).context?.assignedLocations,
+      hasLength(2),
     );
-    expect(find.text('Airport branch'), findsOneWidget);
+    expect(find.text('Main branch'), findsOneWidget);
+    expect(find.text('Airport branch'), findsNothing);
   });
 
   testWidgets('11 revoked clears session and renders repair state', (
@@ -249,13 +251,13 @@ void main() {
     sessionApi.contextFailure = null;
     await tester.tap(find.byKey(const Key('retry-boot')));
     await _pumpFrames(tester);
-    expect(find.text('Device ready'), findsOneWidget);
+    _expectTaskFirstHome();
     expect(await StaffDeviceSessionRepository(harness.store).read(), isNotNull);
   });
 
   testWidgets('15 logout removes local identity and session', (tester) async {
     final harness = await _AppHarness.pump(tester, restored: true);
-    await tester.tap(find.byIcon(Icons.settings_outlined).first);
+    await tester.tap(find.text('Device & Security'));
     await _pumpFrames(tester);
     await tester.scrollUntilVisible(
       find.byKey(const Key('sign-out')),
@@ -312,6 +314,11 @@ void main() {
     expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+}
+
+void _expectTaskFirstHome() {
+  expect(find.byKey(const Key('task-first-home')), findsOneWidget);
+  expect(find.text('Scan customer'), findsOneWidget);
 }
 
 Future<_AppHarness> _pairedThroughScanner(WidgetTester tester) async {
