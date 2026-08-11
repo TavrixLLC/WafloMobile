@@ -150,7 +150,10 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
+          # This persistent approved runner keeps its own SDK/package caches.
+          # Uploading those machine-level caches can consume the entire gate
+          # timeout after the real tests have already passed.
+          cache: false
       - run: flutter pub get
       - name: Require approved W4 checkout
         shell: pwsh
