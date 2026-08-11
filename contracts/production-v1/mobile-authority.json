@@ -39,7 +39,7 @@
     "POST /v1/staff/devices/pairing/challenge",
     "POST /v1/staff/operations/reverse",
     "GET /v1/staff/operations/:operationPublicId",
-    "GET /v1/health"
+    "GET /health"
   ],
   "productionRules": {
     "stampManagerOverride": "OMIT",

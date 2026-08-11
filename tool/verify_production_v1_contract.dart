@@ -47,6 +47,9 @@ void main() {
   final required = (authority['directMobileRequired'] as List<Object?>)
       .cast<String>()
       .toSet();
+  final optional = (authority['directMobileOptional'] as List<Object?>)
+      .cast<String>()
+      .toSet();
   _expect(required.length == 9, 'Required Mobile routes are not unique.');
   _expect(
     required.contains('POST /v1/staff/operations/redeem'),
@@ -55,6 +58,11 @@ void main() {
   _expect(
     required.contains('GET /v1/staff/operations/commands/:commandId'),
     'Command recovery route is missing.',
+  );
+  _expect(optional.length == 4, 'Optional Mobile routes are not unique.');
+  _expect(
+    optional.contains('GET /health') && !optional.contains('GET /v1/health'),
+    'Health diagnostics must use the unversioned Production-v1 route.',
   );
 
   final approvalCodes = (authority['managerApprovalCodes'] as List<Object?>)

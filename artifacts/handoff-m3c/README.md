@@ -8,7 +8,8 @@ M3C converges the launch-quality M3B Staff application on the Production-v1 Mobi
 - Backend authority: `763f2dfccdb24fb9bfa16457f0e49936840e20a1`
 - Backend documentation commit: `06067d454077cdedf827f93ed0ced72d0e2e133d`
 - Historical M2 bundle SHA-256: `3e2c57f136bcfc4a270b51fd85ffd0e8e96832c8e12ba85dedecb17457d645ae`
-- Final Mobile SHA: the commit containing this handoff; record it from the branch tip.
+- CI-tested implementation SHA: `7de8ab7a941e509b126ab937626cbb4e08277398`
+- Final Mobile SHA: the documentation commit containing the completed handoff; record it from the branch tip.
 
 Implemented outcomes:
 

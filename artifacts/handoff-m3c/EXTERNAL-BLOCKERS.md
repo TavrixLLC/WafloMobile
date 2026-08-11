@@ -2,7 +2,7 @@
 
 ## Staging deployment
 
-The Mobile staging flavor is fixed to `https://api.staging.waflo.app`. Physical E2E must wait until that origin is confirmed on Backend authority SHA `763f2dfccdb24fb9bfa16457f0e49936840e20a1` with green deployment readiness.
+The Mobile staging flavor is fixed to `https://api.staging.waflo.app`. A read-only check on 2026-08-12 did not reach an HTTP response because the endpoint returned a TLS handshake alert. That result does not prove which Backend SHA is deployed. Physical E2E must wait until the origin is confirmed on Backend authority SHA `763f2dfccdb24fb9bfa16457f0e49936840e20a1` with green deployment readiness.
 
 ## Physical hardware and signing
 
