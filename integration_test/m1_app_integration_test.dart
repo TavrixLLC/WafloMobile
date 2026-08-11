@@ -70,9 +70,19 @@ void main() {
     );
     await LocalLifecycleRepository(store).mark(LocalLifecycleState.pairing);
     final api = _AppPairingApi(installationId: identity.installationId);
-    await _AppHarness.pump(tester, store: store, pairingApi: api);
-    expect(find.text('Device paired'), findsOneWidget);
+    final harness = await _AppHarness.pump(
+      tester,
+      store: store,
+      pairingApi: api,
+    );
     expect(api.challengeCalls, 1);
+    expect(api.completeCalls, 1);
+    expect(await StaffDeviceSessionRepository(harness.store).read(), isNotNull);
+    expect(await PairingTransactionRepository(harness.store).read(), isNull);
+    expect(
+      (await LocalLifecycleRepository(harness.store).read())?.state,
+      LocalLifecycleState.paired,
+    );
   });
 
   testWidgets('05 challenge recovery validates and completes once', (
