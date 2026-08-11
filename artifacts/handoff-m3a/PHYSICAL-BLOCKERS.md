@@ -7,8 +7,7 @@
 - screenshot/app-switcher privacy verification on OEM Android and iOS
 - TalkBack/VoiceOver focus order and haptic feel
 - Android release signing and iOS provisioning/signing credentials
-- hosted Android emulator M1/M2/M3A run
-- hosted macOS tests and three iOS no-sign builds
 - live staging API and two-phone E2E availability
 
-None is represented as locally passed.
+Hosted Android emulator and macOS/iOS no-sign gates passed. None of the items
+still listed above is represented as physically verified.
