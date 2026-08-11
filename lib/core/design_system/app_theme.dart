@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
 abstract final class WafloColors {
-  static const counterPine = Color(0xFF075E46);
-  static const deepCounter = Color(0xFF103A2F);
-  static const freshMint = Color(0xFFDFF3EA);
-  static const receipt = Color(0xFFF7F5EF);
-  static const signalAmber = Color(0xFFA85D00);
-  static const sealRed = Color(0xFFB3261E);
-  static const ink = Color(0xFF17241F);
-  static const night = Color(0xFF0D1814);
-  static const nightSurface = Color(0xFF15251F);
-  static const nightElevated = Color(0xFF1C3028);
+  static const counterPine = Color(0xFF006B55);
+  static const deepCounter = Color(0xFF073F34);
+  static const signalMint = Color(0xFF8EDCC5);
+  static const freshMint = Color(0xFFDDF5EC);
+  static const receipt = Color(0xFFF7F6F1);
+  static const signalAmber = Color(0xFFB45F00);
+  static const sealRed = Color(0xFFBA2D27);
+  static const ink = Color(0xFF171A18);
+  static const night = Color(0xFF091713);
+  static const nightSurface = Color(0xFF11251F);
+  static const nightElevated = Color(0xFF183129);
+  static const scannerOverlay = Color(0xC9091713);
 
   // Stable compatibility aliases used by pre-M3A presentation code.
   static const seed = counterPine;
@@ -27,6 +29,17 @@ abstract final class WafloSpacing {
   static const lg = 24.0;
   static const xl = 32.0;
   static const xxl = 48.0;
+}
+
+abstract final class WafloMotion {
+  static const immediate = Duration(milliseconds: 120);
+  static const standard = Duration(milliseconds: 180);
+}
+
+abstract final class WafloLayout {
+  static const pageGutter = 24.0;
+  static const maximumContentWidth = 680.0;
+  static const minimumTouchTarget = 48.0;
 }
 
 abstract final class WafloRadius {
@@ -121,7 +134,7 @@ abstract final class WafloTheme {
     final dark = brightness == Brightness.dark;
     final scheme = dark
         ? const ColorScheme.dark(
-            primary: Color(0xFF8AD9BD),
+            primary: WafloColors.signalMint,
             onPrimary: WafloColors.deepCounter,
             primaryContainer: Color(0xFF174B3C),
             onPrimaryContainer: Color(0xFFD7F8EA),
@@ -163,6 +176,7 @@ abstract final class WafloTheme {
         fontWeight: FontWeight.w800,
         letterSpacing: -0.7,
         height: 1.1,
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
       headlineSmall: baseText.headlineSmall?.copyWith(
         fontWeight: FontWeight.w700,
@@ -184,11 +198,12 @@ abstract final class WafloTheme {
       ),
       bodyLarge: baseText.bodyLarge?.copyWith(height: 1.4),
       bodyMedium: baseText.bodyMedium?.copyWith(height: 1.4),
+      bodySmall: baseText.bodySmall?.copyWith(height: 1.35),
     );
     final palette = dark
         ? const WafloPalette(
             canvas: WafloColors.night,
-            counter: Color(0xFF8AD9BD),
+            counter: WafloColors.signalMint,
             onCounter: WafloColors.deepCounter,
             readySurface: Color(0xFF173E33),
             onReadySurface: Color(0xFFCFF6E6),

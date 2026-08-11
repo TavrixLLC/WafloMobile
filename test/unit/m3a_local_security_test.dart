@@ -140,6 +140,18 @@ void main() {
         throwsArgumentError,
       );
     });
+
+    test('distinguishes permanent camera denial for settings recovery', () {
+      final machine = CustomerScannerStateMachine();
+
+      machine.permissionDenied();
+      expect(machine.state, CustomerScannerState.cameraPermissionDenied);
+      machine.permissionPermanentlyDenied();
+      expect(
+        machine.state,
+        CustomerScannerState.cameraPermissionPermanentlyDenied,
+      );
+    });
   });
 
   test('fake haptics record optional product signals in order', () async {

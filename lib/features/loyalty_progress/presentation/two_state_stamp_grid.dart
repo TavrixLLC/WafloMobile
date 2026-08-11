@@ -29,53 +29,80 @@ final class TwoStateStampGrid extends StatelessWidget {
       child: ExcludeSemantics(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Wrap(
-            textDirection: TextDirection.ltr,
-            alignment: WrapAlignment.center,
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (var index = 0; index < progress.slots.length; index += 1)
-                _StampSlot(
-                  key: ValueKey(
-                    '$index:${progress.slots[index].name}:${progress.slots[index] == StampSlotState.filled ? artwork.filledAssetDigest : artwork.emptyAssetDigest}',
-                  ),
-                  state: progress.slots[index],
-                  foreground: foreground,
-                ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = _columnCount(progress.goal);
+              final spacing = progress.goal <= 4 ? 14.0 : 10.0;
+              final available = constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                  : 320.0;
+              final calculated =
+                  (available - (spacing * (columns - 1))) / columns;
+              final slotSize = calculated.clamp(40.0, 58.0);
+              return Wrap(
+                textDirection: TextDirection.ltr,
+                alignment: WrapAlignment.center,
+                spacing: spacing,
+                runSpacing: spacing,
+                children: [
+                  for (var index = 0; index < progress.slots.length; index += 1)
+                    _StampSlot(
+                      key: ValueKey(
+                        '$index:${progress.slots[index].name}:${progress.slots[index] == StampSlotState.filled ? artwork.filledAssetDigest : artwork.emptyAssetDigest}',
+                      ),
+                      state: progress.slots[index],
+                      foreground: foreground,
+                      size: slotSize,
+                    ),
+                ],
+              );
+            },
           ),
         ),
       ),
     );
   }
+
+  static int _columnCount(int goal) => switch (goal) {
+    <= 4 => goal,
+    <= 6 => 3,
+    <= 8 => 4,
+    <= 10 => 5,
+    _ => 6,
+  };
 }
 
 final class _StampSlot extends StatelessWidget {
-  const _StampSlot({required this.state, required this.foreground, super.key});
+  const _StampSlot({
+    required this.state,
+    required this.foreground,
+    required this.size,
+    super.key,
+  });
 
   final StampSlotState state;
   final Color foreground;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
     final filled = state == StampSlotState.filled;
     return SizedBox.square(
-      dimension: 56,
+      dimension: size,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: filled ? foreground : Colors.transparent,
           border: Border.all(color: foreground, width: filled ? 0 : 2.5),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(size * 0.32),
         ),
         child: filled
             ? Center(
                 child: SizedBox.square(
-                  dimension: 17,
+                  dimension: size * 0.28,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(size * 0.09),
                     ),
                   ),
                 ),

@@ -78,6 +78,93 @@ final class WafloBrandMark extends StatelessWidget {
   );
 }
 
+final class WafloScanFrame extends StatelessWidget {
+  const WafloScanFrame({
+    this.size = 252,
+    this.color = Colors.white,
+    this.strokeWidth = 4,
+    this.cornerLength = 38,
+    super.key,
+  });
+
+  final double size;
+  final Color color;
+  final double strokeWidth;
+  final double cornerLength;
+
+  @override
+  Widget build(BuildContext context) => SizedBox.square(
+    key: const Key('customer-scanner-frame'),
+    dimension: size,
+    child: Stack(
+      children: [
+        _ScanCorner(
+          alignment: AlignmentDirectional.topStart,
+          color: color,
+          strokeWidth: strokeWidth,
+          length: cornerLength,
+        ),
+        _ScanCorner(
+          alignment: AlignmentDirectional.topEnd,
+          quarterTurns: 1,
+          color: color,
+          strokeWidth: strokeWidth,
+          length: cornerLength,
+        ),
+        _ScanCorner(
+          alignment: AlignmentDirectional.bottomEnd,
+          quarterTurns: 2,
+          color: color,
+          strokeWidth: strokeWidth,
+          length: cornerLength,
+        ),
+        _ScanCorner(
+          alignment: AlignmentDirectional.bottomStart,
+          quarterTurns: 3,
+          color: color,
+          strokeWidth: strokeWidth,
+          length: cornerLength,
+        ),
+      ],
+    ),
+  );
+}
+
+final class _ScanCorner extends StatelessWidget {
+  const _ScanCorner({
+    required this.alignment,
+    required this.color,
+    required this.strokeWidth,
+    required this.length,
+    this.quarterTurns = 0,
+  });
+
+  final AlignmentGeometry alignment;
+  final Color color;
+  final double strokeWidth;
+  final double length;
+  final int quarterTurns;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: alignment,
+    child: RotatedBox(
+      quarterTurns: quarterTurns,
+      child: SizedBox.square(
+        dimension: length,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              top: BorderSide(color: color, width: strokeWidth),
+              start: BorderSide(color: color, width: strokeWidth),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 final class WafloOperationalLabel extends StatelessWidget {
   const WafloOperationalLabel(this.label, {this.color, super.key});
 

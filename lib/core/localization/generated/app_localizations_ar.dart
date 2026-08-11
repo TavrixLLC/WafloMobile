@@ -354,6 +354,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get genericError => 'حدث خطأ. حاول مرة أخرى بأمان.';
 
   @override
+  String get operationNotCompleted => 'لم تكتمل العملية';
+
+  @override
+  String get customerOperationsPaused => 'عمليات العملاء متوقفة مؤقتاً';
+
+  @override
   String get validationError => 'تحقق من معلومات الإقران المرسلة.';
 
   @override
@@ -470,20 +476,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get continueToReview => 'مراجعة العملية';
 
   @override
-  String get reviewStampTitle => 'مراجعة إصدار الطوابع';
+  String get reviewStampTitle => 'مراجعة إضافة الطوابع';
 
   @override
-  String get confirmStamp => 'تأكيد إصدار الطوابع';
+  String get confirmStamp => 'إضافة الطوابع';
 
   @override
-  String get issuingStamps => 'جارٍ إصدار الطوابع بأمان';
+  String get issuingStamps => 'جارٍ إضافة الطوابع بأمان';
 
   @override
-  String get stampSuccessTitle => 'تم إصدار الطوابع';
+  String get stampSuccessTitle => 'تمت إضافة الطوابع';
 
   @override
   String stampsIssued(num count) {
-    return 'تم إصدار $count طابع';
+    return 'تمت إضافة $count طابع';
   }
 
   @override

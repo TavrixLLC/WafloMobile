@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_mode.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 
@@ -109,7 +110,12 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
       _publish();
     } on MobileScannerException catch (error) {
       if (error.errorCode == MobileScannerErrorCode.permissionDenied) {
-        _machine.permissionDenied();
+        final permission = await Permission.camera.status;
+        if (permission.isPermanentlyDenied) {
+          _machine.permissionPermanentlyDenied();
+        } else {
+          _machine.permissionDenied();
+        }
       } else if (error.errorCode == MobileScannerErrorCode.unsupported) {
         _machine.fail(CustomerScannerState.unsupportedQr);
       } else {

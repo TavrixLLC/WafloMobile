@@ -10,6 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
+import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
@@ -18,12 +19,16 @@ import 'package:waflo_staff/features/app_lock/presentation/app_lock_screens.dart
 import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/blocked_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
+import 'package:waflo_staff/features/boot/presentation/boot_gate.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/device_security/presentation/device_security_screen.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
+import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
+import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/redemption_models.dart';
+import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
 import 'package:waflo_staff/features/stamp_operation/domain/stamp_models.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
@@ -32,10 +37,10 @@ import '../support/fixtures.dart';
 void main() {
   setUpAll(() async {
     await (FontLoader(
-      'M3AReviewSans',
+      'M3BReviewSans',
     )..addFont(rootBundle.load('assets/fonts/Roboto-Regular.ttf'))).load();
     await (FontLoader(
-          'M3AReviewArabic',
+          'M3BReviewArabic',
         )..addFont(rootBundle.load('assets/fonts/NotoNaskhArabic-Regular.ttf')))
         .load();
     await (FontLoader(
@@ -72,38 +77,51 @@ void main() {
     if (!Platform.isLinux) {
       await expectLater(
         find.byType(MaterialApp),
-        matchesGoldenFile('../../artifacts/handoff-m3a/screenshots/$name.png'),
+        matchesGoldenFile('../../artifacts/handoff-m3b/screenshots/$name.png'),
       );
     }
   }
 
-  testWidgets('M3A 26-screen executable review set', (tester) async {
+  testWidgets('M3B 36-screen executable review set', (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await capture(tester, '01-home-en-light', _home());
+    await capture(tester, '01-splash-startup', _startup());
+    await capture(tester, '02-pairing', _pairing());
+    await capture(tester, '03-home-en-light', _home());
     await capture(
       tester,
-      '02-home-ar-rtl-light',
+      '04-home-ar-rtl-light',
       _home(locale: const Locale('ar')),
     );
-    await capture(tester, '03-home-dark', _home(themeMode: ThemeMode.dark));
+    await capture(tester, '05-home-dark', _home(themeMode: ThemeMode.dark));
     await capture(
       tester,
-      '04-scanner-ready',
+      '06-scanner-ready',
       _scanner(CustomerScannerState.ready),
     );
     await capture(
       tester,
-      '05-scanner-resolving',
+      '07-scanner-resolving',
       _scanner(CustomerScannerState.resolving),
     );
-    await capture(tester, '06-customer-membership-0-of-8', _ready(0));
-    await capture(tester, '07-customer-membership-5-of-8', _ready(5));
-    await capture(tester, '08-customer-membership-8-of-8', _ready(8));
     await capture(
       tester,
-      '09-add-stamps',
+      '08-camera-permission-denied',
+      _scanner(CustomerScannerState.cameraPermissionPermanentlyDenied),
+    );
+    await capture(tester, '09-customer-membership-0-of-8', _ready(0));
+    await capture(tester, '10-customer-membership-5-of-8', _ready(5));
+    await capture(tester, '11-customer-membership-8-of-8', _ready(8));
+    await capture(
+      tester,
+      '12-add-stamps',
+      _ready(2, purchaseRequired: false),
+      reveal: find.byKey(const Key('review-stamp-operation')),
+    );
+    await capture(
+      tester,
+      '13-purchase-amount-variant',
       _ready(2),
       reveal: find.byKey(const Key('purchase-amount-field')),
     );
@@ -117,7 +135,7 @@ void main() {
     );
     await capture(
       tester,
-      '10-stamp-confirmation',
+      '14-stamp-confirmation',
       _operation(
         M2OperationState(
           stage: M2OperationStage.stampReview,
@@ -126,11 +144,11 @@ void main() {
           credentialAvailable: true,
         ),
       ),
-      reveal: find.text('Confirm stamp issuance'),
+      reveal: find.byKey(const Key('confirm-operation')),
     );
     await capture(
       tester,
-      '11-stamp-success',
+      '15-stamp-success',
       _operation(
         M2OperationState(
           stage: M2OperationStage.stampSucceeded,
@@ -141,12 +159,12 @@ void main() {
         ),
       ),
     );
-    await capture(tester, '12-reward-ready', _ready(8));
+    await capture(tester, '16-reward-ready', _ready(8));
 
     final finalMembership = _membership(8);
     await capture(
       tester,
-      '13-redeem-confirmation',
+      '17-redeem-confirmation',
       _operation(
         M2OperationState(
           stage: M2OperationStage.redemptionReview,
@@ -159,7 +177,7 @@ void main() {
     );
     await capture(
       tester,
-      '14-redeem-success-final-reset',
+      '18-redeem-success-final-reset',
       _operation(
         M2OperationState(
           stage: M2OperationStage.redemptionSucceeded,
@@ -172,7 +190,7 @@ void main() {
     );
     await capture(
       tester,
-      '15-checking-transaction',
+      '19-checking-transaction',
       _operation(
         M2OperationState(
           stage: M2OperationStage.stampAmbiguous,
@@ -182,50 +200,98 @@ void main() {
     );
     await capture(
       tester,
-      '16-device-revoked',
+      '20-operation-failed',
+      _operation(
+        const M2OperationState(
+          stage: M2OperationStage.policyBlocked,
+          failure: ApiFailure('DAILY_STAMP_LIMIT_REACHED'),
+        ),
+      ),
+    );
+    await capture(tester, '21-offline', _home(online: false));
+    await capture(
+      tester,
+      '22-update-required-http-426',
+      _blocked(BootStage.appUpdateRequired),
+    );
+    await capture(
+      tester,
+      '23-device-revoked',
       _blocked(BootStage.deviceRevoked),
     );
     await capture(
       tester,
-      '17-device-compromised',
+      '24-device-compromised',
       _blocked(BootStage.deviceCompromised),
     );
     await capture(
       tester,
-      '18-session-expired',
+      '25-session-expired',
       _blocked(BootStage.sessionExpired),
     );
-    await capture(tester, '19-offline', _home(online: false));
+    await capture(tester, '26-device-and-security', _deviceSecurity());
+    await capture(tester, '27-settings', _settings());
+    await capture(tester, '28-app-lock-pin', _appLock());
+    await capture(tester, '29-app-lock-biometric', _appLock(biometric: true));
     await capture(
       tester,
-      '20-update-required-http-426',
-      _blocked(BootStage.appUpdateRequired),
-    );
-    await capture(tester, '21-device-and-security', _deviceSecurity());
-    await capture(tester, '22-app-lock', _appLock());
-    await capture(
-      tester,
-      '23-large-text-home',
-      _home(textScaler: const TextScaler.linear(2)),
-    );
-    await capture(
-      tester,
-      '24-large-text-customer',
-      _ready(5, textScaler: const TextScaler.linear(2)),
-    );
-    await capture(
-      tester,
-      '25-arabic-customer-5-of-8',
+      '30-arabic-customer-5-of-8',
       _ready(5, locale: const Locale('ar'), arabicFixture: true),
     );
     await capture(
       tester,
-      '26-arabic-reward-ready-redeem',
+      '31-arabic-reward-ready',
       _ready(8, locale: const Locale('ar'), arabicFixture: true),
       reveal: find.byKey(const Key('reward-ready-outside-grid')),
     );
+    await capture(
+      tester,
+      '32-arabic-redeem',
+      _operation(
+        M2OperationState(
+          stage: M2OperationStage.redemptionReview,
+          membership: _membership(8, arabic: true),
+          selectedReward: _membership(8, arabic: true).availableRewards.single,
+          credentialAvailable: true,
+        ),
+        locale: const Locale('ar'),
+      ),
+      reveal: find.byKey(const Key('confirm-operation')),
+    );
+    await capture(
+      tester,
+      '33-large-text-home',
+      _home(textScaler: const TextScaler.linear(2)),
+    );
+    await capture(
+      tester,
+      '34-large-text-customer',
+      _ready(5, textScaler: const TextScaler.linear(2)),
+    );
+    await capture(
+      tester,
+      '35-dark-customer',
+      _ready(5, themeMode: ThemeMode.dark),
+    );
+    await capture(
+      tester,
+      '36-dark-scanner',
+      _scanner(CustomerScannerState.ready, themeMode: ThemeMode.dark),
+    );
   });
 }
+
+Widget _startup() => _app(child: const BootLoadingScreen());
+
+Widget _pairing() => ProviderScope(
+  key: UniqueKey(),
+  overrides: [
+    pairingControllerProvider.overrideWithBuild(
+      (ref, notifier) => const PairingViewState.welcome(),
+    ),
+  ],
+  child: _app(child: const PairingFlowScreen()),
+);
 
 Widget _home({
   bool online = true,
@@ -261,8 +327,12 @@ Widget _home({
   ),
 );
 
-Widget _scanner(CustomerScannerState scannerState) => _operation(
+Widget _scanner(
+  CustomerScannerState scannerState, {
+  ThemeMode themeMode = ThemeMode.light,
+}) => _operation(
   const M2OperationState(stage: M2OperationStage.scanning),
+  themeMode: themeMode,
   scanner: FixtureCustomerScannerAdapter(
     _syntheticCredential,
     autoDeliver: false,
@@ -277,10 +347,15 @@ Widget _ready(
   ThemeMode themeMode = ThemeMode.light,
   TextScaler textScaler = TextScaler.noScaling,
   bool arabicFixture = false,
+  bool purchaseRequired = true,
 }) => _operation(
   M2OperationState(
     stage: M2OperationStage.membershipReady,
-    membership: _membership(progress, arabic: arabicFixture),
+    membership: _membership(
+      progress,
+      arabic: arabicFixture,
+      purchaseRequired: purchaseRequired,
+    ),
     credentialAvailable: true,
   ),
   online: online,
@@ -368,13 +443,35 @@ Widget _deviceSecurity() => ProviderScope(
   child: _app(child: const DeviceSecurityScreen()),
 );
 
-Widget _appLock() => ProviderScope(
+Widget _settings() => ProviderScope(
+  key: UniqueKey(),
+  overrides: [
+    environmentProvider.overrideWithValue(_environment),
+    themeControllerProvider.overrideWithBuild(
+      (ref, notifier) => ThemeMode.system,
+    ),
+    rapidScanControllerProvider.overrideWithBuild((ref, notifier) => true),
+    packageInfoProvider.overrideWithValue(
+      AsyncData(
+        PackageInfo(
+          appName: 'Waflo Staff',
+          packageName: 'app.waflo.staff',
+          version: '1.0.0',
+          buildNumber: '1',
+        ),
+      ),
+    ),
+  ],
+  child: _app(child: const SettingsScreen()),
+);
+
+Widget _appLock({bool biometric = false}) => ProviderScope(
   key: UniqueKey(),
   overrides: [
     appLockControllerProvider.overrideWithBuild(
-      (ref, notifier) => const AppLockState(
+      (ref, notifier) => AppLockState(
         configuration: AppLockConfiguration(
-          mode: AppLockMode.pin,
+          mode: biometric ? AppLockMode.biometric : AppLockMode.pin,
           interval: AppLockInterval.oneMinute,
         ),
         status: AppLockStatus.locked,
@@ -410,8 +507,8 @@ Widget _app({
 
 ThemeData _reviewTheme(ThemeData base) {
   TextStyle? style(TextStyle? value) => value?.copyWith(
-    fontFamily: 'M3AReviewSans',
-    fontFamilyFallback: const ['M3AReviewArabic'],
+    fontFamily: 'M3BReviewSans',
+    fontFamilyFallback: const ['M3BReviewArabic'],
   );
 
   final source = base.textTheme;
@@ -449,9 +546,14 @@ ThemeData _reviewTheme(ThemeData base) {
   );
 }
 
-ResolvedMembership _membership(int progress, {bool arabic = false}) {
+ResolvedMembership _membership(
+  int progress, {
+  bool arabic = false,
+  bool purchaseRequired = true,
+}) {
   final value = _fixture('membership-resolve.fixture.json');
   final limits = value['operationLimits']! as Map<String, Object?>;
+  final purchase = value['purchaseRequirement']! as Map<String, Object?>;
   value['customerDisplayName'] = arabic ? 'ليان السعد' : 'Lina Saad';
   value['programName'] = arabic ? 'مكافآت القهوة' : 'Counter Coffee Rewards';
   value['locale'] = arabic ? 'ar' : 'en';
@@ -459,6 +561,11 @@ ResolvedMembership _membership(int progress, {bool arabic = false}) {
   value['rewardReady'] = progress == 8;
   value['projectionVersion'] = progress + 1;
   limits['dailyRemainingStamps'] = (8 - progress).clamp(0, 4);
+  if (!purchaseRequired) {
+    purchase['required'] = false;
+    purchase['minimumAmountMinor'] = null;
+    purchase['currency'] = null;
+  }
   if (progress < 4) {
     value['availableRewards'] = <Object?>[];
   } else if (progress == 8) {

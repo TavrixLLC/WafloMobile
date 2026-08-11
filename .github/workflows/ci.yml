@@ -1,4 +1,4 @@
-name: Flutter M3A Staff Production Readiness
+name: Flutter M3B Staff Launch Candidate
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m3a-${{ github.ref }}
+  group: flutter-m3b-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   linux-quality:
-    name: Linux / M1-M3A quality, security, archive
+    name: Linux / M1-M3B quality, security, archive
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -44,11 +44,11 @@ jobs:
         run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - name: Analyze fatal
         run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1, M2, and M3A unit tests
+      - name: M1-M3B unit tests
         run: flutter test test/unit --coverage --reporter expanded
-      - name: M1, M2, and M3A widget tests
+      - name: M1-M3B widget tests
         run: flutter test test/widget --reporter expanded
-      - name: M1-M3A golden and screenshot tests
+      - name: M1-M3B golden and screenshot tests
         run: flutter test test/golden --reporter expanded
       - name: Security scan
         run: dart run tool/security_scan.dart
@@ -66,12 +66,13 @@ jobs:
             test/golden/goldens/*.png
             test/golden/goldens/m2/*.png
             artifacts/handoff-m3a/screenshots/*.png
+            artifacts/handoff-m3b/screenshots/*.png
             test/golden/failures/*_testImage.png
           if-no-files-found: warn
           retention-days: 14
 
   android-emulator:
-    name: Android emulator / M1-M3A Staff flow matrix
+    name: Android emulator / M1-M3A Staff flow matrix on M3B UI
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -106,7 +107,7 @@ jobs:
             flutter test integration_test/m3a_staff_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
 
   android-builds:
-    name: Android / M3A development, staging, production
+    name: Android / M3B development, staging, production
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -129,7 +130,7 @@ jobs:
         run: flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
       - uses: actions/upload-artifact@v4
         with:
-          name: android-m3a-apks
+          name: android-m3b-apks
           path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
           retention-days: 14

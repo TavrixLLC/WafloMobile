@@ -716,6 +716,18 @@ abstract class AppLocalizations {
   /// **'Something went wrong. Try again safely.'**
   String get genericError;
 
+  /// No description provided for @operationNotCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation not completed'**
+  String get operationNotCompleted;
+
+  /// No description provided for @customerOperationsPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer operations are paused'**
+  String get customerOperationsPaused;
+
   /// No description provided for @validationError.
   ///
   /// In en, this message translates to:
@@ -917,31 +929,31 @@ abstract class AppLocalizations {
   /// No description provided for @reviewStampTitle.
   ///
   /// In en, this message translates to:
-  /// **'Review stamp issuance'**
+  /// **'Review stamps'**
   String get reviewStampTitle;
 
   /// No description provided for @confirmStamp.
   ///
   /// In en, this message translates to:
-  /// **'Confirm stamp issuance'**
+  /// **'Add stamps'**
   String get confirmStamp;
 
   /// No description provided for @issuingStamps.
   ///
   /// In en, this message translates to:
-  /// **'Issuing stamps securely'**
+  /// **'Adding stamps securely'**
   String get issuingStamps;
 
   /// No description provided for @stampSuccessTitle.
   ///
   /// In en, this message translates to:
-  /// **'Stamps issued'**
+  /// **'Stamps added'**
   String get stampSuccessTitle;
 
   /// No description provided for @stampsIssued.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 stamp issued} other{{count} stamps issued}}'**
+  /// **'{count, plural, =1{1 stamp added} other{{count} stamps added}}'**
   String stampsIssued(num count);
 
   /// No description provided for @rewardUnlocked.

@@ -24,59 +24,111 @@ final class BlockedScreen extends ConsumerWidget {
         state.stage == BootStage.backendUnavailable ||
         state.stage == BootStage.devicePending;
     return WafloPage(
+      scrollable: false,
       child: Semantics(
         liveRegion: true,
         scopesRoute: true,
         namesRoute: true,
         explicitChildNodes: true,
         label: '${content.title}. ${content.body}',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: WafloSpacing.xl),
-            Align(
-              child: Container(
-                width: 104,
-                height: 104,
-                decoration: BoxDecoration(
-                  color: content.background,
-                  borderRadius: BorderRadius.circular(32),
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Spacer(flex: 2),
+                    Align(
+                      child: Container(
+                        width: 104,
+                        height: 104,
+                        decoration: BoxDecoration(
+                          color: content.background,
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        child: Icon(
+                          content.icon,
+                          size: 50,
+                          color: content.foreground,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: WafloSpacing.xl),
+                    Text(
+                      content.title,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: WafloSpacing.md),
+                    Text(
+                      content.body,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: WafloSpacing.lg),
+                    Align(
+                      child: Container(
+                        padding: const EdgeInsetsDirectional.symmetric(
+                          horizontal: 14,
+                          vertical: 9,
+                        ),
+                        decoration: BoxDecoration(
+                          color: content.background,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.pause_circle_outline_rounded,
+                              size: 18,
+                              color: content.foreground,
+                            ),
+                            const SizedBox(width: WafloSpacing.xs),
+                            Flexible(
+                              child: Text(
+                                strings.customerOperationsPaused,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.labelLarge
+                                    ?.copyWith(color: content.foreground),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Spacer(flex: 3),
+                    if (repair)
+                      FilledButton.icon(
+                        key: const Key('reset-for-repair'),
+                        onPressed: () => unawaited(
+                          ref
+                              .read(bootControllerProvider.notifier)
+                              .resetForRepair(),
+                        ),
+                        icon: const Icon(Icons.restart_alt_rounded),
+                        label: Text(strings.resetForRepair),
+                      )
+                    else if (retry)
+                      FilledButton.icon(
+                        key: const Key('retry-boot'),
+                        onPressed: () => unawaited(
+                          ref
+                              .read(bootControllerProvider.notifier)
+                              .initialize(),
+                        ),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: Text(strings.retry),
+                      ),
+                    if (repair || retry)
+                      const SizedBox(height: WafloSpacing.md),
+                  ],
                 ),
-                child: Icon(content.icon, size: 50, color: content.foreground),
               ),
             ),
-            const SizedBox(height: WafloSpacing.xl),
-            Text(
-              content.title,
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: WafloSpacing.md),
-            Text(
-              content.body,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: WafloSpacing.xl),
-            if (repair)
-              FilledButton.icon(
-                key: const Key('reset-for-repair'),
-                onPressed: () => unawaited(
-                  ref.read(bootControllerProvider.notifier).resetForRepair(),
-                ),
-                icon: const Icon(Icons.restart_alt_rounded),
-                label: Text(strings.resetForRepair),
-              )
-            else if (retry)
-              FilledButton.icon(
-                key: const Key('retry-boot'),
-                onPressed: () => unawaited(
-                  ref.read(bootControllerProvider.notifier).initialize(),
-                ),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(strings.retry),
-              ),
-          ],
+          ),
         ),
       ),
     );

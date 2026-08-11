@@ -15,6 +15,7 @@ import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
+import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
 import 'package:waflo_staff/features/loyalty_progress/presentation/two_state_stamp_grid.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
@@ -25,6 +26,49 @@ import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_c
 import '../support/fixtures.dart';
 
 void main() {
+  testWidgets('stamp grid adapts common and larger goals without tiny slots', (
+    tester,
+  ) async {
+    const artwork = StampArtwork(
+      filledAssetDigest: null,
+      emptyAssetDigest: null,
+    );
+    for (final goal in [4, 5, 6, 8, 10, 14]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: WafloTheme.light(),
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 342,
+                child: TwoStateStampGrid(
+                  progress: StampProgress(progress: goal ~/ 2, goal: goal),
+                  artwork: artwork,
+                  cache: const _FixtureStampImageLoader(),
+                  semanticLabel: '${goal ~/ 2} of $goal stamps',
+                  allowInsecureAssets: false,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      final slots = find.byWidgetPredicate((widget) {
+        final key = widget.key;
+        return key is ValueKey<String> && key.value.contains(':');
+      });
+      expect(slots, findsNWidgets(goal));
+      for (final element in slots.evaluate()) {
+        final size = tester.getSize(find.byWidget(element.widget));
+        expect(size.width, inInclusiveRange(40, 58));
+        expect(size.height, size.width);
+      }
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('customer scanner is explicit and never renders QR text', (
     tester,
   ) async {
@@ -111,8 +155,8 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Review stamp issuance'), findsWidgets);
-      expect(find.text('Confirm stamp issuance'), findsOneWidget);
+      expect(find.text('Review stamps'), findsWidgets);
+      expect(find.text('Add stamps'), findsOneWidget);
 
       await tester.pumpWidget(
         _harness(
@@ -133,9 +177,9 @@ void main() {
         ),
       );
       await tester.pump();
-      expect(find.text('Stamps issued'), findsWidgets);
+      expect(find.text('Stamps added'), findsWidgets);
       expect(find.text('5 of 8 stamps'), findsWidgets);
-      expect(find.textContaining('1 stamp issued'), findsOneWidget);
+      expect(find.textContaining('1 stamp added'), findsOneWidget);
     },
   );
 

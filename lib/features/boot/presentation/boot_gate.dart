@@ -39,13 +39,13 @@ final class _BootGateState extends ConsumerState<BootGate> {
       BootStage.backendUnavailable ||
       BootStage.configurationError ||
       BootStage.fatalLocalSecurityError => BlockedScreen(state: state),
-      _ => const _BootLoadingScreen(),
+      _ => const BootLoadingScreen(),
     };
   }
 }
 
-final class _BootLoadingScreen extends StatelessWidget {
-  const _BootLoadingScreen();
+final class BootLoadingScreen extends StatelessWidget {
+  const BootLoadingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

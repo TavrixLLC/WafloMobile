@@ -60,52 +60,75 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                     const SizedBox(height: WafloSpacing.sm),
                     Text(strings.appLockedBody, textAlign: TextAlign.center),
                     const SizedBox(height: WafloSpacing.xl),
-                    if (lock.configuration.mode == AppLockMode.pin) ...[
-                      TextField(
-                        key: const Key('unlock-pin-field'),
-                        controller: _pinController,
-                        autofocus: true,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                        obscureText: true,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        keyboardType: TextInputType.number,
-                        maxLength: 6,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(RegExp('[0-9]')),
-                        ],
-                        decoration: InputDecoration(
-                          labelText: strings.localStaffPin,
-                          helperText: strings.pinLengthHelp,
+                    Container(
+                      padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(WafloRadius.stage),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
                         ),
-                        onSubmitted: busy ? null : (_) => _unlockPin(),
                       ),
-                      const SizedBox(height: WafloSpacing.sm),
-                      FilledButton(
-                        key: const Key('unlock-with-pin'),
-                        onPressed: busy ? null : _unlockPin,
-                        child: Text(strings.unlock),
-                      ),
-                    ] else
-                      FilledButton.icon(
-                        key: const Key('biometric-unlock'),
-                        onPressed: busy
-                            ? null
-                            : () => unawaited(
-                                ref
-                                    .read(appLockControllerProvider.notifier)
-                                    .unlockWithBiometric(
-                                      strings.biometricUnlockReason,
-                                    ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          WafloOperationalLabel(strings.appLock),
+                          const SizedBox(height: WafloSpacing.md),
+                          if (lock.configuration.mode == AppLockMode.pin) ...[
+                            TextField(
+                              key: const Key('unlock-pin-field'),
+                              controller: _pinController,
+                              autofocus: true,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.headlineSmall,
+                              obscureText: true,
+                              enableSuggestions: false,
+                              autocorrect: false,
+                              keyboardType: TextInputType.number,
+                              maxLength: 6,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp('[0-9]'),
+                                ),
+                              ],
+                              decoration: InputDecoration(
+                                labelText: strings.localStaffPin,
+                                helperText: strings.pinLengthHelp,
                               ),
-                        icon: const Icon(Icons.fingerprint_rounded),
-                        label: Text(strings.unlockWithBiometrics),
+                              onSubmitted: busy ? null : (_) => _unlockPin(),
+                            ),
+                            const SizedBox(height: WafloSpacing.sm),
+                            FilledButton(
+                              key: const Key('unlock-with-pin'),
+                              onPressed: busy ? null : _unlockPin,
+                              child: Text(strings.unlock),
+                            ),
+                          ] else
+                            FilledButton.icon(
+                              key: const Key('biometric-unlock'),
+                              onPressed: busy
+                                  ? null
+                                  : () => unawaited(
+                                      ref
+                                          .read(
+                                            appLockControllerProvider.notifier,
+                                          )
+                                          .unlockWithBiometric(
+                                            strings.biometricUnlockReason,
+                                          ),
+                                    ),
+                              icon: const Icon(Icons.fingerprint_rounded),
+                              label: Text(strings.unlockWithBiometrics),
+                            ),
+                          if (busy) ...[
+                            const SizedBox(height: WafloSpacing.md),
+                            const LinearProgressIndicator(),
+                          ],
+                        ],
                       ),
-                    if (busy) ...[
-                      const SizedBox(height: WafloSpacing.md),
-                      const LinearProgressIndicator(),
-                    ],
+                    ),
                     if (lock.safeErrorCode != null) ...[
                       const SizedBox(height: WafloSpacing.md),
                       WafloStatusBanner(

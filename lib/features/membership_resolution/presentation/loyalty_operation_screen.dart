@@ -28,30 +28,37 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
     final submitting =
         state.stage == M2OperationStage.stampSubmitting ||
         state.stage == M2OperationStage.redemptionSubmitting;
+    final scanning = state.stage == M2OperationStage.scanning;
     return PopScope(
       canPop: !submitting,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(_title(strings, state.stage)),
-          leading: submitting
-              ? null
-              : IconButton(
-                  tooltip: strings.close,
-                  onPressed: () async {
-                    if (state.stage == M2OperationStage.stampAmbiguous ||
-                        state.stage == M2OperationStage.redemptionAmbiguous) {
-                      controller.cancelLocalRecoveryView();
-                    } else {
-                      await controller.acknowledgeAndReset();
-                    }
-                    if (context.mounted) context.go('/home');
-                  },
-                  icon: const Icon(Icons.close),
-                ),
-        ),
-        body: SafeArea(
-          child: _OperationBody(state: state, controller: controller),
-        ),
+        backgroundColor: scanning ? WafloColors.night : null,
+        appBar: scanning
+            ? null
+            : AppBar(
+                title: Text(_title(strings, state.stage)),
+                leading: submitting
+                    ? null
+                    : IconButton(
+                        tooltip: strings.close,
+                        onPressed: () async {
+                          if (state.stage == M2OperationStage.stampAmbiguous ||
+                              state.stage ==
+                                  M2OperationStage.redemptionAmbiguous) {
+                            controller.cancelLocalRecoveryView();
+                          } else {
+                            await controller.acknowledgeAndReset();
+                          }
+                          if (context.mounted) context.go('/home');
+                        },
+                        icon: const Icon(Icons.close),
+                      ),
+              ),
+        body: scanning
+            ? _OperationBody(state: state, controller: controller)
+            : SafeArea(
+                child: _OperationBody(state: state, controller: controller),
+              ),
       ),
     );
   }
@@ -94,6 +101,7 @@ final class _OperationBody extends ConsumerWidget {
         child: _ErrorPanel(
           icon: Icons.cloud_off_outlined,
           message: AppLocalizations.of(context).offlineOperationsBlocked,
+          actionLabel: AppLocalizations.of(context).scanNextCustomer,
           onRetry: null,
         ),
       );
@@ -176,179 +184,145 @@ final class _CustomerScannerViewState
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final adapter = ref.watch(customerScannerAdapterProvider);
+    final location = ref.watch(bootControllerProvider).context?.currentLocation;
     _adapter = adapter;
     return ValueListenableBuilder<CustomerScannerState>(
       valueListenable: adapter.state,
-      builder: (context, scannerState, child) => Column(
+      builder: (context, scannerState, child) => Stack(
+        fit: StackFit.expand,
         children: [
-          Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                adapter.buildPreview(
-                  context,
-                  onDetected: (candidate) => ref
-                      .read(m2OperationControllerProvider.notifier)
-                      .resolveCandidate(
-                        candidate,
-                        locale: Localizations.localeOf(context).languageCode,
-                      ),
+          adapter.buildPreview(
+            context,
+            onDetected: (candidate) => ref
+                .read(m2OperationControllerProvider.notifier)
+                .resolveCandidate(
+                  candidate,
+                  locale: Localizations.localeOf(context).languageCode,
                 ),
-                const DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0x99000000),
-                        Color(0x00000000),
-                        Color(0xB3000000),
-                      ],
-                      stops: [0, 0.5, 1],
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Semantics(
-                    label: strings.scanFrameLabel,
-                    image: true,
-                    child: const _ScannerFrame(),
-                  ),
-                ),
-                PositionedDirectional(
-                  start: WafloSpacing.lg,
-                  end: WafloSpacing.lg,
-                  top: WafloSpacing.lg,
-                  child: Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      strings.m2ScannerInstructions,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        shadows: const [Shadow(blurRadius: 8)],
-                      ),
-                    ),
-                  ),
-                ),
-                if (_isScannerBusy(scannerState))
-                  ColoredBox(
-                    color: const Color(0xB30D1814),
-                    child: Center(
-                      child: Semantics(
-                        liveRegion: true,
-                        label: _scannerStatus(strings, scannerState),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                            const SizedBox(height: WafloSpacing.md),
-                            Text(
-                              _scannerStatus(strings, scannerState),
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                if (scannerState == CustomerScannerState.cameraPermissionDenied)
-                  ColoredBox(
-                    color: const Color(0xF20D1814),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.all(
-                          WafloSpacing.xl,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.no_photography_outlined,
-                              size: 52,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(height: WafloSpacing.md),
-                            Text(
-                              strings.cameraPermissionDeniedTitle,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(color: Colors.white),
-                            ),
-                            const SizedBox(height: WafloSpacing.sm),
-                            Text(
-                              strings.cameraPermissionDeniedBody,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            const SizedBox(height: WafloSpacing.lg),
-                            FilledButton(
-                              onPressed: () => unawaited(openAppSettings()),
-                              child: Text(strings.openSettings),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xC9091713),
+                  Color(0x12091713),
+                  Color(0xE6091713),
+                ],
+                stops: [0, 0.48, 1],
+              ),
             ),
           ),
-          Container(
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 16),
-            color: Theme.of(context).colorScheme.surface,
-            child: Row(
+          Center(
+            child: Semantics(
+              label: strings.scanFrameLabel,
+              image: true,
+              child: const WafloScanFrame(),
+            ),
+          ),
+          SafeArea(
+            minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+            child: Column(
               children: [
-                Expanded(
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: adapter.torchEnabled,
-                    builder: (context, enabled, child) => Tooltip(
-                      message: strings.toggleFlash,
-                      child: OutlinedButton.icon(
+                Row(
+                  children: [
+                    _ScannerRoundAction(
+                      tooltip: strings.close,
+                      icon: Icons.close_rounded,
+                      onPressed: () => unawaited(_close(adapter)),
+                    ),
+                    const SizedBox(width: WafloSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            strings.m2ScannerTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(color: Colors.white),
+                          ),
+                          if (location != null)
+                            Text(
+                              location.displayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.white70),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    strings.scanCustomerHelp,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      shadows: const [Shadow(blurRadius: 8)],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+                _ScannerStatusPill(
+                  label: _scannerStatus(strings, scannerState),
+                  busy: _isScannerBusy(scannerState),
+                ),
+                const SizedBox(height: WafloSpacing.md),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ValueListenableBuilder<bool>(
+                      valueListenable: adapter.torchEnabled,
+                      builder: (context, enabled, child) => _ScannerRoundAction(
+                        tooltip: strings.toggleFlash,
+                        label: enabled ? strings.flashOff : strings.flashOn,
+                        icon: enabled
+                            ? Icons.flashlight_off_rounded
+                            : Icons.flashlight_on_rounded,
                         onPressed: () => unawaited(adapter.toggleTorch()),
-                        icon: Icon(
-                          enabled
-                              ? Icons.flashlight_off_rounded
-                              : Icons.flashlight_on_rounded,
-                        ),
-                        label: Text(
-                          enabled ? strings.flashOff : strings.flashOn,
-                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: WafloSpacing.sm),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      unawaited(adapter.stop());
-                      unawaited(
-                        ref
-                            .read(m2OperationControllerProvider.notifier)
-                            .acknowledgeAndReset(),
-                      );
-                      context.go('/home');
-                    },
-                    icon: const Icon(Icons.close_rounded),
-                    label: Text(strings.cancel),
-                  ),
+                  ],
                 ),
               ],
             ),
           ),
+          if (_isPermissionFailure(scannerState))
+            _ScannerPermissionPanel(
+              permanentlyDenied:
+                  scannerState ==
+                  CustomerScannerState.cameraPermissionPermanentlyDenied,
+              onRetry: () => unawaited(adapter.resetForExplicitRetry()),
+            ),
         ],
       ),
     );
+  }
+
+  Future<void> _close(CustomerScannerAdapter adapter) async {
+    await adapter.stop();
+    await ref
+        .read(m2OperationControllerProvider.notifier)
+        .acknowledgeAndReset();
+    if (mounted) context.go('/home');
   }
 
   static bool _isScannerBusy(CustomerScannerState state) =>
       state == CustomerScannerState.requestingPermission ||
       state == CustomerScannerState.candidateCaptured ||
       state == CustomerScannerState.resolving;
+
+  static bool _isPermissionFailure(CustomerScannerState state) =>
+      state == CustomerScannerState.cameraPermissionRequired ||
+      state == CustomerScannerState.cameraPermissionDenied ||
+      state == CustomerScannerState.cameraPermissionPermanentlyDenied;
 
   static String _scannerStatus(
     AppLocalizations strings,
@@ -361,19 +335,178 @@ final class _CustomerScannerViewState
   };
 }
 
-final class _ScannerFrame extends StatelessWidget {
-  const _ScannerFrame();
+final class _ScannerRoundAction extends StatelessWidget {
+  const _ScannerRoundAction({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+    this.label,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final String? label;
 
   @override
-  Widget build(BuildContext context) => Container(
-    key: const Key('customer-scanner-frame'),
-    width: 252,
-    height: 252,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(28),
-      border: Border.all(color: Colors.white, width: 3),
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Material(
+      color: const Color(0xB3091713),
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          child: Padding(
+            padding: EdgeInsetsDirectional.symmetric(
+              horizontal: label == null ? 12 : 16,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white),
+                if (label != null) ...[
+                  const SizedBox(width: WafloSpacing.xs),
+                  Text(
+                    label!,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
     ),
   );
+}
+
+final class _ScannerStatusPill extends StatelessWidget {
+  const _ScannerStatusPill({required this.label, required this.busy});
+
+  final String label;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    child: Container(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 16,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: const Color(0xCC091713),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (busy) ...[
+            const SizedBox.square(
+              dimension: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: WafloColors.signalMint,
+              ),
+            ),
+            const SizedBox(width: WafloSpacing.sm),
+          ] else ...[
+            const Icon(
+              Icons.center_focus_strong_rounded,
+              size: 18,
+              color: WafloColors.signalMint,
+            ),
+            const SizedBox(width: WafloSpacing.sm),
+          ],
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: Colors.white),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+final class _ScannerPermissionPanel extends StatelessWidget {
+  const _ScannerPermissionPanel({
+    required this.permanentlyDenied,
+    required this.onRetry,
+  });
+
+  final bool permanentlyDenied;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    return ColoredBox(
+      color: const Color(0xF2091713),
+      child: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsetsDirectional.all(WafloSpacing.xl),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.no_photography_outlined,
+                    size: 56,
+                    color: WafloColors.signalMint,
+                  ),
+                  const SizedBox(height: WafloSpacing.lg),
+                  Text(
+                    permanentlyDenied
+                        ? strings.cameraPermissionDeniedTitle
+                        : strings.cameraPermissionRequiredTitle,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineSmall?.copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(height: WafloSpacing.sm),
+                  Text(
+                    permanentlyDenied
+                        ? strings.cameraPermissionDeniedBody
+                        : strings.cameraPermissionRequiredBody,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.white70),
+                  ),
+                  const SizedBox(height: WafloSpacing.xl),
+                  FilledButton.icon(
+                    onPressed: permanentlyDenied
+                        ? () => unawaited(openAppSettings())
+                        : onRetry,
+                    icon: Icon(
+                      permanentlyDenied
+                          ? Icons.settings_outlined
+                          : Icons.camera_alt_outlined,
+                    ),
+                    label: Text(
+                      permanentlyDenied ? strings.openSettings : strings.retry,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 final class _MembershipOperationView extends ConsumerStatefulWidget {
@@ -1068,49 +1201,82 @@ final class _SuccessLayout extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     return Semantics(
       liveRegion: true,
-      child: ListView(
+      child: CustomScrollView(
         key: const Key('operation-success'),
-        padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 32),
-        children: [
-          const Align(child: WafloReadyBeacon(size: 72)),
-          const SizedBox(height: WafloSpacing.lg),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: WafloSpacing.lg),
-          ...children.map(
-            (child) => Padding(
-              padding: const EdgeInsets.only(bottom: WafloSpacing.md),
-              child: child,
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 18, 24, 0),
+            sliver: SliverList.list(
+              children: [
+                const Align(child: WafloReadyBeacon(size: 72)),
+                const SizedBox(height: WafloSpacing.lg),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: WafloSpacing.lg),
+                Container(
+                  padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(WafloRadius.stage),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
+                  child: Column(
+                    children: children
+                        .map(
+                          (child) => Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: WafloSpacing.md,
+                            ),
+                            child: child,
+                          ),
+                        )
+                        .toList(growable: false),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: WafloSpacing.md),
-          FilledButton.icon(
-            key: const Key('scan-next-customer'),
-            onPressed: () async {
-              await ref
-                  .read(m2OperationControllerProvider.notifier)
-                  .resetForNextCustomer();
-              if (context.mounted) {
-                ref
-                    .read(m2OperationControllerProvider.notifier)
-                    .startScanning();
-              }
-            },
-            icon: const Icon(Icons.qr_code_scanner_rounded),
-            label: Text(strings.scanNextCustomer),
-          ),
-          const SizedBox(height: WafloSpacing.sm),
-          OutlinedButton(
-            onPressed: () async {
-              await ref
-                  .read(m2OperationControllerProvider.notifier)
-                  .acknowledgeAndReset();
-              if (context.mounted) context.go('/home');
-            },
-            child: Text(strings.done),
+          SliverPadding(
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 20, 24, 32),
+            sliver: SliverFillRemaining(
+              hasScrollBody: false,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  FilledButton.icon(
+                    key: const Key('scan-next-customer'),
+                    onPressed: () async {
+                      await ref
+                          .read(m2OperationControllerProvider.notifier)
+                          .resetForNextCustomer();
+                      if (context.mounted) {
+                        ref
+                            .read(m2OperationControllerProvider.notifier)
+                            .startScanning();
+                      }
+                    },
+                    icon: const Icon(Icons.qr_code_scanner_rounded),
+                    label: Text(strings.scanNextCustomer),
+                  ),
+                  const SizedBox(height: WafloSpacing.sm),
+                  OutlinedButton(
+                    onPressed: () async {
+                      await ref
+                          .read(m2OperationControllerProvider.notifier)
+                          .acknowledgeAndReset();
+                      if (context.mounted) context.go('/home');
+                    },
+                    child: Text(strings.done),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -1249,6 +1415,7 @@ final class _FailureState extends ConsumerWidget {
             ? Icons.cloud_off_outlined
             : Icons.error_outline,
         message: strings.m2ErrorMessage(state.failure?.safeCode),
+        actionLabel: strings.scanNextCustomer,
         onRetry:
             state.stage == M2OperationStage.sessionBlocked ||
                 state.stage == M2OperationStage.fatalContractError ||
@@ -1272,11 +1439,13 @@ final class _ErrorPanel extends StatelessWidget {
     required this.icon,
     required this.message,
     required this.onRetry,
+    required this.actionLabel,
   });
 
   final IconData icon;
   final String message;
   final VoidCallback? onRetry;
+  final String actionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -1284,7 +1453,7 @@ final class _ErrorPanel extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       child: WafloInfoCard(
-        title: strings.genericError,
+        title: strings.operationNotCompleted,
         icon: icon,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1292,7 +1461,11 @@ final class _ErrorPanel extends StatelessWidget {
             Text(message),
             if (onRetry != null) ...[
               const SizedBox(height: WafloSpacing.md),
-              FilledButton(onPressed: onRetry, child: Text(strings.retry)),
+              FilledButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.qr_code_scanner_rounded),
+                label: Text(actionLabel),
+              ),
             ],
           ],
         ),

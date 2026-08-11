@@ -3,6 +3,7 @@ enum CustomerScannerState {
   requestingPermission,
   cameraPermissionRequired,
   cameraPermissionDenied,
+  cameraPermissionPermanentlyDenied,
   ready,
   scanning,
   candidateCaptured,
@@ -34,6 +35,8 @@ final class CustomerScannerStateMachine {
       state = CustomerScannerState.cameraPermissionRequired;
   void permissionDenied() =>
       state = CustomerScannerState.cameraPermissionDenied;
+  void permissionPermanentlyDenied() =>
+      state = CustomerScannerState.cameraPermissionPermanentlyDenied;
   void ready() => state = CustomerScannerState.ready;
 
   void scanning() {

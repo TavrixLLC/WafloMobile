@@ -353,6 +353,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericError => 'Something went wrong. Try again safely.';
 
   @override
+  String get operationNotCompleted => 'Operation not completed';
+
+  @override
+  String get customerOperationsPaused => 'Customer operations are paused';
+
+  @override
   String get validationError => 'Check the submitted pairing information.';
 
   @override
@@ -473,24 +479,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueToReview => 'Review operation';
 
   @override
-  String get reviewStampTitle => 'Review stamp issuance';
+  String get reviewStampTitle => 'Review stamps';
 
   @override
-  String get confirmStamp => 'Confirm stamp issuance';
+  String get confirmStamp => 'Add stamps';
 
   @override
-  String get issuingStamps => 'Issuing stamps securely';
+  String get issuingStamps => 'Adding stamps securely';
 
   @override
-  String get stampSuccessTitle => 'Stamps issued';
+  String get stampSuccessTitle => 'Stamps added';
 
   @override
   String stampsIssued(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count stamps issued',
-      one: '1 stamp issued',
+      other: '$count stamps added',
+      one: '1 stamp added',
     );
     return '$_temp0';
   }
