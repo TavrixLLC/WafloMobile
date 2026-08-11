@@ -22,26 +22,28 @@ final class TwoStateStampGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final background = colors.surfaceContainerLow;
     final foreground = colors.primary;
     return Semantics(
       label: semanticLabel,
       container: true,
       child: ExcludeSemantics(
-        child: ColoredBox(
-          color: background,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Wrap(
-              textDirection: TextDirection.ltr,
-              alignment: WrapAlignment.center,
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                for (final slot in progress.slots)
-                  _StampSlot(state: slot, foreground: foreground),
-              ],
-            ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Wrap(
+            textDirection: TextDirection.ltr,
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (var index = 0; index < progress.slots.length; index += 1)
+                _StampSlot(
+                  key: ValueKey(
+                    '$index:${progress.slots[index].name}:${progress.slots[index] == StampSlotState.filled ? artwork.filledAssetDigest : artwork.emptyAssetDigest}',
+                  ),
+                  state: progress.slots[index],
+                  foreground: foreground,
+                ),
+            ],
           ),
         ),
       ),
@@ -50,7 +52,7 @@ final class TwoStateStampGrid extends StatelessWidget {
 }
 
 final class _StampSlot extends StatelessWidget {
-  const _StampSlot({required this.state, required this.foreground});
+  const _StampSlot({required this.state, required this.foreground, super.key});
 
   final StampSlotState state;
   final Color foreground;
@@ -59,13 +61,26 @@ final class _StampSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     final filled = state == StampSlotState.filled;
     return SizedBox.square(
-      dimension: 52,
+      dimension: 56,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: filled ? foreground : Colors.transparent,
-          border: Border.all(color: foreground, width: 2),
-          shape: BoxShape.circle,
+          border: Border.all(color: foreground, width: filled ? 0 : 2.5),
+          borderRadius: BorderRadius.circular(18),
         ),
+        child: filled
+            ? Center(
+                child: SizedBox.square(
+                  dimension: 17,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                ),
+              )
+            : null,
       ),
     );
   }

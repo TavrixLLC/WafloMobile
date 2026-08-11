@@ -11,6 +11,7 @@ import 'package:waflo_staff/core/api/api_error_decoder.dart';
 import 'package:waflo_staff/core/api/generated/staff_device_pairing/staff_device_pairing_client.dart';
 import 'package:waflo_staff/core/crypto/device_identity.dart';
 import 'package:waflo_staff/core/crypto/request_signing.dart';
+import 'package:waflo_staff/core/haptics/haptic_service.dart';
 import 'package:waflo_staff/core/idempotency/business_command_id.dart';
 import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/core/logging/safe_logger.dart';
@@ -18,6 +19,10 @@ import 'package:waflo_staff/core/network/dio_factory.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
+import 'package:waflo_staff/features/app_lock/data/app_lock_repository.dart';
+import 'package:waflo_staff/features/app_lock/data/biometric_service.dart';
+import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
+import 'package:waflo_staff/features/app_lock/presentation/app_lock_controller.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
@@ -49,6 +54,18 @@ final safeLoggerProvider = Provider<SafeLogger>(
 );
 final preferencesRepositoryProvider = Provider<PreferencesRepository>(
   (ref) => PreferencesRepository(ref.watch(sharedPreferencesProvider)),
+);
+final appLockRepositoryProvider = Provider<AppLockRepository>(
+  (ref) => AppLockRepository(
+    ref.watch(sharedPreferencesProvider),
+    ref.watch(secureStoreProvider),
+  ),
+);
+final biometricServiceProvider = Provider<BiometricService>(
+  (ref) => PlatformBiometricService(),
+);
+final hapticServiceProvider = Provider<HapticService>(
+  (ref) => const PlatformHapticService(),
 );
 final pendingOperationStoreProvider = Provider<PendingOperationStore>(
   (ref) => SharedPreferencesPendingOperationStore(
@@ -185,3 +202,8 @@ final localeControllerProvider = NotifierProvider<LocaleController, Locale?>(
 final themeControllerProvider = NotifierProvider<ThemeController, ThemeMode>(
   ThemeController.new,
 );
+final rapidScanControllerProvider = NotifierProvider<RapidScanController, bool>(
+  RapidScanController.new,
+);
+final appLockControllerProvider =
+    NotifierProvider<AppLockController, AppLockState>(AppLockController.new);

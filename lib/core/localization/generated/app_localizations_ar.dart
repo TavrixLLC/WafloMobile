@@ -42,7 +42,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cameraBody =>
-      'تستخدم وافلو للموظفين الكاميرا فقط لمسح رمز إقران جهاز الموظف لمرة واحدة.';
+      'يستخدم تطبيق وافلو للموظفين الكاميرا لمسح رموز إقران الموظفين ورموز عضوية العملاء.';
 
   @override
   String get continueAction => 'متابعة';
@@ -673,4 +673,277 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get m2ResultUnknown =>
       'نتيجة الخادم غير معروفة. لا تكرر العملية، بل تحقق من حالتها.';
+
+  @override
+  String get ready => 'جاهز';
+
+  @override
+  String get offline => 'غير متصل';
+
+  @override
+  String get unavailable => 'غير متاح';
+
+  @override
+  String get quickActions => 'إجراءات سريعة';
+
+  @override
+  String get scanCustomerHelp => 'ضع رمز عضوية العميل داخل الإطار.';
+
+  @override
+  String get scannerBlockedPending =>
+      'تحقق من المعاملة المعلقة قبل إجراء مسح جديد.';
+
+  @override
+  String get checkingTransaction => 'جارٍ التحقق من حالة المعاملة';
+
+  @override
+  String get pendingDoNotScanAgain => 'لا تمسح رمز هذا العميل مرة أخرى الآن.';
+
+  @override
+  String get checkAgain => 'تحقق مرة أخرى';
+
+  @override
+  String get connectionInterruptedAfterSend =>
+      'انقطع الاتصال بعد احتمال إرسال الطلب. سيتحقق وافلو من المعاملة الأصلية فقط.';
+
+  @override
+  String get requestingCamera => 'جارٍ طلب إذن الكاميرا';
+
+  @override
+  String get cameraPermissionRequiredTitle => 'يلزم السماح بالكاميرا';
+
+  @override
+  String get cameraPermissionRequiredBody =>
+      'اسمح باستخدام الكاميرا لمسح رمز عضوية العميل.';
+
+  @override
+  String get cameraPermissionDeniedTitle => 'استخدام الكاميرا متوقف';
+
+  @override
+  String get cameraPermissionDeniedBody =>
+      'افتح إعدادات الجهاز واسمح لتطبيق وافلو للموظفين باستخدام الكاميرا.';
+
+  @override
+  String get scannerReady => 'جاهز للمسح';
+
+  @override
+  String get codeDetected => 'تم اكتشاف الرمز';
+
+  @override
+  String get scannerResolving => 'جارٍ البحث عن العضوية';
+
+  @override
+  String get cameraUnavailable => 'الكاميرا غير متاحة';
+
+  @override
+  String get networkUnavailable => 'الشبكة غير متاحة';
+
+  @override
+  String get cancelled => 'تم الإلغاء';
+
+  @override
+  String get scannerPaused =>
+      'توقف الماسح مؤقتاً لأن تطبيق وافلو للموظفين في الخلفية';
+
+  @override
+  String get invalidCustomerQr => 'هذا ليس رمز عضوية صالحاً في وافلو.';
+
+  @override
+  String get unsupportedCustomerQr =>
+      'رمز العضوية هذا غير مدعوم في هذا الإصدار من وافلو للموظفين.';
+
+  @override
+  String get membershipNotFound => 'لم يتم العثور على العضوية';
+
+  @override
+  String get membershipInactive => 'هذه العضوية غير نشطة.';
+
+  @override
+  String get locationNotEligible => 'لا يمكن لهذا الموقع خدمة هذه العضوية.';
+
+  @override
+  String get currentProgress => 'التقدم الحالي';
+
+  @override
+  String get rewardUnlockNotice => 'فتح المكافأة';
+
+  @override
+  String stampsUntilReward(num count) {
+    return '$count طوابع حتى المكافأة';
+  }
+
+  @override
+  String get loyaltyProgressUpdated => 'تم تحديث تقدم الولاء';
+
+  @override
+  String get rapidScanMode => 'وضع المسح السريع';
+
+  @override
+  String get rapidScanModeBody =>
+      'إبراز إجراء مسح العميل التالي بعد نجاح العملية.';
+
+  @override
+  String get rapidScanReady =>
+      'تُمسح بيانات العميل ومدخلات الشراء قبل فتح الماسح.';
+
+  @override
+  String get deviceAndSecurity => 'الجهاز والأمان';
+
+  @override
+  String get securityProtected => 'الأمان: محمي';
+
+  @override
+  String get securityProtectedBody =>
+      'حالة الجهاز وضوابط الخصوصية المحلية مفعّلة.';
+
+  @override
+  String get thisDevice => 'هذا الجهاز';
+
+  @override
+  String get deviceName => 'اسم الجهاز';
+
+  @override
+  String get activeOrganization => 'المؤسسة النشطة';
+
+  @override
+  String get lastVerified => 'آخر تحقق';
+
+  @override
+  String get appVersionLabel => 'إصدار التطبيق';
+
+  @override
+  String get refreshStatus => 'تحديث الحالة';
+
+  @override
+  String get appLockSettings => 'إعدادات قفل التطبيق';
+
+  @override
+  String get appLock => 'قفل التطبيق';
+
+  @override
+  String get appLockLocalOnly =>
+      'يحمي قفل التطبيق هذا الهاتف فقط، ولا يغيّر دورك أو صلاحيات الخادم.';
+
+  @override
+  String get appLockOff => 'متوقف';
+
+  @override
+  String get biometric => 'المقاييس الحيوية';
+
+  @override
+  String get localStaffPin => 'رمز الموظف المحلي';
+
+  @override
+  String get lockAfter => 'القفل بعد';
+
+  @override
+  String get lockImmediately => 'فوراً';
+
+  @override
+  String get afterOneMinute => 'بعد دقيقة واحدة';
+
+  @override
+  String get afterFiveMinutes => 'بعد 5 دقائق';
+
+  @override
+  String get createLocalStaffPin => 'إنشاء رمز موظف محلي';
+
+  @override
+  String get pinNeverManager =>
+      'استخدم من 4 إلى 6 أرقام. يفتح هذا الرمز الهاتف فقط ولا يُعد رمز مدير.';
+
+  @override
+  String get newPin => 'الرمز الجديد';
+
+  @override
+  String get confirmPin => 'تأكيد الرمز';
+
+  @override
+  String get savePin => 'حفظ الرمز';
+
+  @override
+  String get pinMismatch => 'إدخالا الرمز غير متطابقين.';
+
+  @override
+  String get pinLengthHelp => 'أدخل من 4 إلى 6 أرقام.';
+
+  @override
+  String get appLocked => 'تطبيق وافلو للموظفين مقفل';
+
+  @override
+  String get appLockedBody =>
+      'افتح التطبيق للمتابعة. تبقى جلسة الدخول وأي معاملة معلقة محفوظتين بأمان.';
+
+  @override
+  String get unlock => 'فتح';
+
+  @override
+  String get unlockWithBiometrics => 'فتح بالمقاييس الحيوية';
+
+  @override
+  String get biometricUnlockReason => 'فتح تطبيق وافلو للموظفين';
+
+  @override
+  String get biometricSetupReason =>
+      'أكد المقاييس الحيوية لتفعيل قفل التطبيق المحلي';
+
+  @override
+  String get biometricUnavailable =>
+      'الفتح بالمقاييس الحيوية غير متاح على هذا الهاتف.';
+
+  @override
+  String get pinRateLimited => 'محاولات كثيرة. انتظر قبل المحاولة مجدداً.';
+
+  @override
+  String get unlockFailed => 'تعذر فتح تطبيق وافلو للموظفين. حاول مجدداً.';
+
+  @override
+  String get devicePendingTitle => 'موافقة الجهاز معلقة';
+
+  @override
+  String get devicePendingBody =>
+      'تم إقران الهاتف، لكنه غير جاهز لعمليات العملاء بعد.';
+
+  @override
+  String deviceReadyAtLocation(Object location) {
+    return 'جاهز في $location';
+  }
+
+  @override
+  String get serveNextCustomer => 'خدمة العميل التالي';
+
+  @override
+  String get appInformation => 'معلومات التطبيق';
+
+  @override
+  String get appearanceAndLanguage => 'المظهر واللغة';
+
+  @override
+  String get customerDetailsCleared => 'تم مسح بيانات العميل';
+
+  @override
+  String get newCycleStarted => 'بدأت دورة جديدة';
+
+  @override
+  String get rewardReadyBody =>
+      'بطاقة الطوابع مكتملة، ويمكن استرداد المكافأة الآن.';
+
+  @override
+  String get reviewDetails => 'مراجعة التفاصيل';
+
+  @override
+  String get operationInProgress => 'جارٍ إكمال المعاملة';
+
+  @override
+  String get noOfflineQueue =>
+      'لم تتم جدولة أي تغيير في الولاء. أعد الاتصال قبل المتابعة.';
+
+  @override
+  String get scanFrameLabel => 'إطار مسح رمز عضوية QR';
+
+  @override
+  String get flashOn => 'تشغيل الإضاءة';
+
+  @override
+  String get flashOff => 'إيقاف الإضاءة';
 }

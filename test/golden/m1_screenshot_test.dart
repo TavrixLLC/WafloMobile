@@ -289,6 +289,7 @@ Widget _settings({Locale locale = const Locale('en')}) => ProviderScope(
     themeControllerProvider.overrideWithBuild(
       (ref, notifier) => ThemeMode.system,
     ),
+    rapidScanControllerProvider.overrideWithBuild((ref, notifier) => true),
     environmentProvider.overrideWithValue(
       AppEnvironment(
         flavor: AppFlavor.development,

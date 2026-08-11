@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
-import 'package:waflo_staff/core/localization/localization_extensions.dart';
 
 final class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -15,7 +14,7 @@ final class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final boot = ref.watch(bootControllerProvider);
-    final m2 = ref.watch(m2OperationControllerProvider);
+    final operation = ref.watch(m2OperationControllerProvider);
     final deviceContext = boot.context;
     final online = ref
         .watch(connectivityProvider)
@@ -24,25 +23,27 @@ final class HomeScreen extends ConsumerWidget {
           error: (error, stackTrace) => false,
           loading: () => true,
         );
-    final synchronized = deviceContext == null
-        ? null
-        : DateFormat.yMd(
-            Localizations.localeOf(context).toLanguageTag(),
-          ).add_Hm().format(deviceContext.synchronizedAt.toLocal());
-    final hasCapability =
+    final capable =
         deviceContext != null &&
         (!deviceContext.currentLocation.capabilitiesKnown ||
             deviceContext.currentLocation.earningAllowed ||
             deviceContext.currentLocation.redemptionAllowed);
-    final canScan = online && hasCapability && m2.pendingOperation == null;
+    final pending = operation.pendingOperation != null;
+    final canScan = online && capable && !pending;
+    final lastVerified = deviceContext == null
+        ? null
+        : DateFormat.Hm(
+            Localizations.localeOf(context).toLanguageTag(),
+          ).format(deviceContext.synchronizedAt.toLocal());
+
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.appTitle),
         actions: [
           IconButton(
             tooltip: strings.settings,
-            onPressed: () => context.go('/settings'),
-            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push('/settings'),
+            icon: const Icon(Icons.tune_rounded),
           ),
         ],
       ),
@@ -50,287 +51,239 @@ final class HomeScreen extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: ref.read(bootControllerProvider.notifier).refreshContext,
           child: ListView(
-            padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+            key: const Key('task-first-home'),
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
             children: [
               if (!online) ...[
                 WafloStatusBanner(
-                  icon: Icons.cloud_off_outlined,
-                  message: strings.offlineBanner,
-                  color: WafloColors.warning,
+                  icon: Icons.cloud_off_rounded,
+                  message: '${strings.offlineBanner} ${strings.noOfflineQueue}',
+                  color: WafloColors.signalAmber,
+                  backgroundColor: context.waflo.warningSurface,
                 ),
-                const SizedBox(height: WafloSpacing.md),
+                const SizedBox(height: WafloSpacing.lg),
               ],
-              WafloStatusBanner(
-                icon: Icons.verified_user_outlined,
-                message: strings.deviceReady,
-                color: WafloColors.success,
-              ),
-              const SizedBox(height: WafloSpacing.md),
-              WafloInfoCard(
-                title:
-                    deviceContext?.organization.displayName ??
-                    strings.verifiedByWaflo,
-                icon: Icons.business_outlined,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              if (pending) ...[
+                _PendingTransaction(onPressed: () => context.push('/loyalty')),
+                const SizedBox(height: WafloSpacing.lg),
+              ],
+              Semantics(
+                container: true,
+                label: online ? strings.deviceReady : strings.offline,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: WafloSpacing.sm,
+                  runSpacing: WafloSpacing.sm,
                   children: [
-                    if (deviceContext != null)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        WafloReadyBeacon(
+                          color: online
+                              ? context.waflo.counter
+                              : WafloColors.signalAmber,
+                        ),
+                        const SizedBox(width: WafloSpacing.sm),
+                        WafloOperationalLabel(
+                          online ? strings.deviceReady : strings.offline,
+                          color: online
+                              ? context.waflo.counter
+                              : WafloColors.signalAmber,
+                        ),
+                      ],
+                    ),
+                    if (lastVerified != null)
                       Text(
-                        '${strings.staffLabel}: ${deviceContext.staff.displayName}',
+                        '${strings.lastVerified} $lastVerified',
+                        maxLines: 1,
+                        textAlign: TextAlign.end,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.waflo.subtleInk,
+                        ),
                       ),
-                    Text(
-                      '${strings.roleLabel}: ${strings.localizeRole(deviceContext?.role ?? '')}',
-                    ),
-                    Text(
-                      strings.assignedLocations(
-                        deviceContext?.assignedLocationCount ?? 0,
-                      ),
-                    ),
-                    if (synchronized != null)
-                      Text(strings.lastSynchronized(synchronized)),
                   ],
                 ),
               ),
-              const SizedBox(height: WafloSpacing.md),
-              if (deviceContext != null) ...[
-                WafloInfoCard(
-                  title: deviceContext.device.displayName,
-                  icon: Icons.phone_android_outlined,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${strings.deviceStatusLabel}: ${deviceContext.device.status}',
-                      ),
-                      Text(
-                        '${strings.platformLabel}: ${strings.localizePlatform(deviceContext.device.platform)}',
-                      ),
-                      Text(strings.appVersion(deviceContext.device.appVersion)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-                WafloInfoCard(
-                  title:
-                      '${strings.currentLocationLabel}: ${deviceContext.currentLocation.displayName}',
-                  icon: Icons.location_on_outlined,
-                  child: _Capabilities(
-                    earningAllowed:
-                        deviceContext.currentLocation.earningAllowed,
-                    redemptionAllowed:
-                        deviceContext.currentLocation.redemptionAllowed,
-                  ),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-                WafloInfoCard(
-                  title: strings.locationsTitle,
-                  icon: Icons.location_city_outlined,
-                  child: deviceContext.assignedLocations.isEmpty
-                      ? Text(strings.assignedLocations(0))
-                      : Column(
-                          children: [
-                            for (final location
-                                in deviceContext.assignedLocations)
-                              ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(location.displayName),
-                                subtitle: _Capabilities(
-                                  earningAllowed: location.earningAllowed,
-                                  redemptionAllowed: location.redemptionAllowed,
-                                ),
-                              ),
-                          ],
-                        ),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-                WafloInfoCard(
-                  title: strings.updatePolicyLabel,
-                  icon: Icons.system_update_outlined,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        strings.minimumSupportedVersion(
-                          deviceContext.appPolicy.minimumSupportedVersion,
-                        ),
-                      ),
-                      Text(strings.appVersionCurrent),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-              ],
-              WafloInfoCard(
-                title: strings.securityStatus,
-                icon: Icons.shield_outlined,
-                child: Row(
-                  children: [
-                    const Icon(Icons.check_circle, color: WafloColors.success),
-                    const SizedBox(width: WafloSpacing.sm),
-                    Text(strings.active),
-                  ],
-                ),
+              const SizedBox(height: WafloSpacing.lg),
+              Text(
+                deviceContext?.organization.displayName ?? strings.appTitle,
+                style: Theme.of(context).textTheme.displaySmall,
               ),
-              const SizedBox(height: WafloSpacing.md),
-              if (m2.pendingOperation != null) ...[
-                WafloStatusBanner(
-                  icon: Icons.hourglass_top_outlined,
-                  message: strings.pendingOperationBody,
-                  color: WafloColors.warning,
-                ),
-                const SizedBox(height: WafloSpacing.sm),
-                Card(
-                  child: ListTile(
-                    minTileHeight: 56,
-                    leading: const Icon(Icons.manage_search_outlined),
-                    title: Text(strings.pendingOperationTitle),
-                    subtitle: Text(strings.checkStatus),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.go('/loyalty'),
+              const SizedBox(height: WafloSpacing.sm),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 21,
+                    color: context.waflo.subtleInk,
                   ),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-              ],
-              if (!hasCapability) ...[
+                  const SizedBox(width: WafloSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      deviceContext?.currentLocation.displayName ??
+                          strings.unavailable,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: context.waflo.subtleInk,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: WafloSpacing.xxl),
+              if (!capable) ...[
                 WafloStatusBanner(
                   icon: Icons.location_off_outlined,
                   message: strings.noCapabilitiesBody,
-                  color: WafloColors.warning,
-                ),
-                const SizedBox(height: WafloSpacing.sm),
-                OutlinedButton.icon(
-                  onPressed: ref
-                      .read(bootControllerProvider.notifier)
-                      .refreshContext,
-                  icon: const Icon(Icons.refresh),
-                  label: Text(strings.refreshRequired),
+                  color: WafloColors.signalAmber,
+                  backgroundColor: context.waflo.warningSurface,
                 ),
                 const SizedBox(height: WafloSpacing.md),
               ],
-              _ActionTile(
-                icon: Icons.qr_code_scanner,
+              WafloPrimaryActionPanel(
                 title: strings.scanCustomer,
-                subtitle: online
-                    ? hasCapability
-                          ? strings.m2ScannerInstructions
-                          : strings.noCapabilitiesBody
+                subtitle: pending
+                    ? strings.scannerBlockedPending
+                    : online
+                    ? strings.serveNextCustomer
                     : strings.offlineOperationsBlocked,
-                enabled: canScan,
-                onTap: () {
-                  ref
-                      .read(m2OperationControllerProvider.notifier)
-                      .startScanning();
-                  context.go('/loyalty');
-                },
+                onPressed: canScan
+                    ? () {
+                        ref
+                            .read(m2OperationControllerProvider.notifier)
+                            .startScanning();
+                        context.go('/loyalty');
+                      }
+                    : null,
               ),
-              _UnavailableTile(
-                icon: Icons.receipt_long_outlined,
-                title: strings.recentOperations,
-                subtitle: strings.notAvailableInM2,
-              ),
-              _UnavailableTile(
-                icon: Icons.approval_outlined,
-                title: strings.managerApprovals,
-                subtitle: strings.notAvailableInM2,
+              const SizedBox(height: WafloSpacing.xl),
+              WafloOperationalLabel(strings.quickActions),
+              const SizedBox(height: WafloSpacing.sm),
+              Row(
+                children: [
+                  Expanded(
+                    child: _QuickAction(
+                      icon: Icons.shield_outlined,
+                      label: strings.deviceAndSecurity,
+                      onTap: () => context.push('/device-security'),
+                    ),
+                  ),
+                  const SizedBox(width: WafloSpacing.sm),
+                  Expanded(
+                    child: _QuickAction(
+                      icon: Icons.tune_rounded,
+                      label: strings.settings,
+                      onTap: () => context.push('/settings'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 0,
-        onDestinationSelected: (index) {
-          if (index == 1) {
-            context.go('/settings');
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            label: strings.home,
+    );
+  }
+}
+
+final class _PendingTransaction extends StatelessWidget {
+  const _PendingTransaction({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    return Material(
+      color: context.waflo.warningSurface,
+      borderRadius: BorderRadius.circular(WafloRadius.card),
+      child: InkWell(
+        key: const Key('pending-operation-home'),
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(WafloRadius.card),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.sync_problem_rounded,
+                color: WafloColors.signalAmber,
+              ),
+              const SizedBox(width: WafloSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.checkingTransaction,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: context.waflo.onWarningSurface,
+                      ),
+                    ),
+                    const SizedBox(height: WafloSpacing.xs),
+                    Text(
+                      strings.pendingDoNotScanAgain,
+                      style: TextStyle(color: context.waflo.onWarningSurface),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Directionality.of(context) == TextDirection.rtl
+                    ? Icons.chevron_left_rounded
+                    : Icons.chevron_right_rounded,
+                color: context.waflo.onWarningSurface,
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            label: strings.settings,
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-final class _ActionTile extends StatelessWidget {
-  const _ActionTile({
+final class _QuickAction extends StatelessWidget {
+  const _QuickAction({
     required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.enabled,
+    required this.label,
     required this.onTap,
   });
 
   final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool enabled;
+  final String label;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: ListTile(
-      minTileHeight: 64,
-      enabled: enabled,
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: enabled ? onTap : null,
+  Widget build(BuildContext context) => Material(
+    color: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      borderRadius: BorderRadius.circular(WafloRadius.button),
     ),
-  );
-}
-
-final class _Capabilities extends StatelessWidget {
-  const _Capabilities({
-    required this.earningAllowed,
-    required this.redemptionAllowed,
-  });
-
-  final bool earningAllowed;
-  final bool redemptionAllowed;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    String value(bool allowed) =>
-        allowed ? strings.capabilityAllowed : strings.capabilityBlocked;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('${strings.earningCapability}: ${value(earningAllowed)}'),
-        Text('${strings.redemptionCapability}: ${value(redemptionAllowed)}'),
-      ],
-    );
-  }
-}
-
-final class _UnavailableTile extends StatelessWidget {
-  const _UnavailableTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) => Card(
-    child: ListTile(
-      enabled: false,
-      leading: Icon(icon),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.lock_clock_outlined),
+    child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(WafloRadius.button),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 88),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(14),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon),
+              const SizedBox(height: WafloSpacing.sm),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+            ],
+          ),
+        ),
+      ),
     ),
   );
 }

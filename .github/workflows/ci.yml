@@ -1,4 +1,4 @@
-name: Flutter M2 Online Loyalty Operations
+name: Flutter M3A Staff Production Readiness
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m2-${{ github.ref }}
+  group: flutter-m3a-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   linux-quality:
-    name: Linux / generation, analysis, tests, security, archive
+    name: Linux / M1-M3A quality, security, archive
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -44,11 +44,11 @@ jobs:
         run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - name: Analyze fatal
         run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1 and M2 unit tests
+      - name: M1, M2, and M3A unit tests
         run: flutter test test/unit --coverage --reporter expanded
-      - name: M1 and M2 widget tests
+      - name: M1, M2, and M3A widget tests
         run: flutter test test/widget --reporter expanded
-      - name: M1 regression and M2 screenshot tests
+      - name: M1-M3A golden and screenshot tests
         run: flutter test test/golden --reporter expanded
       - name: Security scan
         run: dart run tool/security_scan.dart
@@ -65,12 +65,13 @@ jobs:
             coverage/lcov.info
             test/golden/goldens/*.png
             test/golden/goldens/m2/*.png
+            artifacts/handoff-m3a/screenshots/*.png
             test/golden/failures/*_testImage.png
           if-no-files-found: warn
           retention-days: 14
 
   android-emulator:
-    name: Android emulator / M1 regression and M2 matrix
+    name: Android emulator / M1-M3A Staff flow matrix
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -102,9 +103,10 @@ jobs:
             flutter test integration_test/m1_app_integration_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m1_pairing_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m2_app_integration_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
+            flutter test integration_test/m3a_staff_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
 
   android-builds:
-    name: Android / development debug and release builds
+    name: Android / M3A development, staging, production
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -127,7 +129,7 @@ jobs:
         run: flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
       - uses: actions/upload-artifact@v4
         with:
-          name: android-m2-apks
+          name: android-m3a-apks
           path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
           retention-days: 14

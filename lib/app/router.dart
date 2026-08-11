@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:waflo_staff/app/providers.dart';
+import 'package:waflo_staff/features/app_lock/presentation/app_lock_screens.dart';
 import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_gate.dart';
+import 'package:waflo_staff/features/device_security/presentation/device_security_screen.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
 import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
 
@@ -26,12 +28,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+      GoRoute(
+        path: '/device-security',
+        builder: (context, state) => const DeviceSecurityScreen(),
+      ),
+      GoRoute(
+        path: '/app-lock',
+        builder: (context, state) => const AppLockSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/app-lock/pin',
+        builder: (context, state) => const PinSetupScreen(),
+      ),
     ],
     redirect: (context, state) {
-      final protected =
-          state.matchedLocation == '/home' ||
-          state.matchedLocation == '/loyalty' ||
-          state.matchedLocation == '/settings';
+      final protected = state.matchedLocation != '/';
       if (protected && !ready) {
         return '/';
       }

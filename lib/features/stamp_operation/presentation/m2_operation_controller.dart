@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
+import 'package:waflo_staff/core/haptics/haptic_service.dart';
 import 'package:waflo_staff/core/money/minor_unit_money.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
@@ -130,6 +131,7 @@ final class M2OperationController extends Notifier<M2OperationState> {
     if (state.stage != M2OperationStage.scanning || _mutation != null) {
       return;
     }
+    unawaited(ref.read(hapticServiceProvider).play(WafloHaptic.scanDetected));
     if (candidate.length < 40 || candidate.length > 220) {
       _clearCredential();
       state = const M2OperationState(
@@ -271,6 +273,9 @@ final class M2OperationController extends Notifier<M2OperationState> {
         qr == null) {
       return;
     }
+    unawaited(
+      ref.read(hapticServiceProvider).play(WafloHaptic.operationConfirmed),
+    );
     final commandId = ref.read(businessCommandIdGeneratorProvider).next();
     final referenceHash = input.merchantTransactionReference == null
         ? null
@@ -319,6 +324,15 @@ final class M2OperationController extends Notifier<M2OperationState> {
         stage: M2OperationStage.stampSucceeded,
         stampResult: result,
         pendingOperation: completed,
+      );
+      unawaited(
+        ref
+            .read(hapticServiceProvider)
+            .play(
+              result.rewardReady
+                  ? WafloHaptic.rewardReady
+                  : WafloHaptic.operationSuccess,
+            ),
       );
     } on M2ContractViolation {
       state = state.copyWith(
@@ -429,6 +443,9 @@ final class M2OperationController extends Notifier<M2OperationState> {
         reward.requiresManagerApproval) {
       return;
     }
+    unawaited(
+      ref.read(hapticServiceProvider).play(WafloHaptic.operationConfirmed),
+    );
     final commandId = ref.read(businessCommandIdGeneratorProvider).next();
     final pending = PendingOperationRecord(
       commandId: commandId,
@@ -474,6 +491,9 @@ final class M2OperationController extends Notifier<M2OperationState> {
         stage: M2OperationStage.redemptionSucceeded,
         redemptionResult: result,
         pendingOperation: completed,
+      );
+      unawaited(
+        ref.read(hapticServiceProvider).play(WafloHaptic.operationSuccess),
       );
     } on M2ContractViolation {
       state = state.copyWith(
@@ -607,6 +627,11 @@ final class M2OperationController extends Notifier<M2OperationState> {
     state = const M2OperationState.idle();
   }
 
+  Future<void> resetForNextCustomer() async {
+    _resolveGeneration += 1;
+    await acknowledgeAndReset();
+  }
+
   void cancelLocalRecoveryView() {
     _clearCredential();
     // Closing the recovery screen does not cancel or hide the server command.
@@ -662,6 +687,9 @@ final class M2OperationController extends Notifier<M2OperationState> {
       pendingOperation: failed,
       failure: failure,
     );
+    unawaited(
+      ref.read(hapticServiceProvider).play(WafloHaptic.operationFailure),
+    );
   }
 
   Future<void> _markAmbiguous(PendingOperationRecord pending) async {
@@ -680,6 +708,7 @@ final class M2OperationController extends Notifier<M2OperationState> {
         responseReceived: false,
       ),
     );
+    unawaited(ref.read(hapticServiceProvider).play(WafloHaptic.warning));
   }
 
   void _clearCredential() => _qrPayload = null;

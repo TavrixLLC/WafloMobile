@@ -161,7 +161,7 @@ abstract class AppLocalizations {
   /// No description provided for @cameraBody.
   ///
   /// In en, this message translates to:
-  /// **'Waflo Staff uses the camera only to scan a one-time staff device pairing code.'**
+  /// **'Waflo Staff uses the camera to scan staff pairing codes and customer membership codes.'**
   String get cameraBody;
 
   /// No description provided for @continueAction.
@@ -1267,6 +1267,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The server result is unknown. Do not repeat the operation; check its status.'**
   String get m2ResultUnknown;
+
+  /// No description provided for @ready.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get ready;
+
+  /// No description provided for @offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get offline;
+
+  /// No description provided for @unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get unavailable;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get quickActions;
+
+  /// No description provided for @scanCustomerHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold the customer’s membership code inside the frame.'**
+  String get scanCustomerHelp;
+
+  /// No description provided for @scannerBlockedPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve the pending transaction before scanning again.'**
+  String get scannerBlockedPending;
+
+  /// No description provided for @checkingTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking transaction status'**
+  String get checkingTransaction;
+
+  /// No description provided for @pendingDoNotScanAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not scan this customer again yet.'**
+  String get pendingDoNotScanAgain;
+
+  /// No description provided for @checkAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get checkAgain;
+
+  /// No description provided for @connectionInterruptedAfterSend.
+  ///
+  /// In en, this message translates to:
+  /// **'The connection was interrupted after the request may have been sent. Waflo will check the original transaction only.'**
+  String get connectionInterruptedAfterSend;
+
+  /// No description provided for @requestingCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Requesting camera access'**
+  String get requestingCamera;
+
+  /// No description provided for @cameraPermissionRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access needed'**
+  String get cameraPermissionRequiredTitle;
+
+  /// No description provided for @cameraPermissionRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow camera access to scan the customer’s membership code.'**
+  String get cameraPermissionRequiredBody;
+
+  /// No description provided for @cameraPermissionDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is off'**
+  String get cameraPermissionDeniedTitle;
+
+  /// No description provided for @cameraPermissionDeniedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open device settings and allow camera access for Waflo Staff.'**
+  String get cameraPermissionDeniedBody;
+
+  /// No description provided for @scannerReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to scan'**
+  String get scannerReady;
+
+  /// No description provided for @codeDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Code detected'**
+  String get codeDetected;
+
+  /// No description provided for @scannerResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding membership'**
+  String get scannerResolving;
+
+  /// No description provided for @cameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable'**
+  String get cameraUnavailable;
+
+  /// No description provided for @networkUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Network unavailable'**
+  String get networkUnavailable;
+
+  /// No description provided for @cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get cancelled;
+
+  /// No description provided for @scannerPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner paused while Waflo Staff is in the background'**
+  String get scannerPaused;
+
+  /// No description provided for @invalidCustomerQr.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a valid Waflo membership code.'**
+  String get invalidCustomerQr;
+
+  /// No description provided for @unsupportedCustomerQr.
+  ///
+  /// In en, this message translates to:
+  /// **'This membership code is not supported by this version of Waflo Staff.'**
+  String get unsupportedCustomerQr;
+
+  /// No description provided for @membershipNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership not found'**
+  String get membershipNotFound;
+
+  /// No description provided for @membershipInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'This membership is not active.'**
+  String get membershipInactive;
+
+  /// No description provided for @locationNotEligible.
+  ///
+  /// In en, this message translates to:
+  /// **'This location cannot serve this membership.'**
+  String get locationNotEligible;
+
+  /// No description provided for @currentProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Current progress'**
+  String get currentProgress;
+
+  /// No description provided for @rewardUnlockNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward unlock'**
+  String get rewardUnlockNotice;
+
+  /// No description provided for @stampsUntilReward.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stamp until reward} other{{count} stamps until reward}}'**
+  String stampsUntilReward(num count);
+
+  /// No description provided for @loyaltyProgressUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty progress updated'**
+  String get loyaltyProgressUpdated;
+
+  /// No description provided for @rapidScanMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Rapid scan mode'**
+  String get rapidScanMode;
+
+  /// No description provided for @rapidScanModeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Scan next customer as the main action after success.'**
+  String get rapidScanModeBody;
+
+  /// No description provided for @rapidScanReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer details and purchase inputs are cleared before the scanner opens.'**
+  String get rapidScanReady;
+
+  /// No description provided for @deviceAndSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Device & Security'**
+  String get deviceAndSecurity;
+
+  /// No description provided for @securityProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'Security: Protected'**
+  String get securityProtected;
+
+  /// No description provided for @securityProtectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Device status and local privacy controls are active.'**
+  String get securityProtectedBody;
+
+  /// No description provided for @thisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get thisDevice;
+
+  /// No description provided for @deviceName.
+  ///
+  /// In en, this message translates to:
+  /// **'Device name'**
+  String get deviceName;
+
+  /// No description provided for @activeOrganization.
+  ///
+  /// In en, this message translates to:
+  /// **'Active organization'**
+  String get activeOrganization;
+
+  /// No description provided for @lastVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Last verified'**
+  String get lastVerified;
+
+  /// No description provided for @appVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get appVersionLabel;
+
+  /// No description provided for @refreshStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh status'**
+  String get refreshStatus;
+
+  /// No description provided for @appLockSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock settings'**
+  String get appLockSettings;
+
+  /// No description provided for @appLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLock;
+
+  /// No description provided for @appLockLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock protects this phone only. It does not change your Waflo role or server permissions.'**
+  String get appLockLocalOnly;
+
+  /// No description provided for @appLockOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get appLockOff;
+
+  /// No description provided for @biometric.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric'**
+  String get biometric;
+
+  /// No description provided for @localStaffPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Local Staff PIN'**
+  String get localStaffPin;
+
+  /// No description provided for @lockAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock after'**
+  String get lockAfter;
+
+  /// No description provided for @lockImmediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get lockImmediately;
+
+  /// No description provided for @afterOneMinute.
+  ///
+  /// In en, this message translates to:
+  /// **'After 1 minute'**
+  String get afterOneMinute;
+
+  /// No description provided for @afterFiveMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'After 5 minutes'**
+  String get afterFiveMinutes;
+
+  /// No description provided for @createLocalStaffPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Local Staff PIN'**
+  String get createLocalStaffPin;
+
+  /// No description provided for @pinNeverManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 4–6 digits. This unlocks this phone only and is never a Manager PIN.'**
+  String get pinNeverManager;
+
+  /// No description provided for @newPin.
+  ///
+  /// In en, this message translates to:
+  /// **'New PIN'**
+  String get newPin;
+
+  /// No description provided for @confirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm PIN'**
+  String get confirmPin;
+
+  /// No description provided for @savePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Save PIN'**
+  String get savePin;
+
+  /// No description provided for @pinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The PIN entries do not match.'**
+  String get pinMismatch;
+
+  /// No description provided for @pinLengthHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 4–6 digits.'**
+  String get pinLengthHelp;
+
+  /// No description provided for @appLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Waflo Staff is locked'**
+  String get appLocked;
+
+  /// No description provided for @appLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock to continue. Your signed-in session and any pending transaction remain safely preserved.'**
+  String get appLockedBody;
+
+  /// No description provided for @unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get unlock;
+
+  /// No description provided for @unlockWithBiometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with biometrics'**
+  String get unlockWithBiometrics;
+
+  /// No description provided for @biometricUnlockReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Waflo Staff'**
+  String get biometricUnlockReason;
+
+  /// No description provided for @biometricSetupReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm biometrics to enable local app lock'**
+  String get biometricSetupReason;
+
+  /// No description provided for @biometricUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric unlock is not available on this phone.'**
+  String get biometricUnavailable;
+
+  /// No description provided for @pinRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait before trying again.'**
+  String get pinRateLimited;
+
+  /// No description provided for @unlockFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Waflo Staff could not be unlocked. Try again.'**
+  String get unlockFailed;
+
+  /// No description provided for @devicePendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Device approval pending'**
+  String get devicePendingTitle;
+
+  /// No description provided for @devicePendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone is paired, but it is not ready for customer operations yet.'**
+  String get devicePendingBody;
+
+  /// No description provided for @deviceReadyAtLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready at {location}'**
+  String deviceReadyAtLocation(Object location);
+
+  /// No description provided for @serveNextCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Serve the next customer'**
+  String get serveNextCustomer;
+
+  /// No description provided for @appInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'App information'**
+  String get appInformation;
+
+  /// No description provided for @appearanceAndLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance & language'**
+  String get appearanceAndLanguage;
+
+  /// No description provided for @customerDetailsCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer details cleared'**
+  String get customerDetailsCleared;
+
+  /// No description provided for @newCycleStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'New cycle started'**
+  String get newCycleStarted;
+
+  /// No description provided for @rewardReadyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The stamp card is full. The reward can now be redeemed.'**
+  String get rewardReadyBody;
+
+  /// No description provided for @reviewDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Review details'**
+  String get reviewDetails;
+
+  /// No description provided for @operationInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Completing transaction'**
+  String get operationInProgress;
+
+  /// No description provided for @noOfflineQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'No loyalty change was queued. Reconnect before continuing.'**
+  String get noOfflineQueue;
+
+  /// No description provided for @scanFrameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership QR scan frame'**
+  String get scanFrameLabel;
+
+  /// No description provided for @flashOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn flash on'**
+  String get flashOn;
+
+  /// No description provided for @flashOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn flash off'**
+  String get flashOff;
 }
 
 class _AppLocalizationsDelegate

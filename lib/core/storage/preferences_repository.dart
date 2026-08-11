@@ -57,6 +57,7 @@ final class PreferencesRepository {
   static const _localeKey = 'preferences.locale.v1';
   static const _themeKey = 'preferences.theme.v1';
   static const _contextKey = 'cache.safe_device_context.v1';
+  static const _rapidScanKey = 'preferences.rapid_scan.v1';
 
   final SharedPreferences _preferences;
 
@@ -103,4 +104,9 @@ final class PreferencesRepository {
       _preferences.setString(_contextKey, jsonEncode(context.toJson()));
 
   Future<void> clearSafeContext() => _preferences.remove(_contextKey);
+
+  bool readRapidScanMode() => _preferences.getBool(_rapidScanKey) ?? true;
+
+  Future<void> setRapidScanMode(bool enabled) =>
+      _preferences.setBool(_rapidScanKey, enabled);
 }

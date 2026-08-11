@@ -33,8 +33,8 @@ void main() {
 
   testWidgets('M2 approved 24-scenario application matrix', (tester) async {
     final store = MemoryPendingOperationStore();
-    final api = _EmulatorLoyaltyApi(membership: _membership(2));
-    final container = _container(api: api, store: store);
+    final api = EmulatorLoyaltyApi(membership: m2IntegrationMembership(2));
+    final container = m2IntegrationContainer(api: api, store: store);
     addTearDown(container.dispose);
     final controller = container.read(m2OperationControllerProvider.notifier);
 
@@ -47,7 +47,7 @@ void main() {
       container.read(m2OperationControllerProvider).stage,
       M2OperationStage.scanning,
     );
-    await _pumpApp(tester, container);
+    await pumpM2IntegrationApp(tester, container);
     expect(find.byKey(const Key('fixture-customer-scanner')), findsOneWidget);
     expect(find.text(_credential), findsNothing);
 
@@ -134,7 +134,7 @@ void main() {
     final milestone = _milestoneStampResult();
     expect(milestone.progress.progress, 6);
     expect(milestone.unlockedRewards.single.finalReward, isFalse);
-    final finalReady = _membership(8);
+    final finalReady = m2IntegrationMembership(8);
     expect(finalReady.rewardReady, isTrue);
     expect(
       finalReady.progress.slots.every(
@@ -147,11 +147,11 @@ void main() {
     expect(finalReady.operationPolicy.selectableMaximumStampAmount, 0);
 
     // 14 milestone redemption.
-    final milestoneApi = _EmulatorLoyaltyApi(
-      membership: _membership(6, managerApproval: false),
+    final milestoneApi = EmulatorLoyaltyApi(
+      membership: m2IntegrationMembership(6, managerApproval: false),
       redemption: _milestoneRedemptionResult(),
     );
-    final milestoneContainer = _container(
+    final milestoneContainer = m2IntegrationContainer(
       api: milestoneApi,
       store: MemoryPendingOperationStore(),
     );
@@ -179,8 +179,10 @@ void main() {
     );
 
     // 15 manager approval remains unavailable in M2.
-    final managerApi = _EmulatorLoyaltyApi(membership: _membership(2));
-    final managerContainer = _container(
+    final managerApi = EmulatorLoyaltyApi(
+      membership: m2IntegrationMembership(2),
+    );
+    final managerContainer = m2IntegrationContainer(
       api: managerApi,
       store: MemoryPendingOperationStore(),
     );
@@ -205,11 +207,11 @@ void main() {
     expect(managerApi.redeemCommandIds, isEmpty);
 
     // 16 final redeem and 17 exact 0/goal all-empty result.
-    final finalApi = _EmulatorLoyaltyApi(
+    final finalApi = EmulatorLoyaltyApi(
       membership: finalReady,
-      redemption: _finalRedemptionResult(),
+      redemption: m2FinalRedemptionResult(),
     );
-    final finalContainer = _container(
+    final finalContainer = m2IntegrationContainer(
       api: finalApi,
       store: MemoryPendingOperationStore(),
     );
@@ -237,15 +239,15 @@ void main() {
 
     // 18 ambiguous stamp recovery.
     final ambiguousStampStore = MemoryPendingOperationStore();
-    final ambiguousStampApi = _EmulatorLoyaltyApi(
-      membership: _membership(2),
+    final ambiguousStampApi = EmulatorLoyaltyApi(
+      membership: m2IntegrationMembership(2),
       issueFailure: const ApiFailure(
         'OPERATION_RESULT_UNKNOWN',
         responseReceived: false,
       ),
-      recovery: _completedStampRecovery(),
+      recovery: m2CompletedStampRecovery(),
     );
-    final ambiguousStampContainer = _container(
+    final ambiguousStampContainer = m2IntegrationContainer(
       api: ambiguousStampApi,
       store: ambiguousStampStore,
     );
@@ -287,8 +289,8 @@ void main() {
     // 20 process restart restores pending command without a credential.
     final restartStore = MemoryPendingOperationStore()
       ..value = ambiguousRedemption;
-    final restartContainer = _container(
-      api: _EmulatorLoyaltyApi(membership: finalReady),
+    final restartContainer = m2IntegrationContainer(
+      api: EmulatorLoyaltyApi(membership: finalReady),
       store: restartStore,
     );
     addTearDown(restartContainer.dispose);
@@ -298,11 +300,11 @@ void main() {
     );
 
     // 21 network unavailable does not queue a mutation.
-    final offlineApi = _EmulatorLoyaltyApi(
-      membership: _membership(2),
+    final offlineApi = EmulatorLoyaltyApi(
+      membership: m2IntegrationMembership(2),
       resolveFailure: const NetworkFailure(),
     );
-    final offlineContainer = _container(
+    final offlineContainer = m2IntegrationContainer(
       api: offlineApi,
       store: MemoryPendingOperationStore(),
     );
@@ -327,8 +329,8 @@ void main() {
     expect(ambiguousStampStore.value, isNull);
 
     // 23 Arabic RTL and 24 accessibility at 200% text scale.
-    final displayContainer = _container(
-      api: _EmulatorLoyaltyApi(membership: _membership(5)),
+    final displayContainer = m2IntegrationContainer(
+      api: EmulatorLoyaltyApi(membership: m2IntegrationMembership(5)),
       store: MemoryPendingOperationStore(),
     );
     addTearDown(displayContainer.dispose);
@@ -337,7 +339,7 @@ void main() {
     );
     displayController.startScanning();
     await displayController.resolveCandidate(_credential, locale: 'ar');
-    await _pumpApp(
+    await pumpM2IntegrationApp(
       tester,
       displayContainer,
       locale: const Locale('ar'),
@@ -351,8 +353,8 @@ void main() {
   });
 }
 
-ProviderContainer _container({
-  required _EmulatorLoyaltyApi api,
+ProviderContainer m2IntegrationContainer({
+  required EmulatorLoyaltyApi api,
   required MemoryPendingOperationStore store,
 }) => ProviderContainer(
   overrides: [
@@ -374,7 +376,7 @@ ProviderContainer _container({
   ],
 );
 
-Future<void> _pumpApp(
+Future<void> pumpM2IntegrationApp(
   WidgetTester tester,
   ProviderContainer container, {
   Locale locale = const Locale('en'),
@@ -404,8 +406,8 @@ Future<void> _pumpApp(
   await tester.pump();
 }
 
-final class _EmulatorLoyaltyApi implements LoyaltyOperationsApi {
-  _EmulatorLoyaltyApi({
+final class EmulatorLoyaltyApi implements LoyaltyOperationsApi {
+  EmulatorLoyaltyApi({
     required this.membership,
     this.issueFailure,
     this.resolveFailure,
@@ -461,7 +463,10 @@ final class _EmulatorLoyaltyApi implements LoyaltyOperationsApi {
       recovery ?? _processingRecovery();
 }
 
-ResolvedMembership _membership(int progress, {bool managerApproval = true}) {
+ResolvedMembership m2IntegrationMembership(
+  int progress, {
+  bool managerApproval = true,
+}) {
   const goal = 8;
   final finalReward = progress == goal;
   return ResolvedMembership(
@@ -577,20 +582,21 @@ RedemptionOperationResult _milestoneRedemptionResult() =>
       requestId: '10000000-0000-4000-8000-000000000001',
     );
 
-RedemptionOperationResult _finalRedemptionResult() => RedemptionOperationResult(
-  operationPublicId: '30000000-0000-4000-8000-000000000004',
-  commandId: '20000000-0000-4000-8000-000000000004',
-  replayed: false,
-  redemptionPublicId: '50000000-0000-4000-8000-000000000002',
-  rewardStatus: RedemptionRewardStatus.redeemed,
-  finalReward: true,
-  beforeProgress: 8,
-  progress: StampProgress.validated(progress: 0, goal: 8),
-  rewardReady: false,
-  completedCycles: 1,
-  projectionVersion: 11,
-  requestId: '10000000-0000-4000-8000-000000000001',
-);
+RedemptionOperationResult m2FinalRedemptionResult() =>
+    RedemptionOperationResult(
+      operationPublicId: '30000000-0000-4000-8000-000000000004',
+      commandId: '20000000-0000-4000-8000-000000000004',
+      replayed: false,
+      redemptionPublicId: '50000000-0000-4000-8000-000000000002',
+      rewardStatus: RedemptionRewardStatus.redeemed,
+      finalReward: true,
+      beforeProgress: 8,
+      progress: StampProgress.validated(progress: 0, goal: 8),
+      rewardReady: false,
+      completedCycles: 1,
+      projectionVersion: 11,
+      requestId: '10000000-0000-4000-8000-000000000001',
+    );
 
 CommandRecoveryResult _processingRecovery() => CommandRecoveryResult(
   commandId: '20000000-0000-4000-8000-000000000005',
@@ -605,7 +611,7 @@ CommandRecoveryResult _processingRecovery() => CommandRecoveryResult(
   requestId: '10000000-0000-4000-8000-000000000001',
 );
 
-CommandRecoveryResult _completedStampRecovery() => CommandRecoveryResult(
+CommandRecoveryResult m2CompletedStampRecovery() => CommandRecoveryResult(
   commandId: _commandId,
   operationPublicId: '30000000-0000-4000-8000-000000000001',
   operationType: CommandOperationType.stamp,

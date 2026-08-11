@@ -81,6 +81,19 @@ void main() {
     );
   });
 
+  test('deployed staging host is HTTPS and release-safe', () {
+    expect(
+      environment(
+        flavor: AppFlavor.staging,
+        pairing: 'test',
+        url: 'https://api.staging.waflo.app',
+        level: AppLogLevel.info,
+        testAdapter: false,
+      ).validate(),
+      isEmpty,
+    );
+  });
+
   test('native and Dart flavors must match exactly', () {
     final mismatched = AppEnvironment(
       flavor: AppFlavor.production,

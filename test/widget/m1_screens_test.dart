@@ -109,8 +109,9 @@ void main() {
       ),
     );
     expect(find.text('Device paired'), findsOneWidget);
-    expect(find.textContaining('Staff'), findsWidgets);
-    expect(find.textContaining('assigned location'), findsOneWidget);
+    expect(find.text('Fixture Coffee'), findsOneWidget);
+    expect(find.text('Main branch'), findsOneWidget);
+    expect(find.textContaining('00000000-'), findsNothing);
   });
 
   testWidgets('paired M1 shell remains intact while M2 scan is activated', (
@@ -118,9 +119,8 @@ void main() {
   ) async {
     await tester.pumpWidget(_homeHarness());
     await tester.pumpAndSettle();
-    expect(find.text('Device ready'), findsOneWidget);
+    expect(find.text('DEVICE READY'), findsOneWidget);
     expect(find.text('Fixture Coffee'), findsOneWidget);
-    expect(find.textContaining('Fixture Staff'), findsOneWidget);
     expect(find.textContaining('Main branch'), findsWidgets);
     await tester.scrollUntilVisible(
       find.text('Scan customer'),
@@ -128,30 +128,34 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Scan customer'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Manager approvals'),
-      240,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text('Recent operations'), findsOneWidget);
-    expect(find.text('Manager approvals'), findsOneWidget);
-    expect(find.text('Not available in M2'), findsNWidgets(2));
+    expect(find.text('Device & Security'), findsOneWidget);
+    expect(find.text('Recent operations'), findsNothing);
+    expect(find.text('Manager approvals'), findsNothing);
   });
 
-  testWidgets('settings exposes only M1 preferences and safe controls', (
+  testWidgets('settings remains minimal and exposes safe preferences', (
     tester,
   ) async {
     await tester.pumpWidget(_settingsHarness());
     await tester.pumpAndSettle();
-    expect(find.text('Language'), findsOneWidget);
-    expect(find.text('Appearance'), findsOneWidget);
-    expect(find.text('Environment: development'), findsOneWidget);
+    expect(find.text('APPEARANCE & LANGUAGE'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+    expect(find.text('العربية'), findsOneWidget);
+    expect(find.text('System theme'), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.byKey(const Key('sign-out')),
+      find.text('Device & Security'),
       180,
       scrollable: find.byType(Scrollable).first,
     );
-    expect(find.byKey(const Key('sign-out')), findsOneWidget);
+    expect(find.text('Rapid scan mode'), findsOneWidget);
+    expect(find.text('Device & Security'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('APP INFORMATION'),
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('development'), findsOneWidget);
+    expect(find.byKey(const Key('sign-out')), findsNothing);
   });
 
   testWidgets('blocked screens cover all required explicit states', (
@@ -249,6 +253,7 @@ Widget _settingsHarness() => ProviderScope(
     themeControllerProvider.overrideWithBuild(
       (ref, notifier) => ThemeMode.system,
     ),
+    rapidScanControllerProvider.overrideWithBuild((ref, notifier) => true),
     environmentProvider.overrideWithValue(
       AppEnvironment(
         flavor: AppFlavor.development,

@@ -16,12 +16,16 @@ Waflo backend.
 - M2: customer scanning, Membership resolve, authoritative two-state stamp
   progress, online stamp/redeem operations, idempotency, and ambiguous-command
   recovery.
+- M3A: production-oriented Staff UI, deterministic readiness states, hardened
+  scanner lifecycle, Rapid Scan cleanup, local App Lock, privacy cover, Device
+  & Security, and an English/Arabic light/dark design system.
 - Loyalty mutations are online-only. There is no offline stamp, redemption, or
   mutation queue and no offline success state.
 - Manager approval acquisition is not implemented. Rewards requiring approval
   remain blocked.
 - Real customer notification delivery is not implemented.
-- M3A work is not part of the M2 final-reconciliation branch.
+- M3A remains mobile-only. It introduces no backend API, Wallet issuance,
+  notification delivery, social sign-in, or loyalty-economics change.
 
 The Staff flow remains task-focused: scan a customer, review authoritative
 status, perform one safe action, and finish. Ledger, signing, session, and
@@ -42,8 +46,9 @@ The generated Mobile M2 bundle under `contracts/w4/m2/` is consumed as-is from:
 The historical missing M2 patch is not represented as recovered. The repaired
 backend reconstructs an M2 compatibility layer over recovered W4 source and
 provides reproducible generated contracts. Its handoff reports 427/427 backend
-tests passing. Mobile approval still depends on the separate Real W4 gate
-against the exact backend commit above.
+tests passing. The repaired M2 Mobile baseline was formally approved by Real W4
+run `31487360271`, job `93765720145`: 26/26 Flutter and 16/16 backend tests
+passed. M3A preserves the immutable M2 contract bundle.
 
 ## Architecture and safety
 
@@ -79,8 +84,9 @@ flutter gen-l10n
 ```
 
 Committed `config/` files contain no secrets. Development can target the
-Android emulator host. Staging and production use reserved `.invalid`
-placeholders until approved HTTPS deployment hosts are supplied by CI/CD.
+Android emulator host. Staging is fixed to `https://api.staging.waflo.app` and
+production is fixed to `https://api.waflo.app`; release builds provide no host
+switching UI and reject HTTP/local endpoints.
 
 ## Local verification
 
@@ -99,5 +105,5 @@ Android/iOS integration requires an appropriate emulator or runner. The final
 Real W4 gate is separate, mandatory, and must use the approved self-hosted runner
 and backend commit; an ordinary skipped contract test is not a pass.
 
-See `docs/m1/`, `docs/m2/`, and `artifacts/handoff-m2-final-reconciliation/` for
-architecture, testing, and final evidence.
+See `docs/m1/`, `docs/m2/`, `docs/m3a/`, and `artifacts/handoff-m3a/` for
+architecture, testing, physical-device preparation, screenshots, and evidence.

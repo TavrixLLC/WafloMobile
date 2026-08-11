@@ -1,1 +1,2 @@
 "NSCameraUsageDescription" = "Waflo Staff uses the camera to scan staff pairing and customer membership QR codes.";
+"NSFaceIDUsageDescription" = "Waflo Staff uses Face ID only to unlock the local Staff app.";

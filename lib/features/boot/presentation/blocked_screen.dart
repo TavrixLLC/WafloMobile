@@ -16,97 +16,145 @@ final class BlockedScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final content = switch (state.stage) {
-      BootStage.sessionExpired => (
-        strings.sessionExpiredTitle,
-        strings.sessionExpiredBody,
-        Icons.schedule_outlined,
-        WafloColors.warning,
-      ),
-      BootStage.deviceRevoked => (
-        strings.deviceRevokedTitle,
-        strings.deviceRevokedBody,
-        Icons.block_outlined,
-        WafloColors.danger,
-      ),
-      BootStage.deviceCompromised => (
-        strings.deviceCompromisedTitle,
-        strings.deviceCompromisedBody,
-        Icons.gpp_bad_outlined,
-        WafloColors.danger,
-      ),
-      BootStage.appUpdateRequired => (
-        strings.updateRequiredTitle,
-        strings.updateRequiredBody,
-        Icons.system_update_outlined,
-        WafloColors.warning,
-      ),
-      BootStage.configurationError => (
-        strings.configurationErrorTitle,
-        strings.configurationErrorBody,
-        Icons.settings_suggest_outlined,
-        WafloColors.danger,
-      ),
-      BootStage.fatalLocalSecurityError => (
-        strings.localSecurityErrorTitle,
-        strings.localSecurityErrorBody,
-        Icons.key_off_outlined,
-        WafloColors.danger,
-      ),
-      _ => (
-        strings.backendUnavailableTitle,
-        strings.backendUnavailableBody,
-        Icons.cloud_off_outlined,
-        WafloColors.warning,
-      ),
-    };
+    final content = _content(strings, state.stage);
     final repair =
         state.stage == BootStage.sessionExpired ||
-        state.stage == BootStage.deviceRevoked ||
-        state.stage == BootStage.deviceCompromised ||
         state.stage == BootStage.fatalLocalSecurityError;
+    final retry =
+        state.stage == BootStage.backendUnavailable ||
+        state.stage == BootStage.devicePending;
     return WafloPage(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Icon(content.$3, size: 72, color: content.$4),
-          const SizedBox(height: WafloSpacing.lg),
-          Text(
-            content.$1,
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: WafloSpacing.md),
-          Text(content.$2, textAlign: TextAlign.center),
-          const SizedBox(height: WafloSpacing.lg),
-          if (repair)
-            FilledButton.icon(
-              key: const Key('reset-for-repair'),
-              onPressed: () => unawaited(
-                ref.read(bootControllerProvider.notifier).resetForRepair(),
+      child: Semantics(
+        liveRegion: true,
+        scopesRoute: true,
+        namesRoute: true,
+        explicitChildNodes: true,
+        label: '${content.title}. ${content.body}',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: WafloSpacing.xl),
+            Align(
+              child: Container(
+                width: 104,
+                height: 104,
+                decoration: BoxDecoration(
+                  color: content.background,
+                  borderRadius: BorderRadius.circular(32),
+                ),
+                child: Icon(content.icon, size: 50, color: content.foreground),
               ),
-              icon: const Icon(Icons.restart_alt),
-              label: Text(strings.resetForRepair),
-            )
-          else
-            FilledButton.icon(
-              key: const Key('retry-boot'),
-              onPressed: () => unawaited(
-                ref.read(bootControllerProvider.notifier).initialize(),
-              ),
-              icon: const Icon(Icons.refresh),
-              label: Text(strings.retry),
             ),
-          if (state.failure?.requestId case final requestId?) ...[
+            const SizedBox(height: WafloSpacing.xl),
+            Text(
+              content.title,
+              style: Theme.of(context).textTheme.headlineMedium,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: WafloSpacing.md),
             Text(
-              strings.requestReference(requestId),
+              content.body,
+              style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
             ),
+            const SizedBox(height: WafloSpacing.xl),
+            if (repair)
+              FilledButton.icon(
+                key: const Key('reset-for-repair'),
+                onPressed: () => unawaited(
+                  ref.read(bootControllerProvider.notifier).resetForRepair(),
+                ),
+                icon: const Icon(Icons.restart_alt_rounded),
+                label: Text(strings.resetForRepair),
+              )
+            else if (retry)
+              FilledButton.icon(
+                key: const Key('retry-boot'),
+                onPressed: () => unawaited(
+                  ref.read(bootControllerProvider.notifier).initialize(),
+                ),
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(strings.retry),
+              ),
           ],
-        ],
+        ),
       ),
     );
   }
+
+  static _BlockedContent _content(AppLocalizations strings, BootStage stage) =>
+      switch (stage) {
+        BootStage.devicePending => _BlockedContent(
+          title: strings.devicePendingTitle,
+          body: strings.devicePendingBody,
+          icon: Icons.hourglass_top_rounded,
+          foreground: WafloColors.signalAmber,
+          background: const Color(0xFFFFEBCB),
+        ),
+        BootStage.sessionExpired => _BlockedContent(
+          title: strings.sessionExpiredTitle,
+          body: strings.sessionExpiredBody,
+          icon: Icons.schedule_rounded,
+          foreground: WafloColors.signalAmber,
+          background: const Color(0xFFFFEBCB),
+        ),
+        BootStage.deviceRevoked => _BlockedContent(
+          title: strings.deviceRevokedTitle,
+          body: strings.deviceRevokedBody,
+          icon: Icons.block_rounded,
+          foreground: WafloColors.sealRed,
+          background: const Color(0xFFFFDAD6),
+        ),
+        BootStage.deviceCompromised => _BlockedContent(
+          title: strings.deviceCompromisedTitle,
+          body: strings.deviceCompromisedBody,
+          icon: Icons.gpp_bad_rounded,
+          foreground: WafloColors.sealRed,
+          background: const Color(0xFFFFDAD6),
+        ),
+        BootStage.appUpdateRequired => _BlockedContent(
+          title: strings.updateRequiredTitle,
+          body: strings.updateRequiredBody,
+          icon: Icons.system_update_rounded,
+          foreground: WafloColors.signalAmber,
+          background: const Color(0xFFFFEBCB),
+        ),
+        BootStage.configurationError => _BlockedContent(
+          title: strings.configurationErrorTitle,
+          body: strings.configurationErrorBody,
+          icon: Icons.settings_suggest_outlined,
+          foreground: WafloColors.sealRed,
+          background: const Color(0xFFFFDAD6),
+        ),
+        BootStage.fatalLocalSecurityError => _BlockedContent(
+          title: strings.localSecurityErrorTitle,
+          body: strings.localSecurityErrorBody,
+          icon: Icons.key_off_rounded,
+          foreground: WafloColors.sealRed,
+          background: const Color(0xFFFFDAD6),
+        ),
+        _ => _BlockedContent(
+          title: strings.backendUnavailableTitle,
+          body: '${strings.backendUnavailableBody} ${strings.noOfflineQueue}',
+          icon: Icons.cloud_off_rounded,
+          foreground: WafloColors.signalAmber,
+          background: const Color(0xFFFFEBCB),
+        ),
+      };
+}
+
+final class _BlockedContent {
+  const _BlockedContent({
+    required this.title,
+    required this.body,
+    required this.icon,
+    required this.foreground,
+    required this.background,
+  });
+
+  final String title;
+  final String body;
+  final IconData icon;
+  final Color foreground;
+  final Color background;
 }

@@ -1,4 +1,4 @@
-name: Flutter M2 iOS
+name: Flutter M3A iOS Production Readiness
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m2-ios-${{ github.ref }}
+  group: flutter-m3a-ios-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   macos-ios:
-    name: macOS / unit, widget, and three no-sign builds
+    name: macOS / M1-M3A tests and three no-sign builds
     # connectivity_plus 7.3.1 uses Network.framework APIs from the iOS 26 SDK.
     runs-on: macos-26
     timeout-minutes: 55
@@ -28,9 +28,9 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1 and M2 unit tests
+      - name: M1, M2, and M3A unit tests
         run: flutter test test/unit --reporter expanded
-      - name: M1 and M2 widget tests
+      - name: M1, M2, and M3A widget tests
         run: flutter test test/widget --reporter expanded
       - name: Localized camera-purpose strings
         run: |

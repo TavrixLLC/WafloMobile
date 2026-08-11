@@ -13,6 +13,7 @@ enum BootStage {
   pairingInProgress,
   pairedLoadingContext,
   pairedReady,
+  devicePending,
   sessionRefreshRequired,
   sessionExpired,
   deviceRevoked,
@@ -186,6 +187,10 @@ final class BootController extends Notifier<BootState> {
           reason: failure.safeCode,
         );
         state = BootState(stage: BootStage.deviceRevoked, failure: failure);
+        return;
+      }
+      if (session.deviceStatus == 'PENDING') {
+        state = BootState(stage: BootStage.devicePending, session: session);
         return;
       }
       if (session.deviceStatus == 'COMPROMISED') {

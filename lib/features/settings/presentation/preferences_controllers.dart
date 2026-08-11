@@ -21,3 +21,13 @@ final class ThemeController extends Notifier<ThemeMode> {
     state = mode;
   }
 }
+
+final class RapidScanController extends Notifier<bool> {
+  @override
+  bool build() => ref.read(preferencesRepositoryProvider).readRapidScanMode();
+
+  Future<void> setEnabled(bool enabled) async {
+    await ref.read(preferencesRepositoryProvider).setRapidScanMode(enabled);
+    state = enabled;
+  }
+}

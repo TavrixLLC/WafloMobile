@@ -7,7 +7,6 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
-import 'package:waflo_staff/core/localization/localization_extensions.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
@@ -397,19 +396,26 @@ final class _PairingSuccessScreen extends ConsumerWidget {
           Text(strings.pairingSuccessBody, textAlign: TextAlign.center),
           if (deviceContext != null) ...[
             const SizedBox(height: WafloSpacing.lg),
-            WafloInfoCard(
-              title: strings.verifiedByWaflo,
-              icon: Icons.apartment_outlined,
+            Container(
+              padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
+              decoration: BoxDecoration(
+                color: context.waflo.readySurface,
+                borderRadius: BorderRadius.circular(WafloRadius.stage),
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  WafloOperationalLabel(strings.verifiedByWaflo),
+                  const SizedBox(height: WafloSpacing.sm),
                   Text(
-                    '${strings.roleLabel}: ${strings.localizeRole(deviceContext.role)}',
+                    deviceContext.organization.displayName,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: context.waflo.onReadySurface,
+                    ),
                   ),
                   Text(
-                    strings.assignedLocations(
-                      deviceContext.assignedLocationCount,
-                    ),
+                    deviceContext.currentLocation.displayName,
+                    style: TextStyle(color: context.waflo.onReadySurface),
                   ),
                 ],
               ),
@@ -462,14 +468,6 @@ final class _PairingErrorScreen extends ConsumerWidget {
                 .showCameraRationale(),
             child: Text(strings.retry),
           ),
-          if (state.failure?.requestId case final requestId?) ...[
-            const SizedBox(height: WafloSpacing.md),
-            Text(
-              strings.requestReference(requestId),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
         ],
       ),
     );

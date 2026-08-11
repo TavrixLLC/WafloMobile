@@ -41,7 +41,7 @@ void main() {
     expect(find.text('Scan customer membership'), findsOneWidget);
     expect(find.byKey(const Key('fixture-customer-scanner')), findsOneWidget);
     expect(find.text(credential), findsNothing);
-    expect(find.text('Toggle camera flash'), findsOneWidget);
+    expect(find.byTooltip('Toggle camera flash'), findsOneWidget);
   });
 
   testWidgets('resolve loading and membership projections render safely', (
@@ -172,6 +172,11 @@ void main() {
         ),
       ),
     );
+    await tester.scrollUntilVisible(
+      find.text('Confirm redemption'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.textContaining('reset to 0 of 8'), findsOneWidget);
     expect(find.text('Confirm redemption'), findsOneWidget);
   });
@@ -231,7 +236,7 @@ void main() {
       ),
     );
     expect(find.text('Operation result pending'), findsWidgets);
-    expect(find.text('Check result'), findsOneWidget);
+    expect(find.text('Check again'), findsOneWidget);
 
     await tester.pumpWidget(
       _harness(

@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Waflo Staff uses the camera to scan staff pairing and customer membership QR codes.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Waflo Staff uses Face ID only to unlock the local Staff app.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

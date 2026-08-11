@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cameraBody =>
-      'Waflo Staff uses the camera only to scan a one-time staff device pairing code.';
+      'Waflo Staff uses the camera to scan staff pairing codes and customer membership codes.';
 
   @override
   String get continueAction => 'Continue';
@@ -692,4 +692,285 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get m2ResultUnknown =>
       'The server result is unknown. Do not repeat the operation; check its status.';
+
+  @override
+  String get ready => 'Ready';
+
+  @override
+  String get offline => 'Offline';
+
+  @override
+  String get unavailable => 'Unavailable';
+
+  @override
+  String get quickActions => 'Quick actions';
+
+  @override
+  String get scanCustomerHelp =>
+      'Hold the customer’s membership code inside the frame.';
+
+  @override
+  String get scannerBlockedPending =>
+      'Resolve the pending transaction before scanning again.';
+
+  @override
+  String get checkingTransaction => 'Checking transaction status';
+
+  @override
+  String get pendingDoNotScanAgain => 'Do not scan this customer again yet.';
+
+  @override
+  String get checkAgain => 'Check again';
+
+  @override
+  String get connectionInterruptedAfterSend =>
+      'The connection was interrupted after the request may have been sent. Waflo will check the original transaction only.';
+
+  @override
+  String get requestingCamera => 'Requesting camera access';
+
+  @override
+  String get cameraPermissionRequiredTitle => 'Camera access needed';
+
+  @override
+  String get cameraPermissionRequiredBody =>
+      'Allow camera access to scan the customer’s membership code.';
+
+  @override
+  String get cameraPermissionDeniedTitle => 'Camera access is off';
+
+  @override
+  String get cameraPermissionDeniedBody =>
+      'Open device settings and allow camera access for Waflo Staff.';
+
+  @override
+  String get scannerReady => 'Ready to scan';
+
+  @override
+  String get codeDetected => 'Code detected';
+
+  @override
+  String get scannerResolving => 'Finding membership';
+
+  @override
+  String get cameraUnavailable => 'Camera unavailable';
+
+  @override
+  String get networkUnavailable => 'Network unavailable';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String get scannerPaused =>
+      'Scanner paused while Waflo Staff is in the background';
+
+  @override
+  String get invalidCustomerQr => 'This is not a valid Waflo membership code.';
+
+  @override
+  String get unsupportedCustomerQr =>
+      'This membership code is not supported by this version of Waflo Staff.';
+
+  @override
+  String get membershipNotFound => 'Membership not found';
+
+  @override
+  String get membershipInactive => 'This membership is not active.';
+
+  @override
+  String get locationNotEligible =>
+      'This location cannot serve this membership.';
+
+  @override
+  String get currentProgress => 'Current progress';
+
+  @override
+  String get rewardUnlockNotice => 'Reward unlock';
+
+  @override
+  String stampsUntilReward(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count stamps until reward',
+      one: '1 stamp until reward',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get loyaltyProgressUpdated => 'Loyalty progress updated';
+
+  @override
+  String get rapidScanMode => 'Rapid scan mode';
+
+  @override
+  String get rapidScanModeBody =>
+      'Keep Scan next customer as the main action after success.';
+
+  @override
+  String get rapidScanReady =>
+      'Customer details and purchase inputs are cleared before the scanner opens.';
+
+  @override
+  String get deviceAndSecurity => 'Device & Security';
+
+  @override
+  String get securityProtected => 'Security: Protected';
+
+  @override
+  String get securityProtectedBody =>
+      'Device status and local privacy controls are active.';
+
+  @override
+  String get thisDevice => 'This device';
+
+  @override
+  String get deviceName => 'Device name';
+
+  @override
+  String get activeOrganization => 'Active organization';
+
+  @override
+  String get lastVerified => 'Last verified';
+
+  @override
+  String get appVersionLabel => 'App version';
+
+  @override
+  String get refreshStatus => 'Refresh status';
+
+  @override
+  String get appLockSettings => 'App lock settings';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockLocalOnly =>
+      'App lock protects this phone only. It does not change your Waflo role or server permissions.';
+
+  @override
+  String get appLockOff => 'Off';
+
+  @override
+  String get biometric => 'Biometric';
+
+  @override
+  String get localStaffPin => 'Local Staff PIN';
+
+  @override
+  String get lockAfter => 'Lock after';
+
+  @override
+  String get lockImmediately => 'Immediately';
+
+  @override
+  String get afterOneMinute => 'After 1 minute';
+
+  @override
+  String get afterFiveMinutes => 'After 5 minutes';
+
+  @override
+  String get createLocalStaffPin => 'Create Local Staff PIN';
+
+  @override
+  String get pinNeverManager =>
+      'Use 4–6 digits. This unlocks this phone only and is never a Manager PIN.';
+
+  @override
+  String get newPin => 'New PIN';
+
+  @override
+  String get confirmPin => 'Confirm PIN';
+
+  @override
+  String get savePin => 'Save PIN';
+
+  @override
+  String get pinMismatch => 'The PIN entries do not match.';
+
+  @override
+  String get pinLengthHelp => 'Enter 4–6 digits.';
+
+  @override
+  String get appLocked => 'Waflo Staff is locked';
+
+  @override
+  String get appLockedBody =>
+      'Unlock to continue. Your signed-in session and any pending transaction remain safely preserved.';
+
+  @override
+  String get unlock => 'Unlock';
+
+  @override
+  String get unlockWithBiometrics => 'Unlock with biometrics';
+
+  @override
+  String get biometricUnlockReason => 'Unlock Waflo Staff';
+
+  @override
+  String get biometricSetupReason =>
+      'Confirm biometrics to enable local app lock';
+
+  @override
+  String get biometricUnavailable =>
+      'Biometric unlock is not available on this phone.';
+
+  @override
+  String get pinRateLimited => 'Too many attempts. Wait before trying again.';
+
+  @override
+  String get unlockFailed => 'Waflo Staff could not be unlocked. Try again.';
+
+  @override
+  String get devicePendingTitle => 'Device approval pending';
+
+  @override
+  String get devicePendingBody =>
+      'This phone is paired, but it is not ready for customer operations yet.';
+
+  @override
+  String deviceReadyAtLocation(Object location) {
+    return 'Ready at $location';
+  }
+
+  @override
+  String get serveNextCustomer => 'Serve the next customer';
+
+  @override
+  String get appInformation => 'App information';
+
+  @override
+  String get appearanceAndLanguage => 'Appearance & language';
+
+  @override
+  String get customerDetailsCleared => 'Customer details cleared';
+
+  @override
+  String get newCycleStarted => 'New cycle started';
+
+  @override
+  String get rewardReadyBody =>
+      'The stamp card is full. The reward can now be redeemed.';
+
+  @override
+  String get reviewDetails => 'Review details';
+
+  @override
+  String get operationInProgress => 'Completing transaction';
+
+  @override
+  String get noOfflineQueue =>
+      'No loyalty change was queued. Reconnect before continuing.';
+
+  @override
+  String get scanFrameLabel => 'Membership QR scan frame';
+
+  @override
+  String get flashOn => 'Turn flash on';
+
+  @override
+  String get flashOff => 'Turn flash off';
 }

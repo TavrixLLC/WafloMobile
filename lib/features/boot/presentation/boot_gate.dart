@@ -32,6 +32,7 @@ final class _BootGateState extends ConsumerState<BootGate> {
       BootStage.unpaired ||
       BootStage.pairingInProgress => const PairingFlowScreen(),
       BootStage.sessionExpired ||
+      BootStage.devicePending ||
       BootStage.deviceRevoked ||
       BootStage.deviceCompromised ||
       BootStage.appUpdateRequired ||

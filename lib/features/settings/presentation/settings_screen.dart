@@ -16,98 +16,124 @@ final class SettingsScreen extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
     final themeMode = ref.watch(themeControllerProvider);
+    final rapidScan = ref.watch(rapidScanControllerProvider);
     final environment = ref.watch(environmentProvider);
     final packageInfo = ref.watch(packageInfoProvider);
     return Scaffold(
       appBar: AppBar(title: Text(strings.settings)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+          padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
           children: [
-            WafloInfoCard(
-              title: strings.chooseLanguage,
-              icon: Icons.language_outlined,
-              child: SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(value: 'en', label: Text(strings.english)),
-                  ButtonSegment(value: 'ar', label: Text(strings.arabic)),
-                ],
-                selected: {locale.languageCode},
-                onSelectionChanged: (selection) => unawaited(
-                  ref
-                      .read(localeControllerProvider.notifier)
-                      .setLocale(Locale(selection.first)),
-                ),
-              ),
-            ),
-            const SizedBox(height: WafloSpacing.md),
-            WafloInfoCard(
-              title: strings.appearance,
-              icon: Icons.contrast_outlined,
-              child: SegmentedButton<ThemeMode>(
-                segments: [
-                  ButtonSegment(
-                    value: ThemeMode.system,
-                    icon: const Icon(Icons.brightness_auto_outlined),
-                    label: Text(strings.themeSystem),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.light,
-                    icon: const Icon(Icons.light_mode_outlined),
-                    label: Text(strings.themeLight),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.dark,
-                    icon: const Icon(Icons.dark_mode_outlined),
-                    label: Text(strings.themeDark),
-                  ),
-                ],
-                selected: {themeMode},
-                onSelectionChanged: (selection) => unawaited(
-                  ref
-                      .read(themeControllerProvider.notifier)
-                      .setThemeMode(selection.first),
-                ),
-              ),
-            ),
-            const SizedBox(height: WafloSpacing.md),
-            WafloInfoCard(
-              title: strings.deviceInformation,
-              icon: Icons.info_outline,
+            WafloOperationalLabel(strings.appearanceAndLanguage),
+            const SizedBox(height: WafloSpacing.sm),
+            RadioGroup<String>(
+              groupValue: locale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  unawaited(
+                    ref
+                        .read(localeControllerProvider.notifier)
+                        .setLocale(Locale(value)),
+                  );
+                }
+              },
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  packageInfo.when(
-                    data: (info) => Text(strings.appVersion(info.version)),
-                    error: (error, stackTrace) => Text(strings.genericError),
-                    loading: () => const LinearProgressIndicator(),
+                  RadioListTile<String>(
+                    contentPadding: EdgeInsets.zero,
+                    value: 'en',
+                    title: Text(strings.english),
+                    secondary: const Icon(Icons.language_rounded),
                   ),
-                  if (!environment.isProduction)
-                    Text(strings.environment(environment.flavor.name)),
+                  RadioListTile<String>(
+                    contentPadding: EdgeInsets.zero,
+                    value: 'ar',
+                    title: Text(strings.arabic),
+                    secondary: const Icon(Icons.translate_rounded),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: WafloSpacing.md),
-            ListTile(
-              leading: const Icon(Icons.sync),
-              title: Text(strings.refreshContext),
-              onTap: () => unawaited(
-                ref.read(bootControllerProvider.notifier).refreshContext(),
+            const Divider(height: WafloSpacing.xl),
+            RadioGroup<ThemeMode>(
+              groupValue: themeMode,
+              onChanged: (value) {
+                if (value != null) {
+                  unawaited(
+                    ref
+                        .read(themeControllerProvider.notifier)
+                        .setThemeMode(value),
+                  );
+                }
+              },
+              child: Column(
+                children: [
+                  RadioListTile<ThemeMode>(
+                    contentPadding: EdgeInsets.zero,
+                    value: ThemeMode.system,
+                    title: Text(strings.themeSystem),
+                    secondary: const Icon(Icons.brightness_auto_outlined),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    contentPadding: EdgeInsets.zero,
+                    value: ThemeMode.light,
+                    title: Text(strings.themeLight),
+                    secondary: const Icon(Icons.light_mode_outlined),
+                  ),
+                  RadioListTile<ThemeMode>(
+                    contentPadding: EdgeInsets.zero,
+                    value: ThemeMode.dark,
+                    title: Text(strings.themeDark),
+                    secondary: const Icon(Icons.dark_mode_outlined),
+                  ),
+                ],
               ),
             ),
+            const Divider(height: WafloSpacing.xl),
+            SwitchListTile(
+              key: const Key('rapid-scan-setting'),
+              contentPadding: EdgeInsets.zero,
+              value: rapidScan,
+              onChanged: (value) => unawaited(
+                ref
+                    .read(rapidScanControllerProvider.notifier)
+                    .setEnabled(value),
+              ),
+              secondary: const Icon(Icons.fast_forward_rounded),
+              title: Text(strings.rapidScanMode),
+              subtitle: Text(strings.rapidScanModeBody),
+            ),
+            const SizedBox(height: WafloSpacing.md),
             ListTile(
-              leading: const Icon(Icons.policy_outlined),
-              title: Text(strings.privacy),
-              subtitle: Text(strings.availableInNextPhase),
-              enabled: false,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.shield_outlined),
+              title: Text(strings.deviceAndSecurity),
+              trailing: Icon(
+                Directionality.of(context) == TextDirection.rtl
+                    ? Icons.chevron_left_rounded
+                    : Icons.chevron_right_rounded,
+              ),
+              onTap: () => context.push('/device-security'),
+            ),
+            const Divider(height: WafloSpacing.xl),
+            WafloOperationalLabel(strings.appInformation),
+            const SizedBox(height: WafloSpacing.sm),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.info_outline_rounded),
+              title: Text(strings.appTitle),
+              subtitle: packageInfo.when(
+                data: (info) => Text(strings.appVersion(info.version)),
+                error: (error, stackTrace) => Text(strings.unavailable),
+                loading: () => const LinearProgressIndicator(),
+              ),
+              trailing: !environment.isProduction
+                  ? Text(environment.flavor.name)
+                  : null,
             ),
             ListTile(
-              leading: const Icon(Icons.support_agent_outlined),
-              title: Text(strings.support),
-              subtitle: Text(strings.availableInNextPhase),
-              enabled: false,
-            ),
-            ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.description_outlined),
               title: Text(strings.openSourceLicenses),
               onTap: () => showLicensePage(
@@ -115,63 +141,9 @@ final class SettingsScreen extends ConsumerWidget {
                 applicationName: strings.appTitle,
               ),
             ),
-            const Divider(),
-            ListTile(
-              key: const Key('sign-out'),
-              textColor: Theme.of(context).colorScheme.error,
-              iconColor: Theme.of(context).colorScheme.error,
-              leading: const Icon(Icons.logout),
-              title: Text(strings.signOut),
-              onTap: () => _confirmSignOut(context, ref, strings),
-            ),
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 1,
-        onDestinationSelected: (index) {
-          if (index == 0) {
-            context.go('/home');
-          }
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            label: strings.home,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.settings_outlined),
-            label: strings.settings,
-          ),
-        ],
-      ),
     );
-  }
-
-  Future<void> _confirmSignOut(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations strings,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(strings.signOutTitle),
-        content: Text(strings.signOutBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(strings.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(strings.signOut),
-          ),
-        ],
-      ),
-    );
-    if (confirmed == true) {
-      await ref.read(bootControllerProvider.notifier).logout();
-    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "WAFLO_ENV": "production",
-  "WAFLO_API_BASE_URL": "https://api.example.invalid",
+  "WAFLO_API_BASE_URL": "https://api.waflo.app",
   "WAFLO_PAIRING_ENVIRONMENT": "production",
   "WAFLO_LOG_LEVEL": "minimal",
   "WAFLO_ALLOW_TEST_ADAPTER": "false",
