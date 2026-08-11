@@ -5,10 +5,14 @@ final class RedemptionOperationInput {
   const RedemptionOperationInput({
     required this.entitlementPublicId,
     required this.finalReward,
+    this.note,
+    this.managerApprovalPublicId,
   });
 
   final String entitlementPublicId;
   final bool finalReward;
+  final String? note;
+  final String? managerApprovalPublicId;
 }
 
 enum RedemptionRewardStatus { redeemed, partiallyRedeemed }

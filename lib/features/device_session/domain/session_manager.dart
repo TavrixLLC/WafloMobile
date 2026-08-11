@@ -68,6 +68,14 @@ final class SessionManager {
     if (current == null) {
       throw const ApiFailure('STAFF_DEVICE_NOT_ACTIVE', httpStatus: 401);
     }
+    if (!current.accessExpiresAt.isAfter(_now().toUtc())) {
+      const failure = ApiFailure(
+        'STAFF_DEVICE_SESSION_EXPIRED',
+        httpStatus: 401,
+      );
+      await _handleConclusiveBlockedFailure(failure);
+      throw failure;
+    }
     late final StaffDeviceSession replacement;
     try {
       replacement = await _api.refresh(current);
@@ -96,7 +104,17 @@ final class SessionManager {
     if (session == null) {
       throw const ApiFailure('STAFF_DEVICE_NOT_ACTIVE', httpStatus: 401);
     }
-    if (refreshIfExpired && session.isExpired(_now())) {
+    if (!session.accessExpiresAt.isAfter(_now().toUtc())) {
+      const failure = ApiFailure(
+        'STAFF_DEVICE_SESSION_EXPIRED',
+        httpStatus: 401,
+      );
+      await _handleConclusiveBlockedFailure(failure);
+      throw failure;
+    }
+    if (refreshIfExpired &&
+        session.accessExpiresAt.difference(_now().toUtc()) <=
+            const Duration(minutes: 5)) {
       session = await refreshSingleFlight();
     }
     late final AuthoritativeDeviceContext context;
@@ -140,7 +158,10 @@ final class SessionManager {
     final disposition = classifyFailure(failure);
     if (disposition != FailureDisposition.deviceRevoked &&
         disposition != FailureDisposition.deviceCompromised &&
-        disposition != FailureDisposition.sessionExpired) {
+        disposition != FailureDisposition.sessionExpired &&
+        disposition != FailureDisposition.staffUserDeactivated &&
+        disposition != FailureDisposition.staffMembershipInactive &&
+        disposition != FailureDisposition.staffLocationAssignmentInvalid) {
       return;
     }
     await _sessionRepository.clear();

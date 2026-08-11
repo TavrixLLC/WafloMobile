@@ -18,6 +18,7 @@ import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
+import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/redemption_models.dart';
 import 'package:waflo_staff/features/stamp_operation/domain/stamp_models.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
@@ -124,6 +125,7 @@ void main() {
           stage: M2OperationStage.managerApprovalRequired,
           membership: membership,
           selectedReward: membership.availableRewards.first,
+          managerApprovalState: ManagerApprovalState.required,
         ),
       ),
     );

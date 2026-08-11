@@ -77,6 +77,45 @@ void main() {
   });
 
   test(
+    'expired access cannot be recovered with the refresh token alone',
+    () async {
+      final secureStore = MemorySecureKeyValueStore();
+      final sessions = StaffDeviceSessionRepository(secureStore);
+      await sessions.replaceAtomically(
+        fixtureSession(expiresAt: DateTime.utc(2026, DateTime.july, 29)),
+      );
+      final api = _FakeSessionApi();
+      final lifecycle = LocalLifecycleRepository(secureStore);
+      final manager = SessionManager(
+        sessions,
+        api,
+        DeviceIdentityRepository(secureStore),
+        PreferencesRepository(await SharedPreferences.getInstance()),
+        lifecycleRepository: lifecycle,
+        transactionRepository: PairingTransactionRepository(secureStore),
+        now: () => DateTime.utc(2026, DateTime.july, 30),
+      );
+
+      await expectLater(
+        manager.refreshSingleFlight(),
+        throwsA(
+          isA<ApiFailure>().having(
+            (failure) => failure.safeCode,
+            'safeCode',
+            'STAFF_DEVICE_SESSION_EXPIRED',
+          ),
+        ),
+      );
+      expect(api.refreshCalls, 0);
+      expect(await sessions.read(), isNull);
+      expect(
+        (await lifecycle.read())?.state,
+        LocalLifecycleState.recoveryRequired,
+      );
+    },
+  );
+
+  test(
     'inactive refresh clears unusable session and requires recovery',
     () async {
       final harness = await _Harness.create();
@@ -166,7 +205,7 @@ final class _Harness {
     final secureStore = MemorySecureKeyValueStore();
     final sessionRepository = StaffDeviceSessionRepository(secureStore);
     await sessionRepository.replaceAtomically(
-      fixtureSession(expiresAt: DateTime.utc(2026)),
+      fixtureSession(expiresAt: DateTime.utc(2026, DateTime.august, 30)),
     );
     final identityRepository = DeviceIdentityRepository(secureStore);
     final transactionRepository = PairingTransactionRepository(secureStore);

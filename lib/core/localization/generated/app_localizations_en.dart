@@ -319,6 +319,27 @@ class AppLocalizationsEn extends AppLocalizations {
       'Waflo blocked this device to protect the merchant account.';
 
   @override
+  String get staffUserDeactivatedTitle => 'Staff access deactivated';
+
+  @override
+  String get staffUserDeactivatedBody =>
+      'This Staff identity is no longer active. Ask an Owner to restore access, then pair this phone again.';
+
+  @override
+  String get staffMembershipInactiveTitle => 'Staff membership inactive';
+
+  @override
+  String get staffMembershipInactiveBody =>
+      'Access to this merchant is no longer active. Contact an Owner or Manager, then pair this phone again.';
+
+  @override
+  String get staffLocationInvalidTitle => 'Location access removed';
+
+  @override
+  String get staffLocationInvalidBody =>
+      'This phone is no longer assigned to its paired location. Ask an Owner or Manager to assign and pair it again.';
+
+  @override
   String get updateRequiredTitle => 'Update required';
 
   @override
@@ -536,7 +557,85 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get managerApprovalBody =>
-      'This reward cannot be redeemed in M2. Use an approved Manager flow when it becomes available.';
+      'Ask an Owner or Manager to approve this exact reward in Merchant Web. Keep this transaction open, then check again here.';
+
+  @override
+  String get managerApprovalPending => 'Waiting for manager approval';
+
+  @override
+  String get managerApprovalPendingBody =>
+      'No reward has been redeemed yet. The original request is held safely while an Owner or Manager decides in Merchant Web.';
+
+  @override
+  String get managerApprovalChecking => 'Checking approval';
+
+  @override
+  String get managerApprovalCheckingBody =>
+      'Waflo is checking the original reward request. Do not start another redemption.';
+
+  @override
+  String get managerApprovalCheck => 'Check approval';
+
+  @override
+  String get approvalStepRequested => 'Staff requested';
+
+  @override
+  String get approvalStepMerchant => 'Manager decides on Web';
+
+  @override
+  String get approvalStepComplete => 'Staff completes here';
+
+  @override
+  String get managerApprovalRejectedTitle => 'Approval declined';
+
+  @override
+  String get managerApprovalRejectedBody =>
+      'The reward was not redeemed. Start a new deliberate redemption only if the customer still wants to continue.';
+
+  @override
+  String get managerApprovalExpiredTitle => 'Approval expired';
+
+  @override
+  String get managerApprovalExpiredBody =>
+      'This approval can no longer be used. Start a new redemption to request a fresh decision.';
+
+  @override
+  String get managerApprovalConsumedTitle => 'Approval already used';
+
+  @override
+  String get managerApprovalConsumedBody =>
+      'Waflo will use the latest customer state. Do not reuse this approval for another transaction.';
+
+  @override
+  String get managerApprovalInvalidTitle => 'Approval cannot be used';
+
+  @override
+  String get managerApprovalInvalidBody =>
+      'The approval does not match this secure reward request. No loyalty change was made; refresh the customer state or contact an Owner.';
+
+  @override
+  String get managerApprovalStaleTitle => 'Reward details changed';
+
+  @override
+  String get managerApprovalStaleBody =>
+      'The reward changed after approval was requested. No redemption was made; scan the customer again.';
+
+  @override
+  String get managerApproverInactiveTitle => 'Manager access changed';
+
+  @override
+  String get managerApproverInactiveBody =>
+      'The approving Manager no longer has permission. No redemption was made; contact an active Owner or Manager.';
+
+  @override
+  String get approvalNoMutation =>
+      'Customer loyalty remains unchanged until Waflo confirms redemption.';
+
+  @override
+  String get startNewRedemption => 'Start new redemption';
+
+  @override
+  String get refreshCustomerState => 'Scan customer again';
 
   @override
   String get redeem => 'Redeem reward';
@@ -677,7 +776,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get m2BillingBlocked =>
-      'Loyalty operations are unavailable for this organization.';
+      'Loyalty operations are paused for this merchant. No customer progress changed. Ask an Owner to review billing in Merchant Web.';
+
+  @override
+  String get pairingInternalFailure =>
+      'Pairing could not be completed safely. Try a fresh pairing code or ask an Owner for help.';
 
   @override
   String get m2RiskBlocked =>

@@ -16,6 +16,9 @@ enum BootStage {
   devicePending,
   sessionRefreshRequired,
   sessionExpired,
+  staffUserDeactivated,
+  staffMembershipInactive,
+  staffLocationAssignmentInvalid,
   deviceRevoked,
   deviceCompromised,
   appUpdateRequired,
@@ -284,7 +287,10 @@ final class BootController extends Notifier<BootState> {
     final disposition = classifyFailure(failure);
     if (disposition == FailureDisposition.deviceRevoked ||
         disposition == FailureDisposition.deviceCompromised ||
-        disposition == FailureDisposition.sessionExpired) {
+        disposition == FailureDisposition.sessionExpired ||
+        disposition == FailureDisposition.staffUserDeactivated ||
+        disposition == FailureDisposition.staffMembershipInactive ||
+        disposition == FailureDisposition.staffLocationAssignmentInvalid) {
       unawaited(
         ref.read(m2OperationControllerProvider.notifier).onSessionBlocked(),
       );
@@ -296,6 +302,12 @@ final class BootController extends Notifier<BootState> {
       stage: switch (disposition) {
         FailureDisposition.deviceRevoked => BootStage.deviceRevoked,
         FailureDisposition.deviceCompromised => BootStage.deviceCompromised,
+        FailureDisposition.staffUserDeactivated =>
+          BootStage.staffUserDeactivated,
+        FailureDisposition.staffMembershipInactive =>
+          BootStage.staffMembershipInactive,
+        FailureDisposition.staffLocationAssignmentInvalid =>
+          BootStage.staffLocationAssignmentInvalid,
         FailureDisposition.updateRequired => BootStage.appUpdateRequired,
         FailureDisposition.sessionExpired => BootStage.sessionExpired,
         FailureDisposition.backendUnavailable => BootStage.backendUnavailable,
@@ -310,6 +322,10 @@ final class BootController extends Notifier<BootState> {
   BootStage _stageForRecoveryReason(String reason) => switch (reason) {
     'STAFF_DEVICE_REVOKED' => BootStage.deviceRevoked,
     'STAFF_DEVICE_COMPROMISED' => BootStage.deviceCompromised,
+    'STAFF_USER_DEACTIVATED' => BootStage.staffUserDeactivated,
+    'STAFF_MEMBERSHIP_INACTIVE' => BootStage.staffMembershipInactive,
+    'STAFF_LOCATION_ASSIGNMENT_INVALID' =>
+      BootStage.staffLocationAssignmentInvalid,
     'STAFF_DEVICE_SESSION_EXPIRED' ||
     'STAFF_DEVICE_NOT_ACTIVE' => BootStage.sessionExpired,
     _ => BootStage.fatalLocalSecurityError,

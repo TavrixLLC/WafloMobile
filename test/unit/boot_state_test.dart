@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/crypto/device_identity.dart';
+import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
@@ -40,6 +41,39 @@ void main() {
       addTearDown(container.dispose);
       await container.read(bootControllerProvider.notifier).initialize();
       expect(container.read(bootControllerProvider).stage, testCase.$2);
+    });
+  }
+
+  for (final testCase in const [
+    ('STAFF_USER_DEACTIVATED', BootStage.staffUserDeactivated),
+    ('STAFF_MEMBERSHIP_INACTIVE', BootStage.staffMembershipInactive),
+    ('STAFF_DEVICE_REVOKED', BootStage.deviceRevoked),
+    (
+      'STAFF_LOCATION_ASSIGNMENT_INVALID',
+      BootStage.staffLocationAssignmentInvalid,
+    ),
+  ]) {
+    test('current authority loss maps ${testCase.$1} distinctly', () async {
+      final store = MemorySecureKeyValueStore();
+      await DeviceIdentityRepository(store).loadOrCreate();
+      await StaffDeviceSessionRepository(
+        store,
+      ).replaceAtomically(fixtureSession());
+      await LocalLifecycleRepository(store).mark(LocalLifecycleState.paired);
+      final container = await _container(
+        store,
+        sessionApi: _FailingBootSessionApi(testCase.$1),
+      );
+      addTearDown(container.dispose);
+
+      await container.read(bootControllerProvider.notifier).initialize();
+
+      expect(container.read(bootControllerProvider).stage, testCase.$2);
+      expect(await StaffDeviceSessionRepository(store).read(), isNull);
+      expect(
+        (await LocalLifecycleRepository(store).read())?.reason,
+        testCase.$1,
+      );
     });
   }
 
@@ -158,6 +192,7 @@ void main() {
 Future<ProviderContainer> _container(
   MemorySecureKeyValueStore store, {
   PairingApi? pairingApi,
+  DeviceSessionApi sessionApi = const _BootSessionApi(),
 }) async => ProviderContainer(
   overrides: [
     secureStoreProvider.overrideWithValue(store),
@@ -165,7 +200,7 @@ Future<ProviderContainer> _container(
       await SharedPreferences.getInstance(),
     ),
     environmentProvider.overrideWithValue(_environment),
-    deviceSessionApiProvider.overrideWithValue(const _BootSessionApi()),
+    deviceSessionApiProvider.overrideWithValue(sessionApi),
     if (pairingApi != null) pairingApiProvider.overrideWithValue(pairingApi),
   ],
 );
@@ -219,6 +254,24 @@ final class _BootSessionApi implements DeviceSessionApi {
   @override
   Future<StaffDeviceSession> refresh(StaffDeviceSession current) async =>
       fixtureSession();
+}
+
+final class _FailingBootSessionApi implements DeviceSessionApi {
+  const _FailingBootSessionApi(this.code);
+
+  final String code;
+
+  @override
+  Future<AuthoritativeDeviceContext> getContext(
+    StaffDeviceSession current,
+  ) async => throw ApiFailure(code, httpStatus: 401);
+
+  @override
+  Future<void> logout(StaffDeviceSession current) async {}
+
+  @override
+  Future<StaffDeviceSession> refresh(StaffDeviceSession current) async =>
+      throw ApiFailure(code, httpStatus: 401);
 }
 
 final _environment = AppEnvironment(

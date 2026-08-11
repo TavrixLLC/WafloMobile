@@ -15,9 +15,11 @@ final class ApiFailure extends AppFailure {
     super.requestId,
     super.httpStatus,
     this.responseReceived = true,
+    this.details,
   });
 
   final bool responseReceived;
+  final Map<String, Object?>? details;
 }
 
 final class NetworkFailure extends AppFailure {
@@ -43,6 +45,9 @@ enum FailureDisposition {
   pairingUsed,
   pairingInvalid,
   sessionExpired,
+  staffUserDeactivated,
+  staffMembershipInactive,
+  staffLocationAssignmentInvalid,
   deviceRevoked,
   deviceCompromised,
   updateRequired,
@@ -57,6 +62,10 @@ FailureDisposition classifyFailure(AppFailure failure) =>
       'DEVICE_PAIRING_EXPIRED' => FailureDisposition.pairingExpired,
       'DEVICE_PAIRING_ALREADY_USED' => FailureDisposition.pairingUsed,
       'DEVICE_PAIRING_INVALID' => FailureDisposition.pairingInvalid,
+      'STAFF_USER_DEACTIVATED' => FailureDisposition.staffUserDeactivated,
+      'STAFF_MEMBERSHIP_INACTIVE' => FailureDisposition.staffMembershipInactive,
+      'STAFF_LOCATION_ASSIGNMENT_INVALID' =>
+        FailureDisposition.staffLocationAssignmentInvalid,
       'STAFF_DEVICE_REVOKED' => FailureDisposition.deviceRevoked,
       'STAFF_DEVICE_COMPROMISED' => FailureDisposition.deviceCompromised,
       'APP_UPDATE_REQUIRED' ||

@@ -11,6 +11,8 @@ import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/pending_operation/domain/command_recovery.dart';
+import 'package:waflo_staff/features/reward_redemption/data/manager_approval_store.dart';
+import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/redemption_models.dart';
 import 'package:waflo_staff/features/stamp_operation/domain/stamp_models.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
@@ -215,14 +217,205 @@ void main() {
     },
   );
 
+  test('billing denial preserves authoritative customer projection', () async {
+    final membership = _membership(2);
+    final api = _FakeLoyaltyApi(
+      membership: membership,
+      issueFailure: const ApiFailure(
+        'OPERATION_BILLING_BLOCKED',
+        httpStatus: 403,
+      ),
+    );
+    final store = MemoryPendingOperationStore();
+    final container = _container(api: api, store: store);
+    addTearDown(container.dispose);
+    final controller = container.read(m2OperationControllerProvider.notifier);
+
+    controller.startScanning();
+    await controller.resolveCandidate(_credential, locale: 'en');
+    controller.prepareStampReview(
+      amount: 1,
+      purchaseAmountText: '10.000',
+      transactionReferenceText: '',
+    );
+    await controller.confirmStamp(locale: 'en');
+
+    final state = container.read(m2OperationControllerProvider);
+    expect(state.stage, M2OperationStage.policyBlocked);
+    expect(state.failure?.safeCode, 'OPERATION_BILLING_BLOCKED');
+    expect(state.membership?.progress.progress, 2);
+    expect(state.stampResult, isNull);
+    expect(api.issueCommandIds, hasLength(1));
+    expect(store.value?.status, PendingOperationStatus.failed);
+  });
+
+  test('Manager-required redeem preserves and reuses exact intent', () async {
+    final membership = _membership(2);
+    final success = RedemptionOperationResult.fromJson(
+      _fixture('redeem-milestone.fixture.json'),
+    );
+    final api = _FakeLoyaltyApi(
+      membership: membership,
+      redemptionOutcomes: [
+        const ApiFailure(
+          'MANAGER_APPROVAL_REQUIRED',
+          httpStatus: 409,
+          details: {
+            'approvalRequest': {
+              'publicId': '70000000-0000-4000-8000-000000000001',
+              'status': 'PENDING',
+              'expiresAt': '2030-08-11T21:00:00.000Z',
+            },
+            'operationType': 'REDEEM',
+            'retryWithSameIdempotencyKey': true,
+          },
+        ),
+        const ApiFailure(
+          'MANAGER_APPROVAL_PENDING',
+          httpStatus: 409,
+          details: {
+            'approvalRequest': {
+              'publicId': '70000000-0000-4000-8000-000000000001',
+              'status': 'PENDING',
+              'expiresAt': '2030-08-11T21:00:00.000Z',
+            },
+            'operationType': 'REDEEM',
+            'retryWithSameIdempotencyKey': true,
+          },
+        ),
+        success,
+      ],
+    );
+    final approvalStore = MemoryManagerApprovalIntentStore();
+    final container = _container(
+      api: api,
+      store: MemoryPendingOperationStore(),
+      approvalStore: approvalStore,
+    );
+    addTearDown(container.dispose);
+    final controller = container.read(m2OperationControllerProvider.notifier);
+
+    controller.startScanning();
+    await controller.resolveCandidate(_credential, locale: 'en');
+    await controller.prepareRedemption(
+      membership.availableRewards.single,
+      locale: 'en',
+    );
+    expect(
+      container.read(m2OperationControllerProvider).stage,
+      M2OperationStage.redemptionReview,
+    );
+    await controller.confirmRedemption(locale: 'en');
+    expect(
+      container.read(m2OperationControllerProvider).managerApprovalState,
+      ManagerApprovalState.required,
+    );
+    expect(approvalStore.value, isNotNull);
+
+    await controller.checkManagerApproval(locale: 'en');
+    expect(
+      container.read(m2OperationControllerProvider).managerApprovalState,
+      ManagerApprovalState.pending,
+    );
+    await controller.checkManagerApproval(locale: 'en');
+
+    expect(
+      container.read(m2OperationControllerProvider).stage,
+      M2OperationStage.redemptionSucceeded,
+    );
+    expect(api.redeemCommandIds.toSet(), hasLength(1));
+    expect(api.redeemInputs.first.managerApprovalPublicId, isNull);
+    expect(
+      api.redeemInputs.skip(1).map((input) => input.managerApprovalPublicId),
+      everyElement('70000000-0000-4000-8000-000000000001'),
+    );
+    expect(approvalStore.value, isNull);
+  });
+
   test(
-    'Manager-required reward is blocked without approval acquisition',
+    'every terminal approval state fails closed without redemption',
+    () async {
+      const terminalCodes = <String, ManagerApprovalState>{
+        'MANAGER_APPROVAL_REJECTED': ManagerApprovalState.rejected,
+        'MANAGER_APPROVAL_EXPIRED': ManagerApprovalState.expired,
+        'MANAGER_APPROVAL_CONSUMED': ManagerApprovalState.consumed,
+        'MANAGER_APPROVAL_MISMATCH': ManagerApprovalState.mismatch,
+        'MANAGER_APPROVAL_INVALID': ManagerApprovalState.invalid,
+        'MANAGER_APPROVAL_NOT_APPLICABLE': ManagerApprovalState.notApplicable,
+        'MANAGER_APPROVAL_ALREADY_DECIDED': ManagerApprovalState.alreadyDecided,
+        'MANAGER_APPROVAL_STALE': ManagerApprovalState.stale,
+        'MANAGER_APPROVAL_APPROVER_INACTIVE':
+            ManagerApprovalState.approverInactive,
+      };
+
+      for (final entry in terminalCodes.entries) {
+        final membership = _membership(2);
+        final approvalStore = MemoryManagerApprovalIntentStore();
+        final pendingStore = MemoryPendingOperationStore();
+        final api = _FakeLoyaltyApi(
+          membership: membership,
+          redemptionOutcomes: [
+            _approvalFailure('MANAGER_APPROVAL_REQUIRED'),
+            ApiFailure(entry.key, httpStatus: 409),
+          ],
+        );
+        final container = _container(
+          api: api,
+          store: pendingStore,
+          approvalStore: approvalStore,
+        );
+        addTearDown(container.dispose);
+        final controller = container.read(
+          m2OperationControllerProvider.notifier,
+        );
+
+        controller.startScanning();
+        await controller.resolveCandidate(_credential, locale: 'en');
+        await controller.prepareRedemption(
+          membership.availableRewards.single,
+          locale: 'en',
+        );
+        await controller.confirmRedemption(locale: 'en');
+        await controller.checkManagerApproval(locale: 'en');
+
+        final state = container.read(m2OperationControllerProvider);
+        expect(state.stage, M2OperationStage.managerApprovalRequired);
+        expect(state.managerApprovalState, entry.value);
+        expect(state.redemptionResult, isNull);
+        expect(pendingStore.value?.status, PendingOperationStatus.failed);
+        expect(pendingStore.value?.failureCode, entry.key);
+        expect(api.redeemCommandIds.toSet(), hasLength(1));
+        expect(approvalStore.value, isNull);
+      }
+    },
+  );
+
+  test(
+    'approved retry response loss keeps command and uses status recovery',
     () async {
       final membership = _membership(2);
-      final api = _FakeLoyaltyApi(membership: membership);
+      final approvalStore = MemoryManagerApprovalIntentStore();
+      final pendingStore = MemoryPendingOperationStore();
+      final recoveryJson = _fixture('operation-completed.fixture.json');
+      final redemptionJson = _fixture('redeem-milestone.fixture.json');
+      const commandId = '20000000-0000-4000-8000-000000000001';
+      recoveryJson['commandId'] = commandId;
+      recoveryJson['operationType'] = 'REDEEM_REWARD';
+      redemptionJson['commandId'] = commandId;
+      redemptionJson['operationPublicId'] = recoveryJson['operationPublicId'];
+      recoveryJson['result'] = redemptionJson;
+      final api = _FakeLoyaltyApi(
+        membership: membership,
+        recovery: CommandRecoveryResult.fromJson(recoveryJson),
+        redemptionOutcomes: [
+          _approvalFailure('MANAGER_APPROVAL_REQUIRED'),
+          const ApiFailure('OPERATION_RESULT_UNKNOWN', responseReceived: false),
+        ],
+      );
       final container = _container(
         api: api,
-        store: MemoryPendingOperationStore(),
+        store: pendingStore,
+        approvalStore: approvalStore,
       );
       addTearDown(container.dispose);
       final controller = container.read(m2OperationControllerProvider.notifier);
@@ -233,12 +426,83 @@ void main() {
         membership.availableRewards.single,
         locale: 'en',
       );
+      await controller.confirmRedemption(locale: 'en');
+      await controller.checkManagerApproval(locale: 'en');
 
       expect(
         container.read(m2OperationControllerProvider).stage,
-        M2OperationStage.managerApprovalRequired,
+        M2OperationStage.redemptionAmbiguous,
       );
-      expect(api.redeemCommandIds, isEmpty);
+      expect(pendingStore.value?.status, PendingOperationStatus.processing);
+      expect(approvalStore.value, isNotNull);
+
+      await controller.recoverPending();
+
+      final state = container.read(m2OperationControllerProvider);
+      expect(state.stage, M2OperationStage.redemptionSucceeded);
+      expect(state.redemptionResult, isNotNull);
+      expect(api.redeemCommandIds.toSet(), hasLength(1));
+      expect(api.redeemCommandIds, hasLength(2));
+      expect(approvalStore.value, isNull);
+    },
+  );
+
+  test(
+    'approval intent survives restart and resumes with the same command',
+    () async {
+      final membership = _membership(2);
+      final approvalStore = MemoryManagerApprovalIntentStore();
+      final pendingStore = MemoryPendingOperationStore();
+      final api = _FakeLoyaltyApi(
+        membership: membership,
+        redemptionOutcomes: [
+          _approvalFailure('MANAGER_APPROVAL_REQUIRED'),
+          RedemptionOperationResult.fromJson(
+            _fixture('redeem-milestone.fixture.json'),
+          ),
+        ],
+      );
+      final beforeRestart = _container(
+        api: api,
+        store: pendingStore,
+        approvalStore: approvalStore,
+      );
+      final controller = beforeRestart.read(
+        m2OperationControllerProvider.notifier,
+      );
+
+      controller.startScanning();
+      await controller.resolveCandidate(_credential, locale: 'en');
+      await controller.prepareRedemption(
+        membership.availableRewards.single,
+        locale: 'en',
+      );
+      await controller.confirmRedemption(locale: 'en');
+      final originalCommand = pendingStore.value?.commandId;
+      beforeRestart.dispose();
+
+      final afterRestart = _container(
+        api: api,
+        store: pendingStore,
+        approvalStore: approvalStore,
+      );
+      addTearDown(afterRestart.dispose);
+      expect(
+        afterRestart.read(m2OperationControllerProvider).managerApprovalState,
+        ManagerApprovalState.required,
+      );
+
+      await afterRestart
+          .read(m2OperationControllerProvider.notifier)
+          .checkManagerApproval(locale: 'en');
+
+      expect(
+        afterRestart.read(m2OperationControllerProvider).stage,
+        M2OperationStage.redemptionSucceeded,
+      );
+      expect(api.redeemCommandIds, everyElement(originalCommand));
+      expect(api.redeemCommandIds, hasLength(2));
+      expect(approvalStore.value, isNull);
     },
   );
 
@@ -276,6 +540,7 @@ void main() {
 ProviderContainer _container({
   required _FakeLoyaltyApi api,
   required MemoryPendingOperationStore store,
+  ManagerApprovalIntentStore? approvalStore,
 }) => ProviderContainer(
   overrides: [
     bootControllerProvider.overrideWithBuild(
@@ -284,6 +549,9 @@ ProviderContainer _container({
     ),
     loyaltyOperationsApiProvider.overrideWithValue(api),
     pendingOperationStoreProvider.overrideWithValue(store),
+    managerApprovalIntentStoreProvider.overrideWithValue(
+      approvalStore ?? MemoryManagerApprovalIntentStore(),
+    ),
     businessCommandIdGeneratorProvider.overrideWithValue(
       FixedBusinessCommandIdGenerator(const [
         '20000000-0000-4000-8000-000000000001',
@@ -298,14 +566,17 @@ final class _FakeLoyaltyApi implements LoyaltyOperationsApi {
     this.issueFailure,
     this.recovery,
     this.redemption,
-  });
+    List<Object>? redemptionOutcomes,
+  }) : redemptionOutcomes = [...?redemptionOutcomes];
 
   final ResolvedMembership membership;
   final AppFailure? issueFailure;
   final CommandRecoveryResult? recovery;
   final RedemptionOperationResult? redemption;
+  final List<Object> redemptionOutcomes;
   final List<String> issueCommandIds = [];
   final List<String> redeemCommandIds = [];
+  final List<RedemptionOperationInput> redeemInputs = [];
   int resolveCalls = 0;
 
   @override
@@ -342,6 +613,12 @@ final class _FakeLoyaltyApi implements LoyaltyOperationsApi {
     required RedemptionOperationInput input,
   }) async {
     redeemCommandIds.add(commandId);
+    redeemInputs.add(input);
+    if (redemptionOutcomes.isNotEmpty) {
+      final outcome = redemptionOutcomes.removeAt(0);
+      if (outcome is AppFailure) throw outcome;
+      return outcome as RedemptionOperationResult;
+    }
     return redemption ??
         RedemptionOperationResult.fromJson(
           _fixture('redeem-milestone.fixture.json'),
@@ -400,3 +677,17 @@ CommandRecoveryResult _recoveryFixture(String name) {
   }
   return CommandRecoveryResult.fromJson(value);
 }
+
+ApiFailure _approvalFailure(String code) => ApiFailure(
+  code,
+  httpStatus: 409,
+  details: const {
+    'approvalRequest': {
+      'publicId': '70000000-0000-4000-8000-000000000001',
+      'status': 'PENDING',
+      'expiresAt': '2030-08-11T21:00:00.000Z',
+    },
+    'operationType': 'REDEEM',
+    'retryWithSameIdempotencyKey': true,
+  },
+);

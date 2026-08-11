@@ -19,6 +19,9 @@ final class BlockedScreen extends ConsumerWidget {
     final content = _content(strings, state.stage);
     final repair =
         state.stage == BootStage.sessionExpired ||
+        state.stage == BootStage.staffUserDeactivated ||
+        state.stage == BootStage.staffMembershipInactive ||
+        state.stage == BootStage.staffLocationAssignmentInvalid ||
         state.stage == BootStage.fatalLocalSecurityError;
     final retry =
         state.stage == BootStage.backendUnavailable ||
@@ -147,6 +150,27 @@ final class BlockedScreen extends ConsumerWidget {
           title: strings.sessionExpiredTitle,
           body: strings.sessionExpiredBody,
           icon: Icons.schedule_rounded,
+          foreground: WafloColors.signalAmber,
+          background: const Color(0xFFFFEBCB),
+        ),
+        BootStage.staffUserDeactivated => _BlockedContent(
+          title: strings.staffUserDeactivatedTitle,
+          body: strings.staffUserDeactivatedBody,
+          icon: Icons.person_off_rounded,
+          foreground: WafloColors.sealRed,
+          background: const Color(0xFFFFDAD6),
+        ),
+        BootStage.staffMembershipInactive => _BlockedContent(
+          title: strings.staffMembershipInactiveTitle,
+          body: strings.staffMembershipInactiveBody,
+          icon: Icons.badge_outlined,
+          foreground: WafloColors.signalAmber,
+          background: const Color(0xFFFFEBCB),
+        ),
+        BootStage.staffLocationAssignmentInvalid => _BlockedContent(
+          title: strings.staffLocationInvalidTitle,
+          body: strings.staffLocationInvalidBody,
+          icon: Icons.location_off_rounded,
           foreground: WafloColors.signalAmber,
           background: const Color(0xFFFFEBCB),
         ),

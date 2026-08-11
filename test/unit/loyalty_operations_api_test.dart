@@ -72,8 +72,87 @@ void main() {
     }
     expect(bodies[0].keys, {'qrPayload'});
     expect(bodies[1]['purchaseCurrency'], 'IQD');
+    expect(bodies[1], isNot(contains('managerOverride')));
     expect(bodies[2].keys, {'qrPayload', 'rewardEntitlementPublicId'});
   });
+
+  test(
+    'approved redeem retry keeps command and semantic body with a fresh envelope',
+    () async {
+      final store = MemorySecureKeyValueStore();
+      final sessions = StaffDeviceSessionRepository(store);
+      await sessions.replaceAtomically(_session);
+      final identity = DeviceIdentityRepository(store);
+      await identity.loadOrCreate();
+      final adapter = _RecordingAdapter();
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.example.invalid'))
+        ..httpClientAdapter = adapter;
+      final api = SignedLoyaltyOperationsApi(
+        dio: dio,
+        signer: DeviceRequestSigner(identity),
+        errorDecoder: const ApiErrorDecoder(),
+        sessionRepository: sessions,
+        refreshSession: () => throw StateError('Session must not refresh.'),
+        allowInsecureAssets: false,
+      );
+      const commandId = '10000000-0000-4000-8000-000000000009';
+      const entitlementId = '20000000-0000-4000-8000-000000000009';
+      const approvalId = '70000000-0000-4000-8000-000000000009';
+
+      await expectLater(
+        api.redeemReward(
+          qrPayload: _credential,
+          locale: 'en',
+          commandId: commandId,
+          input: const RedemptionOperationInput(
+            entitlementPublicId: entitlementId,
+            finalReward: false,
+            note: 'Customer confirmed reward',
+          ),
+        ),
+        throwsA(isA<ApiFailure>()),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 2));
+      await expectLater(
+        api.redeemReward(
+          qrPayload: _credential,
+          locale: 'en',
+          commandId: commandId,
+          input: const RedemptionOperationInput(
+            entitlementPublicId: entitlementId,
+            finalReward: false,
+            note: 'Customer confirmed reward',
+            managerApprovalPublicId: approvalId,
+          ),
+        ),
+        throwsA(isA<ApiFailure>()),
+      );
+
+      expect(adapter.requests, hasLength(2));
+      final first = adapter.requests[0];
+      final retry = adapter.requests[1];
+      final firstBody =
+          jsonDecode(first.data! as String) as Map<String, Object?>;
+      final retryBody =
+          jsonDecode(retry.data! as String) as Map<String, Object?>;
+      expect(first.headers['x-idempotency-key'], commandId);
+      expect(retry.headers['x-idempotency-key'], commandId);
+      expect(retryBody..remove('managerApprovalPublicId'), firstBody);
+      expect(retryBody, isNot(contains('managerOverride')));
+      for (final header in [
+        'X-Waflo-Request-Id',
+        'X-Waflo-Timestamp',
+        'X-Waflo-Nonce',
+        'X-Waflo-Signature',
+      ]) {
+        expect(
+          retry.headers[header],
+          isNot(first.headers[header]),
+          reason: header,
+        );
+      }
+    },
+  );
 }
 
 final class _RecordingAdapter implements HttpClientAdapter {

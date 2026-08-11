@@ -22,6 +22,7 @@ import 'package:waflo_staff/features/membership_resolution/data/loyalty_operatio
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
 import 'package:waflo_staff/features/pending_operation/domain/command_recovery.dart';
+import 'package:waflo_staff/features/reward_redemption/data/manager_approval_store.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/redemption_models.dart';
 import 'package:waflo_staff/features/stamp_operation/domain/stamp_models.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
@@ -178,7 +179,8 @@ void main() {
       6,
     );
 
-    // 15 manager approval remains unavailable in M2.
+    // 15 Production-v1 Manager policy reaches an explicit redemption review;
+    // no mutation is sent before Staff confirmation.
     final managerApi = EmulatorLoyaltyApi(
       membership: m2IntegrationMembership(2),
     );
@@ -202,7 +204,7 @@ void main() {
     );
     expect(
       managerContainer.read(m2OperationControllerProvider).stage,
-      M2OperationStage.managerApprovalRequired,
+      M2OperationStage.redemptionReview,
     );
     expect(managerApi.redeemCommandIds, isEmpty);
 
@@ -356,6 +358,7 @@ void main() {
 ProviderContainer m2IntegrationContainer({
   required EmulatorLoyaltyApi api,
   required MemoryPendingOperationStore store,
+  ManagerApprovalIntentStore? managerApprovalStore,
 }) => ProviderContainer(
   overrides: [
     environmentProvider.overrideWithValue(_environment),
@@ -366,6 +369,9 @@ ProviderContainer m2IntegrationContainer({
     connectivityProvider.overrideWithValue(const AsyncData(true)),
     loyaltyOperationsApiProvider.overrideWithValue(api),
     pendingOperationStoreProvider.overrideWithValue(store),
+    managerApprovalIntentStoreProvider.overrideWithValue(
+      managerApprovalStore ?? MemoryManagerApprovalIntentStore(),
+    ),
     businessCommandIdGeneratorProvider.overrideWithValue(
       FixedBusinessCommandIdGenerator(List.filled(20, _commandId)),
     ),
@@ -413,15 +419,18 @@ final class EmulatorLoyaltyApi implements LoyaltyOperationsApi {
     this.resolveFailure,
     this.redemption,
     this.recovery,
-  });
+    List<Object>? redemptionOutcomes,
+  }) : redemptionOutcomes = [...?redemptionOutcomes];
 
   ResolvedMembership membership;
   AppFailure? issueFailure;
   AppFailure? resolveFailure;
   RedemptionOperationResult? redemption;
   CommandRecoveryResult? recovery;
+  final List<Object> redemptionOutcomes;
   final List<String> issueCommandIds = [];
   final List<String> redeemCommandIds = [];
+  final List<RedemptionOperationInput> redeemInputs = [];
   final Map<String, StampOperationResult> _stampReceipts = {};
 
   @override
@@ -455,6 +464,12 @@ final class EmulatorLoyaltyApi implements LoyaltyOperationsApi {
     required RedemptionOperationInput input,
   }) async {
     redeemCommandIds.add(commandId);
+    redeemInputs.add(input);
+    if (redemptionOutcomes.isNotEmpty) {
+      final outcome = redemptionOutcomes.removeAt(0);
+      if (outcome is AppFailure) throw outcome;
+      return outcome as RedemptionOperationResult;
+    }
     return redemption ?? _milestoneRedemptionResult();
   }
 

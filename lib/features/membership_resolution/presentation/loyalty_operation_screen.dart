@@ -15,6 +15,7 @@ import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/loyalty_progress/presentation/two_state_stamp_grid.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
+import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
 final class LoyaltyOperationScreen extends ConsumerWidget {
@@ -27,7 +28,11 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
     final controller = ref.read(m2OperationControllerProvider.notifier);
     final submitting =
         state.stage == M2OperationStage.stampSubmitting ||
-        state.stage == M2OperationStage.redemptionSubmitting;
+        state.stage == M2OperationStage.redemptionSubmitting ||
+        state.managerApprovalState == ManagerApprovalState.checking;
+    final approvalPending =
+        state.stage == M2OperationStage.managerApprovalRequired &&
+        state.managerApprovalState?.canCheck == true;
     final scanning = state.stage == M2OperationStage.scanning;
     return PopScope(
       canPop: !submitting,
@@ -44,7 +49,8 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
                         onPressed: () async {
                           if (state.stage == M2OperationStage.stampAmbiguous ||
                               state.stage ==
-                                  M2OperationStage.redemptionAmbiguous) {
+                                  M2OperationStage.redemptionAmbiguous ||
+                              approvalPending) {
                             controller.cancelLocalRecoveryView();
                           } else {
                             await controller.acknowledgeAndReset();
@@ -95,6 +101,7 @@ final class _OperationBody extends ConsumerWidget {
         state.stage != M2OperationStage.membershipReady &&
         state.stage != M2OperationStage.stampAmbiguous &&
         state.stage != M2OperationStage.redemptionAmbiguous &&
+        state.stage != M2OperationStage.managerApprovalRequired &&
         state.stage != M2OperationStage.stampSucceeded &&
         state.stage != M2OperationStage.redemptionSucceeded) {
       return _CenteredOperation(
@@ -136,7 +143,8 @@ final class _OperationBody extends ConsumerWidget {
       M2OperationStage.stampAmbiguous ||
       M2OperationStage.redemptionAmbiguous => _PendingRecovery(state: state),
       M2OperationStage.managerApprovalRequired => _ManagerApprovalPanel(
-        reward: state.selectedReward,
+        state: state,
+        online: online,
       ),
       _ => _FailureState(state: state),
     };
@@ -887,7 +895,7 @@ final class _RewardTile extends ConsumerWidget {
             ),
           const SizedBox(height: WafloSpacing.md),
           FilledButton(
-            onPressed: redemptionAllowed || reward.requiresManagerApproval
+            onPressed: redemptionAllowed
                 ? () => ref
                       .read(m2OperationControllerProvider.notifier)
                       .prepareRedemption(reward, locale: locale)
@@ -1369,34 +1377,306 @@ final class _PendingRecovery extends ConsumerWidget {
 }
 
 final class _ManagerApprovalPanel extends ConsumerWidget {
-  const _ManagerApprovalPanel({required this.reward});
+  const _ManagerApprovalPanel({required this.state, required this.online});
 
-  final AvailableReward? reward;
+  final M2OperationState state;
+  final bool online;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
+    final approval = state.managerApprovalState ?? ManagerApprovalState.invalid;
+    final presentation = _approvalPresentation(context, strings, approval);
+    final controller = ref.read(m2OperationControllerProvider.notifier);
+    final locale = Localizations.localeOf(context).languageCode;
+    final reward = state.selectedReward;
+    final membership = state.membership;
     return _CenteredOperation(
-      child: WafloInfoCard(
-        title: strings.managerApprovalRequired,
-        icon: Icons.admin_panel_settings_outlined,
+      child: Semantics(
+        liveRegion: true,
+        container: true,
+        label: '${presentation.title}. ${presentation.body}',
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (reward != null) Text(reward!.name),
-            Text(strings.managerApprovalBody),
-            const SizedBox(height: WafloSpacing.md),
-            OutlinedButton(
-              onPressed: ref
-                  .read(m2OperationControllerProvider.notifier)
-                  .returnToMembership,
-              child: Text(strings.cancel),
+            Container(
+              padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
+              decoration: BoxDecoration(
+                color: presentation.background,
+                borderRadius: BorderRadius.circular(WafloRadius.stage),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: presentation.foreground.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: approval == ManagerApprovalState.checking
+                        ? Padding(
+                            padding: const EdgeInsetsDirectional.all(22),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: presentation.foreground,
+                            ),
+                          )
+                        : Icon(
+                            presentation.icon,
+                            size: 36,
+                            color: presentation.foreground,
+                          ),
+                  ),
+                  const SizedBox(height: WafloSpacing.md),
+                  Text(
+                    presentation.title,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: presentation.foreground,
+                    ),
+                  ),
+                  const SizedBox(height: WafloSpacing.sm),
+                  Text(
+                    presentation.body,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+              ),
             ),
+            if (membership != null || reward != null) ...[
+              const SizedBox(height: WafloSpacing.md),
+              WafloInfoCard(
+                title: reward?.name ?? strings.finalReward,
+                icon: Icons.redeem_rounded,
+                child: Text(
+                  [
+                    if (membership != null) membership.customerDisplayName,
+                    if (membership != null) membership.programName,
+                  ].join(' · '),
+                ),
+              ),
+            ],
+            const SizedBox(height: WafloSpacing.md),
+            _ApprovalHandoffRail(strings: strings, approvalState: approval),
+            const SizedBox(height: WafloSpacing.md),
+            WafloStatusBanner(
+              icon: Icons.shield_outlined,
+              message: strings.approvalNoMutation,
+              color: context.waflo.counter,
+            ),
+            const SizedBox(height: WafloSpacing.lg),
+            if (approval.canCheck)
+              FilledButton.icon(
+                key: const Key('manager-approval-check'),
+                onPressed: online
+                    ? () => controller.checkManagerApproval(locale: locale)
+                    : null,
+                icon: const Icon(Icons.sync_rounded),
+                label: Text(strings.managerApprovalCheck),
+              )
+            else if (approval != ManagerApprovalState.checking)
+              FilledButton.icon(
+                key: const Key('manager-approval-rescan'),
+                onPressed: () async {
+                  await controller.acknowledgeAndReset();
+                  controller.startScanning();
+                  if (context.mounted) context.go('/loyalty');
+                },
+                icon: const Icon(Icons.qr_code_scanner_rounded),
+                label: Text(
+                  approval.requiresNewIntent
+                      ? strings.startNewRedemption
+                      : strings.refreshCustomerState,
+                ),
+              ),
+            if (approval.canCheck) ...[
+              const SizedBox(height: WafloSpacing.sm),
+              TextButton(
+                onPressed: () {
+                  controller.cancelLocalRecoveryView();
+                  context.go('/home');
+                },
+                child: Text(strings.dismissRecovery),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
+
+  static _ApprovalPresentation _approvalPresentation(
+    BuildContext context,
+    AppLocalizations strings,
+    ManagerApprovalState state,
+  ) => switch (state) {
+    ManagerApprovalState.required => _ApprovalPresentation(
+      strings.managerApprovalRequired,
+      strings.managerApprovalBody,
+      Icons.approval_outlined,
+      context.waflo.onWarningSurface,
+      context.waflo.warningSurface,
+    ),
+    ManagerApprovalState.pending => _ApprovalPresentation(
+      strings.managerApprovalPending,
+      strings.managerApprovalPendingBody,
+      Icons.hourglass_top_rounded,
+      context.waflo.onWarningSurface,
+      context.waflo.warningSurface,
+    ),
+    ManagerApprovalState.checking => _ApprovalPresentation(
+      strings.managerApprovalChecking,
+      strings.managerApprovalCheckingBody,
+      Icons.sync_rounded,
+      context.waflo.onReadySurface,
+      context.waflo.readySurface,
+    ),
+    ManagerApprovalState.rejected => _ApprovalPresentation(
+      strings.managerApprovalRejectedTitle,
+      strings.managerApprovalRejectedBody,
+      Icons.do_not_disturb_alt_rounded,
+      context.waflo.onDangerSurface,
+      context.waflo.dangerSurface,
+    ),
+    ManagerApprovalState.expired => _ApprovalPresentation(
+      strings.managerApprovalExpiredTitle,
+      strings.managerApprovalExpiredBody,
+      Icons.timer_off_outlined,
+      context.waflo.onWarningSurface,
+      context.waflo.warningSurface,
+    ),
+    ManagerApprovalState.consumed => _ApprovalPresentation(
+      strings.managerApprovalConsumedTitle,
+      strings.managerApprovalConsumedBody,
+      Icons.history_rounded,
+      context.waflo.onWarningSurface,
+      context.waflo.warningSurface,
+    ),
+    ManagerApprovalState.stale => _ApprovalPresentation(
+      strings.managerApprovalStaleTitle,
+      strings.managerApprovalStaleBody,
+      Icons.refresh_rounded,
+      context.waflo.onWarningSurface,
+      context.waflo.warningSurface,
+    ),
+    ManagerApprovalState.approverInactive => _ApprovalPresentation(
+      strings.managerApproverInactiveTitle,
+      strings.managerApproverInactiveBody,
+      Icons.person_off_outlined,
+      context.waflo.onDangerSurface,
+      context.waflo.dangerSurface,
+    ),
+    _ => _ApprovalPresentation(
+      strings.managerApprovalInvalidTitle,
+      strings.managerApprovalInvalidBody,
+      Icons.shield_outlined,
+      context.waflo.onDangerSurface,
+      context.waflo.dangerSurface,
+    ),
+  };
+}
+
+final class _ApprovalHandoffRail extends StatelessWidget {
+  const _ApprovalHandoffRail({
+    required this.strings,
+    required this.approvalState,
+  });
+
+  final AppLocalizations strings;
+  final ManagerApprovalState approvalState;
+
+  @override
+  Widget build(BuildContext context) {
+    final active =
+        approvalState == ManagerApprovalState.required ||
+            approvalState == ManagerApprovalState.pending
+        ? 1
+        : 2;
+    final labels = [
+      strings.approvalStepRequested,
+      strings.approvalStepMerchant,
+      strings.approvalStepComplete,
+    ];
+    return Container(
+      padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(WafloRadius.card),
+      ),
+      child: Column(
+        children: [
+          for (var index = 0; index < labels.length; index++) ...[
+            Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: index < active
+                        ? context.waflo.counter
+                        : index == active
+                        ? context.waflo.warningSurface
+                        : Theme.of(context).colorScheme.surfaceContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    index < active
+                        ? Icons.check_rounded
+                        : index == 1
+                        ? Icons.language_rounded
+                        : Icons.smartphone_rounded,
+                    size: 18,
+                    color: index < active
+                        ? context.waflo.onCounter
+                        : index == active
+                        ? context.waflo.onWarningSurface
+                        : context.waflo.subtleInk,
+                  ),
+                ),
+                const SizedBox(width: WafloSpacing.sm),
+                Expanded(
+                  child: Text(
+                    labels[index],
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: index <= active ? null : context.waflo.subtleInk,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (index != labels.length - 1)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Container(
+                  margin: const EdgeInsetsDirectional.only(start: 15),
+                  width: 2,
+                  height: 18,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+final class _ApprovalPresentation {
+  const _ApprovalPresentation(
+    this.title,
+    this.body,
+    this.icon,
+    this.foreground,
+    this.background,
+  );
+
+  final String title;
+  final String body;
+  final IconData icon;
+  final Color foreground;
+  final Color background;
 }
 
 final class _FailureState extends ConsumerWidget {
@@ -1409,25 +1689,44 @@ final class _FailureState extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final expiredRecovery =
         state.failure?.safeCode == 'OPERATION_RECOVERY_EXPIRED';
+    final thresholdCorrection =
+        state.failure?.safeCode == 'PURCHASE_THRESHOLD_NOT_MET' &&
+        state.credentialAvailable &&
+        state.pendingOperation == null;
+    final billingBlocked =
+        state.failure?.safeCode == 'OPERATION_BILLING_BLOCKED';
+    final controller = ref.read(m2OperationControllerProvider.notifier);
     return _CenteredOperation(
       child: _ErrorPanel(
         icon: state.stage == M2OperationStage.networkUnavailable
             ? Icons.cloud_off_outlined
             : Icons.error_outline,
         message: strings.m2ErrorMessage(state.failure?.safeCode),
-        actionLabel: strings.scanNextCustomer,
+        actionLabel: thresholdCorrection
+            ? strings.reviewDetails
+            : billingBlocked
+            ? strings.dismissRecovery
+            : strings.scanNextCustomer,
+        actionIcon: thresholdCorrection
+            ? Icons.edit_outlined
+            : billingBlocked
+            ? Icons.home_outlined
+            : Icons.qr_code_scanner_rounded,
         onRetry:
             state.stage == M2OperationStage.sessionBlocked ||
                 state.stage == M2OperationStage.fatalContractError ||
                 expiredRecovery
             ? null
+            : thresholdCorrection
+            ? controller.returnToMembership
+            : billingBlocked
+            ? () async {
+                await controller.acknowledgeAndReset();
+                if (context.mounted) context.go('/home');
+              }
             : () async {
-                await ref
-                    .read(m2OperationControllerProvider.notifier)
-                    .acknowledgeAndReset();
-                ref
-                    .read(m2OperationControllerProvider.notifier)
-                    .startScanning();
+                await controller.acknowledgeAndReset();
+                controller.startScanning();
               },
       ),
     );
@@ -1440,12 +1739,14 @@ final class _ErrorPanel extends StatelessWidget {
     required this.message,
     required this.onRetry,
     required this.actionLabel,
+    this.actionIcon = Icons.qr_code_scanner_rounded,
   });
 
   final IconData icon;
   final String message;
   final VoidCallback? onRetry;
   final String actionLabel;
+  final IconData actionIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -1463,7 +1764,7 @@ final class _ErrorPanel extends StatelessWidget {
               const SizedBox(height: WafloSpacing.md),
               FilledButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.qr_code_scanner_rounded),
+                icon: Icon(actionIcon),
                 label: Text(actionLabel),
               ),
             ],

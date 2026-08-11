@@ -22,10 +22,18 @@ final class ApiErrorDecoder {
         final code = errorBody['code'];
         final requestId = errorBody['requestId'];
         if (code is String) {
+          final rawDetails = errorBody['details'];
           return ApiFailure(
             code,
             requestId: requestId is String ? requestId : null,
             httpStatus: status,
+            details: rawDetails is Map
+                ? Map<String, Object?>.unmodifiable(
+                    rawDetails.map(
+                      (key, value) => MapEntry(key.toString(), value),
+                    ),
+                  )
+                : null,
           );
         }
       }

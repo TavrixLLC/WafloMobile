@@ -179,7 +179,6 @@ final class AvailableReward {
   final bool requiresManagerApproval;
 
   bool isRedeemableAt(DateTime now) =>
-      !requiresManagerApproval &&
       redemptionCount < maximumRedemptionCount &&
       (expiresAt == null || expiresAt!.isAfter(now.toUtc()));
 

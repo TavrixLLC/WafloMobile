@@ -8,6 +8,8 @@ enum PendingOperationType { stamp, redemption }
 enum PendingOperationStatus {
   submitting,
   processing,
+  approvalRequired,
+  approvalPending,
   completed,
   failed,
   notFound,

@@ -86,6 +86,25 @@ void main() {
     expect(find.textContaining('expired'), findsOneWidget);
   });
 
+  testWidgets('pairing INTERNAL_ERROR is a safe failure, never success', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _pairingHarness(
+        const PairingViewState(
+          stage: PairingViewStage.error,
+          failure: ApiFailure('INTERNAL_ERROR', httpStatus: 500),
+        ),
+      ),
+    );
+    expect(
+      find.textContaining('could not be completed safely'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('pairing-error-retry')), findsOneWidget);
+    expect(find.text('Device paired'), findsNothing);
+  });
+
   testWidgets('pairing progress and success announce safe state', (
     tester,
   ) async {

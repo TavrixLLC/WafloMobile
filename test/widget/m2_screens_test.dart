@@ -183,7 +183,7 @@ void main() {
     },
   );
 
-  testWidgets('reward list blocks Manager flow and shows final warning', (
+  testWidgets('reward list flags Manager policy and shows final warning', (
     tester,
   ) async {
     final membership = _membership(2, managerApproval: true);

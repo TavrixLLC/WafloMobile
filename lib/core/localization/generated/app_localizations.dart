@@ -656,6 +656,42 @@ abstract class AppLocalizations {
   /// **'Waflo blocked this device to protect the merchant account.'**
   String get deviceCompromisedBody;
 
+  /// No description provided for @staffUserDeactivatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff access deactivated'**
+  String get staffUserDeactivatedTitle;
+
+  /// No description provided for @staffUserDeactivatedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This Staff identity is no longer active. Ask an Owner to restore access, then pair this phone again.'**
+  String get staffUserDeactivatedBody;
+
+  /// No description provided for @staffMembershipInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff membership inactive'**
+  String get staffMembershipInactiveTitle;
+
+  /// No description provided for @staffMembershipInactiveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Access to this merchant is no longer active. Contact an Owner or Manager, then pair this phone again.'**
+  String get staffMembershipInactiveBody;
+
+  /// No description provided for @staffLocationInvalidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Location access removed'**
+  String get staffLocationInvalidTitle;
+
+  /// No description provided for @staffLocationInvalidBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone is no longer assigned to its paired location. Ask an Owner or Manager to assign and pair it again.'**
+  String get staffLocationInvalidBody;
+
   /// No description provided for @updateRequiredTitle.
   ///
   /// In en, this message translates to:
@@ -1013,8 +1049,146 @@ abstract class AppLocalizations {
   /// No description provided for @managerApprovalBody.
   ///
   /// In en, this message translates to:
-  /// **'This reward cannot be redeemed in M2. Use an approved Manager flow when it becomes available.'**
+  /// **'Ask an Owner or Manager to approve this exact reward in Merchant Web. Keep this transaction open, then check again here.'**
   String get managerApprovalBody;
+
+  /// No description provided for @managerApprovalPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for manager approval'**
+  String get managerApprovalPending;
+
+  /// No description provided for @managerApprovalPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No reward has been redeemed yet. The original request is held safely while an Owner or Manager decides in Merchant Web.'**
+  String get managerApprovalPendingBody;
+
+  /// No description provided for @managerApprovalChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking approval'**
+  String get managerApprovalChecking;
+
+  /// No description provided for @managerApprovalCheckingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Waflo is checking the original reward request. Do not start another redemption.'**
+  String get managerApprovalCheckingBody;
+
+  /// No description provided for @managerApprovalCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check approval'**
+  String get managerApprovalCheck;
+
+  /// No description provided for @approvalStepRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff requested'**
+  String get approvalStepRequested;
+
+  /// No description provided for @approvalStepMerchant.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager decides on Web'**
+  String get approvalStepMerchant;
+
+  /// No description provided for @approvalStepComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff completes here'**
+  String get approvalStepComplete;
+
+  /// No description provided for @managerApprovalRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval declined'**
+  String get managerApprovalRejectedTitle;
+
+  /// No description provided for @managerApprovalRejectedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The reward was not redeemed. Start a new deliberate redemption only if the customer still wants to continue.'**
+  String get managerApprovalRejectedBody;
+
+  /// No description provided for @managerApprovalExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval expired'**
+  String get managerApprovalExpiredTitle;
+
+  /// No description provided for @managerApprovalExpiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This approval can no longer be used. Start a new redemption to request a fresh decision.'**
+  String get managerApprovalExpiredBody;
+
+  /// No description provided for @managerApprovalConsumedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval already used'**
+  String get managerApprovalConsumedTitle;
+
+  /// No description provided for @managerApprovalConsumedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Waflo will use the latest customer state. Do not reuse this approval for another transaction.'**
+  String get managerApprovalConsumedBody;
+
+  /// No description provided for @managerApprovalInvalidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval cannot be used'**
+  String get managerApprovalInvalidTitle;
+
+  /// No description provided for @managerApprovalInvalidBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The approval does not match this secure reward request. No loyalty change was made; refresh the customer state or contact an Owner.'**
+  String get managerApprovalInvalidBody;
+
+  /// No description provided for @managerApprovalStaleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward details changed'**
+  String get managerApprovalStaleTitle;
+
+  /// No description provided for @managerApprovalStaleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The reward changed after approval was requested. No redemption was made; scan the customer again.'**
+  String get managerApprovalStaleBody;
+
+  /// No description provided for @managerApproverInactiveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager access changed'**
+  String get managerApproverInactiveTitle;
+
+  /// No description provided for @managerApproverInactiveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The approving Manager no longer has permission. No redemption was made; contact an active Owner or Manager.'**
+  String get managerApproverInactiveBody;
+
+  /// No description provided for @approvalNoMutation.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer loyalty remains unchanged until Waflo confirms redemption.'**
+  String get approvalNoMutation;
+
+  /// No description provided for @startNewRedemption.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new redemption'**
+  String get startNewRedemption;
+
+  /// No description provided for @refreshCustomerState.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan customer again'**
+  String get refreshCustomerState;
 
   /// No description provided for @redeem.
   ///
@@ -1247,8 +1421,14 @@ abstract class AppLocalizations {
   /// No description provided for @m2BillingBlocked.
   ///
   /// In en, this message translates to:
-  /// **'Loyalty operations are unavailable for this organization.'**
+  /// **'Loyalty operations are paused for this merchant. No customer progress changed. Ask an Owner to review billing in Merchant Web.'**
   String get m2BillingBlocked;
+
+  /// No description provided for @pairingInternalFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Pairing could not be completed safely. Try a fresh pairing code or ask an Owner for help.'**
+  String get pairingInternalFailure;
 
   /// No description provided for @m2RiskBlocked.
   ///

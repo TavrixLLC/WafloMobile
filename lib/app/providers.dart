@@ -37,6 +37,7 @@ import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
+import 'package:waflo_staff/features/reward_redemption/data/manager_approval_store.dart';
 import 'package:waflo_staff/features/settings/presentation/preferences_controllers.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
@@ -71,6 +72,9 @@ final pendingOperationStoreProvider = Provider<PendingOperationStore>(
   (ref) => SharedPreferencesPendingOperationStore(
     ref.watch(sharedPreferencesProvider),
   ),
+);
+final managerApprovalIntentStoreProvider = Provider<ManagerApprovalIntentStore>(
+  (ref) => SecureManagerApprovalIntentStore(ref.watch(secureStoreProvider)),
 );
 final apiErrorDecoderProvider = Provider<ApiErrorDecoder>(
   (ref) => const ApiErrorDecoder(),

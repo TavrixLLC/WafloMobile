@@ -150,6 +150,9 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
       body: <String, Object?>{
         'qrPayload': qrPayload,
         'rewardEntitlementPublicId': input.entitlementPublicId,
+        if (input.note != null) 'note': input.note,
+        if (input.managerApprovalPublicId != null)
+          'managerApprovalPublicId': input.managerApprovalPublicId,
       },
       mutation: true,
       idempotencyKey: commandId,
@@ -261,7 +264,11 @@ final class SignedLoyaltyOperationsApi implements LoyaltyOperationsApi {
     if (current == null) {
       throw const ApiFailure('STAFF_DEVICE_NOT_ACTIVE', httpStatus: 401);
     }
-    if (current.isExpired(DateTime.now())) {
+    final now = DateTime.now().toUtc();
+    if (!current.accessExpiresAt.isAfter(now)) {
+      throw const ApiFailure('STAFF_DEVICE_SESSION_EXPIRED', httpStatus: 401);
+    }
+    if (current.accessExpiresAt.difference(now) <= const Duration(minutes: 5)) {
       return _refreshSession();
     }
     return current;

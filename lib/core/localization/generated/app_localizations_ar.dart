@@ -320,6 +320,27 @@ class AppLocalizationsAr extends AppLocalizations {
       'حظرت وافلو هذا الجهاز لحماية حساب التاجر.';
 
   @override
+  String get staffUserDeactivatedTitle => 'تم إيقاف وصول الموظف';
+
+  @override
+  String get staffUserDeactivatedBody =>
+      'هوية هذا الموظف غير نشطة. اطلب من المالك إعادة تفعيلها ثم أعد إقران الهاتف.';
+
+  @override
+  String get staffMembershipInactiveTitle => 'عضوية الموظف غير نشطة';
+
+  @override
+  String get staffMembershipInactiveBody =>
+      'لم يعد الوصول إلى هذا التاجر نشطاً. تواصل مع المالك أو المدير ثم أعد إقران الهاتف.';
+
+  @override
+  String get staffLocationInvalidTitle => 'تمت إزالة صلاحية الموقع';
+
+  @override
+  String get staffLocationInvalidBody =>
+      'لم يعد هذا الهاتف مخصصاً للموقع المقترن به. اطلب من المالك أو المدير تعيينه وإقرانه من جديد.';
+
+  @override
   String get updateRequiredTitle => 'التحديث مطلوب';
 
   @override
@@ -527,7 +548,85 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get managerApprovalBody =>
-      'لا يمكن استرداد هذه المكافأة في M2. استخدم مسار مدير معتمداً عند توفره.';
+      'اطلب من المالك أو المدير الموافقة على هذه المكافأة تحديداً من منصة التاجر. أبقِ المعاملة مفتوحة ثم تحقق هنا.';
+
+  @override
+  String get managerApprovalPending => 'بانتظار موافقة المدير';
+
+  @override
+  String get managerApprovalPendingBody =>
+      'لم تُسترد المكافأة بعد. يحتفظ وافلو بالطلب الأصلي بأمان حتى يقرر المالك أو المدير من منصة التاجر.';
+
+  @override
+  String get managerApprovalChecking => 'جارٍ التحقق من الموافقة';
+
+  @override
+  String get managerApprovalCheckingBody =>
+      'يتحقق وافلو من طلب المكافأة الأصلي. لا تبدأ عملية استرداد أخرى.';
+
+  @override
+  String get managerApprovalCheck => 'التحقق من الموافقة';
+
+  @override
+  String get approvalStepRequested => 'طلب الموظف';
+
+  @override
+  String get approvalStepMerchant => 'يقرر المدير عبر الويب';
+
+  @override
+  String get approvalStepComplete => 'يكمل الموظف هنا';
+
+  @override
+  String get managerApprovalRejectedTitle => 'تم رفض الموافقة';
+
+  @override
+  String get managerApprovalRejectedBody =>
+      'لم تُسترد المكافأة. ابدأ عملية استرداد جديدة فقط إذا كان العميل ما زال يرغب في المتابعة.';
+
+  @override
+  String get managerApprovalExpiredTitle => 'انتهت صلاحية الموافقة';
+
+  @override
+  String get managerApprovalExpiredBody =>
+      'لا يمكن استخدام هذه الموافقة. ابدأ استرداداً جديداً لطلب قرار جديد.';
+
+  @override
+  String get managerApprovalConsumedTitle => 'استُخدمت الموافقة مسبقاً';
+
+  @override
+  String get managerApprovalConsumedBody =>
+      'سيعتمد وافلو أحدث حالة للعميل. لا تستخدم هذه الموافقة في معاملة أخرى.';
+
+  @override
+  String get managerApprovalInvalidTitle => 'لا يمكن استخدام الموافقة';
+
+  @override
+  String get managerApprovalInvalidBody =>
+      'لا تطابق الموافقة طلب المكافأة الآمن هذا. لم يتغير الولاء؛ حدّث حالة العميل أو تواصل مع المالك.';
+
+  @override
+  String get managerApprovalStaleTitle => 'تغيّرت تفاصيل المكافأة';
+
+  @override
+  String get managerApprovalStaleBody =>
+      'تغيّرت المكافأة بعد طلب الموافقة. لم يتم الاسترداد؛ امسح رمز العميل مجدداً.';
+
+  @override
+  String get managerApproverInactiveTitle => 'تغيّرت صلاحية المدير';
+
+  @override
+  String get managerApproverInactiveBody =>
+      'لم يعد المدير الموافق يملك الصلاحية. لم يتم الاسترداد؛ تواصل مع مالك أو مدير نشط.';
+
+  @override
+  String get approvalNoMutation =>
+      'يبقى ولاء العميل بلا تغيير حتى يؤكد وافلو الاسترداد.';
+
+  @override
+  String get startNewRedemption => 'بدء استرداد جديد';
+
+  @override
+  String get refreshCustomerState => 'مسح العميل مجدداً';
 
   @override
   String get redeem => 'استرداد المكافأة';
@@ -660,7 +759,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get m2OperationFailed => 'فشلت العملية الأصلية ولم يُسجل نجاح.';
 
   @override
-  String get m2BillingBlocked => 'عمليات الولاء غير متاحة لهذه المؤسسة.';
+  String get m2BillingBlocked =>
+      'عمليات الولاء متوقفة مؤقتاً لهذا التاجر. لم يتغير تقدم العميل. اطلب من المالك مراجعة الفوترة في منصة التاجر.';
+
+  @override
+  String get pairingInternalFailure =>
+      'تعذر إكمال الإقران بأمان. جرّب رمز إقران جديداً أو اطلب مساعدة المالك.';
 
   @override
   String get m2RiskBlocked => 'حظرت وافلو العملية للمراجعة الأمنية.';

@@ -494,6 +494,7 @@ String _localizedPairingError(
     'STAFF_ASSIGNMENT_REQUIRED' => strings.assignmentRequiredError,
     'LOCATION_NOT_AUTHORIZED' => strings.locationNotAuthorizedError,
     'RISK_HARD_BLOCK' => strings.riskBlockedError,
+    'INTERNAL_ERROR' => strings.pairingInternalFailure,
     _ => strings.genericError,
   };
 }

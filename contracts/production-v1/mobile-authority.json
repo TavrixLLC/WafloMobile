@@ -1,0 +1,83 @@
+{
+  "authorityKind": "CURRENT_PRODUCTION_V1_MOBILE_INTEGRATION",
+  "backendRepository": "https://github.com/TavrixLLC/Waflo.git",
+  "backendBranch": "release/production-v1",
+  "backendSha": "763f2dfccdb24fb9bfa16457f0e49936840e20a1",
+  "documentationCommit": "06067d454077cdedf827f93ed0ced72d0e2e133d",
+  "documentationBundle": {
+    "fileName": "mobile.zip",
+    "sha256": "96c7ed42b095522a841a6b5ff8d0f11c7c1de92deedf69d589886998de22a152",
+    "entries": {
+      "production-v1-backend-contract.md": "862ccf2ca85342c5cdd55f13064e79433c5ff20ca59b381cc83aa9d39729beaf",
+      "production-v1-contract-summary.json": "1470856bd9fc9e6660785974de15db087d12dc07a1f3b192d1e8ca7b8c361446",
+      "production-v1-e2e-checklist.md": "23d890ca462636209d5f5ab3557ff361a8920dd2b81999a920b88837411045d8",
+      "production-v1-endpoint-catalog.md": "6a6b520325ae0a07978898064c85c0d7be60b42656cb45e34a4e1150d9be1632",
+      "README.md": "7a4e266a9071982252af13879bc990578301d9204aa1e30c0abdf138de51ef0a"
+    }
+  },
+  "historicalM2BundleSha256": "3e2c57f136bcfc4a270b51fd85ffd0e8e96832c8e12ba85dedecb17457d645ae",
+  "routeInventory": {
+    "total": 178,
+    "directMobileRequired": 9,
+    "directMobileOptional": 4,
+    "mobileSupporting": 12,
+    "notForMobile": 153,
+    "mobileRelevantTotal": 25
+  },
+  "directMobileRequired": [
+    "POST /v1/staff/devices/pairing/claim",
+    "POST /v1/staff/devices/pairing/complete",
+    "POST /v1/staff/devices/session/refresh",
+    "POST /v1/staff/devices/session/logout",
+    "GET /v1/staff/device-context",
+    "POST /v1/staff/loyalty/memberships/resolve",
+    "POST /v1/staff/operations/stamps",
+    "POST /v1/staff/operations/redeem",
+    "GET /v1/staff/operations/commands/:commandId"
+  ],
+  "directMobileOptional": [
+    "POST /v1/staff/devices/pairing/challenge",
+    "POST /v1/staff/operations/reverse",
+    "GET /v1/staff/operations/:operationPublicId",
+    "GET /v1/health"
+  ],
+  "productionRules": {
+    "stampManagerOverride": "OMIT",
+    "managerApprovalOperation": "REDEEM_ONLY",
+    "purchaseThresholdCode": "PURCHASE_THRESHOLD_NOT_MET",
+    "billingDenialCode": "OPERATION_BILLING_BLOCKED",
+    "onlineMutationsOnly": true,
+    "staffLogin": false,
+    "locationSelfAssignment": false,
+    "merchantCookieRoutes": false
+  },
+  "managerApprovalCodes": [
+    "MANAGER_APPROVAL_REQUIRED",
+    "MANAGER_APPROVAL_PENDING",
+    "MANAGER_APPROVAL_REJECTED",
+    "MANAGER_APPROVAL_EXPIRED",
+    "MANAGER_APPROVAL_CONSUMED",
+    "MANAGER_APPROVAL_MISMATCH",
+    "MANAGER_APPROVAL_INVALID",
+    "MANAGER_APPROVAL_NOT_APPLICABLE",
+    "MANAGER_APPROVAL_ALREADY_DECIDED",
+    "MANAGER_APPROVAL_STALE",
+    "MANAGER_APPROVAL_APPROVER_INACTIVE"
+  ],
+  "authorityLossCodes": [
+    "STAFF_USER_DEACTIVATED",
+    "STAFF_MEMBERSHIP_INACTIVE",
+    "STAFF_DEVICE_REVOKED",
+    "STAFF_LOCATION_ASSIGNMENT_INVALID"
+  ],
+  "merchantArtwork": {
+    "available": [
+      "contentDigest",
+      "filledVisual metadata",
+      "emptyVisual metadata",
+      "colors"
+    ],
+    "renderableAssetUrlOrPayload": false,
+    "classification": "MERCHANT_ARTWORK_RENDERING_EXTERNAL_DEPENDENCY"
+  }
+}
