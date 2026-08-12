@@ -22,6 +22,7 @@ import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_gate.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
+import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_security/presentation/device_security_screen.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
@@ -36,12 +37,12 @@ import '../support/fixtures.dart';
 
 void main() {
   setUpAll(() async {
-    await (FontLoader(
-      'M3BReviewSans',
-    )..addFont(rootBundle.load('assets/fonts/Roboto-Regular.ttf'))).load();
-    await (FontLoader(
-          'M3BReviewArabic',
-        )..addFont(rootBundle.load('assets/fonts/NotoNaskhArabic-Regular.ttf')))
+    await (FontLoader('M3DReviewSans')
+          ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
+        .load();
+    await (FontLoader('M3DReviewArabic')..addFont(
+          rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
+        ))
         .load();
     await (FontLoader(
       'MaterialIcons',
@@ -58,6 +59,17 @@ void main() {
     tester.view.devicePixelRatio = 1;
     await tester.pumpWidget(widget);
     await tester.pump();
+    final context = tester.element(find.byType(MaterialApp));
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage('assets/brand/logo/waflo-mark-primary-512.png'),
+        context,
+      );
+      await precacheImage(
+        const AssetImage('assets/brand/logo/waflo-mark-white-1024.png'),
+        context,
+      );
+    });
     await tester.pump(const Duration(milliseconds: 120));
     if (reveal != null) {
       await tester.scrollUntilVisible(
@@ -77,12 +89,14 @@ void main() {
     if (!Platform.isLinux) {
       await expectLater(
         find.byType(MaterialApp),
-        matchesGoldenFile('../../artifacts/handoff-m3b/screenshots/$name.png'),
+        matchesGoldenFile(
+          '../../artifacts/handoff-m3d-brand/screenshots/after/core/$name.png',
+        ),
       );
     }
   }
 
-  testWidgets('M3B 36-screen executable review set', (tester) async {
+  testWidgets('M3D official-brand core review set', (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
@@ -278,6 +292,11 @@ void main() {
       '36-dark-scanner',
       _scanner(CustomerScannerState.ready, themeMode: ThemeMode.dark),
     );
+    await capture(
+      tester,
+      '37-configuration-error',
+      _blocked(BootStage.configurationError),
+    );
   });
 }
 
@@ -305,7 +324,9 @@ Widget _home({
     bootControllerProvider.overrideWithBuild(
       (ref, notifier) => BootState(
         stage: BootStage.pairedReady,
-        context: fixtureContext(),
+        context: locale.languageCode == 'ar'
+            ? _arabicDeviceContext()
+            : fixtureContext(),
         session: fixtureSession(),
       ),
     ),
@@ -507,8 +528,8 @@ Widget _app({
 
 ThemeData _reviewTheme(ThemeData base) {
   TextStyle? style(TextStyle? value) => value?.copyWith(
-    fontFamily: 'M3BReviewSans',
-    fontFamilyFallback: const ['M3BReviewArabic'],
+    fontFamily: 'M3DReviewSans',
+    fontFamilyFallback: const ['M3DReviewArabic'],
   );
 
   final source = base.textTheme;
@@ -590,6 +611,35 @@ ResolvedMembership _membership(
     value,
     allowInsecureAssets: false,
     receivedAt: DateTime(2026, DateTime.august, 11, 13, 15),
+  );
+}
+
+AuthoritativeDeviceContext _arabicDeviceContext() {
+  final base = fixtureContext();
+  return AuthoritativeDeviceContext(
+    organization: const OrganizationContext(
+      publicId: 'fixture-merchant',
+      displayName: 'قهوة النهر',
+    ),
+    staff: base.staff,
+    device: base.device,
+    currentLocation: const LocationContext(
+      publicId: 'fixture-location',
+      displayName: 'الفرع الرئيسي',
+      earningAllowed: true,
+      redemptionAllowed: true,
+    ),
+    assignedLocations: const [
+      LocationContext(
+        publicId: 'fixture-location',
+        displayName: 'الفرع الرئيسي',
+        earningAllowed: true,
+        redemptionAllowed: true,
+      ),
+    ],
+    appPolicy: base.appPolicy,
+    requestId: base.requestId,
+    synchronizedAt: base.synchronizedAt,
   );
 }
 

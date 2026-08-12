@@ -37,7 +37,7 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
     return PopScope(
       canPop: !submitting,
       child: Scaffold(
-        backgroundColor: scanning ? WafloColors.night : null,
+        backgroundColor: scanning ? WafloColors.darkCanvas : null,
         appBar: scanning
             ? null
             : AppBar(
@@ -421,7 +421,7 @@ final class _ScannerStatusPill extends StatelessWidget {
               dimension: 16,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: WafloColors.signalMint,
+                color: WafloColors.coral,
               ),
             ),
             const SizedBox(width: WafloSpacing.sm),
@@ -429,7 +429,7 @@ final class _ScannerStatusPill extends StatelessWidget {
             const Icon(
               Icons.center_focus_strong_rounded,
               size: 18,
-              color: WafloColors.signalMint,
+              color: WafloColors.coral,
             ),
             const SizedBox(width: WafloSpacing.sm),
           ],
@@ -471,7 +471,7 @@ final class _ScannerPermissionPanel extends StatelessWidget {
                   const Icon(
                     Icons.no_photography_outlined,
                     size: 56,
-                    color: WafloColors.signalMint,
+                    color: WafloColors.coral,
                   ),
                   const SizedBox(height: WafloSpacing.lg),
                   Text(
@@ -581,7 +581,7 @@ final class _MembershipOperationViewState
                   Text(
                     strings.localizeMembershipStatus(membership.status.name),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: context.waflo.counter,
+                      color: context.waflo.brandAction,
                     ),
                   ),
                 ],
@@ -594,7 +594,7 @@ final class _MembershipOperationViewState
           padding: const EdgeInsetsDirectional.fromSTEB(20, 18, 20, 20),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(WafloRadius.stage),
+            borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
             border: Border.all(
               color: Theme.of(context).colorScheme.outlineVariant,
             ),
@@ -660,8 +660,8 @@ final class _MembershipOperationViewState
             key: const Key('reward-ready-outside-grid'),
             padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
             decoration: BoxDecoration(
-              color: context.waflo.readySurface,
-              borderRadius: BorderRadius.circular(WafloRadius.card),
+              color: context.waflo.successSurface,
+              borderRadius: BorderRadius.circular(WafloRadius.large),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -675,12 +675,12 @@ final class _MembershipOperationViewState
                       Text(
                         strings.rewardReady,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: context.waflo.onReadySurface,
+                          color: context.waflo.onSuccessSurface,
                         ),
                       ),
                       Text(
                         strings.rewardReadyBody,
-                        style: TextStyle(color: context.waflo.onReadySurface),
+                        style: TextStyle(color: context.waflo.onSuccessSurface),
                       ),
                     ],
                   ),
@@ -695,7 +695,7 @@ final class _MembershipOperationViewState
             padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(WafloRadius.card),
+              borderRadius: BorderRadius.circular(WafloRadius.large),
               border: Border.all(
                 color: Theme.of(context).colorScheme.outlineVariant,
               ),
@@ -800,7 +800,7 @@ final class _MembershipOperationViewState
             icon: Icons.cloud_off_outlined,
             message:
                 '${strings.offlineOperationsBlocked} ${strings.noOfflineQueue}',
-            color: WafloColors.signalAmber,
+            color: WafloColors.warning,
             backgroundColor: context.waflo.warningSurface,
           ),
           const SizedBox(height: WafloSpacing.md),
@@ -809,7 +809,7 @@ final class _MembershipOperationViewState
           WafloStatusBanner(
             icon: Icons.qr_code_scanner,
             message: strings.rescanRequired,
-            color: WafloColors.signalAmber,
+            color: WafloColors.warning,
             backgroundColor: context.waflo.warningSurface,
           ),
           const SizedBox(height: WafloSpacing.md),
@@ -849,8 +849,8 @@ final class _RewardTile extends ConsumerWidget {
     return Container(
       padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
       decoration: BoxDecoration(
-        color: context.waflo.readySurface,
-        borderRadius: BorderRadius.circular(WafloRadius.card),
+        color: context.waflo.successSurface,
+        borderRadius: BorderRadius.circular(WafloRadius.large),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -858,38 +858,38 @@ final class _RewardTile extends ConsumerWidget {
           Text(
             reward.finalReward ? strings.finalReward : strings.milestoneReward,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: context.waflo.onReadySurface,
+              color: context.waflo.onSuccessSurface,
             ),
           ),
           const SizedBox(height: WafloSpacing.xs),
           Text(
             reward.name,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: context.waflo.onReadySurface,
+              color: context.waflo.onSuccessSurface,
             ),
           ),
           if (reward.description.isNotEmpty) ...[
             const SizedBox(height: WafloSpacing.xs),
             Text(
               reward.description,
-              style: TextStyle(color: context.waflo.onReadySurface),
+              style: TextStyle(color: context.waflo.onSuccessSurface),
             ),
           ],
           const SizedBox(height: WafloSpacing.sm),
           Text(
             strings.thresholdLabel(reward.threshold),
-            style: TextStyle(color: context.waflo.onReadySurface),
+            style: TextStyle(color: context.waflo.onSuccessSurface),
           ),
           if (expiration != null)
             Text(
               strings.expirationLabel(expiration),
-              style: TextStyle(color: context.waflo.onReadySurface),
+              style: TextStyle(color: context.waflo.onSuccessSurface),
             ),
           if (reward.requiresManagerApproval)
             Text(
               strings.managerApprovalRequired,
               style: const TextStyle(
-                color: WafloColors.signalAmber,
+                color: WafloColors.warning,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -1052,7 +1052,7 @@ final class _ReviewList extends StatelessWidget {
         padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(WafloRadius.card),
+          borderRadius: BorderRadius.circular(WafloRadius.large),
           border: Border.all(
             color: Theme.of(context).colorScheme.outlineVariant,
           ),
@@ -1073,7 +1073,7 @@ final class _ReviewList extends StatelessWidget {
         WafloStatusBanner(
           icon: Icons.info_outline_rounded,
           message: warning!,
-          color: WafloColors.signalAmber,
+          color: WafloColors.warning,
           backgroundColor: context.waflo.warningSurface,
         ),
       ],
@@ -1133,14 +1133,14 @@ final class _StampSuccess extends ConsumerWidget {
             key: const Key('success-reward-ready'),
             padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
             decoration: BoxDecoration(
-              color: context.waflo.readySurface,
-              borderRadius: BorderRadius.circular(WafloRadius.compact),
+              color: context.waflo.successSurface,
+              borderRadius: BorderRadius.circular(WafloRadius.medium),
             ),
             child: Text(
               strings.rewardReady,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: context.waflo.onReadySurface,
+                color: context.waflo.onSuccessSurface,
               ),
             ),
           ),
@@ -1228,7 +1228,7 @@ final class _SuccessLayout extends ConsumerWidget {
                   padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(WafloRadius.stage),
+                    borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
                     border: Border.all(
                       color: Theme.of(context).colorScheme.outlineVariant,
                     ),
@@ -1307,7 +1307,7 @@ final class _PendingRecovery extends ConsumerWidget {
         padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
         decoration: BoxDecoration(
           color: context.waflo.warningSurface,
-          borderRadius: BorderRadius.circular(WafloRadius.stage),
+          borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1316,7 +1316,7 @@ final class _PendingRecovery extends ConsumerWidget {
               child: Icon(
                 Icons.sync_problem_rounded,
                 size: 54,
-                color: WafloColors.signalAmber,
+                color: WafloColors.warning,
               ),
             ),
             const SizedBox(height: WafloSpacing.md),
@@ -1403,7 +1403,7 @@ final class _ManagerApprovalPanel extends ConsumerWidget {
               padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
               decoration: BoxDecoration(
                 color: presentation.background,
-                borderRadius: BorderRadius.circular(WafloRadius.stage),
+                borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
               ),
               child: Column(
                 children: [
@@ -1464,7 +1464,7 @@ final class _ManagerApprovalPanel extends ConsumerWidget {
             WafloStatusBanner(
               icon: Icons.shield_outlined,
               message: strings.approvalNoMutation,
-              color: context.waflo.counter,
+              color: context.waflo.brandAction,
             ),
             const SizedBox(height: WafloSpacing.lg),
             if (approval.canCheck)
@@ -1530,8 +1530,8 @@ final class _ManagerApprovalPanel extends ConsumerWidget {
       strings.managerApprovalChecking,
       strings.managerApprovalCheckingBody,
       Icons.sync_rounded,
-      context.waflo.onReadySurface,
-      context.waflo.readySurface,
+      context.waflo.onSuccessSurface,
+      context.waflo.successSurface,
     ),
     ManagerApprovalState.rejected => _ApprovalPresentation(
       strings.managerApprovalRejectedTitle,
@@ -1603,7 +1603,7 @@ final class _ApprovalHandoffRail extends StatelessWidget {
       padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(WafloRadius.card),
+        borderRadius: BorderRadius.circular(WafloRadius.large),
       ),
       child: Column(
         children: [
@@ -1615,7 +1615,7 @@ final class _ApprovalHandoffRail extends StatelessWidget {
                   height: 32,
                   decoration: BoxDecoration(
                     color: index < active
-                        ? context.waflo.counter
+                        ? context.waflo.brandAction
                         : index == active
                         ? context.waflo.warningSurface
                         : Theme.of(context).colorScheme.surfaceContainer,
@@ -1629,10 +1629,10 @@ final class _ApprovalHandoffRail extends StatelessWidget {
                         : Icons.smartphone_rounded,
                     size: 18,
                     color: index < active
-                        ? context.waflo.onCounter
+                        ? context.waflo.onBrandAction
                         : index == active
                         ? context.waflo.onWarningSurface
-                        : context.waflo.subtleInk,
+                        : context.waflo.subtleText,
                   ),
                 ),
                 const SizedBox(width: WafloSpacing.sm),
@@ -1640,7 +1640,7 @@ final class _ApprovalHandoffRail extends StatelessWidget {
                   child: Text(
                     labels[index],
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: index <= active ? null : context.waflo.subtleInk,
+                      color: index <= active ? null : context.waflo.subtleText,
                     ),
                   ),
                 ),

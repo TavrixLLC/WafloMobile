@@ -15,23 +15,23 @@ final class WafloApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeControllerProvider);
     final themeMode = ref.watch(themeControllerProvider);
-    return AppLifecycleBoundary(
-      child: MaterialApp.router(
-        onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
-        debugShowCheckedModeBanner: false,
-        routerConfig: router,
-        locale: locale,
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        theme: WafloTheme.light(),
-        darkTheme: WafloTheme.dark(),
-        themeMode: themeMode,
-      ),
+    return MaterialApp.router(
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
+      debugShowCheckedModeBanner: false,
+      routerConfig: router,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      theme: WafloTheme.light(),
+      darkTheme: WafloTheme.dark(),
+      themeMode: themeMode,
+      builder: (context, child) =>
+          AppLifecycleBoundary(child: child ?? const SizedBox.shrink()),
     );
   }
 }

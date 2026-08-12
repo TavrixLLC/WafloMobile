@@ -50,7 +50,7 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Align(child: WafloReadyBeacon(size: 78)),
+                    const Align(child: WafloBrandMark(size: 78)),
                     const SizedBox(height: WafloSpacing.lg),
                     Text(
                       strings.appLocked,
@@ -66,7 +66,9 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                         color: Theme.of(
                           context,
                         ).colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(WafloRadius.stage),
+                        borderRadius: BorderRadius.circular(
+                          WafloRadius.extraLarge,
+                        ),
                         border: Border.all(
                           color: Theme.of(context).colorScheme.outlineVariant,
                         ),
@@ -136,7 +138,7 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                         message: lock.status == AppLockStatus.rateLimited
                             ? strings.pinRateLimited
                             : strings.unlockFailed,
-                        color: WafloColors.signalAmber,
+                        color: WafloColors.warning,
                         backgroundColor: context.waflo.warningSurface,
                       ),
                     ],
@@ -296,7 +298,7 @@ final class _PinSetupScreenState extends ConsumerState<PinSetupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Align(child: WafloReadyBeacon(size: 58)),
+          const Align(child: WafloBrandMark(size: 58)),
           const SizedBox(height: WafloSpacing.lg),
           Text(strings.pinNeverManager, textAlign: TextAlign.center),
           const SizedBox(height: WafloSpacing.lg),
@@ -308,7 +310,7 @@ final class _PinSetupScreenState extends ConsumerState<PinSetupScreen> {
             WafloStatusBanner(
               icon: Icons.info_outline,
               message: _error!,
-              color: WafloColors.signalAmber,
+              color: WafloColors.warning,
               backgroundColor: context.waflo.warningSurface,
             ),
           ],

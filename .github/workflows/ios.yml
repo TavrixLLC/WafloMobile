@@ -1,4 +1,4 @@
-name: Flutter M3C iOS Production-v1
+name: Flutter M3D iOS Official Brand
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m3c-ios-${{ github.ref }}
+  group: flutter-m3d-ios-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   macos-ios:
-    name: macOS / M1-M3C tests and three no-sign builds
+    name: macOS / M1-M3D tests and three no-sign builds
     # connectivity_plus 7.3.1 uses Network.framework APIs from the iOS 26 SDK.
     runs-on: macos-26
     timeout-minutes: 55
@@ -28,9 +28,9 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1-M3C unit tests
+      - name: M1-M3D unit tests
         run: flutter test test/unit --reporter expanded
-      - name: M1-M3C widget tests
+      - name: M1-M3D widget tests
         run: flutter test test/widget --reporter expanded
       - name: Localized camera-purpose strings
         run: |

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
+import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/boot/presentation/blocked_screen.dart';
@@ -53,19 +54,46 @@ final class BootLoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
-    return WafloPage(
-      child: Semantics(
-        liveRegion: true,
-        label: strings.bootProgress,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const WafloBrandMark(),
-            const SizedBox(height: 32),
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(strings.bootProgress, textAlign: TextAlign.center),
-          ],
+    return Scaffold(
+      backgroundColor: WafloColors.ink,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.all(WafloSpacing.xl),
+            child: Semantics(
+              liveRegion: true,
+              label: strings.bootProgress,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const WafloBrandMark(size: 92, darkSurface: true),
+                  const SizedBox(height: WafloSpacing.lg),
+                  Text(
+                    strings.appTitle,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: WafloColors.white,
+                    ),
+                  ),
+                  const SizedBox(height: WafloSpacing.xxl),
+                  const SizedBox(
+                    width: 48,
+                    child: LinearProgressIndicator(
+                      color: WafloColors.coral,
+                      backgroundColor: WafloColors.ember,
+                    ),
+                  ),
+                  const SizedBox(height: WafloSpacing.md),
+                  Text(
+                    strings.bootProgress,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: WafloColors.white.withValues(alpha: .78),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

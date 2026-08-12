@@ -1,0 +1,16 @@
+Bundled typography
+==================
+
+Manrope and Noto Sans Arabic are open-source typefaces licensed under the
+SIL Open Font License 1.1.
+
+Official project sources:
+- https://github.com/sharanda/manrope
+- https://github.com/notofonts/arabic
+
+The selected family names and weights are prescribed by the read-only Waflo
+Brand System package. The font files are bundled with Waflo Staff so the
+application never depends on runtime font downloads.
+
+SIL Open Font License 1.1:
+https://openfontlicense.org/open-font-license-official-text/

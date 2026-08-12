@@ -44,19 +44,34 @@ final class BlockedScreen extends ConsumerWidget {
                   children: [
                     const Spacer(flex: 2),
                     Align(
-                      child: Container(
-                        width: 104,
-                        height: 104,
-                        decoration: BoxDecoration(
-                          color: content.background,
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        child: Icon(
-                          content.icon,
-                          size: 50,
-                          color: content.foreground,
-                        ),
-                      ),
+                      child: state.stage == BootStage.configurationError
+                          ? Container(
+                              width: 112,
+                              height: 112,
+                              padding: const EdgeInsets.all(22),
+                              decoration: BoxDecoration(
+                                color: WafloColors.ink,
+                                borderRadius: BorderRadius.circular(
+                                  WafloRadius.extraLarge,
+                                ),
+                              ),
+                              child: const WafloBrandMark(size: 68),
+                            )
+                          : Container(
+                              width: 104,
+                              height: 104,
+                              decoration: BoxDecoration(
+                                color: content.background,
+                                borderRadius: BorderRadius.circular(
+                                  WafloRadius.extraLarge,
+                                ),
+                              ),
+                              child: Icon(
+                                content.icon,
+                                size: 50,
+                                color: content.foreground,
+                              ),
+                            ),
                     ),
                     const SizedBox(height: WafloSpacing.xl),
                     Text(
@@ -143,77 +158,77 @@ final class BlockedScreen extends ConsumerWidget {
           title: strings.devicePendingTitle,
           body: strings.devicePendingBody,
           icon: Icons.hourglass_top_rounded,
-          foreground: WafloColors.signalAmber,
+          foreground: WafloColors.warning,
           background: const Color(0xFFFFEBCB),
         ),
         BootStage.sessionExpired => _BlockedContent(
           title: strings.sessionExpiredTitle,
           body: strings.sessionExpiredBody,
           icon: Icons.schedule_rounded,
-          foreground: WafloColors.signalAmber,
+          foreground: WafloColors.warning,
           background: const Color(0xFFFFEBCB),
         ),
         BootStage.staffUserDeactivated => _BlockedContent(
           title: strings.staffUserDeactivatedTitle,
           body: strings.staffUserDeactivatedBody,
           icon: Icons.person_off_rounded,
-          foreground: WafloColors.sealRed,
+          foreground: WafloColors.danger,
           background: const Color(0xFFFFDAD6),
         ),
         BootStage.staffMembershipInactive => _BlockedContent(
           title: strings.staffMembershipInactiveTitle,
           body: strings.staffMembershipInactiveBody,
           icon: Icons.badge_outlined,
-          foreground: WafloColors.signalAmber,
+          foreground: WafloColors.warning,
           background: const Color(0xFFFFEBCB),
         ),
         BootStage.staffLocationAssignmentInvalid => _BlockedContent(
           title: strings.staffLocationInvalidTitle,
           body: strings.staffLocationInvalidBody,
           icon: Icons.location_off_rounded,
-          foreground: WafloColors.signalAmber,
+          foreground: WafloColors.warning,
           background: const Color(0xFFFFEBCB),
         ),
         BootStage.deviceRevoked => _BlockedContent(
           title: strings.deviceRevokedTitle,
           body: strings.deviceRevokedBody,
           icon: Icons.block_rounded,
-          foreground: WafloColors.sealRed,
+          foreground: WafloColors.danger,
           background: const Color(0xFFFFDAD6),
         ),
         BootStage.deviceCompromised => _BlockedContent(
           title: strings.deviceCompromisedTitle,
           body: strings.deviceCompromisedBody,
           icon: Icons.gpp_bad_rounded,
-          foreground: WafloColors.sealRed,
+          foreground: WafloColors.danger,
           background: const Color(0xFFFFDAD6),
         ),
         BootStage.appUpdateRequired => _BlockedContent(
           title: strings.updateRequiredTitle,
           body: strings.updateRequiredBody,
           icon: Icons.system_update_rounded,
-          foreground: WafloColors.signalAmber,
+          foreground: WafloColors.warning,
           background: const Color(0xFFFFEBCB),
         ),
         BootStage.configurationError => _BlockedContent(
           title: strings.configurationErrorTitle,
           body: strings.configurationErrorBody,
           icon: Icons.settings_suggest_outlined,
-          foreground: WafloColors.sealRed,
+          foreground: WafloColors.danger,
           background: const Color(0xFFFFDAD6),
         ),
         BootStage.fatalLocalSecurityError => _BlockedContent(
           title: strings.localSecurityErrorTitle,
           body: strings.localSecurityErrorBody,
           icon: Icons.key_off_rounded,
-          foreground: WafloColors.sealRed,
+          foreground: WafloColors.danger,
           background: const Color(0xFFFFDAD6),
         ),
         _ => _BlockedContent(
           title: strings.backendUnavailableTitle,
           body: '${strings.backendUnavailableBody} ${strings.noOfflineQueue}',
           icon: Icons.cloud_off_rounded,
-          foreground: WafloColors.signalAmber,
+          foreground: WafloColors.warning,
           background: const Color(0xFFFFEBCB),
         ),
       };

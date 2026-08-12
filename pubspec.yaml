@@ -43,10 +43,23 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/brand/logo/
+    - assets/brand/app/
   fonts:
-    - family: WafloSans
+    - family: Manrope
       fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-    - family: WafloArabic
+        - asset: assets/brand/fonts/Manrope-Regular.ttf
+          weight: 400
+        - asset: assets/brand/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/brand/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/brand/fonts/Manrope-Bold.ttf
+          weight: 700
+        - asset: assets/brand/fonts/Manrope-ExtraBold.ttf
+          weight: 800
+    - family: NotoSansArabic
       fonts:
-        - asset: assets/fonts/NotoNaskhArabic-Regular.ttf
+        - asset: assets/brand/fonts/NotoSansArabic-Regular.ttf
+          weight: 400

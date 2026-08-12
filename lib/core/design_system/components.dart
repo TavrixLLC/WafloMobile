@@ -42,27 +42,18 @@ final class WafloReadyBeacon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolved = color ?? context.waflo.counter;
+    final resolved = color ?? context.waflo.brandAction;
     return Semantics(
       excludeSemantics: true,
       child: SizedBox.square(
         dimension: size,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: resolved,
-            borderRadius: BorderRadius.circular(size * 0.22),
-          ),
-          child: Center(
-            child: SizedBox.square(
-              dimension: size * 0.36,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(size * 0.08),
-                ),
-              ),
-            ),
-          ),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            _FlowDot(size: size * 0.22, color: resolved, x: -size * .27),
+            _FlowDot(size: size * 0.32, color: resolved, x: 0),
+            _FlowDot(size: size * 0.44, color: resolved, x: size * .28),
+          ],
         ),
       ),
     );
@@ -70,11 +61,91 @@ final class WafloReadyBeacon extends StatelessWidget {
 }
 
 final class WafloBrandMark extends StatelessWidget {
-  const WafloBrandMark({super.key});
+  const WafloBrandMark({this.size = 72, this.darkSurface = false, super.key});
+
+  final double size;
+  final bool darkSurface;
 
   @override
-  Widget build(BuildContext context) => const Align(
-    child: SizedBox.square(dimension: 72, child: WafloReadyBeacon(size: 72)),
+  Widget build(BuildContext context) => Semantics(
+    image: true,
+    label: 'Waflo',
+    child: Align(
+      child: SizedBox.square(
+        dimension: size,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: darkSurface ? WafloColors.white : WafloColors.brick,
+                borderRadius: BorderRadius.circular(size * .22),
+              ),
+              child: Center(
+                child: WafloReadyBeacon(
+                  color: darkSurface ? WafloColors.brick : WafloColors.white,
+                  size: size * .42,
+                ),
+              ),
+            ),
+            Image.asset(
+              darkSurface
+                  ? 'assets/brand/logo/waflo-mark-white-1024.png'
+                  : 'assets/brand/logo/waflo-mark-primary-512.png',
+              fit: BoxFit.contain,
+              filterQuality: FilterQuality.high,
+              excludeFromSemantics: true,
+              errorBuilder: (context, error, stackTrace) =>
+                  const SizedBox.shrink(),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+final class WafloBrandLockup extends StatelessWidget {
+  const WafloBrandLockup({
+    this.width = 180,
+    this.darkSurface = false,
+    super.key,
+  });
+
+  final double width;
+  final bool darkSurface;
+
+  @override
+  Widget build(BuildContext context) => Image.asset(
+    darkSurface
+        ? 'assets/brand/logo/waflo-logo-white-horizontal-1600.png'
+        : 'assets/brand/logo/waflo-logo-primary-horizontal-1600.png',
+    width: width,
+    fit: BoxFit.contain,
+    filterQuality: FilterQuality.high,
+    semanticLabel: 'Waflo',
+  );
+}
+
+final class _FlowDot extends StatelessWidget {
+  const _FlowDot({required this.size, required this.color, required this.x});
+
+  final double size;
+  final Color color;
+  final double x;
+
+  @override
+  Widget build(BuildContext context) => Transform.translate(
+    offset: Offset(x, -x * .22),
+    child: Align(
+      alignment: Alignment.bottomCenter,
+      child: SizedBox.square(
+        dimension: size,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+      ),
+    ),
   );
 }
 
@@ -178,7 +249,7 @@ final class WafloOperationalLabel extends StatelessWidget {
     overflow: TextOverflow.ellipsis,
     style: Theme.of(
       context,
-    ).textTheme.labelMedium?.copyWith(color: color ?? context.waflo.subtleInk),
+    ).textTheme.labelMedium?.copyWith(color: color ?? context.waflo.subtleText),
   );
 }
 
@@ -198,7 +269,7 @@ final class WafloStatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolved = color ?? context.waflo.counter;
+    final resolved = color ?? context.waflo.brandAction;
     final background = backgroundColor ?? resolved.withValues(alpha: 0.10);
     return Semantics(
       liveRegion: true,
@@ -207,7 +278,7 @@ final class WafloStatusBanner extends StatelessWidget {
         padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 14),
         decoration: BoxDecoration(
           color: background,
-          borderRadius: BorderRadius.circular(WafloRadius.compact),
+          borderRadius: BorderRadius.circular(WafloRadius.medium),
           border: BorderDirectional(
             start: BorderSide(color: resolved, width: 4),
           ),
@@ -242,8 +313,15 @@ final class WafloInfoCard extends StatelessWidget {
     padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(WafloRadius.card),
+      borderRadius: BorderRadius.circular(WafloRadius.large),
       border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      boxShadow: [
+        BoxShadow(
+          color: context.waflo.cardShadow,
+          offset: const Offset(0, 12),
+          blurRadius: 32,
+        ),
+      ],
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -287,10 +365,10 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onPressed != null;
     final background = enabled
-        ? context.waflo.counter
+        ? context.waflo.brandAction
         : Theme.of(context).colorScheme.surfaceContainer;
     final foreground = enabled
-        ? context.waflo.onCounter
+        ? context.waflo.onBrandAction
         : Theme.of(context).colorScheme.onSurfaceVariant;
     return Semantics(
       button: true,
@@ -298,7 +376,7 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
       label: '$title. $subtitle',
       child: Material(
         color: background,
-        borderRadius: BorderRadius.circular(WafloRadius.stage),
+        borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           key: const Key('primary-scan-customer'),
@@ -307,6 +385,14 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
             constraints: const BoxConstraints(minHeight: 184),
             child: Stack(
               children: [
+                PositionedDirectional(
+                  top: 22,
+                  end: 24,
+                  child: Opacity(
+                    opacity: .22,
+                    child: WafloReadyBeacon(color: foreground, size: 46),
+                  ),
+                ),
                 PositionedDirectional(
                   top: 22,
                   start: 22,
@@ -407,7 +493,7 @@ final class WafloSummaryRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(label, style: TextStyle(color: context.waflo.subtleInk)),
+          child: Text(label, style: TextStyle(color: context.waflo.subtleText)),
         ),
         const SizedBox(width: WafloSpacing.md),
         Flexible(

@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:waflo_staff/app/app_lifecycle.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
+import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
@@ -180,6 +181,46 @@ void main() {
     await tester.pump();
     expect(find.byKey(const Key('privacy-cover')), findsOneWidget);
   });
+
+  testWidgets(
+    'privacy cover and ready beacon survive a missing theme extension',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            bootControllerProvider.overrideWithBuild(
+              (ref, notifier) => BootState(
+                stage: BootStage.pairedReady,
+                context: fixtureContext(),
+                session: fixtureSession(),
+              ),
+            ),
+            appLockControllerProvider.overrideWithBuild(
+              (ref, notifier) => const AppLockState(
+                configuration: AppLockConfiguration(),
+                status: AppLockStatus.unlocked,
+              ),
+            ),
+            m2OperationControllerProvider.overrideWithBuild(
+              (ref, notifier) => const M2OperationState.idle(),
+            ),
+          ],
+          child: const MaterialApp(
+            home: AppLifecycleBoundary(
+              child: Scaffold(body: WafloReadyBeacon()),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      expect(find.byKey(const Key('privacy-cover')), findsOneWidget);
+      expect(find.byType(WafloBrandMark), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 Widget _home({bool online = true, PendingOperationRecord? pending}) =>

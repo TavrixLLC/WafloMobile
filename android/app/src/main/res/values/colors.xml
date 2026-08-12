@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="waflo_brick">#AE3115</color>
+    <color name="waflo_ink">#241916</color>
+    <color name="waflo_cloud">#F7F9FF</color>
+    <color name="waflo_dark_canvas">#17100F</color>
+    <color name="ic_launcher_background">#F7F9FF</color>
+</resources>

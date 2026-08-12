@@ -27,12 +27,12 @@ import '../support/fixtures.dart';
 
 void main() {
   setUpAll(() async {
-    await (FontLoader(
-      'WafloSans',
-    )..addFont(rootBundle.load('assets/fonts/Roboto-Regular.ttf'))).load();
-    await (FontLoader(
-          'WafloArabic',
-        )..addFont(rootBundle.load('assets/fonts/NotoNaskhArabic-Regular.ttf')))
+    await (FontLoader('WafloSans')
+          ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
+        .load();
+    await (FontLoader('WafloArabic')..addFont(
+          rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
+        ))
         .load();
   });
 

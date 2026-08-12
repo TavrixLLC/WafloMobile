@@ -27,12 +27,12 @@ import '../support/fixtures.dart';
 
 void main() {
   setUpAll(() async {
-    await (FontLoader(
-      'M3CReviewSans',
-    )..addFont(rootBundle.load('assets/fonts/Roboto-Regular.ttf'))).load();
-    await (FontLoader(
-          'M3CReviewArabic',
-        )..addFont(rootBundle.load('assets/fonts/NotoNaskhArabic-Regular.ttf')))
+    await (FontLoader('M3DReviewSans')
+          ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
+        .load();
+    await (FontLoader('M3DReviewArabic')..addFont(
+          rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
+        ))
         .load();
     await (FontLoader(
       'MaterialIcons',
@@ -44,6 +44,17 @@ void main() {
     tester.view.devicePixelRatio = 1;
     await tester.pumpWidget(widget);
     await tester.pump();
+    final context = tester.element(find.byType(MaterialApp));
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage('assets/brand/logo/waflo-mark-primary-512.png'),
+        context,
+      );
+      await precacheImage(
+        const AssetImage('assets/brand/logo/waflo-mark-white-1024.png'),
+        context,
+      );
+    });
     await tester.pump(const Duration(milliseconds: 120));
     final exception = tester.takeException();
     if (exception != null) {
@@ -55,12 +66,14 @@ void main() {
     if (!Platform.isLinux) {
       await expectLater(
         find.byType(MaterialApp),
-        matchesGoldenFile('../../artifacts/handoff-m3c/screenshots/$name.png'),
+        matchesGoldenFile(
+          '../../artifacts/handoff-m3d-brand/screenshots/after/production-v1/$name.png',
+        ),
       );
     }
   }
 
-  testWidgets('M3C 23-screen Production-v1 review set', (tester) async {
+  testWidgets('M3D branded Production-v1 review set', (tester) async {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
@@ -321,8 +334,8 @@ Widget _app({
 
 ThemeData _reviewTheme(ThemeData base) {
   TextStyle? style(TextStyle? value) => value?.copyWith(
-    fontFamily: 'M3CReviewSans',
-    fontFamilyFallback: const ['M3CReviewArabic'],
+    fontFamily: 'M3DReviewSans',
+    fontFamilyFallback: const ['M3DReviewArabic'],
   );
   final source = base.textTheme;
   final text = source.copyWith(

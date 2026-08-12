@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
+import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/features/app_lock/presentation/app_lock_screens.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
@@ -68,10 +69,12 @@ final class _AppLifecycleBoundaryState
         ),
         if (locked) const AppLockOverlay(),
         if (_privacyCover)
-          const ColoredBox(
+          ColoredBox(
             key: Key('privacy-cover'),
-            color: Color(0xFF0D1814),
-            child: Center(child: WafloReadyBeacon(size: 72)),
+            color: context.waflo.canvas,
+            child: const Center(
+              child: WafloBrandMark(size: 88, darkSurface: true),
+            ),
           ),
       ],
     );

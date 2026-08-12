@@ -246,7 +246,7 @@ final class _PairingScannerScreenState
                 label: strings.scannerInstructions,
                 container: true,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(WafloRadius.card),
+                  borderRadius: BorderRadius.circular(WafloRadius.large),
                   child: ref
                       .watch(pairingScannerAdapterProvider)
                       .buildPreview(context, onDetected: _detected),
@@ -399,8 +399,8 @@ final class _PairingSuccessScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
               decoration: BoxDecoration(
-                color: context.waflo.readySurface,
-                borderRadius: BorderRadius.circular(WafloRadius.stage),
+                color: context.waflo.successSurface,
+                borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -410,12 +410,12 @@ final class _PairingSuccessScreen extends ConsumerWidget {
                   Text(
                     deviceContext.organization.displayName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: context.waflo.onReadySurface,
+                      color: context.waflo.onSuccessSurface,
                     ),
                   ),
                   Text(
                     deviceContext.currentLocation.displayName,
-                    style: TextStyle(color: context.waflo.onReadySurface),
+                    style: TextStyle(color: context.waflo.onSuccessSurface),
                   ),
                 ],
               ),

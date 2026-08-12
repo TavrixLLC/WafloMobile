@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 
+/// Official Waflo brand tokens from Developer/waflo-design-tokens.json.
 abstract final class WafloColors {
-  static const counterPine = Color(0xFF006B55);
-  static const deepCounter = Color(0xFF073F34);
-  static const signalMint = Color(0xFF8EDCC5);
-  static const freshMint = Color(0xFFDDF5EC);
-  static const receipt = Color(0xFFF7F6F1);
-  static const signalAmber = Color(0xFFB45F00);
-  static const sealRed = Color(0xFFBA2D27);
-  static const ink = Color(0xFF171A18);
-  static const night = Color(0xFF091713);
-  static const nightSurface = Color(0xFF11251F);
-  static const nightElevated = Color(0xFF183129);
-  static const scannerOverlay = Color(0xC9091713);
+  static const brick = Color(0xFFAE3115);
+  static const coral = Color(0xFFFF6B4A);
+  static const ember = Color(0xFF7D2311);
+  static const ink = Color(0xFF241916);
+  static const softCoral = Color(0xFFFFF0EC);
+  static const cloud = Color(0xFFF7F9FF);
+  static const white = Color(0xFFFFFFFF);
+  static const muted = Color(0xFF76645F);
+  static const success = Color(0xFF1F8F6A);
+  static const warning = Color(0xFFE6A23C);
+  static const danger = Color(0xFFC93C2B);
 
-  // Stable compatibility aliases used by pre-M3A presentation code.
-  static const seed = counterPine;
-  static const success = counterPine;
-  static const warning = signalAmber;
-  static const danger = sealRed;
+  // Conservative M3D dark-mode derivations. These are not official source
+  // tokens and are documented separately in the M3D handoff.
+  static const darkCanvas = Color(0xFF17100F);
+  static const darkSurface = Color(0xFF241916);
+  static const darkElevated = Color(0xFF322522);
+  static const darkOutline = Color(0xFF5A4742);
+  static const scannerOverlay = Color(0xD9241916);
+
+  static const seed = brick;
 }
 
 abstract final class WafloSpacing {
@@ -32,8 +36,9 @@ abstract final class WafloSpacing {
 }
 
 abstract final class WafloMotion {
-  static const immediate = Duration(milliseconds: 120);
-  static const standard = Duration(milliseconds: 180);
+  static const immediate = Duration(milliseconds: 160);
+  static const standard = Duration(milliseconds: 200);
+  static const deliberate = Duration(milliseconds: 240);
 }
 
 abstract final class WafloLayout {
@@ -42,62 +47,74 @@ abstract final class WafloLayout {
   static const minimumTouchTarget = 48.0;
 }
 
+/// Official Waflo radii.
 abstract final class WafloRadius {
-  static const compact = 12.0;
-  static const button = 16.0;
-  static const card = 20.0;
-  static const stage = 28.0;
+  static const small = 8.0;
+  static const medium = 14.0;
+  static const large = 22.0;
+  static const extraLarge = 32.0;
+  static const pill = 999.0;
+
+  // Semantic compatibility aliases; every value maps to the official scale.
+  static const compact = medium;
+  static const button = medium;
+  static const card = large;
+  static const stage = extraLarge;
 }
 
 @immutable
 final class WafloPalette extends ThemeExtension<WafloPalette> {
   const WafloPalette({
     required this.canvas,
-    required this.counter,
-    required this.onCounter,
-    required this.readySurface,
-    required this.onReadySurface,
+    required this.brandAction,
+    required this.onBrandAction,
+    required this.successSurface,
+    required this.onSuccessSurface,
     required this.warningSurface,
     required this.onWarningSurface,
     required this.dangerSurface,
     required this.onDangerSurface,
-    required this.subtleInk,
+    required this.subtleText,
+    required this.cardShadow,
   });
 
   final Color canvas;
-  final Color counter;
-  final Color onCounter;
-  final Color readySurface;
-  final Color onReadySurface;
+  final Color brandAction;
+  final Color onBrandAction;
+  final Color successSurface;
+  final Color onSuccessSurface;
   final Color warningSurface;
   final Color onWarningSurface;
   final Color dangerSurface;
   final Color onDangerSurface;
-  final Color subtleInk;
+  final Color subtleText;
+  final Color cardShadow;
 
   @override
   WafloPalette copyWith({
     Color? canvas,
-    Color? counter,
-    Color? onCounter,
-    Color? readySurface,
-    Color? onReadySurface,
+    Color? brandAction,
+    Color? onBrandAction,
+    Color? successSurface,
+    Color? onSuccessSurface,
     Color? warningSurface,
     Color? onWarningSurface,
     Color? dangerSurface,
     Color? onDangerSurface,
-    Color? subtleInk,
+    Color? subtleText,
+    Color? cardShadow,
   }) => WafloPalette(
     canvas: canvas ?? this.canvas,
-    counter: counter ?? this.counter,
-    onCounter: onCounter ?? this.onCounter,
-    readySurface: readySurface ?? this.readySurface,
-    onReadySurface: onReadySurface ?? this.onReadySurface,
+    brandAction: brandAction ?? this.brandAction,
+    onBrandAction: onBrandAction ?? this.onBrandAction,
+    successSurface: successSurface ?? this.successSurface,
+    onSuccessSurface: onSuccessSurface ?? this.onSuccessSurface,
     warningSurface: warningSurface ?? this.warningSurface,
     onWarningSurface: onWarningSurface ?? this.onWarningSurface,
     dangerSurface: dangerSurface ?? this.dangerSurface,
     onDangerSurface: onDangerSurface ?? this.onDangerSurface,
-    subtleInk: subtleInk ?? this.subtleInk,
+    subtleText: subtleText ?? this.subtleText,
+    cardShadow: cardShadow ?? this.cardShadow,
   );
 
   @override
@@ -105,10 +122,14 @@ final class WafloPalette extends ThemeExtension<WafloPalette> {
     if (other == null) return this;
     return WafloPalette(
       canvas: Color.lerp(canvas, other.canvas, t)!,
-      counter: Color.lerp(counter, other.counter, t)!,
-      onCounter: Color.lerp(onCounter, other.onCounter, t)!,
-      readySurface: Color.lerp(readySurface, other.readySurface, t)!,
-      onReadySurface: Color.lerp(onReadySurface, other.onReadySurface, t)!,
+      brandAction: Color.lerp(brandAction, other.brandAction, t)!,
+      onBrandAction: Color.lerp(onBrandAction, other.onBrandAction, t)!,
+      successSurface: Color.lerp(successSurface, other.successSurface, t)!,
+      onSuccessSurface: Color.lerp(
+        onSuccessSurface,
+        other.onSuccessSurface,
+        t,
+      )!,
       warningSurface: Color.lerp(warningSurface, other.warningSurface, t)!,
       onWarningSurface: Color.lerp(
         onWarningSurface,
@@ -117,126 +138,158 @@ final class WafloPalette extends ThemeExtension<WafloPalette> {
       )!,
       dangerSurface: Color.lerp(dangerSurface, other.dangerSurface, t)!,
       onDangerSurface: Color.lerp(onDangerSurface, other.onDangerSurface, t)!,
-      subtleInk: Color.lerp(subtleInk, other.subtleInk, t)!,
+      subtleText: Color.lerp(subtleText, other.subtleText, t)!,
+      cardShadow: Color.lerp(cardShadow, other.cardShadow, t)!,
     );
   }
 }
 
 extension WafloThemeContext on BuildContext {
-  WafloPalette get waflo => Theme.of(this).extension<WafloPalette>()!;
+  /// Safe even in emergency rendering paths outside an application theme.
+  WafloPalette get waflo {
+    final theme = Theme.of(this);
+    return theme.extension<WafloPalette>() ??
+        WafloTheme.palette(theme.brightness);
+  }
 }
 
 abstract final class WafloTheme {
   static ThemeData light() => _build(Brightness.light);
   static ThemeData dark() => _build(Brightness.dark);
 
+  static WafloPalette palette(Brightness brightness) {
+    if (brightness == Brightness.dark) {
+      return const WafloPalette(
+        canvas: WafloColors.darkCanvas,
+        brandAction: WafloColors.coral,
+        onBrandAction: WafloColors.ink,
+        successSurface: Color(0xFF163B30),
+        onSuccessSurface: Color(0xFFC7F2E2),
+        warningSurface: Color(0xFF3B2A16),
+        onWarningSurface: Color(0xFFFFE1AB),
+        dangerSurface: Color(0xFF43201B),
+        onDangerSurface: Color(0xFFFFDAD1),
+        subtleText: Color(0xFFC8B8B3),
+        cardShadow: Color(0x33000000),
+      );
+    }
+    return const WafloPalette(
+      canvas: WafloColors.cloud,
+      brandAction: WafloColors.brick,
+      onBrandAction: WafloColors.white,
+      successSurface: Color(0xFFE7F5EF),
+      onSuccessSurface: Color(0xFF145A43),
+      warningSurface: Color(0xFFFFF4DE),
+      onWarningSurface: Color(0xFF664100),
+      dangerSurface: Color(0xFFFFE9E4),
+      onDangerSurface: Color(0xFF7D1E13),
+      subtleText: WafloColors.muted,
+      cardShadow: Color(0x1A241916),
+    );
+  }
+
   static ThemeData _build(Brightness brightness) {
     final dark = brightness == Brightness.dark;
     final scheme = dark
         ? const ColorScheme.dark(
-            primary: WafloColors.signalMint,
-            onPrimary: WafloColors.deepCounter,
-            primaryContainer: Color(0xFF174B3C),
-            onPrimaryContainer: Color(0xFFD7F8EA),
-            secondary: Color(0xFFC0D9CF),
-            onSecondary: Color(0xFF243B32),
-            surface: WafloColors.night,
-            onSurface: Color(0xFFE5ECE8),
-            surfaceContainerLow: WafloColors.nightSurface,
-            surfaceContainer: WafloColors.nightElevated,
-            outline: Color(0xFF73877E),
-            outlineVariant: Color(0xFF35483F),
-            error: Color(0xFFFFB4AB),
-            onError: Color(0xFF690005),
+            primary: WafloColors.coral,
+            onPrimary: WafloColors.ink,
+            primaryContainer: Color(0xFF5A241A),
+            onPrimaryContainer: Color(0xFFFFD9D0),
+            secondary: Color(0xFFFFB5A4),
+            onSecondary: WafloColors.ink,
+            surface: WafloColors.darkSurface,
+            onSurface: Color(0xFFFFF4F1),
+            surfaceContainerLow: WafloColors.darkSurface,
+            surfaceContainer: WafloColors.darkElevated,
+            outline: Color(0xFF9A827C),
+            outlineVariant: WafloColors.darkOutline,
+            error: Color(0xFFFFB4A8),
+            onError: Color(0xFF690002),
           )
         : const ColorScheme.light(
-            primary: WafloColors.counterPine,
-            onPrimary: Colors.white,
-            primaryContainer: WafloColors.freshMint,
-            onPrimaryContainer: WafloColors.deepCounter,
-            secondary: Color(0xFF4D635A),
-            onSecondary: Colors.white,
-            surface: WafloColors.receipt,
+            primary: WafloColors.brick,
+            onPrimary: WafloColors.white,
+            primaryContainer: WafloColors.softCoral,
+            onPrimaryContainer: WafloColors.ember,
+            secondary: WafloColors.coral,
+            onSecondary: WafloColors.ink,
+            surface: WafloColors.white,
             onSurface: WafloColors.ink,
-            surfaceContainerLow: Color(0xFFFBFAF6),
-            surfaceContainer: Color(0xFFF0F1EC),
-            outline: Color(0xFF6C7B74),
-            outlineVariant: Color(0xFFCCD6D0),
-            error: WafloColors.sealRed,
-            onError: Colors.white,
+            surfaceContainerLow: WafloColors.white,
+            surfaceContainer: Color(0xFFF2F1F5),
+            outline: Color(0xFF8A7771),
+            outlineVariant: Color(0xFFE3DAD7),
+            error: WafloColors.danger,
+            onError: WafloColors.white,
           );
-    final baseText = ThemeData(brightness: brightness).textTheme;
-    final textTheme = baseText.copyWith(
-      displaySmall: baseText.displaySmall?.copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -1.1,
-        height: 1.05,
-      ),
-      headlineMedium: baseText.headlineMedium?.copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.7,
-        height: 1.1,
-        fontFeatures: const [FontFeature.tabularFigures()],
-      ),
-      headlineSmall: baseText.headlineSmall?.copyWith(
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.4,
-        height: 1.15,
-      ),
-      titleLarge: baseText.titleLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.25,
-      ),
-      titleMedium: baseText.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-      labelLarge: baseText.labelLarge?.copyWith(
-        fontWeight: FontWeight.w700,
-        fontSize: 16,
-      ),
-      labelMedium: baseText.labelMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.55,
-      ),
-      bodyLarge: baseText.bodyLarge?.copyWith(height: 1.4),
-      bodyMedium: baseText.bodyMedium?.copyWith(height: 1.4),
-      bodySmall: baseText.bodySmall?.copyWith(height: 1.35),
-    );
-    final palette = dark
-        ? const WafloPalette(
-            canvas: WafloColors.night,
-            counter: WafloColors.signalMint,
-            onCounter: WafloColors.deepCounter,
-            readySurface: Color(0xFF173E33),
-            onReadySurface: Color(0xFFCFF6E6),
-            warningSurface: Color(0xFF3D2D16),
-            onWarningSurface: Color(0xFFFFDDAA),
-            dangerSurface: Color(0xFF3C2020),
-            onDangerSurface: Color(0xFFFFDAD6),
-            subtleInk: Color(0xFFACBBB4),
-          )
-        : const WafloPalette(
-            canvas: WafloColors.receipt,
-            counter: WafloColors.counterPine,
-            onCounter: Colors.white,
-            readySurface: WafloColors.freshMint,
-            onReadySurface: WafloColors.deepCounter,
-            warningSurface: Color(0xFFFFEBCB),
-            onWarningSurface: Color(0xFF4A2A00),
-            dangerSurface: Color(0xFFFFDAD6),
-            onDangerSurface: Color(0xFF5D0003),
-            subtleInk: Color(0xFF586861),
-          );
+    final baseText = ThemeData(
+      brightness: brightness,
+      fontFamily: 'Manrope',
+    ).textTheme;
+    final textTheme = baseText
+        .copyWith(
+          displaySmall: baseText.displaySmall?.copyWith(
+            fontSize: 48,
+            height: 56 / 48,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1.2,
+          ),
+          headlineMedium: baseText.headlineMedium?.copyWith(
+            fontSize: 36,
+            height: 44 / 36,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.8,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
+          headlineSmall: baseText.headlineSmall?.copyWith(
+            fontSize: 28,
+            height: 36 / 28,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.4,
+          ),
+          titleLarge: baseText.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.25,
+          ),
+          titleMedium: baseText.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+          labelLarge: baseText.labelLarge?.copyWith(
+            fontSize: 16,
+            height: 1.25,
+            fontWeight: FontWeight.w700,
+          ),
+          labelMedium: baseText.labelMedium?.copyWith(
+            fontSize: 14,
+            height: 20 / 14,
+            fontWeight: FontWeight.w600,
+          ),
+          bodyLarge: baseText.bodyLarge?.copyWith(
+            fontSize: 16,
+            height: 26 / 16,
+          ),
+          bodyMedium: baseText.bodyMedium?.copyWith(height: 1.5),
+          bodySmall: baseText.bodySmall?.copyWith(
+            fontSize: 12,
+            height: 1.5,
+            fontWeight: FontWeight.w500,
+          ),
+        )
+        .apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface);
+    final resolvedPalette = palette(brightness);
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      fontFamily: 'WafloSans',
-      fontFamilyFallback: const ['WafloArabic'],
+      fontFamily: 'Manrope',
+      fontFamilyFallback: const ['NotoSansArabic'],
       colorScheme: scheme,
-      extensions: [palette],
+      extensions: [resolvedPalette],
       textTheme: textTheme,
       visualDensity: VisualDensity.standard,
-      scaffoldBackgroundColor: palette.canvas,
-      canvasColor: palette.canvas,
-      splashFactory: InkSparkle.splashFactory,
+      scaffoldBackgroundColor: resolvedPalette.canvas,
+      canvasColor: resolvedPalette.canvas,
+      splashFactory: InkRipple.splashFactory,
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -250,17 +303,33 @@ abstract final class WafloTheme {
         margin: EdgeInsets.zero,
         color: scheme.surfaceContainerLow,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(WafloRadius.card),
+          borderRadius: BorderRadius.circular(WafloRadius.large),
           side: BorderSide(color: scheme.outlineVariant),
         ),
       ),
       dividerTheme: DividerThemeData(color: scheme.outlineVariant),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size(56, 56),
-          textStyle: textTheme.labelLarge,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(WafloRadius.button),
+        style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(Size(56, 56)),
+          textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return scheme.surfaceContainer;
+            }
+            if (states.contains(WidgetState.pressed)) {
+              return WafloColors.ember;
+            }
+            return WafloColors.brick;
+          }),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? scheme.onSurfaceVariant
+                : WafloColors.white,
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(WafloRadius.medium),
+            ),
           ),
         ),
       ),
@@ -268,9 +337,10 @@ abstract final class WafloTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(56, 56),
           textStyle: textTheme.labelLarge,
+          foregroundColor: dark ? const Color(0xFFFFC1B2) : WafloColors.brick,
           side: BorderSide(color: scheme.outline),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(WafloRadius.button),
+            borderRadius: BorderRadius.circular(WafloRadius.medium),
           ),
         ),
       ),
@@ -278,6 +348,7 @@ abstract final class WafloTheme {
         style: TextButton.styleFrom(
           minimumSize: const Size(48, 48),
           textStyle: textTheme.labelLarge,
+          foregroundColor: dark ? const Color(0xFFFFC1B2) : WafloColors.brick,
         ),
       ),
       iconButtonTheme: IconButtonThemeData(
@@ -288,19 +359,36 @@ abstract final class WafloTheme {
         fillColor: scheme.surfaceContainerLow,
         contentPadding: const EdgeInsetsDirectional.fromSTEB(16, 18, 16, 18),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(WafloRadius.button),
+          borderRadius: BorderRadius.circular(WafloRadius.medium),
           borderSide: BorderSide(color: scheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(WafloRadius.button),
+          borderRadius: BorderRadius.circular(WafloRadius.medium),
           borderSide: BorderSide(color: scheme.outlineVariant),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(WafloRadius.medium),
+          borderSide: const BorderSide(color: WafloColors.brick, width: 2),
         ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: scheme.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(WafloRadius.stage),
+          borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
         ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surface,
+        modalBackgroundColor: scheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(WafloRadius.extraLarge),
+          ),
+        ),
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: WafloColors.brick,
+        linearTrackColor: WafloColors.softCoral,
       ),
     );
   }

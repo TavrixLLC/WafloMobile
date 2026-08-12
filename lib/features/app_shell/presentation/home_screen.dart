@@ -58,7 +58,7 @@ final class HomeScreen extends ConsumerWidget {
                 WafloStatusBanner(
                   icon: Icons.cloud_off_rounded,
                   message: '${strings.offlineBanner} ${strings.noOfflineQueue}',
-                  color: WafloColors.signalAmber,
+                  color: WafloColors.warning,
                   backgroundColor: context.waflo.warningSurface,
                 ),
                 const SizedBox(height: WafloSpacing.lg),
@@ -81,15 +81,15 @@ final class HomeScreen extends ConsumerWidget {
                       children: [
                         WafloReadyBeacon(
                           color: online
-                              ? context.waflo.counter
-                              : WafloColors.signalAmber,
+                              ? context.waflo.brandAction
+                              : WafloColors.warning,
                         ),
                         const SizedBox(width: WafloSpacing.sm),
                         WafloOperationalLabel(
                           online ? strings.deviceReady : strings.offline,
                           color: online
-                              ? context.waflo.counter
-                              : WafloColors.signalAmber,
+                              ? context.waflo.brandAction
+                              : WafloColors.warning,
                         ),
                       ],
                     ),
@@ -99,7 +99,7 @@ final class HomeScreen extends ConsumerWidget {
                         maxLines: 1,
                         textAlign: TextAlign.end,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: context.waflo.subtleInk,
+                          color: context.waflo.subtleText,
                         ),
                       ),
                   ],
@@ -116,7 +116,7 @@ final class HomeScreen extends ConsumerWidget {
                   Icon(
                     Icons.location_on_outlined,
                     size: 21,
-                    color: context.waflo.subtleInk,
+                    color: context.waflo.subtleText,
                   ),
                   const SizedBox(width: WafloSpacing.sm),
                   Expanded(
@@ -124,7 +124,7 @@ final class HomeScreen extends ConsumerWidget {
                       deviceContext?.currentLocation.displayName ??
                           strings.unavailable,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: context.waflo.subtleInk,
+                        color: context.waflo.subtleText,
                       ),
                     ),
                   ),
@@ -135,7 +135,7 @@ final class HomeScreen extends ConsumerWidget {
                 WafloStatusBanner(
                   icon: Icons.location_off_outlined,
                   message: strings.noCapabilitiesBody,
-                  color: WafloColors.signalAmber,
+                  color: WafloColors.warning,
                   backgroundColor: context.waflo.warningSurface,
                 ),
                 const SizedBox(height: WafloSpacing.md),
@@ -196,11 +196,11 @@ final class _PendingTransaction extends StatelessWidget {
     final strings = AppLocalizations.of(context);
     return Material(
       color: context.waflo.warningSurface,
-      borderRadius: BorderRadius.circular(WafloRadius.card),
+      borderRadius: BorderRadius.circular(WafloRadius.large),
       child: InkWell(
         key: const Key('pending-operation-home'),
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(WafloRadius.card),
+        borderRadius: BorderRadius.circular(WafloRadius.large),
         child: Padding(
           padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
           child: Row(
@@ -208,7 +208,7 @@ final class _PendingTransaction extends StatelessWidget {
             children: [
               const Icon(
                 Icons.sync_problem_rounded,
-                color: WafloColors.signalAmber,
+                color: WafloColors.warning,
               ),
               const SizedBox(width: WafloSpacing.md),
               Expanded(
@@ -259,11 +259,11 @@ final class _QuickAction extends StatelessWidget {
     color: Colors.transparent,
     shape: RoundedRectangleBorder(
       side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      borderRadius: BorderRadius.circular(WafloRadius.button),
+      borderRadius: BorderRadius.circular(WafloRadius.medium),
     ),
     child: InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(WafloRadius.button),
+      borderRadius: BorderRadius.circular(WafloRadius.medium),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 88),
         child: Padding(

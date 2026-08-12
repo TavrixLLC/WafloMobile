@@ -34,8 +34,8 @@ final class DeviceSecurityScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
               decoration: BoxDecoration(
-                color: context.waflo.readySurface,
-                borderRadius: BorderRadius.circular(WafloRadius.stage),
+                color: context.waflo.successSurface,
+                borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
               ),
               child: Row(
                 children: [
@@ -48,11 +48,13 @@ final class DeviceSecurityScreen extends ConsumerWidget {
                         Text(
                           strings.securityProtected,
                           style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(color: context.waflo.onReadySurface),
+                              ?.copyWith(color: context.waflo.onSuccessSurface),
                         ),
                         Text(
                           strings.securityProtectedBody,
-                          style: TextStyle(color: context.waflo.onReadySurface),
+                          style: TextStyle(
+                            color: context.waflo.onSuccessSurface,
+                          ),
                         ),
                       ],
                     ),
