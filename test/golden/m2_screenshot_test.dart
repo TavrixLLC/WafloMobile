@@ -31,7 +31,7 @@ void main() {
           ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
         .load();
     await (FontLoader('NotoSansArabic')..addFont(
-          rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
+          rootBundle.load('assets/brand/fonts/NotoSansArabic-Variable.ttf'),
         ))
         .load();
     await (FontLoader(
@@ -327,8 +327,8 @@ Widget _app({
     GlobalCupertinoLocalizations.delegate,
     GlobalWidgetsLocalizations.delegate,
   ],
-  theme: WafloTheme.light(),
-  darkTheme: WafloTheme.dark(),
+  theme: WafloTheme.light(locale: locale),
+  darkTheme: WafloTheme.dark(locale: locale),
   themeMode: themeMode,
   home: MediaQuery(
     data: MediaQueryData(textScaler: textScaler),

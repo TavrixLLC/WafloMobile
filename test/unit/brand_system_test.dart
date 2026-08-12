@@ -34,7 +34,9 @@ void main() {
       'assets/brand/fonts/Manrope-SemiBold.ttf',
       'assets/brand/fonts/Manrope-Bold.ttf',
       'assets/brand/fonts/Manrope-ExtraBold.ttf',
-      'assets/brand/fonts/NotoSansArabic-Regular.ttf',
+      'assets/brand/fonts/NotoSansArabic-Variable.ttf',
+      'assets/brand/fonts/Manrope-OFL.txt',
+      'assets/brand/fonts/NotoSansArabic-OFL.txt',
       'assets/brand/fonts/LICENSE-NOTES.txt',
     ]) {
       expect(File(path).existsSync(), isTrue, reason: path);
@@ -60,6 +62,12 @@ void main() {
     expect(
       WafloTheme.light().textTheme.bodyLarge?.fontFamilyFallback,
       contains('NotoSansArabic'),
+    );
+    final arabicTheme = WafloTheme.light(locale: const Locale('ar'));
+    expect(arabicTheme.textTheme.bodyLarge?.fontFamily, 'NotoSansArabic');
+    expect(
+      arabicTheme.textTheme.bodyLarge?.fontFamilyFallback,
+      contains('Manrope'),
     );
   });
 }

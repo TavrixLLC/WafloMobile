@@ -41,7 +41,7 @@ void main() {
           ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
         .load();
     await (FontLoader('NotoSansArabic')..addFont(
-          rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
+          rootBundle.load('assets/brand/fonts/NotoSansArabic-Variable.ttf'),
         ))
         .load();
     await (FontLoader(
@@ -517,8 +517,8 @@ Widget _app({
     GlobalCupertinoLocalizations.delegate,
     GlobalWidgetsLocalizations.delegate,
   ],
-  theme: _reviewTheme(WafloTheme.light()),
-  darkTheme: _reviewTheme(WafloTheme.dark()),
+  theme: _reviewTheme(WafloTheme.light(locale: locale), locale),
+  darkTheme: _reviewTheme(WafloTheme.dark(locale: locale), locale),
   themeMode: themeMode,
   home: MediaQuery(
     data: MediaQueryData(textScaler: textScaler),
@@ -526,11 +526,13 @@ Widget _app({
   ),
 );
 
-ThemeData _reviewTheme(ThemeData base) {
-  TextStyle? style(TextStyle? value) => value?.copyWith(
-    fontFamily: 'Manrope',
-    fontFamilyFallback: const ['NotoSansArabic'],
-  );
+ThemeData _reviewTheme(ThemeData base, Locale locale) {
+  final fontFamily = locale.languageCode == 'ar' ? 'NotoSansArabic' : 'Manrope';
+  final fallback = locale.languageCode == 'ar'
+      ? const ['Manrope']
+      : const ['NotoSansArabic'];
+  TextStyle? style(TextStyle? value) =>
+      value?.copyWith(fontFamily: fontFamily, fontFamilyFallback: fallback);
 
   final source = base.textTheme;
   final text = source.copyWith(

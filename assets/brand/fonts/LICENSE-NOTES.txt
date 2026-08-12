@@ -5,12 +5,17 @@ Manrope and Noto Sans Arabic are open-source typefaces licensed under the
 SIL Open Font License 1.1.
 
 Official project sources:
-- https://github.com/sharanda/manrope
-- https://github.com/notofonts/arabic
+- https://github.com/google/fonts/tree/main/ofl/manrope
+- https://github.com/google/fonts/tree/main/ofl/notosansarabic
+
+The bundled Noto Sans Arabic file is the official variable width/weight build,
+renamed only to avoid platform-hostile bracket characters in the asset path.
+Its source filename is NotoSansArabic[wdth,wght].ttf and its SHA-256 is
+63111b5b2e074dd48cc67692e0a2726d86ee94c1c37fe8598257b7b4e87e869e.
 
 The selected family names and weights are prescribed by the read-only Waflo
 Brand System package. The font files are bundled with Waflo Staff so the
 application never depends on runtime font downloads.
 
-SIL Open Font License 1.1:
-https://openfontlicense.org/open-font-license-official-text/
+The complete upstream license texts are bundled beside the fonts as
+Manrope-OFL.txt and NotoSansArabic-OFL.txt.

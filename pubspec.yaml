@@ -61,5 +61,4 @@ flutter:
           weight: 800
     - family: NotoSansArabic
       fonts:
-        - asset: assets/brand/fonts/NotoSansArabic-Regular.ttf
-          weight: 400
+        - asset: assets/brand/fonts/NotoSansArabic-Variable.ttf

@@ -154,8 +154,10 @@ extension WafloThemeContext on BuildContext {
 }
 
 abstract final class WafloTheme {
-  static ThemeData light() => _build(Brightness.light);
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData light({Locale locale = const Locale('en')}) =>
+      _build(Brightness.light, locale: locale);
+  static ThemeData dark({Locale locale = const Locale('en')}) =>
+      _build(Brightness.dark, locale: locale);
 
   static WafloPalette palette(Brightness brightness) {
     if (brightness == Brightness.dark) {
@@ -188,8 +190,15 @@ abstract final class WafloTheme {
     );
   }
 
-  static ThemeData _build(Brightness brightness) {
+  static ThemeData _build(Brightness brightness, {required Locale locale}) {
     final dark = brightness == Brightness.dark;
+    final usesArabicTypography = locale.languageCode == 'ar';
+    final primaryFontFamily = usesArabicTypography
+        ? 'NotoSansArabic'
+        : 'Manrope';
+    final fallbackFontFamilies = usesArabicTypography
+        ? const ['Manrope']
+        : const ['NotoSansArabic'];
     final scheme = dark
         ? const ColorScheme.dark(
             primary: WafloColors.coral,
@@ -225,7 +234,8 @@ abstract final class WafloTheme {
           );
     final baseText = ThemeData(
       brightness: brightness,
-      fontFamily: 'Manrope',
+      fontFamily: primaryFontFamily,
+      fontFamilyFallback: fallbackFontFamilies,
     ).textTheme;
     final textTheme = baseText
         .copyWith(
@@ -281,8 +291,8 @@ abstract final class WafloTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      fontFamily: 'Manrope',
-      fontFamilyFallback: const ['NotoSansArabic'],
+      fontFamily: primaryFontFamily,
+      fontFamilyFallback: fallbackFontFamilies,
       colorScheme: scheme,
       extensions: [resolvedPalette],
       textTheme: textTheme,
