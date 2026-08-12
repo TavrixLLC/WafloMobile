@@ -1,6 +1,6 @@
 {
   "WAFLO_ENV": "staging",
-  "WAFLO_API_BASE_URL": "https://api.staging.waflo.app",
+  "WAFLO_API_BASE_URL": "https://api-staging.waflo.app",
   "WAFLO_PAIRING_ENVIRONMENT": "test",
   "WAFLO_LOG_LEVEL": "info",
   "WAFLO_ALLOW_TEST_ADAPTER": "false",

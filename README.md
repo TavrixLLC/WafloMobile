@@ -84,7 +84,7 @@ flutter gen-l10n
 ```
 
 Committed `config/` files contain no secrets. Development can target the
-Android emulator host. Staging is fixed to `https://api.staging.waflo.app` and
+Android emulator host. Staging is fixed to `https://api-staging.waflo.app` and
 production is fixed to `https://api.waflo.app`; release builds provide no host
 switching UI and reject HTTP/local endpoints.
 

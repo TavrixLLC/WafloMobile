@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:waflo_staff/app/environment.dart';
 
@@ -86,12 +89,55 @@ void main() {
       environment(
         flavor: AppFlavor.staging,
         pairing: 'test',
-        url: 'https://api.staging.waflo.app',
+        url: 'https://api-staging.waflo.app',
         level: AppLogLevel.info,
         testAdapter: false,
       ).validate(),
       isEmpty,
     );
+  });
+
+  test('staging and production reject every non-canonical API origin', () {
+    for (final url in <String>[
+      'https://api.staging.waflo.app',
+      'https://staging-api.waflo.app',
+      'https://api-staging.waflo.app/v1',
+      'http://10.0.2.2:3000',
+    ]) {
+      expect(
+        environment(
+          flavor: AppFlavor.staging,
+          pairing: 'test',
+          url: url,
+          level: AppLogLevel.info,
+          testAdapter: false,
+        ).validate(),
+        contains('NON_DEVELOPMENT_API_ORIGIN_MISMATCH'),
+        reason: url,
+      );
+    }
+    expect(
+      environment(
+        flavor: AppFlavor.production,
+        pairing: 'production',
+        url: 'https://api-staging.waflo.app',
+        level: AppLogLevel.minimal,
+        testAdapter: false,
+      ).validate(),
+      contains('NON_DEVELOPMENT_API_ORIGIN_MISMATCH'),
+    );
+  });
+
+  test('committed release configurations use only canonical HTTPS origins', () {
+    final staging =
+        jsonDecode(File('config/staging.json').readAsStringSync())
+            as Map<String, dynamic>;
+    final production =
+        jsonDecode(File('config/production.json').readAsStringSync())
+            as Map<String, dynamic>;
+
+    expect(staging['WAFLO_API_BASE_URL'], 'https://api-staging.waflo.app');
+    expect(production['WAFLO_API_BASE_URL'], 'https://api.waflo.app');
   });
 
   test('native and Dart flavors must match exactly', () {

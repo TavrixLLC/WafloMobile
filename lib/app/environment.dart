@@ -119,6 +119,15 @@ final class AppEnvironment {
     if (flavor != AppFlavor.development && local) {
       issues.add('NON_DEVELOPMENT_REJECTS_LOCAL_HOST');
     }
+    final canonicalReleaseOrigin = switch (flavor) {
+      AppFlavor.development => null,
+      AppFlavor.staging => Uri.parse('https://api-staging.waflo.app'),
+      AppFlavor.production => Uri.parse('https://api.waflo.app'),
+    };
+    if (canonicalReleaseOrigin != null &&
+        apiBaseUrl != canonicalReleaseOrigin) {
+      issues.add('NON_DEVELOPMENT_API_ORIGIN_MISMATCH');
+    }
     if (flavor == AppFlavor.development &&
         apiBaseUrl.scheme == 'http' &&
         !local) {

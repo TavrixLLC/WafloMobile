@@ -1,6 +1,6 @@
 # Staging physical E2E plan
 
-Use Staff Mobile against `https://api.staging.waflo.app` and two physical
+Use Staff Mobile against `https://api-staging.waflo.app` and two physical
 phones. Record every failure as MOBILE, WEB/BACKEND, DEPLOYMENT, PROVIDER,
 CREDENTIAL, or ENVIRONMENT.
 
