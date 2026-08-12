@@ -26,13 +26,16 @@ import '../support/fixtures.dart';
 
 void main() {
   setUpAll(() async {
-    await (FontLoader('WafloSans')
+    await (FontLoader('Manrope')
           ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
         .load();
-    await (FontLoader('WafloArabic')..addFont(
+    await (FontLoader('NotoSansArabic')..addFont(
           rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
         ))
         .load();
+    await (FontLoader(
+      'MaterialIcons',
+    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
 
   Future<void> capture(
@@ -47,6 +50,17 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(widget);
     await tester.pump();
+    final context = tester.element(find.byType(MaterialApp));
+    await tester.runAsync(() async {
+      await precacheImage(
+        const AssetImage('assets/brand/logo/waflo-mark-primary-512.png'),
+        context,
+      );
+      await precacheImage(
+        const AssetImage('assets/brand/logo/waflo-mark-white-1024.png'),
+        context,
+      );
+    });
     await tester.pump(const Duration(milliseconds: 100));
     if (Platform.isLinux && !compareOnLinux) {
       expect(tester.takeException(), isNull);

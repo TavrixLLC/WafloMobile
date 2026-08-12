@@ -27,13 +27,16 @@ import '../support/fixtures.dart';
 
 void main() {
   setUpAll(() async {
-    await (FontLoader('WafloSans')
+    await (FontLoader('Manrope')
           ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
         .load();
-    await (FontLoader('WafloArabic')..addFont(
+    await (FontLoader('NotoSansArabic')..addFont(
           rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
         ))
         .load();
+    await (FontLoader(
+      'MaterialIcons',
+    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
   });
 
   Future<void> capture(WidgetTester tester, String name, Widget widget) async {

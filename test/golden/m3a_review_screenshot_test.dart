@@ -37,10 +37,10 @@ import '../support/fixtures.dart';
 
 void main() {
   setUpAll(() async {
-    await (FontLoader('M3DReviewSans')
+    await (FontLoader('Manrope')
           ..addFont(rootBundle.load('assets/brand/fonts/Manrope-Regular.ttf')))
         .load();
-    await (FontLoader('M3DReviewArabic')..addFont(
+    await (FontLoader('NotoSansArabic')..addFont(
           rootBundle.load('assets/brand/fonts/NotoSansArabic-Regular.ttf'),
         ))
         .load();
@@ -528,8 +528,8 @@ Widget _app({
 
 ThemeData _reviewTheme(ThemeData base) {
   TextStyle? style(TextStyle? value) => value?.copyWith(
-    fontFamily: 'M3DReviewSans',
-    fontFamilyFallback: const ['M3DReviewArabic'],
+    fontFamily: 'Manrope',
+    fontFamilyFallback: const ['NotoSansArabic'],
   );
 
   final source = base.textTheme;
