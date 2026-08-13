@@ -27,6 +27,13 @@ Future<void> main() async {
     r'pending[^\n]{0,120}(?:qrPayload|customerQr)|(?:qrPayload|customerQr)[^\n]{0,120}pending',
     caseSensitive: false,
   );
+  final hardcodedReviewCredential = RegExp(
+    r'\b[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}\b',
+  );
+  final unsafeReviewBypass = RegExp(
+    r'\b(?:skipAuth|skipPairing|debugLogin|testLogin|masterPassword)\b',
+    caseSensitive: false,
+  );
 
   for (final path in tracked) {
     final normalized = path.replaceAll('\\', '/');
@@ -57,6 +64,17 @@ Future<void> main() async {
     if (!fixtureOrEvidence && usablePairingQr.hasMatch(text)) {
       problems.add('Pairing QR literal in runtime source: $normalized');
     }
+    final reviewCredential = hardcodedReviewCredential
+        .firstMatch(text)
+        ?.group(0);
+    if (normalized.startsWith('lib/') &&
+        reviewCredential != null &&
+        reviewCredential != 'XXXX-XXXX') {
+      problems.add('Credential-shaped Review Access secret: $normalized');
+    }
+    if (normalized.startsWith('lib/') && unsafeReviewBypass.hasMatch(text)) {
+      problems.add('Unsafe review/auth bypass identifier: $normalized');
+    }
     if (usableCustomerQr.hasMatch(text)) {
       problems.add('Usable customer QR literal: $normalized');
     }
@@ -74,7 +92,7 @@ Future<void> main() async {
     return;
   }
   stdout.writeln(
-    'Security scan passed: ${tracked.length} tracked files; no backend runtime, private key, usable QR, persisted customer QR, or runtime credential literal was found.',
+    'Security scan passed: ${tracked.length} tracked files; no backend runtime, private key, usable QR, persisted customer QR, review credential, auth bypass, or runtime credential literal was found.',
   );
 }
 

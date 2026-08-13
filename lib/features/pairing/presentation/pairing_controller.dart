@@ -12,6 +12,7 @@ enum PairingViewStage {
   cameraRationale,
   scanner,
   manualEntry,
+  reviewAccess,
   progress,
   success,
   error,
@@ -24,6 +25,7 @@ final class PairingViewState {
     this.problem,
     this.failure,
     this.context,
+    this.reviewFlow = false,
   });
 
   const PairingViewState.welcome() : this(stage: PairingViewStage.welcome);
@@ -33,6 +35,7 @@ final class PairingViewState {
   final PairingQrProblem? problem;
   final AppFailure? failure;
   final AuthoritativeDeviceContext? context;
+  final bool reviewFlow;
 }
 
 final class PairingController extends Notifier<PairingViewState> {
@@ -56,6 +59,12 @@ final class PairingController extends Notifier<PairingViewState> {
   void showManualEntry() {
     if (_pairingOperation == null) {
       state = const PairingViewState(stage: PairingViewStage.manualEntry);
+    }
+  }
+
+  void showReviewAccess() {
+    if (_pairingOperation == null) {
+      state = const PairingViewState(stage: PairingViewStage.reviewAccess);
     }
   }
 
@@ -86,6 +95,55 @@ final class PairingController extends Notifier<PairingViewState> {
       }),
     );
     return operation;
+  }
+
+  Future<void> submitReviewAccess(String code) {
+    final running = _pairingOperation;
+    if (running != null) return running;
+    final operation = _submitReviewAccess(code);
+    _pairingOperation = operation;
+    unawaited(
+      operation.whenComplete(() {
+        if (identical(_pairingOperation, operation)) {
+          _pairingOperation = null;
+        }
+      }),
+    );
+    return operation;
+  }
+
+  Future<void> _submitReviewAccess(String code) async {
+    try {
+      final result = await ref
+          .read(pairingFlowServiceProvider)
+          .enterReviewAccess(
+            code,
+            onProgress: (progress) {
+              state = PairingViewState(
+                stage: PairingViewStage.progress,
+                progress: progress,
+                reviewFlow: true,
+              );
+            },
+          );
+      state = PairingViewState(
+        stage: PairingViewStage.success,
+        context: result.context,
+        reviewFlow: true,
+      );
+    } on AppFailure catch (failure) {
+      state = PairingViewState(
+        stage: PairingViewStage.error,
+        failure: failure,
+        reviewFlow: true,
+      );
+    } on Object {
+      state = const PairingViewState(
+        stage: PairingViewStage.error,
+        failure: ApiFailure('INTERNAL_ERROR', responseReceived: false),
+        reviewFlow: true,
+      );
+    }
   }
 
   Future<void> _submit(String rawQr) async {

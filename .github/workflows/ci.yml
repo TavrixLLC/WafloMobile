@@ -1,4 +1,4 @@
-name: Flutter M3D Official Brand
+name: Flutter M3E Review Access and Scanner
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: flutter-m3d-${{ github.ref }}
+  group: flutter-m3e-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   linux-quality:
-    name: Linux / M1-M3D quality, brand, security, archive
+    name: Linux / M1-M3E quality, brand, security, archive
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -47,11 +47,11 @@ jobs:
         run: dart format --output=none --set-exit-if-changed lib test integration_test tool
       - name: Analyze fatal
         run: flutter analyze --fatal-infos --fatal-warnings
-      - name: M1-M3D unit tests
+      - name: M1-M3E unit tests
         run: flutter test test/unit --coverage --reporter expanded
-      - name: M1-M3D widget tests
+      - name: M1-M3E widget tests
         run: flutter test test/widget --reporter expanded
-      - name: M1-M3D golden and screenshot tests
+      - name: M1-M3E golden and screenshot tests
         run: flutter test test/golden --reporter expanded
       - name: Security scan
         run: dart run tool/security_scan.dart
@@ -72,12 +72,13 @@ jobs:
             artifacts/handoff-m3b/screenshots/*.png
             artifacts/handoff-m3c/screenshots/*.png
             artifacts/handoff-m3d-brand/screenshots/**/*.png
+            artifacts/handoff-m3e-review-access/screenshots/**/*.png
             test/golden/failures/*_testImage.png
           if-no-files-found: warn
           retention-days: 14
 
   android-emulator:
-    name: Android emulator / M1-M3D Staff flow matrix
+    name: Android emulator / M1-M3E Staff flow matrix
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -111,9 +112,10 @@ jobs:
             flutter test integration_test/m2_app_integration_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m3a_staff_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m3c_production_v1_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
+            flutter test integration_test/m3e_review_access_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
 
   android-builds:
-    name: Android / M3D development, staging, production
+    name: Android / M3E development, staging, production
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -136,7 +138,7 @@ jobs:
         run: flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
       - uses: actions/upload-artifact@v4
         with:
-          name: android-m3d-apks
+          name: android-m3e-apks
           path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
           retention-days: 14

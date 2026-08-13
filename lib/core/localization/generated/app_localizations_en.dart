@@ -412,7 +412,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get m2ScannerTitle => 'Scan customer membership';
+  String get m2ScannerTitle => 'Scan customer';
 
   @override
   String get m2ScannerInstructions =>
@@ -859,7 +859,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codeDetected => 'Code detected';
 
   @override
-  String get scannerResolving => 'Finding membership';
+  String get scannerResolving => 'Loading customer…';
 
   @override
   String get cameraUnavailable => 'Camera unavailable';
@@ -1082,4 +1082,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flashOff => 'Turn flash off';
+
+  @override
+  String get reviewAccess => 'Review / Demo Access';
+
+  @override
+  String get reviewAccessPrompt =>
+      'Need access for app review or a guided demo?';
+
+  @override
+  String get reviewAccessBody =>
+      'Use the review access code provided with this app submission.';
+
+  @override
+  String get reviewAccessCode => 'Review access code';
+
+  @override
+  String get reviewAccessCodeHint => 'XXXX-XXXX';
+
+  @override
+  String get backToPairing => 'Back to device pairing';
+
+  @override
+  String get reviewConnecting => 'Connecting to the review environment…';
+
+  @override
+  String get reviewAccessInvalid =>
+      'That review code could not be accepted. Check the code and try again.';
+
+  @override
+  String get reviewAccessExpired =>
+      'This review code is no longer active. Request a current code.';
+
+  @override
+  String get reviewAccessRateLimited =>
+      'Too many attempts. Wait a moment before trying again.';
+
+  @override
+  String get reviewEnvironmentUnavailable =>
+      'The review environment is temporarily unavailable.';
+
+  @override
+  String get demoMode => 'Demo mode';
+
+  @override
+  String get reviewTools => 'Review Tools';
+
+  @override
+  String get reviewToolsBody =>
+      'These controls use fictional review data only. They cannot select a real merchant or customer.';
+
+  @override
+  String get reviewScenarios => 'Demo scenarios';
+
+  @override
+  String get reviewScenarioNew => 'New customer';
+
+  @override
+  String get reviewScenarioActive => 'Active customer — 5 of 8';
+
+  @override
+  String get reviewScenarioRewardReady => 'Reward ready — 8 of 8';
+
+  @override
+  String get reviewScenarioManagerApproval => 'Manager approval required';
+
+  @override
+  String get reviewScenarioPurchaseThreshold => 'Purchase threshold not met';
+
+  @override
+  String get reviewScenarioBillingBlocked => 'Billing blocked';
+
+  @override
+  String get reviewScenarioInvalidQr => 'Invalid customer code';
+
+  @override
+  String get reviewInvalidQrDetail => 'Safe invalid-code scanner state';
+
+  @override
+  String get resetReviewData => 'Reset demo data';
+
+  @override
+  String get reviewResetComplete => 'Demo data restored.';
+
+  @override
+  String get exitDemo => 'Exit Demo';
+
+  @override
+  String get exitDemoBody =>
+      'This clears the review session and returns to device pairing.';
+
+  @override
+  String get initializingCamera => 'Starting camera…';
+
+  @override
+  String get customerLoaded => 'Customer loaded';
+
+  @override
+  String get expiredCustomerQr => 'This customer code has expired';
+
+  @override
+  String get unableToLoadCustomer => 'Unable to load customer';
 }

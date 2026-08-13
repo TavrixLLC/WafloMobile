@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 
+enum StaffSessionMode { normal, review }
+
 final class StaffDeviceSession {
   const StaffDeviceSession({
     required this.devicePublicId,
@@ -17,6 +19,7 @@ final class StaffDeviceSession {
     required this.role,
     required this.locationId,
     required this.issuedAt,
+    this.sessionMode = StaffSessionMode.normal,
   });
 
   final String devicePublicId;
@@ -31,12 +34,15 @@ final class StaffDeviceSession {
   final String role;
   final String locationId;
   final DateTime issuedAt;
+  final StaffSessionMode sessionMode;
+
+  bool get isReview => sessionMode == StaffSessionMode.review;
 
   bool isExpired(DateTime now, {Duration skew = const Duration(minutes: 1)}) =>
       !accessExpiresAt.isAfter(now.toUtc().add(skew));
 
   Map<String, Object?> toJson() => {
-    'recordVersion': 1,
+    'recordVersion': 2,
     'devicePublicId': devicePublicId,
     'deviceDisplayName': deviceDisplayName,
     'devicePlatform': devicePlatform,
@@ -49,6 +55,7 @@ final class StaffDeviceSession {
     'role': role,
     'locationId': locationId,
     'issuedAt': issuedAt.toUtc().toIso8601String(),
+    'sessionMode': sessionMode.name.toUpperCase(),
   };
 
   @override
@@ -56,7 +63,8 @@ final class StaffDeviceSession {
       'StaffDeviceSession(device: [REDACTED], session: [REDACTED], status: $deviceStatus)';
 
   static StaffDeviceSession fromJson(Object? value) {
-    if (value is! Map<String, Object?> || value['recordVersion'] != 1) {
+    if (value is! Map<String, Object?> ||
+        (value['recordVersion'] != 1 && value['recordVersion'] != 2)) {
       throw const FormatException('Unsupported session record.');
     }
     String stringField(String name, {int minimum = 1, int maximum = 512}) {
@@ -77,6 +85,14 @@ final class StaffDeviceSession {
       return parsed.toUtc();
     }
 
+    final rawMode = value['recordVersion'] == 1
+        ? 'NORMAL'
+        : stringField('sessionMode', maximum: 16);
+    final sessionMode = switch (rawMode) {
+      'NORMAL' => StaffSessionMode.normal,
+      'REVIEW' => StaffSessionMode.review,
+      _ => throw const FormatException('Invalid sessionMode.'),
+    };
     return StaffDeviceSession(
       devicePublicId: stringField('devicePublicId', maximum: 64),
       deviceDisplayName: stringField('deviceDisplayName', maximum: 120),
@@ -90,6 +106,7 @@ final class StaffDeviceSession {
       role: stringField('role', maximum: 32),
       locationId: stringField('locationId', maximum: 64),
       issuedAt: dateField('issuedAt'),
+      sessionMode: sessionMode,
     );
   }
 }
@@ -144,6 +161,7 @@ final class PairingTransaction {
     this.challengeExpiresAt,
     this.message,
     this.signature,
+    this.sessionMode = StaffSessionMode.normal,
   });
 
   final String pairingPublicId;
@@ -153,6 +171,7 @@ final class PairingTransaction {
   final String? message;
   final String? signature;
   final DateTime updatedAt;
+  final StaffSessionMode sessionMode;
 
   bool get isRecoverable =>
       stage == PairingTransactionStage.claimPending ||
@@ -170,7 +189,7 @@ final class PairingTransactionRepository {
 
   static const _key = 'pairing.transaction.v2';
   static const _legacyKey = 'pairing.transaction.v1';
-  static const _recordVersion = 2;
+  static const _recordVersion = 3;
   final SecureKeyValueStore _store;
   final DateTime Function() _now;
 
@@ -181,6 +200,7 @@ final class PairingTransactionRepository {
     DateTime? challengeExpiresAt,
     String? message,
     String? signature,
+    StaffSessionMode? sessionMode,
   }) async {
     final current = await read();
     await save(
@@ -191,6 +211,8 @@ final class PairingTransactionRepository {
         challengeExpiresAt: challengeExpiresAt ?? current?.challengeExpiresAt,
         message: message ?? current?.message,
         signature: signature ?? current?.signature,
+        sessionMode:
+            sessionMode ?? current?.sessionMode ?? StaffSessionMode.normal,
         updatedAt: _now().toUtc(),
       ),
     );
@@ -212,6 +234,7 @@ final class PairingTransactionRepository {
           if (transaction.message != null) 'message': transaction.message,
           if (transaction.signature != null) 'signature': transaction.signature,
           'updatedAt': transaction.updatedAt.toUtc().toIso8601String(),
+          'sessionMode': transaction.sessionMode.name.toUpperCase(),
         }),
       );
       final verified = await read();
@@ -247,7 +270,8 @@ final class PairingTransactionRepository {
     try {
       final value = jsonDecode(raw);
       if (value is! Map<String, Object?> ||
-          value['recordVersion'] != _recordVersion) {
+          (value['recordVersion'] != 2 &&
+              value['recordVersion'] != _recordVersion)) {
         return _ambiguous();
       }
       final pairingPublicId = value['pairingPublicId'];
@@ -269,6 +293,14 @@ final class PairingTransactionRepository {
       );
       final message = value['message'];
       final signature = value['signature'];
+      final rawMode = value['recordVersion'] == 2
+          ? 'NORMAL'
+          : value['sessionMode'];
+      final sessionMode = switch (rawMode) {
+        'NORMAL' => StaffSessionMode.normal,
+        'REVIEW' => StaffSessionMode.review,
+        _ => StaffSessionMode.normal,
+      };
       final needsChallenge =
           resolvedStage != PairingTransactionStage.claimPending;
       final needsSignature =
@@ -290,6 +322,7 @@ final class PairingTransactionRepository {
         message: message as String?,
         signature: signature as String?,
         updatedAt: updatedAt.toUtc(),
+        sessionMode: sessionMode,
       );
     } on Object {
       return _ambiguous();
@@ -316,6 +349,7 @@ final class PairingTransactionRepository {
           pairingPublicId: pairingPublicId,
           stage: PairingTransactionStage.claimPending,
           updatedAt: updatedAt.toUtc(),
+          sessionMode: StaffSessionMode.normal,
         );
       }
       return _ambiguous(pairingPublicId: pairingPublicId);
@@ -329,6 +363,7 @@ final class PairingTransactionRepository {
         pairingPublicId: pairingPublicId ?? '',
         stage: PairingTransactionStage.persisting,
         updatedAt: _now().toUtc(),
+        sessionMode: StaffSessionMode.normal,
       );
 
   Future<void> clear() async {

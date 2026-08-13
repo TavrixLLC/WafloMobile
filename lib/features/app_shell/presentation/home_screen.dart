@@ -54,6 +54,17 @@ final class HomeScreen extends ConsumerWidget {
             key: const Key('task-first-home'),
             padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
             children: [
+              if (boot.session?.isReview ?? false) ...[
+                WafloStatusBanner(
+                  icon: Icons.science_outlined,
+                  message: strings.demoMode,
+                  color: context.waflo.brandAction,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                ),
+                const SizedBox(height: WafloSpacing.lg),
+              ],
               if (!online) ...[
                 WafloStatusBanner(
                   icon: Icons.cloud_off_rounded,

@@ -409,7 +409,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get m2ScannerTitle => 'مسح عضوية العميل';
+  String get m2ScannerTitle => 'مسح العميل';
 
   @override
   String get m2ScannerInstructions =>
@@ -840,7 +840,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get codeDetected => 'تم اكتشاف الرمز';
 
   @override
-  String get scannerResolving => 'جارٍ البحث عن العضوية';
+  String get scannerResolving => 'جارٍ تحميل بيانات العميل…';
 
   @override
   String get cameraUnavailable => 'الكاميرا غير متاحة';
@@ -1056,4 +1056,105 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get flashOff => 'إيقاف الإضاءة';
+
+  @override
+  String get reviewAccess => 'الدخول للمراجعة أو العرض';
+
+  @override
+  String get reviewAccessPrompt =>
+      'هل تحتاج إلى الدخول لمراجعة التطبيق أو مشاهدة عرض إرشادي؟';
+
+  @override
+  String get reviewAccessBody =>
+      'استخدم رمز الدخول المرفق مع طلب مراجعة هذا التطبيق.';
+
+  @override
+  String get reviewAccessCode => 'رمز دخول المراجعة';
+
+  @override
+  String get reviewAccessCodeHint => 'XXXX-XXXX';
+
+  @override
+  String get backToPairing => 'العودة إلى إقران الجهاز';
+
+  @override
+  String get reviewConnecting => 'جارٍ الاتصال ببيئة المراجعة…';
+
+  @override
+  String get reviewAccessInvalid =>
+      'تعذر قبول رمز المراجعة. تحقق من الرمز وحاول مجدداً.';
+
+  @override
+  String get reviewAccessExpired =>
+      'رمز المراجعة هذا لم يعد فعالاً. اطلب رمزاً حالياً.';
+
+  @override
+  String get reviewAccessRateLimited =>
+      'محاولات كثيرة. انتظر قليلاً قبل المحاولة مجدداً.';
+
+  @override
+  String get reviewEnvironmentUnavailable => 'بيئة المراجعة غير متاحة مؤقتاً.';
+
+  @override
+  String get demoMode => 'الوضع التجريبي';
+
+  @override
+  String get reviewTools => 'أدوات المراجعة';
+
+  @override
+  String get reviewToolsBody =>
+      'تستخدم هذه الأدوات بيانات مراجعة خيالية فقط، ولا يمكنها اختيار تاجر أو عميل حقيقي.';
+
+  @override
+  String get reviewScenarios => 'سيناريوهات العرض';
+
+  @override
+  String get reviewScenarioNew => 'عميل جديد';
+
+  @override
+  String get reviewScenarioActive => 'عميل نشط — ٥ من ٨';
+
+  @override
+  String get reviewScenarioRewardReady => 'المكافأة جاهزة — ٨ من ٨';
+
+  @override
+  String get reviewScenarioManagerApproval => 'موافقة المدير مطلوبة';
+
+  @override
+  String get reviewScenarioPurchaseThreshold =>
+      'قيمة الشراء لا تبلغ الحد المطلوب';
+
+  @override
+  String get reviewScenarioBillingBlocked => 'العمليات موقوفة بسبب الفوترة';
+
+  @override
+  String get reviewScenarioInvalidQr => 'رمز عميل غير صالح';
+
+  @override
+  String get reviewInvalidQrDetail => 'حالة آمنة لرمز غير صالح في الماسح';
+
+  @override
+  String get resetReviewData => 'إعادة ضبط بيانات العرض';
+
+  @override
+  String get reviewResetComplete => 'تمت استعادة بيانات العرض.';
+
+  @override
+  String get exitDemo => 'الخروج من العرض';
+
+  @override
+  String get exitDemoBody =>
+      'سيؤدي ذلك إلى مسح جلسة المراجعة والعودة إلى إقران الجهاز.';
+
+  @override
+  String get initializingCamera => 'جارٍ تشغيل الكاميرا…';
+
+  @override
+  String get customerLoaded => 'تم تحميل بيانات العميل';
+
+  @override
+  String get expiredCustomerQr => 'انتهت صلاحية رمز العميل هذا';
+
+  @override
+  String get unableToLoadCustomer => 'تعذر تحميل بيانات العميل';
 }

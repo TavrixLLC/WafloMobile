@@ -37,6 +37,10 @@ import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
+import 'package:waflo_staff/features/review_access/data/review_access_authorization_api.dart';
+import 'package:waflo_staff/features/review_access/data/signed_review_access_repository.dart';
+import 'package:waflo_staff/features/review_access/domain/review_access.dart';
+import 'package:waflo_staff/features/review_access/presentation/review_access_controller.dart';
 import 'package:waflo_staff/features/reward_redemption/data/manager_approval_store.dart';
 import 'package:waflo_staff/features/settings/presentation/preferences_controllers.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
@@ -115,6 +119,13 @@ final pairingApiProvider = Provider<PairingApi>(
     ref.watch(apiErrorDecoderProvider),
   ),
 );
+final reviewAccessAuthorizationApiProvider =
+    Provider<ReviewAccessAuthorizationApi>(
+      (ref) => DioReviewAccessAuthorizationApi(
+        ref.watch(publicDioProvider),
+        ref.watch(apiErrorDecoderProvider),
+      ),
+    );
 final metadataProvider = Provider<DeviceMetadataProvider>(
   (ref) => PlatformDeviceMetadataProvider(),
 );
@@ -164,6 +175,15 @@ final loyaltyOperationsApiProvider = Provider<LoyaltyOperationsApi>(
         ref.watch(environmentProvider).flavor == AppFlavor.development,
   ),
 );
+final reviewAccessRepositoryProvider = Provider<ReviewAccessRepository>(
+  (ref) => SignedReviewAccessRepository(
+    dio: ref.watch(signedDioProvider),
+    signer: ref.watch(requestSignerProvider),
+    sessionRepository: ref.watch(sessionRepositoryProvider),
+    commandIds: ref.watch(businessCommandIdGeneratorProvider),
+    errorDecoder: ref.watch(apiErrorDecoderProvider),
+  ),
+);
 final pairingFlowServiceProvider = Provider<PairingFlowService>(
   (ref) => PairingFlowService(
     ref.watch(pairingQrParserProvider),
@@ -174,6 +194,7 @@ final pairingFlowServiceProvider = Provider<PairingFlowService>(
     ref.watch(pairingTransactionRepositoryProvider),
     ref.watch(localLifecycleRepositoryProvider),
     ref.watch(sessionManagerProvider),
+    reviewAccessApi: ref.watch(reviewAccessAuthorizationApiProvider),
   ),
 );
 final connectivityProvider = StreamProvider<bool>((ref) async* {
@@ -211,3 +232,7 @@ final rapidScanControllerProvider = NotifierProvider<RapidScanController, bool>(
 );
 final appLockControllerProvider =
     NotifierProvider<AppLockController, AppLockState>(AppLockController.new);
+final reviewAccessControllerProvider =
+    NotifierProvider<ReviewAccessController, ReviewToolsState>(
+      ReviewAccessController.new,
+    );

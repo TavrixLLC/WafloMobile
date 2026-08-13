@@ -21,6 +21,34 @@ import '../support/fixtures.dart';
 
 void main() {
   test(
+    'invalid optical candidate stays in scanner and can re-arm safely',
+    () async {
+      final api = _FakeLoyaltyApi(membership: _membership(0));
+      final container = _container(
+        api: api,
+        store: MemoryPendingOperationStore(),
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(m2OperationControllerProvider.notifier);
+
+      controller.startScanning();
+      await controller.resolveCandidate('not-a-waflo-code', locale: 'en');
+
+      expect(
+        container.read(m2OperationControllerProvider).stage,
+        M2OperationStage.scanning,
+      );
+      expect(
+        container.read(m2OperationControllerProvider).failure?.safeCode,
+        'MEMBERSHIP_CREDENTIAL_INVALID',
+      );
+      expect(api.resolveCalls, 0);
+      controller.clearScannerFailureForRetry();
+      expect(container.read(m2OperationControllerProvider).failure, isNull);
+    },
+  );
+
+  test(
     'stamp mutation uses one command and recovers ambiguous completion',
     () async {
       final store = MemoryPendingOperationStore();

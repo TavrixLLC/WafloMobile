@@ -154,6 +154,27 @@ final class SessionManager {
     return LogoutResult(serverReached: serverReached);
   }
 
+  Future<LogoutResult> exitReviewMode() async {
+    final current = await _sessionRepository.read();
+    if (current == null || !current.isReview) {
+      throw const LocalSecurityFailure('REVIEW_SESSION_INVALID');
+    }
+    var serverReached = false;
+    try {
+      await _api.logout(current);
+      serverReached = true;
+    } on AppFailure {
+      serverReached = false;
+    }
+    await _sessionRepository.clear();
+    // Review re-entry is authorized again by the server and proves possession
+    // of this same key. Normal logout continues to delete device identity.
+    await _transactionRepository.clear();
+    await _preferencesRepository.clearSafeContext();
+    await _lifecycleRepository.mark(LocalLifecycleState.loggedOut);
+    return LogoutResult(serverReached: serverReached);
+  }
+
   Future<void> _handleConclusiveBlockedFailure(AppFailure failure) async {
     final disposition = classifyFailure(failure);
     if (disposition != FailureDisposition.deviceRevoked &&

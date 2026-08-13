@@ -5,6 +5,7 @@ StaffDeviceSession fixtureSession({
   String sessionId = '00000000-0000-4000-8000-000000000201',
   String deviceStatus = 'ACTIVE',
   DateTime? expiresAt,
+  StaffSessionMode sessionMode = StaffSessionMode.normal,
 }) => StaffDeviceSession(
   devicePublicId: '00000000-0000-4000-8000-000000000202',
   deviceDisplayName: 'Test staff device',
@@ -18,6 +19,7 @@ StaffDeviceSession fixtureSession({
   role: 'STAFF',
   locationId: '00000000-0000-4000-8000-000000000204',
   issuedAt: DateTime.utc(2026, DateTime.july, 30, 12),
+  sessionMode: sessionMode,
 );
 
 AuthoritativeDeviceContext fixtureContext({

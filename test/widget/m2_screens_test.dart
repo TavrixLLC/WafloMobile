@@ -14,6 +14,7 @@ import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
+import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
 import 'package:waflo_staff/features/loyalty_progress/presentation/two_state_stamp_grid.dart';
@@ -82,7 +83,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Scan customer membership'), findsOneWidget);
+    expect(find.text('Scan customer'), findsOneWidget);
     expect(find.byKey(const Key('fixture-customer-scanner')), findsOneWidget);
     expect(find.text(credential), findsNothing);
     expect(find.byTooltip('Toggle camera flash'), findsOneWidget);
@@ -92,9 +93,16 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      _harness(const M2OperationState(stage: M2OperationStage.resolving)),
+      _harness(
+        const M2OperationState(stage: M2OperationStage.resolving),
+        scanner: FixtureCustomerScannerAdapter(
+          '',
+          autoDeliver: false,
+          initialState: CustomerScannerState.resolving,
+        ),
+      ),
     );
-    expect(find.text('Resolving membership securely'), findsWidgets);
+    expect(find.text('Loading customer…'), findsWidgets);
 
     for (final progress in [0, 5, 8]) {
       final membership = _membership(progress);

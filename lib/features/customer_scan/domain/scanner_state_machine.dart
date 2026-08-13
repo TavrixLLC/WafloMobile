@@ -1,5 +1,6 @@
 enum CustomerScannerState {
   idle,
+  initializingCamera,
   requestingPermission,
   cameraPermissionRequired,
   cameraPermissionDenied,
@@ -8,13 +9,17 @@ enum CustomerScannerState {
   scanning,
   candidateCaptured,
   resolving,
+  customerResolved,
   invalidQr,
+  expiredQr,
   unsupportedQr,
   membershipNotFound,
   membershipInactive,
   locationNotEligible,
   deviceUnauthorized,
   networkFailure,
+  resolveFailed,
+  cameraUnavailable,
   updateRequired,
   ambiguousRecovery,
   cancelled,
@@ -31,6 +36,7 @@ final class CustomerScannerStateMachine {
   DateTime? _lastCaptureAt;
 
   void requestPermission() => state = CustomerScannerState.requestingPermission;
+  void initializeCamera() => state = CustomerScannerState.initializingCamera;
   void permissionRequired() =>
       state = CustomerScannerState.cameraPermissionRequired;
   void permissionDenied() =>
@@ -68,12 +74,15 @@ final class CustomerScannerStateMachine {
   void fail(CustomerScannerState failure) {
     const allowed = {
       CustomerScannerState.invalidQr,
+      CustomerScannerState.expiredQr,
       CustomerScannerState.unsupportedQr,
       CustomerScannerState.membershipNotFound,
       CustomerScannerState.membershipInactive,
       CustomerScannerState.locationNotEligible,
       CustomerScannerState.deviceUnauthorized,
       CustomerScannerState.networkFailure,
+      CustomerScannerState.resolveFailed,
+      CustomerScannerState.cameraUnavailable,
       CustomerScannerState.updateRequired,
       CustomerScannerState.ambiguousRecovery,
     };
@@ -85,6 +94,12 @@ final class CustomerScannerStateMachine {
 
   void cancel() => state = CustomerScannerState.cancelled;
   void background() => state = CustomerScannerState.backgrounded;
+
+  void resolved() {
+    if (state == CustomerScannerState.resolving) {
+      state = CustomerScannerState.customerResolved;
+    }
+  }
 
   void reset() {
     _lastCaptureAt = null;

@@ -270,6 +270,16 @@ final class BootController extends Notifier<BootState> {
     state = const BootState(stage: BootStage.unpaired);
   }
 
+  Future<void> exitReviewMode() async {
+    await ref.read(sessionManagerProvider).exitReviewMode();
+    await ref.read(pendingOperationStoreProvider).clear();
+    ref.read(pairingControllerProvider.notifier).reset();
+    await ref
+        .read(m2OperationControllerProvider.notifier)
+        .acknowledgeAndReset();
+    state = const BootState(stage: BootStage.unpaired);
+  }
+
   Future<void> resetForRepair() async {
     await ref.read(sessionRepositoryProvider).clear();
     await ref.read(identityRepositoryProvider).delete();

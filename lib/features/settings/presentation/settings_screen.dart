@@ -19,6 +19,8 @@ final class SettingsScreen extends ConsumerWidget {
     final rapidScan = ref.watch(rapidScanControllerProvider);
     final environment = ref.watch(environmentProvider);
     final packageInfo = ref.watch(packageInfoProvider);
+    final reviewSession =
+        ref.watch(bootControllerProvider).session?.isReview ?? false;
     return Scaffold(
       appBar: AppBar(title: Text(strings.settings)),
       body: SafeArea(
@@ -116,6 +118,20 @@ final class SettingsScreen extends ConsumerWidget {
               ),
               onTap: () => context.push('/device-security'),
             ),
+            if (reviewSession)
+              ListTile(
+                key: const Key('review-tools-entry'),
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.science_outlined),
+                title: Text(strings.reviewTools),
+                subtitle: Text(strings.demoMode),
+                trailing: Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_left_rounded
+                      : Icons.chevron_right_rounded,
+                ),
+                onTap: () => context.push('/review-tools'),
+              ),
             const Divider(height: WafloSpacing.xl),
             WafloOperationalLabel(strings.appInformation),
             const SizedBox(height: WafloSpacing.sm),

@@ -56,6 +56,7 @@ final class SignedDeviceApi implements DeviceSessionApi {
         role: current.role,
         locationId: current.locationId,
         issuedAt: DateTime.now().toUtc(),
+        sessionMode: current.sessionMode,
       );
     } on Object catch (error) {
       throw _errorDecoder.decode(error);
@@ -76,6 +77,7 @@ final class SignedDeviceApi implements DeviceSessionApi {
         );
         final responseBody = _jsonMap(response.data);
         final rawData = _jsonMap(responseBody['data']);
+        validateSessionMode(rawData, current);
         if (rawData.containsKey('appVersionSupported')) {
           return parseM2ContextResponse(responseBody, current);
         }
@@ -198,6 +200,18 @@ final class SignedDeviceApi implements DeviceSessionApi {
       requestId: parsed.requestId,
       synchronizedAt: DateTime.now().toUtc(),
     );
+  }
+
+  static void validateSessionMode(
+    Map<String, Object?> data,
+    StaffDeviceSession current,
+  ) {
+    final wireMode = data['sessionMode'];
+    final expected = current.isReview ? 'REVIEW' : 'NORMAL';
+    if ((current.isReview && wireMode != expected) ||
+        (wireMode != null && wireMode != expected)) {
+      throw const ApiFailure('DEVICE_CONTEXT_MISMATCH');
+    }
   }
 
   @override

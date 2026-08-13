@@ -815,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @m2ScannerTitle.
   ///
   /// In en, this message translates to:
-  /// **'Scan customer membership'**
+  /// **'Scan customer'**
   String get m2ScannerTitle;
 
   /// No description provided for @m2ScannerInstructions.
@@ -1565,7 +1565,7 @@ abstract class AppLocalizations {
   /// No description provided for @scannerResolving.
   ///
   /// In en, this message translates to:
-  /// **'Finding membership'**
+  /// **'Loading customer…'**
   String get scannerResolving;
 
   /// No description provided for @cameraUnavailable.
@@ -1963,6 +1963,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Turn flash off'**
   String get flashOff;
+
+  /// No description provided for @reviewAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Review / Demo Access'**
+  String get reviewAccess;
+
+  /// No description provided for @reviewAccessPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Need access for app review or a guided demo?'**
+  String get reviewAccessPrompt;
+
+  /// No description provided for @reviewAccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the review access code provided with this app submission.'**
+  String get reviewAccessBody;
+
+  /// No description provided for @reviewAccessCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Review access code'**
+  String get reviewAccessCode;
+
+  /// No description provided for @reviewAccessCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'XXXX-XXXX'**
+  String get reviewAccessCodeHint;
+
+  /// No description provided for @backToPairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to device pairing'**
+  String get backToPairing;
+
+  /// No description provided for @reviewConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to the review environment…'**
+  String get reviewConnecting;
+
+  /// No description provided for @reviewAccessInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That review code could not be accepted. Check the code and try again.'**
+  String get reviewAccessInvalid;
+
+  /// No description provided for @reviewAccessExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This review code is no longer active. Request a current code.'**
+  String get reviewAccessExpired;
+
+  /// No description provided for @reviewAccessRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a moment before trying again.'**
+  String get reviewAccessRateLimited;
+
+  /// No description provided for @reviewEnvironmentUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The review environment is temporarily unavailable.'**
+  String get reviewEnvironmentUnavailable;
+
+  /// No description provided for @demoMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode'**
+  String get demoMode;
+
+  /// No description provided for @reviewTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Tools'**
+  String get reviewTools;
+
+  /// No description provided for @reviewToolsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These controls use fictional review data only. They cannot select a real merchant or customer.'**
+  String get reviewToolsBody;
+
+  /// No description provided for @reviewScenarios.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo scenarios'**
+  String get reviewScenarios;
+
+  /// No description provided for @reviewScenarioNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New customer'**
+  String get reviewScenarioNew;
+
+  /// No description provided for @reviewScenarioActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active customer — 5 of 8'**
+  String get reviewScenarioActive;
+
+  /// No description provided for @reviewScenarioRewardReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward ready — 8 of 8'**
+  String get reviewScenarioRewardReady;
+
+  /// No description provided for @reviewScenarioManagerApproval.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager approval required'**
+  String get reviewScenarioManagerApproval;
+
+  /// No description provided for @reviewScenarioPurchaseThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase threshold not met'**
+  String get reviewScenarioPurchaseThreshold;
+
+  /// No description provided for @reviewScenarioBillingBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing blocked'**
+  String get reviewScenarioBillingBlocked;
+
+  /// No description provided for @reviewScenarioInvalidQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid customer code'**
+  String get reviewScenarioInvalidQr;
+
+  /// No description provided for @reviewInvalidQrDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe invalid-code scanner state'**
+  String get reviewInvalidQrDetail;
+
+  /// No description provided for @resetReviewData.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset demo data'**
+  String get resetReviewData;
+
+  /// No description provided for @reviewResetComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo data restored.'**
+  String get reviewResetComplete;
+
+  /// No description provided for @exitDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit Demo'**
+  String get exitDemo;
+
+  /// No description provided for @exitDemoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears the review session and returns to device pairing.'**
+  String get exitDemoBody;
+
+  /// No description provided for @initializingCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting camera…'**
+  String get initializingCamera;
+
+  /// No description provided for @customerLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer loaded'**
+  String get customerLoaded;
+
+  /// No description provided for @expiredCustomerQr.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer code has expired'**
+  String get expiredCustomerQr;
+
+  /// No description provided for @unableToLoadCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load customer'**
+  String get unableToLoadCustomer;
 }
 
 class _AppLocalizationsDelegate

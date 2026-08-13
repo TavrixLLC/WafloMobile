@@ -1,0 +1,204 @@
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:waflo_staff/core/design_system/app_theme.dart';
+import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
+
+final class ProfessionalScannerOverlay extends StatefulWidget {
+  const ProfessionalScannerOverlay({
+    required this.state,
+    required this.semanticLabel,
+    super.key,
+  });
+
+  final CustomerScannerState state;
+  final String semanticLabel;
+
+  @override
+  State<ProfessionalScannerOverlay> createState() =>
+      _ProfessionalScannerOverlayState();
+}
+
+final class _ProfessionalScannerOverlayState
+    extends State<ProfessionalScannerOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _beam;
+
+  bool get _scannerActive =>
+      widget.state == CustomerScannerState.ready ||
+      widget.state == CustomerScannerState.scanning;
+
+  @override
+  void initState() {
+    super.initState();
+    _beam = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2300),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  @override
+  void didUpdateWidget(ProfessionalScannerOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state != widget.state) _syncMotion();
+  }
+
+  void _syncMotion() {
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (_scannerActive && !reduceMotion) {
+      if (!_beam.isAnimating) unawaited(_beam.repeat(reverse: true));
+    } else {
+      _beam.stop();
+      _beam.value = 0.5;
+    }
+  }
+
+  @override
+  void dispose() {
+    _beam.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: Semantics(
+      image: true,
+      label: widget.semanticLabel,
+      child: RepaintBoundary(
+        key: const Key('professional-scanner-overlay'),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final shortest = math.min(
+              constraints.maxWidth,
+              constraints.maxHeight * 0.58,
+            );
+            final size = (shortest - 48).clamp(208.0, 316.0);
+            final rect = Rect.fromCenter(
+              center: Offset(
+                constraints.maxWidth / 2,
+                constraints.maxHeight * 0.45,
+              ),
+              width: size,
+              height: size,
+            );
+            return CustomPaint(
+              key: Key(
+                _beam.isAnimating
+                    ? 'scanner-beam-animated'
+                    : 'scanner-beam-static',
+              ),
+              painter: _ScannerOverlayPainter(
+                target: rect,
+                animation: _beam,
+                beamVisible: _scannerActive,
+                detected:
+                    widget.state == CustomerScannerState.candidateCaptured ||
+                    widget.state == CustomerScannerState.resolving ||
+                    widget.state == CustomerScannerState.customerResolved,
+              ),
+            );
+          },
+        ),
+      ),
+    ),
+  );
+}
+
+final class _ScannerOverlayPainter extends CustomPainter {
+  _ScannerOverlayPainter({
+    required this.target,
+    required this.animation,
+    required this.beamVisible,
+    required this.detected,
+  }) : super(repaint: animation);
+
+  final Rect target;
+  final Animation<double> animation;
+  final bool beamVisible;
+  final bool detected;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outer = Path()..addRect(Offset.zero & size);
+    final opening = Path()
+      ..addRRect(RRect.fromRectAndRadius(target, const Radius.circular(28)));
+    final dimmed = Path.combine(PathOperation.difference, outer, opening);
+    canvas.drawPath(dimmed, Paint()..color = const Color(0xA6241916));
+
+    final frameColor = detected ? WafloColors.success : WafloColors.coral;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(target, const Radius.circular(28)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.25
+        ..color = frameColor.withValues(alpha: 0.34),
+    );
+    final cornerPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = detected ? 4.5 : 4
+      ..strokeCap = StrokeCap.round
+      ..color = frameColor;
+    const cornerLength = 38.0;
+    const radius = 28.0;
+    final left = target.left;
+    final top = target.top;
+    final right = target.right;
+    final bottom = target.bottom;
+    canvas.drawPath(
+      Path()
+        ..moveTo(left + cornerLength, top)
+        ..lineTo(left + radius, top)
+        ..quadraticBezierTo(left, top, left, top + radius)
+        ..lineTo(left, top + cornerLength),
+      cornerPaint,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(right - cornerLength, top)
+        ..lineTo(right - radius, top)
+        ..quadraticBezierTo(right, top, right, top + radius)
+        ..lineTo(right, top + cornerLength),
+      cornerPaint,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(left, bottom - cornerLength)
+        ..lineTo(left, bottom - radius)
+        ..quadraticBezierTo(left, bottom, left + radius, bottom)
+        ..lineTo(left + cornerLength, bottom),
+      cornerPaint,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(right, bottom - cornerLength)
+        ..lineTo(right, bottom - radius)
+        ..quadraticBezierTo(right, bottom, right - radius, bottom)
+        ..lineTo(right - cornerLength, bottom),
+      cornerPaint,
+    );
+
+    if (beamVisible) {
+      final inset = target.deflate(18);
+      final y = inset.top + inset.height * animation.value;
+      final beamRect = Rect.fromLTRB(inset.left, y - 1, inset.right, y + 1);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(beamRect, const Radius.circular(2)),
+        Paint()..color = WafloColors.coral.withValues(alpha: 0.72),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ScannerOverlayPainter oldDelegate) =>
+      oldDelegate.target != target ||
+      oldDelegate.beamVisible != beamVisible ||
+      oldDelegate.detected != detected;
+}

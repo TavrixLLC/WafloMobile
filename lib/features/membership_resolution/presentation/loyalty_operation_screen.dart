@@ -13,6 +13,7 @@ import 'package:waflo_staff/core/localization/localization_extensions.dart';
 import 'package:waflo_staff/core/money/minor_unit_money.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
+import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
 import 'package:waflo_staff/features/loyalty_progress/presentation/two_state_stamp_grid.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.dart';
@@ -33,7 +34,9 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
     final approvalPending =
         state.stage == M2OperationStage.managerApprovalRequired &&
         state.managerApprovalState?.canCheck == true;
-    final scanning = state.stage == M2OperationStage.scanning;
+    final scanning =
+        state.stage == M2OperationStage.scanning ||
+        state.stage == M2OperationStage.resolving;
     return PopScope(
       canPop: !submitting,
       child: Scaffold(
@@ -121,10 +124,8 @@ final class _OperationBody extends ConsumerWidget {
           label: Text(AppLocalizations.of(context).scanCustomer),
         ),
       ),
-      M2OperationStage.scanning => const _CustomerScannerView(),
-      M2OperationStage.resolving => _ProgressPanel(
-        message: AppLocalizations.of(context).resolvingMembership,
-      ),
+      M2OperationStage.scanning ||
+      M2OperationStage.resolving => const _CustomerScannerView(),
       M2OperationStage.membershipReady => _MembershipOperationView(
         key: ValueKey(state.membership?.requestId),
         state: state,
@@ -163,6 +164,8 @@ final class _CustomerScannerViewState
     extends ConsumerState<_CustomerScannerView>
     with WidgetsBindingObserver {
   CustomerScannerAdapter? _adapter;
+  String? _reportedFailureCode;
+  Timer? _invalidRecovery;
 
   @override
   void initState() {
@@ -176,7 +179,9 @@ final class _CustomerScannerViewState
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(_adapter?.foreground());
+    } else {
       unawaited(_adapter?.background());
     }
   }
@@ -184,6 +189,7 @@ final class _CustomerScannerViewState
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _invalidRecovery?.cancel();
     unawaited(_adapter?.stop());
     super.dispose();
   }
@@ -192,8 +198,11 @@ final class _CustomerScannerViewState
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final adapter = ref.watch(customerScannerAdapterProvider);
+    final operation = ref.watch(m2OperationControllerProvider);
     final location = ref.watch(bootControllerProvider).context?.currentLocation;
+    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.5;
     _adapter = adapter;
+    _reportFailure(operation, adapter);
     return ValueListenableBuilder<CustomerScannerState>(
       valueListenable: adapter.state,
       builder: (context, scannerState, child) => Stack(
@@ -208,26 +217,9 @@ final class _CustomerScannerViewState
                   locale: Localizations.localeOf(context).languageCode,
                 ),
           ),
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xC9091713),
-                  Color(0x12091713),
-                  Color(0xE6091713),
-                ],
-                stops: [0, 0.48, 1],
-              ),
-            ),
-          ),
-          Center(
-            child: Semantics(
-              label: strings.scanFrameLabel,
-              image: true,
-              child: const WafloScanFrame(),
-            ),
+          ProfessionalScannerOverlay(
+            state: scannerState,
+            semanticLabel: strings.scanFrameLabel,
           ),
           SafeArea(
             minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
@@ -247,10 +239,17 @@ final class _CustomerScannerViewState
                         children: [
                           Text(
                             strings.m2ScannerTitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(color: Colors.white),
+                            maxLines: 2,
+                            overflow: TextOverflow.fade,
+                            style:
+                                (largeText
+                                        ? Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium
+                                        : Theme.of(
+                                            context,
+                                          ).textTheme.titleLarge)
+                                    ?.copyWith(color: Colors.white),
                           ),
                           if (location != null)
                             Text(
@@ -269,7 +268,7 @@ final class _CustomerScannerViewState
                 Semantics(
                   liveRegion: true,
                   child: Text(
-                    strings.scanCustomerHelp,
+                    _scannerInstruction(strings, scannerState),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
@@ -283,6 +282,19 @@ final class _CustomerScannerViewState
                   busy: _isScannerBusy(scannerState),
                 ),
                 const SizedBox(height: WafloSpacing.md),
+                if (_requiresExplicitRetry(scannerState)) ...[
+                  OutlinedButton.icon(
+                    key: const Key('scanner-resolve-retry'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white54),
+                    ),
+                    onPressed: () => unawaited(_retry(adapter)),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(strings.retry),
+                  ),
+                  const SizedBox(height: WafloSpacing.sm),
+                ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -322,8 +334,44 @@ final class _CustomerScannerViewState
     if (mounted) context.go('/home');
   }
 
+  void _reportFailure(
+    M2OperationState operation,
+    CustomerScannerAdapter adapter,
+  ) {
+    final failure = operation.stage == M2OperationStage.scanning
+        ? operation.failure
+        : null;
+    if (failure == null || failure.safeCode == _reportedFailureCode) return;
+    _reportedFailureCode = failure.safeCode;
+    final scannerFailure = switch (failure.safeCode) {
+      'MEMBERSHIP_CREDENTIAL_INVALID' => CustomerScannerState.invalidQr,
+      'BACKEND_UNAVAILABLE' => CustomerScannerState.networkFailure,
+      _ => CustomerScannerState.resolveFailed,
+    };
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      adapter.reportResolveFailure(scannerFailure);
+      if (scannerFailure == CustomerScannerState.invalidQr) {
+        _invalidRecovery?.cancel();
+        _invalidRecovery = Timer(const Duration(milliseconds: 1400), () {
+          if (mounted) unawaited(_retry(adapter));
+        });
+      }
+    });
+  }
+
+  Future<void> _retry(CustomerScannerAdapter adapter) async {
+    _invalidRecovery?.cancel();
+    _reportedFailureCode = null;
+    ref
+        .read(m2OperationControllerProvider.notifier)
+        .clearScannerFailureForRetry();
+    await adapter.resetForExplicitRetry();
+  }
+
   static bool _isScannerBusy(CustomerScannerState state) =>
       state == CustomerScannerState.requestingPermission ||
+      state == CustomerScannerState.initializingCamera ||
       state == CustomerScannerState.candidateCaptured ||
       state == CustomerScannerState.resolving;
 
@@ -332,13 +380,38 @@ final class _CustomerScannerViewState
       state == CustomerScannerState.cameraPermissionDenied ||
       state == CustomerScannerState.cameraPermissionPermanentlyDenied;
 
+  static bool _requiresExplicitRetry(CustomerScannerState state) =>
+      state == CustomerScannerState.expiredQr ||
+      state == CustomerScannerState.networkFailure ||
+      state == CustomerScannerState.resolveFailed;
+
+  static String _scannerInstruction(
+    AppLocalizations strings,
+    CustomerScannerState state,
+  ) => switch (state) {
+    CustomerScannerState.candidateCaptured ||
+    CustomerScannerState.resolving ||
+    CustomerScannerState.networkFailure ||
+    CustomerScannerState.resolveFailed => strings.codeDetected,
+    CustomerScannerState.invalidQr ||
+    CustomerScannerState.expiredQr => strings.scanCustomerHelp,
+    _ => strings.scanCustomerHelp,
+  };
+
   static String _scannerStatus(
     AppLocalizations strings,
     CustomerScannerState state,
   ) => switch (state) {
     CustomerScannerState.requestingPermission => strings.requestingCamera,
+    CustomerScannerState.initializingCamera => strings.initializingCamera,
     CustomerScannerState.candidateCaptured => strings.codeDetected,
     CustomerScannerState.resolving => strings.scannerResolving,
+    CustomerScannerState.customerResolved => strings.customerLoaded,
+    CustomerScannerState.invalidQr => strings.invalidCustomerQr,
+    CustomerScannerState.expiredQr => strings.expiredCustomerQr,
+    CustomerScannerState.networkFailure => strings.unableToLoadCustomer,
+    CustomerScannerState.resolveFailed => strings.unableToLoadCustomer,
+    CustomerScannerState.cameraUnavailable => strings.cameraUnavailable,
     _ => strings.scannerReady,
   };
 }
@@ -403,43 +476,51 @@ final class _ScannerStatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     liveRegion: true,
-    child: Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 16,
-        vertical: 10,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xCC091713),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (busy) ...[
-            const SizedBox.square(
-              dimension: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 340),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 16,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xCC091713),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Row(
+          children: [
+            if (busy) ...[
+              const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: WafloColors.coral,
+                ),
+              ),
+              const SizedBox(width: WafloSpacing.sm),
+            ] else ...[
+              const Icon(
+                Icons.center_focus_strong_rounded,
+                size: 18,
                 color: WafloColors.coral,
               ),
+              const SizedBox(width: WafloSpacing.sm),
+            ],
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: Colors.white),
+              ),
             ),
-            const SizedBox(width: WafloSpacing.sm),
-          ] else ...[
-            const Icon(
-              Icons.center_focus_strong_rounded,
-              size: 18,
-              color: WafloColors.coral,
-            ),
-            const SizedBox(width: WafloSpacing.sm),
           ],
-          Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(color: Colors.white),
-          ),
-        ],
+        ),
       ),
     ),
   );

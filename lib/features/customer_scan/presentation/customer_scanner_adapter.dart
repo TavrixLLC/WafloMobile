@@ -20,6 +20,8 @@ abstract interface class CustomerScannerAdapter {
   Future<void> start();
   Future<void> stop();
   Future<void> background();
+  Future<void> foreground();
+  void reportResolveFailure(CustomerScannerState failure);
   Future<void> resetForExplicitRetry();
   Future<void> toggleTorch();
   Future<void> dispose();
@@ -102,6 +104,8 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
 
   Future<void> _start() async {
     if (_disposed || _handled) return;
+    _machine.initializeCamera();
+    _publish();
     _machine.requestPermission();
     _publish();
     try {
@@ -117,9 +121,9 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
           _machine.permissionDenied();
         }
       } else if (error.errorCode == MobileScannerErrorCode.unsupported) {
-        _machine.fail(CustomerScannerState.unsupportedQr);
+        _machine.fail(CustomerScannerState.cameraUnavailable);
       } else {
-        _machine.fail(CustomerScannerState.networkFailure);
+        _machine.fail(CustomerScannerState.cameraUnavailable);
       }
       _publish();
     }
@@ -135,6 +139,21 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
     _machine.background();
     _publish();
     await stop();
+  }
+
+  @override
+  Future<void> foreground() async {
+    if (_disposed || _handled) return;
+    _machine.reset();
+    _publish();
+    await start();
+  }
+
+  @override
+  void reportResolveFailure(CustomerScannerState failure) {
+    if (_disposed) return;
+    _machine.fail(failure);
+    _publish();
   }
 
   @override
@@ -226,6 +245,17 @@ final class FixtureCustomerScannerAdapter implements CustomerScannerAdapter {
   Future<void> background() async {
     started = false;
     _state.value = CustomerScannerState.backgrounded;
+  }
+
+  @override
+  Future<void> foreground() async {
+    if (delivered) return;
+    await start();
+  }
+
+  @override
+  void reportResolveFailure(CustomerScannerState failure) {
+    _state.value = failure;
   }
 
   @override

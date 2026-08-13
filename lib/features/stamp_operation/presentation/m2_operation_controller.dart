@@ -148,7 +148,7 @@ final class M2OperationController extends Notifier<M2OperationState> {
     if (candidate.length < 40 || candidate.length > 220) {
       _clearCredential();
       state = const M2OperationState(
-        stage: M2OperationStage.membershipInvalid,
+        stage: M2OperationStage.scanning,
         failure: ApiFailure('MEMBERSHIP_CREDENTIAL_INVALID'),
       );
       return;
@@ -182,7 +182,9 @@ final class M2OperationController extends Notifier<M2OperationState> {
     } on AppFailure catch (failure) {
       _clearCredential();
       state = M2OperationState(
-        stage: _stageForFailure(failure),
+        stage: _isRecoverableScannerFailure(failure)
+            ? M2OperationStage.scanning
+            : _stageForFailure(failure),
         failure: failure,
       );
     } on Object {
@@ -768,6 +770,15 @@ final class M2OperationController extends Notifier<M2OperationState> {
     );
   }
 
+  void clearScannerFailureForRetry() {
+    if (state.stage == M2OperationStage.scanning &&
+        state.failure != null &&
+        _mutation == null &&
+        state.pendingOperation == null) {
+      state = state.copyWith(clearFailure: true);
+    }
+  }
+
   void onBackground() {
     _resolveGeneration += 1;
     _clearCredential();
@@ -968,6 +979,11 @@ final class M2OperationController extends Notifier<M2OperationState> {
   }
 
   void _clearCredential() => _qrPayload = null;
+
+  static bool _isRecoverableScannerFailure(AppFailure failure) =>
+      failure.safeCode == 'MEMBERSHIP_CREDENTIAL_INVALID' ||
+      failure.safeCode == 'BACKEND_UNAVAILABLE' ||
+      failure is NetworkFailure;
 
   static M2OperationStage _stageForFailure(AppFailure failure) =>
       switch (failure.safeCode) {
