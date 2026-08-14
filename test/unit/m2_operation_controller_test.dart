@@ -49,6 +49,35 @@ void main() {
   );
 
   test(
+    'network resolve failure remains explicit until Staff retries',
+    () async {
+      final api = _FakeLoyaltyApi(
+        membership: _membership(0),
+        resolveFailure: const NetworkFailure(),
+      );
+      final container = _container(
+        api: api,
+        store: MemoryPendingOperationStore(),
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(m2OperationControllerProvider.notifier);
+
+      controller.startScanning();
+      await controller.resolveCandidate(_credential, locale: 'en');
+
+      final failed = container.read(m2OperationControllerProvider);
+      expect(failed.stage, M2OperationStage.networkUnavailable);
+      expect(failed.failure, isA<NetworkFailure>());
+      expect(failed.credentialAvailable, isFalse);
+
+      controller.clearScannerFailureForRetry();
+      final retrying = container.read(m2OperationControllerProvider);
+      expect(retrying.stage, M2OperationStage.scanning);
+      expect(retrying.failure, isNull);
+    },
+  );
+
+  test(
     'stamp mutation uses one command and recovers ambiguous completion',
     () async {
       final store = MemoryPendingOperationStore();
@@ -591,6 +620,7 @@ ProviderContainer _container({
 final class _FakeLoyaltyApi implements LoyaltyOperationsApi {
   _FakeLoyaltyApi({
     required this.membership,
+    this.resolveFailure,
     this.issueFailure,
     this.recovery,
     this.redemption,
@@ -598,6 +628,7 @@ final class _FakeLoyaltyApi implements LoyaltyOperationsApi {
   }) : redemptionOutcomes = [...?redemptionOutcomes];
 
   final ResolvedMembership membership;
+  final AppFailure? resolveFailure;
   final AppFailure? issueFailure;
   final CommandRecoveryResult? recovery;
   final RedemptionOperationResult? redemption;
@@ -613,6 +644,8 @@ final class _FakeLoyaltyApi implements LoyaltyOperationsApi {
     required String locale,
   }) async {
     resolveCalls += 1;
+    final failure = resolveFailure;
+    if (failure != null) throw failure;
     return membership;
   }
 

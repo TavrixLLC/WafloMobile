@@ -36,7 +36,8 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
         state.managerApprovalState?.canCheck == true;
     final scanning =
         state.stage == M2OperationStage.scanning ||
-        state.stage == M2OperationStage.resolving;
+        state.stage == M2OperationStage.resolving ||
+        state.stage == M2OperationStage.networkUnavailable;
     return PopScope(
       canPop: !submitting,
       child: Scaffold(
@@ -125,7 +126,8 @@ final class _OperationBody extends ConsumerWidget {
         ),
       ),
       M2OperationStage.scanning ||
-      M2OperationStage.resolving => const _CustomerScannerView(),
+      M2OperationStage.resolving ||
+      M2OperationStage.networkUnavailable => const _CustomerScannerView(),
       M2OperationStage.membershipReady => _MembershipOperationView(
         key: ValueKey(state.membership?.requestId),
         state: state,
@@ -338,7 +340,9 @@ final class _CustomerScannerViewState
     M2OperationState operation,
     CustomerScannerAdapter adapter,
   ) {
-    final failure = operation.stage == M2OperationStage.scanning
+    final failure =
+        operation.stage == M2OperationStage.scanning ||
+            operation.stage == M2OperationStage.networkUnavailable
         ? operation.failure
         : null;
     if (failure == null || failure.safeCode == _reportedFailureCode) return;

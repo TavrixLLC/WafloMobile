@@ -771,11 +771,15 @@ final class M2OperationController extends Notifier<M2OperationState> {
   }
 
   void clearScannerFailureForRetry() {
-    if (state.stage == M2OperationStage.scanning &&
+    if ((state.stage == M2OperationStage.scanning ||
+            state.stage == M2OperationStage.networkUnavailable) &&
         state.failure != null &&
         _mutation == null &&
         state.pendingOperation == null) {
-      state = state.copyWith(clearFailure: true);
+      state = state.copyWith(
+        stage: M2OperationStage.scanning,
+        clearFailure: true,
+      );
     }
   }
 
@@ -981,9 +985,7 @@ final class M2OperationController extends Notifier<M2OperationState> {
   void _clearCredential() => _qrPayload = null;
 
   static bool _isRecoverableScannerFailure(AppFailure failure) =>
-      failure.safeCode == 'MEMBERSHIP_CREDENTIAL_INVALID' ||
-      failure.safeCode == 'BACKEND_UNAVAILABLE' ||
-      failure is NetworkFailure;
+      failure.safeCode == 'MEMBERSHIP_CREDENTIAL_INVALID';
 
   static M2OperationStage _stageForFailure(AppFailure failure) =>
       switch (failure.safeCode) {

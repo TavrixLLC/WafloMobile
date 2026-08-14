@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
+import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
@@ -12,6 +13,7 @@ import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
+import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
@@ -140,6 +142,46 @@ void main() {
     expect(find.bySemanticsLabel('5 of 8 customer QR target'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'network failure after detection keeps the scanner and explicit retry',
+    (tester) async {
+      final scanner = FixtureCustomerScannerAdapter(
+        'not-a-real-qr',
+        autoDeliver: false,
+      );
+      addTearDown(scanner.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            bootControllerProvider.overrideWithBuild(
+              (ref, notifier) => BootState(
+                stage: BootStage.pairedReady,
+                context: fixtureContext(),
+                session: fixtureSession(),
+              ),
+            ),
+            m2OperationControllerProvider.overrideWithBuild(
+              (ref, notifier) => const M2OperationState(
+                stage: M2OperationStage.networkUnavailable,
+                failure: NetworkFailure(),
+              ),
+            ),
+            customerScannerAdapterProvider.overrideWithValue(scanner),
+            connectivityProvider.overrideWithValue(const AsyncData(true)),
+          ],
+          child: const _LocalizedApp(child: LoyaltyOperationScreen()),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(ProfessionalScannerOverlay), findsOneWidget);
+      expect(find.byKey(const Key('scanner-resolve-retry')), findsOneWidget);
+      expect(scanner.state.value, CustomerScannerState.networkFailure);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   test(
     'fixture scanner blocks foreground replay and tracks torch state',
