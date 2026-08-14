@@ -11,6 +11,8 @@ import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/local_demo/data/local_demo_runtime_debug.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_operation_controls.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_operation_controls_debug.dart';
 import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.dart';
@@ -26,6 +28,12 @@ void main() {
       overrides: [
         environmentProvider.overrideWithValue(_environment),
         localDemoRuntimeProvider.overrideWithValue(runtime),
+        localDemoScannerControlsBuilderProvider.overrideWithValue(
+          () => const DebugLocalDemoScannerControls(),
+        ),
+        localDemoApprovalControlBuilderProvider.overrideWithValue(
+          (locale) => DebugLocalDemoManagerApprovalAction(locale: locale),
+        ),
         secureStoreProvider.overrideWithValue(MemorySecureKeyValueStore()),
         hapticServiceProvider.overrideWithValue(FakeHapticService()),
       ],
