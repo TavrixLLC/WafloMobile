@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,6 +15,7 @@ import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/blocked_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
+import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
@@ -105,7 +107,7 @@ void main() {
       ProviderScope(
         overrides: [
           pairingScannerAdapterProvider.overrideWithValue(
-            const _GoldenScannerAdapter(),
+            _GoldenScannerAdapter(),
           ),
         ],
         child: _app(child: const PairingScannerScreen()),
@@ -381,7 +383,16 @@ final class _SafeScannerPreview extends StatelessWidget {
 }
 
 final class _GoldenScannerAdapter implements PairingScannerAdapter {
-  const _GoldenScannerAdapter();
+  final ValueNotifier<CustomerScannerState> _state = ValueNotifier(
+    CustomerScannerState.ready,
+  );
+  final ValueNotifier<bool> _torch = ValueNotifier(false);
+
+  @override
+  ValueListenable<CustomerScannerState> get state => _state;
+
+  @override
+  ValueListenable<bool> get torchEnabled => _torch;
 
   @override
   Widget buildPreview(
@@ -390,7 +401,10 @@ final class _GoldenScannerAdapter implements PairingScannerAdapter {
   }) => const _SafeScannerPreview();
 
   @override
-  Future<void> dispose() async {}
+  Future<void> dispose() async {
+    _state.dispose();
+    _torch.dispose();
+  }
 
   @override
   Future<void> start() async {}
@@ -399,5 +413,5 @@ final class _GoldenScannerAdapter implements PairingScannerAdapter {
   Future<void> stop() async {}
 
   @override
-  Future<void> toggleTorch() async {}
+  Future<void> toggleTorch() async => _torch.value = !_torch.value;
 }

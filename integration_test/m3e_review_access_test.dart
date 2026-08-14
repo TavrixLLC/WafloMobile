@@ -17,32 +17,28 @@ void main() {
   ) async {
     await tester.pumpWidget(const ProviderScope(child: _App()));
 
-    // Normal merchant pairing remains the dominant path. Review Access is a
-    // deliberate secondary route and never receives a built-in credential.
+    // Normal merchant pairing remains the only visible path. The neutral
+    // manual entry is reached from the scanner flow and has no built-in code.
     expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
-    expect(find.byKey(const Key('review-access-entry')), findsOneWidget);
-    expect(find.byKey(const Key('review-access-code')), findsNothing);
-    await tester.tap(find.byKey(const Key('review-access-entry')));
+    expect(find.textContaining('Demo'), findsNothing);
+    expect(find.textContaining('Review'), findsNothing);
+    await tester.tap(find.byKey(const Key('scan-pairing-code')));
     await tester.pump();
-    expect(find.byKey(const Key('review-access-code')), findsOneWidget);
-    expect(
-      tester
-          .widget<FilledButton>(find.byKey(const Key('review-access-continue')))
-          .onPressed,
-      isNull,
-    );
+    await tester.tap(find.text('Not now'));
+    await tester.pump();
+    expect(find.byKey(const Key('manual-code-input')), findsOneWidget);
 
     await tester.enterText(
-      find.byKey(const Key('review-access-code')),
+      find.byKey(const Key('manual-code-input')),
       'abcd 2345',
     );
     await tester.pump();
-    expect(find.text('ABCD-2345'), findsOneWidget);
     expect(
       tester
-          .widget<FilledButton>(find.byKey(const Key('review-access-continue')))
-          .onPressed,
-      isNotNull,
+          .widget<TextField>(find.byKey(const Key('manual-code-input')))
+          .controller
+          ?.text,
+      'ABCD-2345',
     );
 
     // Motion follows real scanner authority: active only while scanning,

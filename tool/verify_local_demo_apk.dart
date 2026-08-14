@@ -31,6 +31,8 @@ Future<void> main(List<String> arguments) async {
       'simulate-valid-qr',
       '/demo-scenarios',
       '2468',
+      'WAFLO_LOCAL_DEMO_CODE',
+      'DebugManualCodeIntentResolver',
     ];
     final hits = <String>[];
     final libraries = extraction

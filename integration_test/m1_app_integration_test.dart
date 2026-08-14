@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +13,7 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/crypto/device_identity.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
+import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
 import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
@@ -534,6 +536,16 @@ final class _Metadata implements DeviceMetadataProvider {
 
 final class _TestScannerAdapter implements PairingScannerAdapter {
   Future<void> Function(String value)? _onDetected;
+  final ValueNotifier<CustomerScannerState> _state = ValueNotifier(
+    CustomerScannerState.ready,
+  );
+  final ValueNotifier<bool> _torch = ValueNotifier(false);
+
+  @override
+  ValueListenable<CustomerScannerState> get state => _state;
+
+  @override
+  ValueListenable<bool> get torchEnabled => _torch;
 
   Future<void> emit(String value) async {
     final callback = _onDetected;
@@ -556,7 +568,10 @@ final class _TestScannerAdapter implements PairingScannerAdapter {
   }
 
   @override
-  Future<void> dispose() async {}
+  Future<void> dispose() async {
+    _state.dispose();
+    _torch.dispose();
+  }
 
   @override
   Future<void> start() async {}
@@ -565,7 +580,7 @@ final class _TestScannerAdapter implements PairingScannerAdapter {
   Future<void> stop() async {}
 
   @override
-  Future<void> toggleTorch() async {}
+  Future<void> toggleTorch() async => _torch.value = !_torch.value;
 }
 
 final _environment = AppEnvironment(

@@ -13,6 +13,12 @@ void main() {
   final debugBootstrap = _read(
     'lib/features/local_demo/data/local_demo_debug_bootstrap.dart',
   );
+  final debugCodeResolver = _read(
+    'lib/features/local_demo/data/manual_code_router_debug.dart',
+  );
+  final productCodeResolver = _read(
+    'lib/features/pairing/domain/manual_code_router.dart',
+  );
   final sharedController = _read(
     'lib/features/local_demo/presentation/local_demo_controller.dart',
   );
@@ -42,6 +48,27 @@ void main() {
     'The local fixture runtime must be rooted only in the debug bootstrap.',
     failures,
   );
+  _expectContains(
+    debugBootstrap,
+    'DebugManualCodeIntentResolver()',
+    'The injected owner-code matcher must remain rooted in debug bootstrap.',
+    failures,
+  );
+  _expectContains(
+    debugCodeResolver,
+    "String.fromEnvironment(\n    'WAFLO_LOCAL_DEMO_CODE'",
+    'Local owner code must come from an untracked compile-time define.',
+    failures,
+  );
+  final productResolverBody = productCodeResolver
+      .split('final class ProductManualCodeIntentResolver')
+      .last;
+  if (productResolverBody.contains('ManualCodeIntent.localDemo') ||
+      productResolverBody.contains('WAFLO_LOCAL_DEMO_CODE')) {
+    failures.add(
+      'Product manual-code resolver must not contain local Demo capability.',
+    );
+  }
   _expectContains(
     releaseRuntime,
     'bool availableFor(AppEnvironment environment) => false',
@@ -75,7 +102,8 @@ void main() {
     );
   }
   if (productionMain.contains('local_demo') ||
-      productionMain.contains('buildLocalDemoDebugOverrides')) {
+      productionMain.contains('buildLocalDemoDebugOverrides') ||
+      productionMain.contains('WAFLO_LOCAL_DEMO_CODE')) {
     failures.add(
       'Production entrypoint must not import or reference local Demo code.',
     );
@@ -106,7 +134,7 @@ void main() {
   }
   stdout.writeln(
     'LOCAL_DEMO production exclusion verified: product-root deny-all runtime, '
-    'injected debug-only routes/controls, strict production config, and '
+    'injected debug-only routes/controls/code resolver, strict production config, and '
     'unchanged API authorities.',
   );
 }

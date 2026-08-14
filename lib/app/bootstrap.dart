@@ -12,6 +12,7 @@ import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
 import 'package:waflo_staff/features/local_demo/presentation/local_demo_navigation.dart';
 import 'package:waflo_staff/features/local_demo/presentation/local_demo_operation_controls.dart';
+import 'package:waflo_staff/features/pairing/domain/manual_code_router.dart';
 
 final class LocalDemoBootstrapOverrides {
   const LocalDemoBootstrapOverrides({
@@ -20,6 +21,7 @@ final class LocalDemoBootstrapOverrides {
     required this.scenarioRoute,
     required this.scannerControlsBuilder,
     required this.approvalControlBuilder,
+    required this.manualCodeIntentResolver,
   });
 
   final LocalDemoRuntime runtime;
@@ -27,6 +29,7 @@ final class LocalDemoBootstrapOverrides {
   final String scenarioRoute;
   final LocalDemoScannerControlsBuilder scannerControlsBuilder;
   final LocalDemoApprovalControlBuilder approvalControlBuilder;
+  final ManualCodeIntentResolver manualCodeIntentResolver;
 }
 
 Future<void> bootstrap({
@@ -60,6 +63,9 @@ Future<void> bootstrap({
           ),
           localDemoApprovalControlBuilderProvider.overrideWithValue(
             localDemo.approvalControlBuilder,
+          ),
+          manualCodeIntentResolverProvider.overrideWithValue(
+            localDemo.manualCodeIntentResolver,
           ),
         ],
       ],

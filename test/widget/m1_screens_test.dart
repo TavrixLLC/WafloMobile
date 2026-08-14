@@ -223,7 +223,7 @@ void main() {
     expect(editable.obscureText, isTrue);
     final semanticsHandle = tester.ensureSemantics();
     final semantics = tester.getSemantics(
-      find.byKey(const Key('manual-pairing-code')),
+      find.byKey(const Key('manual-code-input')),
     );
     expect(semantics.value, isNot(contains(secret)));
     semanticsHandle.dispose();

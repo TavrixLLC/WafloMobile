@@ -9,6 +9,7 @@ import 'package:waflo_staff/core/haptics/haptic_service.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/local_demo/data/local_demo_runtime_debug.dart';
+import 'package:waflo_staff/features/local_demo/data/manual_code_router_debug.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
 import 'package:waflo_staff/features/local_demo/presentation/local_demo_operation_controls.dart';
 import 'package:waflo_staff/features/local_demo/presentation/local_demo_operation_controls_debug.dart';
@@ -18,7 +19,7 @@ import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 
 void main() {
   testWidgets(
-    'staging debug presents one intentional local Demo Access entry',
+    'staging debug keeps Demo hidden and accepts the injected manual code',
     (tester) async {
       final container = _container(LocalDemoRuntimeDebug(forceAvailable: true));
       addTearDown(container.dispose);
@@ -29,20 +30,24 @@ void main() {
         ),
       );
 
-      expect(find.text('Demo Access'), findsOneWidget);
-      await tester.tap(find.byKey(const Key('review-access-entry')));
+      expect(find.textContaining('Demo'), findsNothing);
+      expect(find.textContaining('Review'), findsNothing);
+      container.read(pairingControllerProvider.notifier).showManualEntry();
       await tester.pump();
-      expect(find.byKey(const Key('enter-local-demo')), findsOneWidget);
-      expect(find.byKey(const Key('review-access-code')), findsNothing);
+      expect(find.byKey(const Key('manual-code-input')), findsOneWidget);
 
-      await tester.tap(find.byKey(const Key('enter-local-demo')));
+      await tester.enterText(
+        find.byKey(const Key('manual-code-input')),
+        'M3FE-2468',
+      );
+      await tester.tap(find.byKey(const Key('manual-code-continue')));
       await tester.pump();
       expect(container.read(localDemoControllerProvider).active, isTrue);
       expect(container.read(bootControllerProvider).session, isNull);
     },
   );
 
-  testWidgets('production Demo Access remains server-backed credential flow', (
+  testWidgets('production manual entry exposes no local Demo capability', (
     tester,
   ) async {
     final runtime = LocalDemoRuntimeDebug(forceAvailable: true);
@@ -62,10 +67,11 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byKey(const Key('review-access-entry')));
+    container.read(pairingControllerProvider.notifier).showManualEntry();
     await tester.pump();
-    expect(find.byKey(const Key('review-access-code')), findsOneWidget);
-    expect(find.byKey(const Key('enter-local-demo')), findsNothing);
+    expect(find.byKey(const Key('manual-code-input')), findsOneWidget);
+    expect(find.textContaining('Demo'), findsNothing);
+    expect(find.textContaining('Review'), findsNothing);
     expect(
       await container.read(localDemoControllerProvider.notifier).enter(),
       isFalse,
@@ -185,6 +191,9 @@ ProviderContainer _container(LocalDemoRuntime runtime) => ProviderContainer(
   overrides: [
     environmentProvider.overrideWithValue(_environment(AppFlavor.staging)),
     localDemoRuntimeProvider.overrideWithValue(runtime),
+    manualCodeIntentResolverProvider.overrideWithValue(
+      const DebugManualCodeIntentResolver(configuredCode: 'M3FE-2468'),
+    ),
     localDemoScannerControlsBuilderProvider.overrideWithValue(
       () => const DebugLocalDemoScannerControls(),
     ),

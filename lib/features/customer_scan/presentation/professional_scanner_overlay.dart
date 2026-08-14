@@ -20,6 +20,121 @@ final class ProfessionalScannerOverlay extends StatefulWidget {
       _ProfessionalScannerOverlayState();
 }
 
+/// Shared Waflo scanner control used by pairing, normal loyalty scanning and
+/// local Demo. Mode changes capabilities, never the scanner's visual language.
+final class WafloScannerRoundAction extends StatelessWidget {
+  const WafloScannerRoundAction({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+    this.label,
+    super.key,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Material(
+      color: const Color(0xB3091713),
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+          child: Padding(
+            padding: EdgeInsetsDirectional.symmetric(
+              horizontal: label == null ? 12 : 16,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: Colors.white),
+                if (label != null) ...[
+                  const SizedBox(width: WafloSpacing.xs),
+                  Text(
+                    label!,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+final class WafloScannerStatusPill extends StatelessWidget {
+  const WafloScannerStatusPill({
+    required this.label,
+    required this.busy,
+    super.key,
+  });
+
+  final String label;
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 340),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 16,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xCC091713),
+          borderRadius: BorderRadius.circular(WafloRadius.pill),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Row(
+          children: [
+            if (busy)
+              const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: WafloColors.coral,
+                ),
+              )
+            else
+              const Icon(
+                Icons.center_focus_strong_rounded,
+                size: 18,
+                color: WafloColors.coral,
+              ),
+            const SizedBox(width: WafloSpacing.sm),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 final class _ProfessionalScannerOverlayState
     extends State<ProfessionalScannerOverlay>
     with SingleTickerProviderStateMixin {

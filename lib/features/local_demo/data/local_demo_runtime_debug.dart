@@ -14,6 +14,7 @@ import 'package:waflo_staff/features/customer_scan/domain/scanner_mode.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
+import 'package:waflo_staff/features/local_demo/data/manual_code_router_debug.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
 import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
 import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
@@ -49,7 +50,10 @@ final class LocalDemoRuntimeDebug implements LocalDemoRuntime {
 
   @override
   bool availableFor(AppEnvironment environment) =>
-      (forceAvailable || (_configured && kDebugMode)) &&
+      (forceAvailable ||
+          (_configured &&
+              DebugManualCodeIntentResolver.hasConfiguredCode &&
+              kDebugMode)) &&
       environment.flavor != AppFlavor.production;
 
   @override

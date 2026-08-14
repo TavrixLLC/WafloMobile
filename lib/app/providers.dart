@@ -37,6 +37,7 @@ import 'package:waflo_staff/features/local_demo/presentation/local_demo_controll
 import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
 import 'package:waflo_staff/features/pairing/data/generated_pairing_api.dart';
 import 'package:waflo_staff/features/pairing/data/platform_device_metadata.dart';
+import 'package:waflo_staff/features/pairing/domain/manual_code_router.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_api.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
@@ -144,6 +145,9 @@ final pairingQrParserProvider = Provider<PairingQrParser>(
   (ref) => PairingQrParser(
     expectedEnvironment: ref.watch(environmentProvider).pairingEnvironment,
   ),
+);
+final manualCodeIntentResolverProvider = Provider<ManualCodeIntentResolver>(
+  (ref) => const ProductManualCodeIntentResolver(),
 );
 final pairingApiProvider = Provider<PairingApi>(
   (ref) => GeneratedPairingApi(

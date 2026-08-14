@@ -104,15 +104,12 @@ void main() {
     await capture(
       tester,
       '03-review-access-en',
-      _pairing(stage: PairingViewStage.reviewAccess),
+      _pairing(stage: PairingViewStage.manualEntry),
     );
     await capture(
       tester,
       '04-review-access-ar',
-      _pairing(
-        stage: PairingViewStage.reviewAccess,
-        locale: const Locale('ar'),
-      ),
+      _pairing(stage: PairingViewStage.manualEntry, locale: const Locale('ar')),
     );
     await capture(
       tester,

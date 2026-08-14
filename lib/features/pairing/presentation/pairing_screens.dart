@@ -7,6 +7,8 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
+import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
+import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
@@ -22,8 +24,6 @@ final class PairingFlowScreen extends ConsumerWidget {
       PairingViewStage.cameraRationale => const _CameraRationaleScreen(),
       PairingViewStage.scanner => const PairingScannerScreen(),
       PairingViewStage.manualEntry => const _ManualPairingScreen(),
-      PairingViewStage.localDemoIntro => const _LocalDemoAccessScreen(),
-      PairingViewStage.reviewAccess => const _ReviewAccessScreen(),
       PairingViewStage.progress => _PairingProgressScreen(
         progress: state.progress ?? PairingProgress.validating,
       ),
@@ -67,32 +67,6 @@ final class _WelcomeScreen extends ConsumerWidget {
             icon: const Icon(Icons.qr_code_scanner),
             label: Text(strings.scanPairingCode),
           ),
-          const SizedBox(height: WafloSpacing.lg),
-          Container(
-            padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(WafloRadius.large),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  strings.reviewAccessPrompt,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: WafloSpacing.sm),
-                TextButton(
-                  key: const Key('review-access-entry'),
-                  onPressed: () => ref
-                      .read(pairingControllerProvider.notifier)
-                      .showDemoAccess(),
-                  child: Text(strings.reviewAccess),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: WafloSpacing.md),
           Text(strings.chooseLanguage, textAlign: TextAlign.center),
           const SizedBox(height: WafloSpacing.sm),
@@ -109,161 +83,6 @@ final class _WelcomeScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-final class _LocalDemoAccessScreen extends ConsumerWidget {
-  const _LocalDemoAccessScreen();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final strings = AppLocalizations.of(context);
-    return WafloPage(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () => ref.read(pairingControllerProvider.notifier).reset(),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Center(child: WafloBrandMark()),
-          const SizedBox(height: WafloSpacing.lg),
-          Text(
-            strings.demoAccess,
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: WafloSpacing.sm),
-          Text(strings.localDemoAccessBody, textAlign: TextAlign.center),
-          const SizedBox(height: WafloSpacing.lg),
-          WafloStatusBanner(
-            icon: Icons.visibility_outlined,
-            message: strings.localDemoSafetyBody,
-            color: context.waflo.brandAction,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          ),
-          const SizedBox(height: WafloSpacing.xxl),
-          FilledButton.icon(
-            key: const Key('enter-local-demo'),
-            onPressed: () => unawaited(
-              ref.read(pairingControllerProvider.notifier).enterLocalDemo(),
-            ),
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(strings.enterDemo),
-          ),
-          const SizedBox(height: WafloSpacing.sm),
-          TextButton(
-            onPressed: () =>
-                ref.read(pairingControllerProvider.notifier).reset(),
-            child: Text(strings.backToPairing),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-final class _ReviewAccessScreen extends ConsumerStatefulWidget {
-  const _ReviewAccessScreen();
-
-  @override
-  ConsumerState<_ReviewAccessScreen> createState() =>
-      _ReviewAccessScreenState();
-}
-
-final class _ReviewAccessScreenState
-    extends ConsumerState<_ReviewAccessScreen> {
-  final _controller = TextEditingController();
-  bool _valid = false;
-
-  @override
-  void dispose() {
-    _controller.clear();
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _changed(String value) {
-    final normalized = PairingFlowService.normalizeReviewAccessCode(value);
-    if (normalized != value) {
-      _controller.value = TextEditingValue(
-        text: normalized,
-        selection: TextSelection.collapsed(offset: normalized.length),
-      );
-    }
-    final valid = PairingFlowService.isValidReviewAccessCode(normalized);
-    if (valid != _valid) setState(() => _valid = valid);
-  }
-
-  Future<void> _continue() async {
-    if (!_valid) return;
-    final code = _controller.text;
-    _controller.clear();
-    await ref.read(pairingControllerProvider.notifier).submitReviewAccess(code);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = AppLocalizations.of(context);
-    return WafloPage(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () => ref.read(pairingControllerProvider.notifier).reset(),
-        ),
-      ),
-      child: AutofillGroup(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Center(child: WafloBrandMark()),
-            const SizedBox(height: WafloSpacing.lg),
-            Text(
-              strings.reviewAccess,
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: WafloSpacing.sm),
-            Text(strings.reviewAccessBody, textAlign: TextAlign.center),
-            const SizedBox(height: WafloSpacing.xl),
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: TextField(
-                key: const Key('review-access-code'),
-                controller: _controller,
-                autofocus: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                autofillHints: const [AutofillHints.oneTimeCode],
-                textAlign: TextAlign.center,
-                keyboardType: TextInputType.visiblePassword,
-                textCapitalization: TextCapitalization.characters,
-                maxLength: 9,
-                onChanged: _changed,
-                onSubmitted: (_) => unawaited(_continue()),
-                decoration: InputDecoration(
-                  labelText: strings.reviewAccessCode,
-                  hintText: strings.reviewAccessCodeHint,
-                  counterText: '',
-                ),
-              ),
-            ),
-            const SizedBox(height: WafloSpacing.lg),
-            FilledButton(
-              key: const Key('review-access-continue'),
-              onPressed: _valid ? () => unawaited(_continue()) : null,
-              child: Text(strings.continueAction),
-            ),
-            const SizedBox(height: WafloSpacing.sm),
-            TextButton(
-              onPressed: () =>
-                  ref.read(pairingControllerProvider.notifier).reset(),
-              child: Text(strings.backToPairing),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -367,6 +186,9 @@ final class _PairingScannerScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(ref.read(pairingScannerAdapterProvider).start());
+    });
   }
 
   @override
@@ -396,53 +218,108 @@ final class _PairingScannerScreenState
   @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final adapter = ref.watch(pairingScannerAdapterProvider);
+    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.5;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.scannerTitle),
-        leading: IconButton(
-          tooltip: strings.close,
-          onPressed: () => ref.read(pairingControllerProvider.notifier).reset(),
-          icon: const Icon(Icons.close),
-        ),
-        actions: [
-          IconButton(
-            tooltip: strings.toggleFlash,
-            onPressed: () => unawaited(
-              ref.read(pairingScannerAdapterProvider).toggleTorch(),
-            ),
-            icon: const Icon(Icons.flash_on_outlined),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
+      backgroundColor: Colors.black,
+      body: ValueListenableBuilder<CustomerScannerState>(
+        valueListenable: adapter.state,
+        builder: (context, scannerState, child) => Stack(
+          fit: StackFit.expand,
           children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
-              child: Text(
-                strings.scannerInstructions,
-                textAlign: TextAlign.center,
-              ),
+            adapter.buildPreview(context, onDetected: _detected),
+            ProfessionalScannerOverlay(
+              state: scannerState,
+              semanticLabel: strings.scannerInstructions,
             ),
-            Expanded(
-              child: Semantics(
-                label: strings.scannerInstructions,
-                container: true,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(WafloRadius.large),
-                  child: ref
-                      .watch(pairingScannerAdapterProvider)
-                      .buildPreview(context, onDetected: _detected),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
-              child: OutlinedButton(
-                onPressed: () => ref
-                    .read(pairingControllerProvider.notifier)
-                    .showManualEntry(),
-                child: Text(strings.enterCodeInstead),
+            SafeArea(
+              minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      WafloScannerRoundAction(
+                        tooltip: strings.close,
+                        icon: Icons.close_rounded,
+                        onPressed: () => ref
+                            .read(pairingControllerProvider.notifier)
+                            .reset(),
+                      ),
+                      const SizedBox(width: WafloSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          strings.scannerTitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.fade,
+                          style:
+                              (largeText
+                                      ? Theme.of(context).textTheme.titleMedium
+                                      : Theme.of(context).textTheme.titleLarge)
+                                  ?.copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(
+                    strings.scannerInstructions,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      shadows: const [Shadow(blurRadius: 8)],
+                    ),
+                  ),
+                  const SizedBox(height: WafloSpacing.md),
+                  WafloScannerStatusPill(
+                    label: switch (scannerState) {
+                      CustomerScannerState.initializingCamera =>
+                        strings.initializingCamera,
+                      CustomerScannerState.candidateCaptured =>
+                        strings.codeDetected,
+                      CustomerScannerState.cameraUnavailable =>
+                        strings.cameraUnavailable,
+                      _ => strings.scannerReady,
+                    },
+                    busy:
+                        scannerState ==
+                            CustomerScannerState.initializingCamera ||
+                        scannerState == CustomerScannerState.candidateCaptured,
+                  ),
+                  const SizedBox(height: WafloSpacing.md),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: WafloSpacing.sm,
+                    runSpacing: WafloSpacing.sm,
+                    children: [
+                      ValueListenableBuilder<bool>(
+                        valueListenable: adapter.torchEnabled,
+                        builder: (context, enabled, child) =>
+                            WafloScannerRoundAction(
+                              tooltip: strings.toggleFlash,
+                              label: enabled
+                                  ? strings.flashOff
+                                  : strings.flashOn,
+                              icon: enabled
+                                  ? Icons.flashlight_off_rounded
+                                  : Icons.flashlight_on_rounded,
+                              onPressed: () => unawaited(adapter.toggleTorch()),
+                            ),
+                      ),
+                      WafloScannerRoundAction(
+                        key: const Key('manual-code-entry'),
+                        tooltip: strings.enterCodeInstead,
+                        label: strings.enterCodeInstead,
+                        icon: Icons.keyboard_alt_outlined,
+                        onPressed: () {
+                          unawaited(adapter.stop());
+                          ref
+                              .read(pairingControllerProvider.notifier)
+                              .showManualEntry();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -476,37 +353,64 @@ final class _ManualPairingScreenState
     final strings = AppLocalizations.of(context);
     return WafloPage(
       appBar: AppBar(
-        title: Text(strings.manualCodeTitle),
+        title: Text(strings.enterCodeInstead),
         leading: BackButton(
-          onPressed: () => ref.read(pairingControllerProvider.notifier).reset(),
+          onPressed: () =>
+              ref.read(pairingControllerProvider.notifier).showScanner(),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
-            key: const Key('manual-pairing-code'),
-            controller: _controller,
-            obscureText: true,
-            autocorrect: false,
-            enableSuggestions: false,
-            maxLength: 512,
-            decoration: InputDecoration(
-              labelText: strings.manualCodeHint,
-              prefixIcon: const Icon(Icons.key_outlined),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: TextField(
+              key: const Key('manual-code-input'),
+              controller: _controller,
+              autofocus: true,
+              obscureText: true,
+              autocorrect: false,
+              enableSuggestions: false,
+              keyboardType: TextInputType.visiblePassword,
+              textCapitalization: TextCapitalization.characters,
+              maxLength: 512,
+              textAlign: TextAlign.center,
+              onChanged: _formatShortCode,
+              onSubmitted: (_) => unawaited(_submit()),
+              decoration: InputDecoration(
+                labelText: strings.manualCodeHint,
+                prefixIcon: const Icon(Icons.keyboard_outlined),
+              ),
             ),
           ),
           const SizedBox(height: WafloSpacing.md),
           FilledButton(
-            onPressed: () => unawaited(
-              ref
-                  .read(pairingControllerProvider.notifier)
-                  .submit(_controller.text),
-            ),
-            child: Text(strings.submitCode),
+            key: const Key('manual-code-continue'),
+            onPressed: () => unawaited(_submit()),
+            child: Text(strings.continueAction),
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _submit() async {
+    final code = _controller.text;
+    _controller.clear();
+    await ref.read(pairingControllerProvider.notifier).submitManualCode(code);
+  }
+
+  void _formatShortCode(String value) {
+    if (value.toLowerCase().startsWith('waflo') ||
+        value.length > 12 ||
+        !RegExp(r'^[A-Za-z0-9 -]*$').hasMatch(value)) {
+      return;
+    }
+    final normalized = PairingFlowService.normalizeReviewAccessCode(value);
+    if (normalized == value) return;
+    _controller.value = TextEditingValue(
+      text: normalized,
+      selection: TextSelection.collapsed(offset: normalized.length),
     );
   }
 }
@@ -649,7 +553,7 @@ final class _PairingErrorScreen extends ConsumerWidget {
             onPressed: () {
               final controller = ref.read(pairingControllerProvider.notifier);
               if (state.reviewFlow) {
-                controller.showReviewAccess();
+                controller.showManualEntry();
               } else {
                 controller.showCameraRationale();
               }
@@ -684,10 +588,10 @@ String _localizedPairingError(
     'RISK_HARD_BLOCK' => strings.riskBlockedError,
     'INTERNAL_ERROR' => strings.pairingInternalFailure,
     'REVIEW_ACCESS_INVALID' ||
-    'REVIEW_ACCESS_REVOKED' => strings.reviewAccessInvalid,
-    'REVIEW_ACCESS_EXPIRED' => strings.reviewAccessExpired,
+    'REVIEW_ACCESS_REVOKED' => strings.validationError,
+    'REVIEW_ACCESS_EXPIRED' => strings.validationError,
     'REVIEW_ACCESS_RATE_LIMITED' => strings.reviewAccessRateLimited,
-    'REVIEW_TENANT_UNAVAILABLE' => strings.reviewEnvironmentUnavailable,
+    'REVIEW_TENANT_UNAVAILABLE' => strings.genericError,
     _ => strings.genericError,
   };
 }

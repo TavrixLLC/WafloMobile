@@ -20,7 +20,7 @@ import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_c
 import '../support/fixtures.dart';
 
 void main() {
-  testWidgets('Review Access remains secondary to normal pairing', (
+  testWidgets('manual code entry is hidden behind the normal scanner path', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -28,34 +28,30 @@ void main() {
     );
 
     expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
-    expect(find.byKey(const Key('review-access-entry')), findsOneWidget);
-    expect(find.byKey(const Key('review-access-code')), findsNothing);
+    expect(find.textContaining('Demo'), findsNothing);
+    expect(find.textContaining('Review'), findsNothing);
 
-    await tester.tap(find.byKey(const Key('review-access-entry')));
+    await tester.tap(find.byKey(const Key('scan-pairing-code')));
     await tester.pump();
-    expect(find.byKey(const Key('review-access-code')), findsOneWidget);
-    expect(
-      tester
-          .widget<FilledButton>(find.byKey(const Key('review-access-continue')))
-          .onPressed,
-      isNull,
-    );
+    await tester.tap(find.text('Not now'));
+    await tester.pump();
+    expect(find.byKey(const Key('manual-code-input')), findsOneWidget);
 
     await tester.enterText(
-      find.byKey(const Key('review-access-code')),
+      find.byKey(const Key('manual-code-input')),
       'abcd 2345',
     );
     await tester.pump();
-    expect(find.text('ABCD-2345'), findsOneWidget);
     expect(
       tester
-          .widget<FilledButton>(find.byKey(const Key('review-access-continue')))
-          .onPressed,
-      isNotNull,
+          .widget<TextField>(find.byKey(const Key('manual-code-input')))
+          .controller
+          ?.text,
+      'ABCD-2345',
     );
   });
 
-  testWidgets('Review Access preserves RTL shell and LTR credential entry', (
+  testWidgets('manual code preserves RTL shell and LTR credential entry', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -63,14 +59,16 @@ void main() {
         child: _LocalizedApp(locale: Locale('ar'), child: PairingFlowScreen()),
       ),
     );
-    await tester.tap(find.byKey(const Key('review-access-entry')));
+    await tester.tap(find.byKey(const Key('scan-pairing-code')));
+    await tester.pump();
+    await tester.tap(find.text('ليس الآن'));
     await tester.pump();
 
     expect(
       Directionality.of(tester.element(find.byType(WafloPage))),
       TextDirection.rtl,
     );
-    final field = find.byKey(const Key('review-access-code'));
+    final field = find.byKey(const Key('manual-code-input'));
     final localDirectionality = find.ancestor(
       of: field,
       matching: find.byType(Directionality),

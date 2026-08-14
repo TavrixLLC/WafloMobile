@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
+import 'package:waflo_staff/features/pairing/domain/manual_code_router.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 
@@ -12,8 +14,6 @@ enum PairingViewStage {
   cameraRationale,
   scanner,
   manualEntry,
-  localDemoIntro,
-  reviewAccess,
   progress,
   success,
   error,
@@ -63,25 +63,7 @@ final class PairingController extends Notifier<PairingViewState> {
     }
   }
 
-  void showDemoAccess() {
-    if (_pairingOperation == null) {
-      var localDemoAvailable = false;
-      try {
-        localDemoAvailable = ref.read(localDemoAccessAvailableProvider);
-      } on Object {
-        // Standalone presentation tests intentionally omit app bootstrap.
-      }
-      state = PairingViewState(
-        stage: localDemoAvailable
-            ? PairingViewStage.localDemoIntro
-            : PairingViewStage.reviewAccess,
-        reviewFlow: true,
-      );
-    }
-  }
-
-  void showReviewAccess() => showDemoAccess();
-
+  @visibleForTesting
   Future<void> enterLocalDemo() async {
     if (_pairingOperation != null) return;
     final entered = await ref
@@ -123,6 +105,15 @@ final class PairingController extends Notifier<PairingViewState> {
       }),
     );
     return operation;
+  }
+
+  Future<void> submitManualCode(String rawCode) {
+    final intent = ref.read(manualCodeIntentResolverProvider).resolve(rawCode);
+    return switch (intent) {
+      ManualCodeIntent.normalPairing => submit(rawCode.trim()),
+      ManualCodeIntent.serverReview => submitReviewAccess(rawCode),
+      ManualCodeIntent.localDemo => enterLocalDemo(),
+    };
   }
 
   Future<void> submitReviewAccess(String code) {

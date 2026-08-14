@@ -230,7 +230,7 @@ final class _CustomerScannerViewState
               children: [
                 Row(
                   children: [
-                    _ScannerRoundAction(
+                    WafloScannerRoundAction(
                       tooltip: strings.close,
                       icon: Icons.close_rounded,
                       onPressed: () => unawaited(_close(adapter)),
@@ -280,7 +280,7 @@ final class _CustomerScannerViewState
                   ),
                 ),
                 const SizedBox(height: WafloSpacing.md),
-                _ScannerStatusPill(
+                WafloScannerStatusPill(
                   label: _scannerStatus(strings, scannerState),
                   busy: _isScannerBusy(scannerState),
                 ),
@@ -304,14 +304,15 @@ final class _CustomerScannerViewState
                   children: [
                     ValueListenableBuilder<bool>(
                       valueListenable: adapter.torchEnabled,
-                      builder: (context, enabled, child) => _ScannerRoundAction(
-                        tooltip: strings.toggleFlash,
-                        label: enabled ? strings.flashOff : strings.flashOn,
-                        icon: enabled
-                            ? Icons.flashlight_off_rounded
-                            : Icons.flashlight_on_rounded,
-                        onPressed: () => unawaited(adapter.toggleTorch()),
-                      ),
+                      builder: (context, enabled, child) =>
+                          WafloScannerRoundAction(
+                            tooltip: strings.toggleFlash,
+                            label: enabled ? strings.flashOff : strings.flashOn,
+                            icon: enabled
+                                ? Icons.flashlight_off_rounded
+                                : Icons.flashlight_on_rounded,
+                            onPressed: () => unawaited(adapter.toggleTorch()),
+                          ),
                     ),
                   ],
                 ),
@@ -420,116 +421,6 @@ final class _CustomerScannerViewState
     CustomerScannerState.cameraUnavailable => strings.cameraUnavailable,
     _ => strings.scannerReady,
   };
-}
-
-final class _ScannerRoundAction extends StatelessWidget {
-  const _ScannerRoundAction({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-    this.label,
-  });
-
-  final String tooltip;
-  final IconData icon;
-  final VoidCallback onPressed;
-  final String? label;
-
-  @override
-  Widget build(BuildContext context) => Tooltip(
-    message: tooltip,
-    child: Material(
-      color: const Color(0xB3091713),
-      borderRadius: BorderRadius.circular(24),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-          child: Padding(
-            padding: EdgeInsetsDirectional.symmetric(
-              horizontal: label == null ? 12 : 16,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Colors.white),
-                if (label != null) ...[
-                  const SizedBox(width: WafloSpacing.xs),
-                  Text(
-                    label!,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-final class _ScannerStatusPill extends StatelessWidget {
-  const _ScannerStatusPill({required this.label, required this.busy});
-
-  final String label;
-  final bool busy;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    liveRegion: true,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 340),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsetsDirectional.symmetric(
-          horizontal: 16,
-          vertical: 10,
-        ),
-        decoration: BoxDecoration(
-          color: const Color(0xCC091713),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: Colors.white24),
-        ),
-        child: Row(
-          children: [
-            if (busy) ...[
-              const SizedBox.square(
-                dimension: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: WafloColors.coral,
-                ),
-              ),
-              const SizedBox(width: WafloSpacing.sm),
-            ] else ...[
-              const Icon(
-                Icons.center_focus_strong_rounded,
-                size: 18,
-                color: WafloColors.coral,
-              ),
-              const SizedBox(width: WafloSpacing.sm),
-            ],
-            Expanded(
-              child: Text(
-                label,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelLarge?.copyWith(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
 }
 
 final class _ScannerPermissionPanel extends StatelessWidget {

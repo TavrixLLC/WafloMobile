@@ -107,7 +107,7 @@ Widget _demoAccess({Locale locale = const Locale('en')}) => ProviderScope(
     ),
     pairingControllerProvider.overrideWithBuild(
       (ref, notifier) =>
-          const PairingViewState(stage: PairingViewStage.localDemoIntro),
+          const PairingViewState(stage: PairingViewStage.manualEntry),
     ),
   ],
   child: _app(locale: locale, child: const PairingFlowScreen()),
