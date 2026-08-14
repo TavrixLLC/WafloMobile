@@ -25,10 +25,15 @@ import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
 import 'package:waflo_staff/features/app_lock/presentation/app_lock_controller.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
+import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_session/data/signed_device_api.dart';
 import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/session_manager.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
+import 'package:waflo_staff/features/local_demo/data/local_demo_runtime_release.dart'
+    as release_demo;
+import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_controller.dart';
 import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
 import 'package:waflo_staff/features/pairing/data/generated_pairing_api.dart';
 import 'package:waflo_staff/features/pairing/data/platform_device_metadata.dart';
@@ -60,25 +65,52 @@ final safeLoggerProvider = Provider<SafeLogger>(
 final preferencesRepositoryProvider = Provider<PreferencesRepository>(
   (ref) => PreferencesRepository(ref.watch(sharedPreferencesProvider)),
 );
-final appLockRepositoryProvider = Provider<AppLockRepository>(
-  (ref) => AppLockRepository(
+final localDemoRuntimeProvider = Provider<LocalDemoRuntime>(
+  (ref) => release_demo.createLocalDemoRuntime(),
+);
+final localDemoAccessAvailableProvider = Provider<bool>((ref) {
+  try {
+    return ref
+        .watch(localDemoRuntimeProvider)
+        .availableFor(ref.watch(environmentProvider));
+  } on StateError {
+    // Presentation-only widget tests that do not bootstrap an environment
+    // must retain the server-backed Review credential path.
+    return false;
+  }
+});
+final appLockRepositoryProvider = Provider<AppLockStore>((ref) {
+  if (ref.watch(localDemoControllerProvider.select((state) => state.active))) {
+    return ref.watch(localDemoRuntimeProvider).appLock;
+  }
+  return AppLockRepository(
     ref.watch(sharedPreferencesProvider),
     ref.watch(secureStoreProvider),
-  ),
-);
+  );
+});
 final biometricServiceProvider = Provider<BiometricService>(
   (ref) => PlatformBiometricService(),
 );
 final hapticServiceProvider = Provider<HapticService>(
   (ref) => const PlatformHapticService(),
 );
-final pendingOperationStoreProvider = Provider<PendingOperationStore>(
-  (ref) => SharedPreferencesPendingOperationStore(
+final pendingOperationStoreProvider = Provider<PendingOperationStore>((ref) {
+  if (ref.watch(localDemoControllerProvider.select((state) => state.active))) {
+    return ref.watch(localDemoRuntimeProvider).pendingOperations;
+  }
+  return SharedPreferencesPendingOperationStore(
     ref.watch(sharedPreferencesProvider),
-  ),
-);
+  );
+});
 final managerApprovalIntentStoreProvider = Provider<ManagerApprovalIntentStore>(
-  (ref) => SecureManagerApprovalIntentStore(ref.watch(secureStoreProvider)),
+  (ref) {
+    if (ref.watch(
+      localDemoControllerProvider.select((state) => state.active),
+    )) {
+      return ref.watch(localDemoRuntimeProvider).managerApprovalIntents;
+    }
+    return SecureManagerApprovalIntentStore(ref.watch(secureStoreProvider));
+  },
 );
 final apiErrorDecoderProvider = Provider<ApiErrorDecoder>(
   (ref) => const ApiErrorDecoder(),
@@ -137,6 +169,15 @@ final pairingScannerAdapterProvider =
     });
 final customerScannerAdapterProvider =
     Provider.autoDispose<CustomerScannerAdapter>((ref) {
+      if (ref.watch(
+        localDemoControllerProvider.select((state) => state.active),
+      )) {
+        final adapter = ref
+            .watch(localDemoRuntimeProvider)
+            .createScannerAdapter();
+        ref.onDispose(() => unawaited(adapter.dispose()));
+        return adapter;
+      }
       final adapter = MobileCustomerScannerAdapter();
       ref.onDispose(() => unawaited(adapter.dispose()));
       return adapter;
@@ -164,8 +205,11 @@ final sessionManagerProvider = Provider<SessionManager>(
     transactionRepository: ref.watch(pairingTransactionRepositoryProvider),
   ),
 );
-final loyaltyOperationsApiProvider = Provider<LoyaltyOperationsApi>(
-  (ref) => SignedLoyaltyOperationsApi(
+final loyaltyOperationsApiProvider = Provider<LoyaltyOperationsApi>((ref) {
+  if (ref.watch(localDemoControllerProvider.select((state) => state.active))) {
+    return ref.watch(localDemoRuntimeProvider).loyaltyOperations;
+  }
+  return SignedLoyaltyOperationsApi(
     dio: ref.watch(signedDioProvider),
     signer: ref.watch(requestSignerProvider),
     errorDecoder: ref.watch(apiErrorDecoderProvider),
@@ -173,8 +217,8 @@ final loyaltyOperationsApiProvider = Provider<LoyaltyOperationsApi>(
     refreshSession: ref.watch(sessionManagerProvider).refreshSingleFlight,
     allowInsecureAssets:
         ref.watch(environmentProvider).flavor == AppFlavor.development,
-  ),
-);
+  );
+});
 final reviewAccessRepositoryProvider = Provider<ReviewAccessRepository>(
   (ref) => SignedReviewAccessRepository(
     dio: ref.watch(signedDioProvider),
@@ -206,6 +250,20 @@ final connectivityProvider = StreamProvider<bool>((ref) async* {
     yield online(results);
   }
 });
+final operationalOnlineProvider = Provider<bool>((ref) {
+  if (ref.watch(localDemoControllerProvider.select((state) => state.active))) {
+    return true;
+  }
+  return ref.watch(connectivityProvider).value ?? false;
+});
+final activeDeviceContextProvider = Provider<AuthoritativeDeviceContext?>((
+  ref,
+) {
+  if (ref.watch(localDemoControllerProvider.select((state) => state.active))) {
+    return ref.watch(localDemoRuntimeProvider).deviceContext;
+  }
+  return ref.watch(bootControllerProvider).context;
+});
 final packageInfoProvider = FutureProvider<PackageInfo>(
   (ref) => PackageInfo.fromPlatform(),
 );
@@ -235,4 +293,8 @@ final appLockControllerProvider =
 final reviewAccessControllerProvider =
     NotifierProvider<ReviewAccessController, ReviewToolsState>(
       ReviewAccessController.new,
+    );
+final localDemoControllerProvider =
+    NotifierProvider<LocalDemoController, LocalDemoState>(
+      LocalDemoController.new,
     );

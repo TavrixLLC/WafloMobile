@@ -9,23 +9,32 @@ import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 
 final class BlockedScreen extends ConsumerWidget {
-  const BlockedScreen({required this.state, super.key});
+  const BlockedScreen({
+    required this.state,
+    this.presentationOnly = false,
+    this.onClose,
+    super.key,
+  });
 
   final BootState state;
+  final bool presentationOnly;
+  final VoidCallback? onClose;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final content = _content(strings, state.stage);
     final repair =
-        state.stage == BootStage.sessionExpired ||
-        state.stage == BootStage.staffUserDeactivated ||
-        state.stage == BootStage.staffMembershipInactive ||
-        state.stage == BootStage.staffLocationAssignmentInvalid ||
-        state.stage == BootStage.fatalLocalSecurityError;
+        !presentationOnly &&
+        (state.stage == BootStage.sessionExpired ||
+            state.stage == BootStage.staffUserDeactivated ||
+            state.stage == BootStage.staffMembershipInactive ||
+            state.stage == BootStage.staffLocationAssignmentInvalid ||
+            state.stage == BootStage.fatalLocalSecurityError);
     final retry =
-        state.stage == BootStage.backendUnavailable ||
-        state.stage == BootStage.devicePending;
+        !presentationOnly &&
+        (state.stage == BootStage.backendUnavailable ||
+            state.stage == BootStage.devicePending);
     return WafloPage(
       scrollable: false,
       child: Semantics(
@@ -142,6 +151,15 @@ final class BlockedScreen extends ConsumerWidget {
                       ),
                     if (repair || retry)
                       const SizedBox(height: WafloSpacing.md),
+                    if (presentationOnly && onClose != null) ...[
+                      FilledButton.icon(
+                        key: const Key('back-to-demo-scenarios'),
+                        onPressed: onClose,
+                        icon: const Icon(Icons.view_list_outlined),
+                        label: Text(strings.backToDemoScenarios),
+                      ),
+                      const SizedBox(height: WafloSpacing.md),
+                    ],
                   ],
                 ),
               ),

@@ -125,7 +125,7 @@ final class M2OperationController extends Notifier<M2OperationState> {
     if (_mutation != null || state.pendingOperation != null) {
       return;
     }
-    final context = ref.read(bootControllerProvider).context;
+    final context = ref.read(activeDeviceContextProvider);
     if (context == null ||
         (context.currentLocation.capabilitiesKnown &&
             !context.currentLocation.earningAllowed &&

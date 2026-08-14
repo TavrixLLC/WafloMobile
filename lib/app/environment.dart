@@ -14,6 +14,7 @@ final class AppEnvironment {
     required this.minimumVersionSource,
     required this.crashReportingEnabled,
     required this.certificatePinningEnabled,
+    this.localDemoRequested = false,
     this.expectedNativeFlavor,
     this.suppliedDartEnvironment = '',
     this.requiredDefinesSupplied = true,
@@ -54,6 +55,9 @@ final class AppEnvironment {
       certificatePinningEnabled: const bool.fromEnvironment(
         'WAFLO_CERT_PINNING',
       ),
+      localDemoRequested: const bool.fromEnvironment(
+        'WAFLO_LOCAL_DEMO_ENABLED',
+      ),
       expectedNativeFlavor: expectedNativeFlavor,
       suppliedDartEnvironment: flavorValue,
       requiredDefinesSupplied:
@@ -74,6 +78,7 @@ final class AppEnvironment {
   final String minimumVersionSource;
   final bool crashReportingEnabled;
   final bool certificatePinningEnabled;
+  final bool localDemoRequested;
   final AppFlavor? expectedNativeFlavor;
   final String suppliedDartEnvironment;
   final bool requiredDefinesSupplied;
@@ -135,6 +140,9 @@ final class AppEnvironment {
     }
     if (isProduction && allowTestAdapter) {
       issues.add('PRODUCTION_TEST_ADAPTER_FORBIDDEN');
+    }
+    if (isProduction && localDemoRequested) {
+      issues.add('PRODUCTION_LOCAL_DEMO_FORBIDDEN');
     }
     if (isProduction && logLevel != AppLogLevel.minimal) {
       issues.add('PRODUCTION_LOG_LEVEL_UNSAFE');

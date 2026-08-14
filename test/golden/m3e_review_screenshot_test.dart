@@ -83,7 +83,7 @@ void main() {
       await expectLater(
         find.byType(MaterialApp),
         matchesGoldenFile(
-          '../../artifacts/handoff-m3e-review-access/screenshots/$name.png',
+          '../../artifacts/handoff-m3e-repair-demo-access/screenshots/m3e-regression/$name.png',
         ),
       );
     }

@@ -6,6 +6,7 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_navigation.dart';
 
 final class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -14,15 +15,11 @@ final class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final boot = ref.watch(bootControllerProvider);
+    final localDemo = ref.watch(localDemoControllerProvider);
+    final localDemoScenarioRoute = ref.watch(localDemoScenarioRouteProvider);
     final operation = ref.watch(m2OperationControllerProvider);
-    final deviceContext = boot.context;
-    final online = ref
-        .watch(connectivityProvider)
-        .when(
-          data: (value) => value,
-          error: (error, stackTrace) => false,
-          loading: () => true,
-        );
+    final deviceContext = ref.watch(activeDeviceContextProvider);
+    final online = ref.watch(operationalOnlineProvider);
     final capable =
         deviceContext != null &&
         (!deviceContext.currentLocation.capabilitiesKnown ||
@@ -49,21 +46,37 @@ final class HomeScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: ref.read(bootControllerProvider.notifier).refreshContext,
+          onRefresh: localDemo.active
+              ? () async {}
+              : ref.read(bootControllerProvider.notifier).refreshContext,
           child: ListView(
             key: const Key('task-first-home'),
             padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
             children: [
-              if (boot.session?.isReview ?? false) ...[
+              if ((boot.session?.isReview ?? false) || localDemo.active) ...[
                 WafloStatusBanner(
                   icon: Icons.science_outlined,
-                  message: strings.demoMode,
+                  message: localDemo.active
+                      ? strings.sampleData
+                      : strings.demoMode,
                   color: context.waflo.brandAction,
                   backgroundColor: Theme.of(
                     context,
                   ).colorScheme.primaryContainer,
                 ),
                 const SizedBox(height: WafloSpacing.lg),
+              ],
+              if (localDemo.active && localDemoScenarioRoute != null) ...[
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    key: const Key('local-demo-scenarios-entry'),
+                    onPressed: () => context.push(localDemoScenarioRoute),
+                    icon: const Icon(Icons.view_list_outlined),
+                    label: Text(strings.demoScenarios),
+                  ),
+                ),
+                const SizedBox(height: WafloSpacing.sm),
               ],
               if (!online) ...[
                 WafloStatusBanner(

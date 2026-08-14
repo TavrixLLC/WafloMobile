@@ -14,6 +14,7 @@ import 'package:waflo_staff/core/money/minor_unit_money.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_operation_controls.dart';
 import 'package:waflo_staff/features/loyalty_progress/presentation/two_state_stamp_grid.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.dart';
@@ -100,7 +101,7 @@ final class _OperationBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final online = ref.watch(connectivityProvider).value ?? false;
+    final online = ref.watch(operationalOnlineProvider);
     if (!online &&
         state.stage != M2OperationStage.membershipReady &&
         state.stage != M2OperationStage.stampAmbiguous &&
@@ -201,7 +202,7 @@ final class _CustomerScannerViewState
     final strings = AppLocalizations.of(context);
     final adapter = ref.watch(customerScannerAdapterProvider);
     final operation = ref.watch(m2OperationControllerProvider);
-    final location = ref.watch(bootControllerProvider).context?.currentLocation;
+    final location = ref.watch(activeDeviceContextProvider)?.currentLocation;
     final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.5;
     _adapter = adapter;
     _reportFailure(operation, adapter);
@@ -297,6 +298,7 @@ final class _CustomerScannerViewState
                   ),
                   const SizedBox(height: WafloSpacing.sm),
                 ],
+                const LocalDemoScannerControlsSlot(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -1003,7 +1005,7 @@ final class _StampReview extends ConsumerWidget {
     final membership = state.membership!;
     final input = state.stampInput!;
     final strings = AppLocalizations.of(context);
-    final location = ref.watch(bootControllerProvider).context?.currentLocation;
+    final location = ref.watch(activeDeviceContextProvider)?.currentLocation;
     return _ReviewList(
       title: strings.reviewStampTitle,
       rows: [
@@ -1066,7 +1068,7 @@ final class _RedemptionReview extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final membership = state.membership!;
     final reward = state.selectedReward!;
-    final location = ref.watch(bootControllerProvider).context?.currentLocation;
+    final location = ref.watch(activeDeviceContextProvider)?.currentLocation;
     return _ReviewList(
       title: strings.redemptionReviewTitle,
       rows: [
@@ -1385,7 +1387,7 @@ final class _PendingRecovery extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final online = ref.watch(connectivityProvider).value ?? false;
+    final online = ref.watch(operationalOnlineProvider);
     return _CenteredOperation(
       child: Container(
         key: const Key('ambiguous-operation-recovery'),
@@ -1576,6 +1578,8 @@ final class _ManagerApprovalPanel extends ConsumerWidget {
                       : strings.refreshCustomerState,
                 ),
               ),
+            if (approval.canCheck)
+              LocalDemoManagerApprovalAction(locale: locale),
             if (approval.canCheck) ...[
               const SizedBox(height: WafloSpacing.sm),
               TextButton(

@@ -12,6 +12,7 @@ enum PairingViewStage {
   cameraRationale,
   scanner,
   manualEntry,
+  localDemoIntro,
   reviewAccess,
   progress,
   success,
@@ -62,9 +63,36 @@ final class PairingController extends Notifier<PairingViewState> {
     }
   }
 
-  void showReviewAccess() {
+  void showDemoAccess() {
     if (_pairingOperation == null) {
-      state = const PairingViewState(stage: PairingViewStage.reviewAccess);
+      var localDemoAvailable = false;
+      try {
+        localDemoAvailable = ref.read(localDemoAccessAvailableProvider);
+      } on Object {
+        // Standalone presentation tests intentionally omit app bootstrap.
+      }
+      state = PairingViewState(
+        stage: localDemoAvailable
+            ? PairingViewStage.localDemoIntro
+            : PairingViewStage.reviewAccess,
+        reviewFlow: true,
+      );
+    }
+  }
+
+  void showReviewAccess() => showDemoAccess();
+
+  Future<void> enterLocalDemo() async {
+    if (_pairingOperation != null) return;
+    final entered = await ref
+        .read(localDemoControllerProvider.notifier)
+        .enter();
+    if (!entered) {
+      state = const PairingViewState(
+        stage: PairingViewStage.error,
+        failure: ApiFailure('LOCAL_DEMO_UNAVAILABLE', responseReceived: false),
+        reviewFlow: true,
+      );
     }
   }
 

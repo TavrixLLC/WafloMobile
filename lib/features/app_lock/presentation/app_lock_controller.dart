@@ -11,7 +11,7 @@ final class AppLockController extends Notifier<AppLockState> {
   @override
   AppLockState build() {
     final configuration = ref
-        .read(appLockRepositoryProvider)
+        .watch(appLockRepositoryProvider)
         .readConfiguration();
     return AppLockState(
       configuration: configuration,
@@ -160,6 +160,8 @@ final class AppLockController extends Notifier<AppLockState> {
       clearRetryAt: true,
       clearError: true,
     );
-    await ref.read(bootControllerProvider.notifier).refreshContext();
+    if (!ref.read(localDemoControllerProvider).active) {
+      await ref.read(bootControllerProvider.notifier).refreshContext();
+    }
   }
 }

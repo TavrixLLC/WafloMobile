@@ -1967,13 +1967,13 @@ abstract class AppLocalizations {
   /// No description provided for @reviewAccess.
   ///
   /// In en, this message translates to:
-  /// **'Review / Demo Access'**
+  /// **'Demo Access'**
   String get reviewAccess;
 
   /// No description provided for @reviewAccessPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Need access for app review or a guided demo?'**
+  /// **'Need sample data or app review access?'**
   String get reviewAccessPrompt;
 
   /// No description provided for @reviewAccessBody.
@@ -2039,7 +2039,7 @@ abstract class AppLocalizations {
   /// No description provided for @reviewTools.
   ///
   /// In en, this message translates to:
-  /// **'Review Tools'**
+  /// **'Demo scenarios'**
   String get reviewTools;
 
   /// No description provided for @reviewToolsBody.
@@ -2149,6 +2149,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unable to load customer'**
   String get unableToLoadCustomer;
+
+  /// No description provided for @demoAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo Access'**
+  String get demoAccess;
+
+  /// No description provided for @enterDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Demo'**
+  String get enterDemo;
+
+  /// No description provided for @sampleData.
+  ///
+  /// In en, this message translates to:
+  /// **'Sample data'**
+  String get sampleData;
+
+  /// No description provided for @localDemoAccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore the real Waflo Staff experience with deterministic sample customers—no merchant setup or network connection required.'**
+  String get localDemoAccessBody;
+
+  /// No description provided for @localDemoSafetyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This demo changes sample data on this device only. It cannot access a real merchant or customer.'**
+  String get localDemoSafetyBody;
+
+  /// No description provided for @demoScenarios.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo scenarios'**
+  String get demoScenarios;
+
+  /// No description provided for @localDemoScenarioBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open any real Waflo screen with safe sample data, or follow the complete scan, stamp, and reward flow.'**
+  String get localDemoScenarioBody;
+
+  /// No description provided for @exitLocalDemoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears the sample session and returns to device pairing. Real sessions are not affected.'**
+  String get exitLocalDemoBody;
+
+  /// No description provided for @backToDemoScenarios.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to demo scenarios'**
+  String get backToDemoScenarios;
+
+  /// No description provided for @demoControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo controls'**
+  String get demoControls;
+
+  /// No description provided for @simulateValidQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate valid QR'**
+  String get simulateValidQr;
+
+  /// No description provided for @simulateInvalidQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate invalid QR'**
+  String get simulateInvalidQr;
+
+  /// No description provided for @simulateExpiredQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate expired QR'**
+  String get simulateExpiredQr;
+
+  /// No description provided for @simulateNetworkFailure.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate network failure'**
+  String get simulateNetworkFailure;
+
+  /// No description provided for @resetScanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset scanner'**
+  String get resetScanner;
+
+  /// No description provided for @simulateManagerApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate approved'**
+  String get simulateManagerApproved;
+
+  /// No description provided for @demoGroupOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get demoGroupOverview;
+
+  /// No description provided for @demoGroupScanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner'**
+  String get demoGroupScanner;
+
+  /// No description provided for @demoGroupCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer & loyalty'**
+  String get demoGroupCustomer;
+
+  /// No description provided for @demoGroupOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp, reward & recovery'**
+  String get demoGroupOperations;
+
+  /// No description provided for @demoGroupSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Device & app'**
+  String get demoGroupSystem;
+
+  /// No description provided for @demoScenarioHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get demoScenarioHome;
+
+  /// No description provided for @demoScenarioScannerReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — Ready'**
+  String get demoScenarioScannerReady;
+
+  /// No description provided for @demoScenarioScannerDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — QR Detected'**
+  String get demoScenarioScannerDetected;
+
+  /// No description provided for @demoScenarioScannerResolving.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — Resolving'**
+  String get demoScenarioScannerResolving;
+
+  /// No description provided for @demoScenarioScannerInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — Invalid QR'**
+  String get demoScenarioScannerInvalid;
+
+  /// No description provided for @demoScenarioScannerExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — Expired QR'**
+  String get demoScenarioScannerExpired;
+
+  /// No description provided for @demoScenarioScannerNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — Network Failure'**
+  String get demoScenarioScannerNetwork;
+
+  /// No description provided for @demoScenarioScannerPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner — Permission Denied'**
+  String get demoScenarioScannerPermission;
+
+  /// No description provided for @demoScenarioCustomerZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer — 0 of 8'**
+  String get demoScenarioCustomerZero;
+
+  /// No description provided for @demoScenarioCustomerFive.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer — 5 of 8'**
+  String get demoScenarioCustomerFive;
+
+  /// No description provided for @demoScenarioCustomerEight.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer — 8 of 8, reward ready'**
+  String get demoScenarioCustomerEight;
+
+  /// No description provided for @demoScenarioStampConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp confirmation'**
+  String get demoScenarioStampConfirm;
+
+  /// No description provided for @demoScenarioStampSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Stamp success — 6 of 8'**
+  String get demoScenarioStampSuccess;
+
+  /// No description provided for @demoScenarioRedeemConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem confirmation'**
+  String get demoScenarioRedeemConfirm;
+
+  /// No description provided for @demoScenarioApprovalRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager approval required'**
+  String get demoScenarioApprovalRequired;
+
+  /// No description provided for @demoScenarioApprovalPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager approval pending'**
+  String get demoScenarioApprovalPending;
+
+  /// No description provided for @demoScenarioApprovalRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager approval rejected'**
+  String get demoScenarioApprovalRejected;
+
+  /// No description provided for @demoScenarioApprovalExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager approval expired'**
+  String get demoScenarioApprovalExpired;
+
+  /// No description provided for @demoScenarioRedeemSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem success — reset to 0 of 8'**
+  String get demoScenarioRedeemSuccess;
+
+  /// No description provided for @demoScenarioPurchaseThreshold.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase threshold not met'**
+  String get demoScenarioPurchaseThreshold;
+
+  /// No description provided for @demoScenarioBillingBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing blocked'**
+  String get demoScenarioBillingBlocked;
+
+  /// No description provided for @demoScenarioSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired'**
+  String get demoScenarioSessionExpired;
+
+  /// No description provided for @demoScenarioDeviceRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Device revoked'**
+  String get demoScenarioDeviceRevoked;
+
+  /// No description provided for @demoScenarioAppLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock'**
+  String get demoScenarioAppLock;
+
+  /// No description provided for @demoScenarioDeviceSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Device & Security'**
+  String get demoScenarioDeviceSecurity;
+
+  /// No description provided for @demoScenarioSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get demoScenarioSettings;
 }
 
 class _AppLocalizationsDelegate

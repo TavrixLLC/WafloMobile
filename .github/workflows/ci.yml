@@ -36,6 +36,7 @@ jobs:
         run: |
           dart run tool/verify_m2_contracts.dart
           dart run tool/verify_production_v1_contract.dart
+          dart run tool/verify_local_demo_exclusion.dart
           dart run tool/generate_w4_client.dart --check
           flutter gen-l10n
           git diff --exit-code -- contracts/w4 lib/core/api/generated lib/core/api/generated_m2 lib/core/localization/generated
@@ -73,6 +74,7 @@ jobs:
             artifacts/handoff-m3c/screenshots/*.png
             artifacts/handoff-m3d-brand/screenshots/**/*.png
             artifacts/handoff-m3e-review-access/screenshots/**/*.png
+            artifacts/handoff-m3e-repair-demo-access/screenshots/**/*.png
             test/golden/failures/*_testImage.png
           if-no-files-found: warn
           retention-days: 14
@@ -113,6 +115,7 @@ jobs:
             flutter test integration_test/m3a_staff_flow_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m3c_production_v1_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
             flutter test integration_test/m3e_review_access_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
+            flutter test integration_test/m3e_local_demo_access_test.dart --flavor development --dart-define-from-file=config/development.json --reporter expanded
 
   android-builds:
     name: Android / M3E development, staging, production
@@ -136,6 +139,10 @@ jobs:
         run: flutter build apk -t lib/main_staging.dart --flavor staging --release --dart-define-from-file=config/staging.json
       - name: Production release APK
         run: flutter build apk -t lib/main_production.dart --flavor production --release --dart-define-from-file=config/production.json
+      - name: Release LOCAL_DEMO binary exclusion
+        run: |
+          dart run tool/verify_local_demo_apk.dart build/app/outputs/flutter-apk/app-staging-release.apk
+          dart run tool/verify_local_demo_apk.dart build/app/outputs/flutter-apk/app-production-release.apk
       - uses: actions/upload-artifact@v4
         with:
           name: android-m3e-apks

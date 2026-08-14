@@ -1058,11 +1058,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get flashOff => 'إيقاف الإضاءة';
 
   @override
-  String get reviewAccess => 'الدخول للمراجعة أو العرض';
+  String get reviewAccess => 'الدخول إلى العرض';
 
   @override
   String get reviewAccessPrompt =>
-      'هل تحتاج إلى الدخول لمراجعة التطبيق أو مشاهدة عرض إرشادي؟';
+      'هل تحتاج إلى بيانات تجريبية أو دخول لمراجعة التطبيق؟';
 
   @override
   String get reviewAccessBody =>
@@ -1099,7 +1099,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get demoMode => 'الوضع التجريبي';
 
   @override
-  String get reviewTools => 'أدوات المراجعة';
+  String get reviewTools => 'سيناريوهات العرض';
 
   @override
   String get reviewToolsBody =>
@@ -1157,4 +1157,150 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unableToLoadCustomer => 'تعذر تحميل بيانات العميل';
+
+  @override
+  String get demoAccess => 'الدخول إلى العرض';
+
+  @override
+  String get enterDemo => 'بدء العرض';
+
+  @override
+  String get sampleData => 'بيانات تجريبية';
+
+  @override
+  String get localDemoAccessBody =>
+      'استعرض تجربة وافلو الحقيقية للموظفين باستخدام عملاء تجريبيين ثابتين، من دون إعداد تاجر أو اتصال بالشبكة.';
+
+  @override
+  String get localDemoSafetyBody =>
+      'يغيّر هذا العرض البيانات التجريبية على هذا الجهاز فقط، ولا يمكنه الوصول إلى تاجر أو عميل حقيقي.';
+
+  @override
+  String get demoScenarios => 'سيناريوهات العرض';
+
+  @override
+  String get localDemoScenarioBody =>
+      'افتح أي شاشة حقيقية في وافلو ببيانات تجريبية آمنة، أو نفّذ مسار المسح والطوابع والمكافأة بالكامل.';
+
+  @override
+  String get exitLocalDemoBody =>
+      'سيؤدي ذلك إلى مسح جلسة البيانات التجريبية والعودة إلى إقران الجهاز، من دون التأثير في الجلسات الحقيقية.';
+
+  @override
+  String get backToDemoScenarios => 'العودة إلى سيناريوهات العرض';
+
+  @override
+  String get demoControls => 'عناصر تحكم العرض';
+
+  @override
+  String get simulateValidQr => 'محاكاة رمز صالح';
+
+  @override
+  String get simulateInvalidQr => 'محاكاة رمز غير صالح';
+
+  @override
+  String get simulateExpiredQr => 'محاكاة رمز منتهي';
+
+  @override
+  String get simulateNetworkFailure => 'محاكاة تعذر الشبكة';
+
+  @override
+  String get resetScanner => 'إعادة ضبط الماسح';
+
+  @override
+  String get simulateManagerApproved => 'محاكاة الموافقة';
+
+  @override
+  String get demoGroupOverview => 'البدء';
+
+  @override
+  String get demoGroupScanner => 'الماسح';
+
+  @override
+  String get demoGroupCustomer => 'العميل والولاء';
+
+  @override
+  String get demoGroupOperations => 'الطوابع والمكافآت والاسترداد';
+
+  @override
+  String get demoGroupSystem => 'الجهاز والتطبيق';
+
+  @override
+  String get demoScenarioHome => 'الرئيسية';
+
+  @override
+  String get demoScenarioScannerReady => 'الماسح — جاهز';
+
+  @override
+  String get demoScenarioScannerDetected => 'الماسح — تم اكتشاف الرمز';
+
+  @override
+  String get demoScenarioScannerResolving => 'الماسح — جارٍ تحميل العميل';
+
+  @override
+  String get demoScenarioScannerInvalid => 'الماسح — رمز غير صالح';
+
+  @override
+  String get demoScenarioScannerExpired => 'الماسح — رمز منتهي الصلاحية';
+
+  @override
+  String get demoScenarioScannerNetwork => 'الماسح — تعذر الشبكة';
+
+  @override
+  String get demoScenarioScannerPermission => 'الماسح — إذن الكاميرا مرفوض';
+
+  @override
+  String get demoScenarioCustomerZero => 'العميل — ٠ من ٨';
+
+  @override
+  String get demoScenarioCustomerFive => 'العميل — ٥ من ٨';
+
+  @override
+  String get demoScenarioCustomerEight => 'العميل — ٨ من ٨ والمكافأة جاهزة';
+
+  @override
+  String get demoScenarioStampConfirm => 'تأكيد إضافة الطابع';
+
+  @override
+  String get demoScenarioStampSuccess => 'نجاح إضافة الطابع — ٦ من ٨';
+
+  @override
+  String get demoScenarioRedeemConfirm => 'تأكيد استرداد المكافأة';
+
+  @override
+  String get demoScenarioApprovalRequired => 'موافقة المدير مطلوبة';
+
+  @override
+  String get demoScenarioApprovalPending => 'موافقة المدير معلقة';
+
+  @override
+  String get demoScenarioApprovalRejected => 'رفض المدير الموافقة';
+
+  @override
+  String get demoScenarioApprovalExpired => 'انتهت مهلة موافقة المدير';
+
+  @override
+  String get demoScenarioRedeemSuccess => 'نجاح الاسترداد — العودة إلى ٠ من ٨';
+
+  @override
+  String get demoScenarioPurchaseThreshold =>
+      'قيمة الشراء لا تبلغ الحد المطلوب';
+
+  @override
+  String get demoScenarioBillingBlocked => 'العمليات موقوفة بسبب الفوترة';
+
+  @override
+  String get demoScenarioSessionExpired => 'انتهت صلاحية الجلسة';
+
+  @override
+  String get demoScenarioDeviceRevoked => 'تم إلغاء الجهاز';
+
+  @override
+  String get demoScenarioAppLock => 'قفل التطبيق';
+
+  @override
+  String get demoScenarioDeviceSecurity => 'الجهاز والأمان';
+
+  @override
+  String get demoScenarioSettings => 'الإعدادات';
 }

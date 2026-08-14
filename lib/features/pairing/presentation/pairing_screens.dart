@@ -22,6 +22,7 @@ final class PairingFlowScreen extends ConsumerWidget {
       PairingViewStage.cameraRationale => const _CameraRationaleScreen(),
       PairingViewStage.scanner => const PairingScannerScreen(),
       PairingViewStage.manualEntry => const _ManualPairingScreen(),
+      PairingViewStage.localDemoIntro => const _LocalDemoAccessScreen(),
       PairingViewStage.reviewAccess => const _ReviewAccessScreen(),
       PairingViewStage.progress => _PairingProgressScreen(
         progress: state.progress ?? PairingProgress.validating,
@@ -86,7 +87,7 @@ final class _WelcomeScreen extends ConsumerWidget {
                   key: const Key('review-access-entry'),
                   onPressed: () => ref
                       .read(pairingControllerProvider.notifier)
-                      .showReviewAccess(),
+                      .showDemoAccess(),
                   child: Text(strings.reviewAccess),
                 ),
               ],
@@ -106,6 +107,58 @@ final class _WelcomeScreen extends ConsumerWidget {
                   .read(localeControllerProvider.notifier)
                   .setLocale(Locale(selection.first)),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+final class _LocalDemoAccessScreen extends ConsumerWidget {
+  const _LocalDemoAccessScreen();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    return WafloPage(
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () => ref.read(pairingControllerProvider.notifier).reset(),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Center(child: WafloBrandMark()),
+          const SizedBox(height: WafloSpacing.lg),
+          Text(
+            strings.demoAccess,
+            style: Theme.of(context).textTheme.headlineMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: WafloSpacing.sm),
+          Text(strings.localDemoAccessBody, textAlign: TextAlign.center),
+          const SizedBox(height: WafloSpacing.lg),
+          WafloStatusBanner(
+            icon: Icons.visibility_outlined,
+            message: strings.localDemoSafetyBody,
+            color: context.waflo.brandAction,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          ),
+          const SizedBox(height: WafloSpacing.xxl),
+          FilledButton.icon(
+            key: const Key('enter-local-demo'),
+            onPressed: () => unawaited(
+              ref.read(pairingControllerProvider.notifier).enterLocalDemo(),
+            ),
+            icon: const Icon(Icons.play_arrow_rounded),
+            label: Text(strings.enterDemo),
+          ),
+          const SizedBox(height: WafloSpacing.sm),
+          TextButton(
+            onPressed: () =>
+                ref.read(pairingControllerProvider.notifier).reset(),
+            child: Text(strings.backToPairing),
           ),
         ],
       ),

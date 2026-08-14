@@ -6,7 +6,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
 
-final class AppLockRepository {
+abstract interface class AppLockStore {
+  AppLockConfiguration readConfiguration();
+  Future<void> setConfiguration(AppLockConfiguration configuration);
+  Future<void> setPin(String pin);
+  Future<bool> verifyPin(String pin);
+  Future<void> clearPin();
+  Future<PinRateLimit> readRateLimit();
+  Future<PinRateLimit> registerFailure(DateTime now);
+  Future<void> clearRateLimit();
+}
+
+final class AppLockRepository implements AppLockStore {
   AppLockRepository(this._preferences, this._secureStore);
 
   static const _modeKey = 'app_lock.mode.v1';
@@ -19,6 +30,7 @@ final class AppLockRepository {
   final SharedPreferences _preferences;
   final SecureKeyValueStore _secureStore;
 
+  @override
   AppLockConfiguration readConfiguration() => AppLockConfiguration(
     mode: AppLockMode.values.firstWhere(
       (value) => value.name == _preferences.getString(_modeKey),
@@ -30,11 +42,13 @@ final class AppLockRepository {
     ),
   );
 
+  @override
   Future<void> setConfiguration(AppLockConfiguration configuration) async {
     await _preferences.setString(_modeKey, configuration.mode.name);
     await _preferences.setString(_intervalKey, configuration.interval.name);
   }
 
+  @override
   Future<void> setPin(String pin) async {
     _validatePin(pin);
     final random = Random.secure();
@@ -52,6 +66,7 @@ final class AppLockRepository {
     await clearRateLimit();
   }
 
+  @override
   Future<bool> verifyPin(String pin) async {
     if (!_pinPattern.hasMatch(pin)) return false;
     final raw = await _secureStore.read(_pinMaterialKey);
@@ -79,11 +94,13 @@ final class AppLockRepository {
     }
   }
 
+  @override
   Future<void> clearPin() async {
     await _secureStore.delete(_pinMaterialKey);
     await clearRateLimit();
   }
 
+  @override
   Future<PinRateLimit> readRateLimit() async {
     final raw = await _secureStore.read(_rateLimitKey);
     if (raw == null) return const PinRateLimit(failures: 0);
@@ -102,6 +119,7 @@ final class AppLockRepository {
     }
   }
 
+  @override
   Future<PinRateLimit> registerFailure(DateTime now) async {
     final previous = await readRateLimit();
     final failures = previous.failures + 1;
@@ -114,6 +132,7 @@ final class AppLockRepository {
     return PinRateLimit(failures: failures, retryAt: retryAt);
   }
 
+  @override
   Future<void> clearRateLimit() => _secureStore.delete(_rateLimitKey);
 
   Future<List<int>> _derive(String pin, List<int> salt) async {

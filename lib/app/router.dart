@@ -10,12 +10,23 @@ import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_
 import 'package:waflo_staff/features/review_access/presentation/review_tools_screen.dart';
 import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
 
+/// Product builds receive an empty route table. Development and staging debug
+/// entrypoints inject the local Demo routes from their debug-only root.
+final localDemoRoutesProvider = Provider<List<RouteBase>>(
+  (ref) => const <RouteBase>[],
+);
+
 final routerProvider = Provider<GoRouter>((ref) {
   final ready = ref.watch(
     bootControllerProvider.select(
       (state) => state.stage == BootStage.pairedReady,
     ),
   );
+  final localDemoActive = ref.watch(
+    localDemoControllerProvider.select((state) => state.active),
+  );
+  final localDemoAvailable = ref.watch(localDemoAccessAvailableProvider);
+  final operationalReady = ready || localDemoActive;
   return GoRouter(
     initialLocation: '/',
     routes: [
@@ -45,17 +56,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/review-tools',
         builder: (context, state) => const ReviewToolsScreen(),
       ),
+      if (localDemoAvailable) ...ref.watch(localDemoRoutesProvider),
     ],
     redirect: (context, state) {
       final protected = state.matchedLocation != '/';
-      if (protected && !ready) {
+      if (protected && !operationalReady) {
         return '/';
       }
       if (state.matchedLocation == '/review-tools' &&
           !(ref.read(bootControllerProvider).session?.isReview ?? false)) {
-        return ready ? '/home' : '/';
+        return operationalReady ? '/home' : '/';
       }
-      if (ready && state.matchedLocation == '/') {
+      if (state.matchedLocation.startsWith('/demo-') && !localDemoActive) {
+        return operationalReady ? '/home' : '/';
+      }
+      if (operationalReady && state.matchedLocation == '/') {
         return '/home';
       }
       return null;

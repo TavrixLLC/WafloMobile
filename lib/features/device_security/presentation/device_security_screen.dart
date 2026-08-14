@@ -17,7 +17,8 @@ final class DeviceSecurityScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
-    final deviceContext = ref.watch(bootControllerProvider).context;
+    final localDemo = ref.watch(localDemoControllerProvider);
+    final deviceContext = ref.watch(activeDeviceContextProvider);
     final appLock = ref.watch(appLockControllerProvider);
     final packageInfo = ref.watch(packageInfoProvider);
     final verified = deviceContext == null
@@ -103,9 +104,13 @@ final class DeviceSecurityScreen extends ConsumerWidget {
             ),
             const SizedBox(height: WafloSpacing.xl),
             FilledButton.tonalIcon(
-              onPressed: () => unawaited(
-                ref.read(bootControllerProvider.notifier).refreshContext(),
-              ),
+              onPressed: localDemo.active
+                  ? () {}
+                  : () => unawaited(
+                      ref
+                          .read(bootControllerProvider.notifier)
+                          .refreshContext(),
+                    ),
               icon: const Icon(Icons.refresh_rounded),
               label: Text(strings.refreshStatus),
             ),
@@ -121,9 +126,16 @@ final class DeviceSecurityScreen extends ConsumerWidget {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).colorScheme.error,
               ),
-              onPressed: () => _confirmSignOut(context, ref, strings),
+              onPressed: () => _confirmSignOut(
+                context,
+                ref,
+                strings,
+                localDemo: localDemo.active,
+              ),
               icon: const Icon(Icons.logout_rounded),
-              label: Text(strings.signOut),
+              label: Text(
+                localDemo.active ? strings.exitDemo : strings.signOut,
+              ),
             ),
           ],
         ),
@@ -141,13 +153,16 @@ final class DeviceSecurityScreen extends ConsumerWidget {
   static Future<void> _confirmSignOut(
     BuildContext context,
     WidgetRef ref,
-    AppLocalizations strings,
-  ) async {
+    AppLocalizations strings, {
+    required bool localDemo,
+  }) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(strings.signOutTitle),
-        content: Text(strings.signOutBody),
+        title: Text(localDemo ? strings.exitDemo : strings.signOutTitle),
+        content: Text(
+          localDemo ? strings.exitLocalDemoBody : strings.signOutBody,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -155,13 +170,17 @@ final class DeviceSecurityScreen extends ConsumerWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(strings.signOut),
+            child: Text(localDemo ? strings.exitDemo : strings.signOut),
           ),
         ],
       ),
     );
     if (confirmed == true) {
-      await ref.read(bootControllerProvider.notifier).logout();
+      if (localDemo) {
+        await ref.read(localDemoControllerProvider.notifier).exit();
+      } else {
+        await ref.read(bootControllerProvider.notifier).logout();
+      }
     }
   }
 }

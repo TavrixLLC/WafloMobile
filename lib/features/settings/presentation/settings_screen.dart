@@ -7,6 +7,7 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_navigation.dart';
 
 final class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -21,6 +22,8 @@ final class SettingsScreen extends ConsumerWidget {
     final packageInfo = ref.watch(packageInfoProvider);
     final reviewSession =
         ref.watch(bootControllerProvider).session?.isReview ?? false;
+    final localDemo = ref.watch(localDemoControllerProvider).active;
+    final localDemoScenarioRoute = ref.watch(localDemoScenarioRouteProvider);
     return Scaffold(
       appBar: AppBar(title: Text(strings.settings)),
       body: SafeArea(
@@ -118,19 +121,23 @@ final class SettingsScreen extends ConsumerWidget {
               ),
               onTap: () => context.push('/device-security'),
             ),
-            if (reviewSession)
+            if (reviewSession || (localDemo && localDemoScenarioRoute != null))
               ListTile(
                 key: const Key('review-tools-entry'),
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.science_outlined),
-                title: Text(strings.reviewTools),
-                subtitle: Text(strings.demoMode),
+                title: Text(strings.demoScenarios),
+                subtitle: Text(
+                  localDemo ? strings.sampleData : strings.demoMode,
+                ),
                 trailing: Icon(
                   Directionality.of(context) == TextDirection.rtl
                       ? Icons.chevron_left_rounded
                       : Icons.chevron_right_rounded,
                 ),
-                onTap: () => context.push('/review-tools'),
+                onTap: () => context.push(
+                  localDemo ? localDemoScenarioRoute! : '/review-tools',
+                ),
               ),
             const Divider(height: WafloSpacing.xl),
             WafloOperationalLabel(strings.appInformation),

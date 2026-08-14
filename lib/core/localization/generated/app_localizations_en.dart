@@ -1084,11 +1084,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flashOff => 'Turn flash off';
 
   @override
-  String get reviewAccess => 'Review / Demo Access';
+  String get reviewAccess => 'Demo Access';
 
   @override
-  String get reviewAccessPrompt =>
-      'Need access for app review or a guided demo?';
+  String get reviewAccessPrompt => 'Need sample data or app review access?';
 
   @override
   String get reviewAccessBody =>
@@ -1126,7 +1125,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoMode => 'Demo mode';
 
   @override
-  String get reviewTools => 'Review Tools';
+  String get reviewTools => 'Demo scenarios';
 
   @override
   String get reviewToolsBody =>
@@ -1183,4 +1182,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unableToLoadCustomer => 'Unable to load customer';
+
+  @override
+  String get demoAccess => 'Demo Access';
+
+  @override
+  String get enterDemo => 'Enter Demo';
+
+  @override
+  String get sampleData => 'Sample data';
+
+  @override
+  String get localDemoAccessBody =>
+      'Explore the real Waflo Staff experience with deterministic sample customers—no merchant setup or network connection required.';
+
+  @override
+  String get localDemoSafetyBody =>
+      'This demo changes sample data on this device only. It cannot access a real merchant or customer.';
+
+  @override
+  String get demoScenarios => 'Demo scenarios';
+
+  @override
+  String get localDemoScenarioBody =>
+      'Open any real Waflo screen with safe sample data, or follow the complete scan, stamp, and reward flow.';
+
+  @override
+  String get exitLocalDemoBody =>
+      'This clears the sample session and returns to device pairing. Real sessions are not affected.';
+
+  @override
+  String get backToDemoScenarios => 'Back to demo scenarios';
+
+  @override
+  String get demoControls => 'Demo controls';
+
+  @override
+  String get simulateValidQr => 'Simulate valid QR';
+
+  @override
+  String get simulateInvalidQr => 'Simulate invalid QR';
+
+  @override
+  String get simulateExpiredQr => 'Simulate expired QR';
+
+  @override
+  String get simulateNetworkFailure => 'Simulate network failure';
+
+  @override
+  String get resetScanner => 'Reset scanner';
+
+  @override
+  String get simulateManagerApproved => 'Simulate approved';
+
+  @override
+  String get demoGroupOverview => 'Start';
+
+  @override
+  String get demoGroupScanner => 'Scanner';
+
+  @override
+  String get demoGroupCustomer => 'Customer & loyalty';
+
+  @override
+  String get demoGroupOperations => 'Stamp, reward & recovery';
+
+  @override
+  String get demoGroupSystem => 'Device & app';
+
+  @override
+  String get demoScenarioHome => 'Home';
+
+  @override
+  String get demoScenarioScannerReady => 'Scanner — Ready';
+
+  @override
+  String get demoScenarioScannerDetected => 'Scanner — QR Detected';
+
+  @override
+  String get demoScenarioScannerResolving => 'Scanner — Resolving';
+
+  @override
+  String get demoScenarioScannerInvalid => 'Scanner — Invalid QR';
+
+  @override
+  String get demoScenarioScannerExpired => 'Scanner — Expired QR';
+
+  @override
+  String get demoScenarioScannerNetwork => 'Scanner — Network Failure';
+
+  @override
+  String get demoScenarioScannerPermission => 'Scanner — Permission Denied';
+
+  @override
+  String get demoScenarioCustomerZero => 'Customer — 0 of 8';
+
+  @override
+  String get demoScenarioCustomerFive => 'Customer — 5 of 8';
+
+  @override
+  String get demoScenarioCustomerEight => 'Customer — 8 of 8, reward ready';
+
+  @override
+  String get demoScenarioStampConfirm => 'Stamp confirmation';
+
+  @override
+  String get demoScenarioStampSuccess => 'Stamp success — 6 of 8';
+
+  @override
+  String get demoScenarioRedeemConfirm => 'Redeem confirmation';
+
+  @override
+  String get demoScenarioApprovalRequired => 'Manager approval required';
+
+  @override
+  String get demoScenarioApprovalPending => 'Manager approval pending';
+
+  @override
+  String get demoScenarioApprovalRejected => 'Manager approval rejected';
+
+  @override
+  String get demoScenarioApprovalExpired => 'Manager approval expired';
+
+  @override
+  String get demoScenarioRedeemSuccess => 'Redeem success — reset to 0 of 8';
+
+  @override
+  String get demoScenarioPurchaseThreshold => 'Purchase threshold not met';
+
+  @override
+  String get demoScenarioBillingBlocked => 'Billing blocked';
+
+  @override
+  String get demoScenarioSessionExpired => 'Session expired';
+
+  @override
+  String get demoScenarioDeviceRevoked => 'Device revoked';
+
+  @override
+  String get demoScenarioAppLock => 'App Lock';
+
+  @override
+  String get demoScenarioDeviceSecurity => 'Device & Security';
+
+  @override
+  String get demoScenarioSettings => 'Settings';
 }
