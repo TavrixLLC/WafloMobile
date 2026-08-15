@@ -146,7 +146,7 @@ void main() {
     );
     expect(ambiguousApprovalStore.value, isNotNull);
     await pumpM2IntegrationApp(tester, ambiguousContainer);
-    expect(find.text('Checking transaction status'), findsOneWidget);
+    expect(find.text('Operation result pending'), findsOneWidget);
     await ambiguousController.recoverPending();
     expect(
       ambiguousContainer.read(m2OperationControllerProvider).stage,
