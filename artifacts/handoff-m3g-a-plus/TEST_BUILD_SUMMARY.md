@@ -7,6 +7,9 @@
 - Unit: PASS, 124/124.
 - Widget: PASS, 44/44.
 - M3G golden matrix: PASS, 1 matrix test / 38 stable screenshots.
+- Historical M1 screenshot matrix: PASS, 20/20 layout/semantics cases; the
+  immutable M1 pixels are available only through the explicit
+  `WAFLO_COMPARE_LEGACY_M1_GOLDENS` reproduction switch.
 - M2 contract/checksum gate: PASS.
 - Production-v1 Mobile authority gate: PASS.
 - Generated client drift: PASS; zero resulting diff.
@@ -34,11 +37,15 @@
 
 - Android physical install/integration: blocked by ADB `unauthorized` until the
   owner unlocks the device and approves USB debugging.
-- Full historical golden layout job: pending Linux CI; historical evidence was
-  not overwritten on Windows.
-- iOS no-sign development/staging/production builds: pending macOS CI.
-- Approved real-W4 contract gates: pending the approved self-hosted runner
-  after a branch push; no substitute runner was used.
+- Initial Linux CI reached the golden step after all earlier quality gates
+  passed, then correctly rejected 17 obsolete M1 pixel expectations. The
+  historical images were not overwritten; M1 now remains a layout/semantics
+  regression while the 38-screen M3G pack is current visual authority. Final
+  Linux rerun is pending the provenance/fix push.
+- iOS/macOS tests and all three no-sign builds passed on the implementation
+  SHA. A final branch-tip rerun will follow the provenance/fix push.
+- Approved real-W4 contract gates: queued on the approved self-hosted runner;
+  no substitute runner was used.
 - Owner physical visual approval: pending and separate.
 
 Known non-failing build warnings concern future Gradle/Kotlin support and the

@@ -7,8 +7,9 @@
 3. **Approved W4 runner** — real Backend contract execution must use the
    approved self-hosted runner; no alternate Backend or local substitute was
    started.
-4. **Remote CI** — branch-specific Linux golden/layout and macOS results do not
-   exist until a commit is pushed.
+4. **Remote CI** — macOS passed on the implementation SHA. A final Linux,
+   Android, and macOS rerun is pending the legacy-M1 layout-mode fix push; the
+   approved W4 job has remained queued. No pending job is claimed green.
 5. **Owner visual approval** — automated comparison and device installation do
    not grant owner approval.
 6. **Kurdish localization authority** — no authoritative Sorani/Badini product

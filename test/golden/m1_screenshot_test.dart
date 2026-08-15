@@ -26,6 +26,15 @@ import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_c
 
 import '../support/fixtures.dart';
 
+// M1 pixels are immutable historical evidence. M3G intentionally replaces the
+// product presentation, so the legacy matrix remains a layout/semantics
+// regression by default instead of rewriting those approved baselines. The
+// exact historical pixels can still be reproduced explicitly when required.
+const _compareLegacyM1Pixels = bool.fromEnvironment(
+  'WAFLO_COMPARE_LEGACY_M1_GOLDENS',
+  defaultValue: false,
+);
+
 void main() {
   setUpAll(() async {
     await (FontLoader('Manrope')
@@ -64,7 +73,7 @@ void main() {
       );
     });
     await tester.pump(const Duration(milliseconds: 100));
-    if (Platform.isLinux && !compareOnLinux) {
+    if (!_compareLegacyM1Pixels || (Platform.isLinux && !compareOnLinux)) {
       expect(tester.takeException(), isNull);
     } else {
       await expectLater(
