@@ -41,48 +41,70 @@ final class _WelcomeScreen extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
     return WafloPage(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Center(child: WafloBrandMark()),
-          const SizedBox(height: WafloSpacing.lg),
-          Text(
-            strings.welcomeTitle,
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: WafloSpacing.md),
-          Text(strings.welcomeBody, textAlign: TextAlign.center),
-          const SizedBox(height: WafloSpacing.lg),
-          WafloStatusBanner(
-            icon: Icons.shield_outlined,
-            message: strings.securitySummary,
-          ),
-          const SizedBox(height: WafloSpacing.lg),
-          FilledButton.icon(
-            key: const Key('scan-pairing-code'),
-            onPressed: () => ref
-                .read(pairingControllerProvider.notifier)
-                .showCameraRationale(),
-            icon: const Icon(Icons.qr_code_scanner),
-            label: Text(strings.scanPairingCode),
-          ),
-          const SizedBox(height: WafloSpacing.md),
-          Text(strings.chooseLanguage, textAlign: TextAlign.center),
-          const SizedBox(height: WafloSpacing.sm),
-          SegmentedButton<String>(
-            segments: [
-              ButtonSegment(value: 'en', label: Text(strings.english)),
-              ButtonSegment(value: 'ar', label: Text(strings.arabic)),
-            ],
-            selected: {locale.languageCode},
-            onSelectionChanged: (selection) => unawaited(
-              ref
-                  .read(localeControllerProvider.notifier)
-                  .setLocale(Locale(selection.first)),
+      scrollable: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: WafloBrandMark(size: 42),
+                  ),
+                  const SizedBox(height: 40),
+                  Text(
+                    strings.welcomeTitle,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: WafloSpacing.sm),
+                  Text(
+                    strings.welcomeBody,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: context.waflo.subtleText,
+                    ),
+                  ),
+                  const SizedBox(height: WafloSpacing.lg),
+                  Text(
+                    strings.securitySummary,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: context.waflo.subtleText,
+                    ),
+                  ),
+                  const Spacer(),
+                  FilledButton(
+                    key: const Key('scan-pairing-code'),
+                    onPressed: () => ref
+                        .read(pairingControllerProvider.notifier)
+                        .showCameraRationale(),
+                    child: Text(strings.scanPairingCode),
+                  ),
+                  const SizedBox(height: WafloSpacing.lg),
+                  Text(
+                    strings.chooseLanguage,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: context.waflo.subtleText),
+                  ),
+                  const SizedBox(height: WafloSpacing.sm),
+                  SegmentedButton<String>(
+                    segments: [
+                      ButtonSegment(value: 'en', label: Text(strings.english)),
+                      ButtonSegment(value: 'ar', label: Text(strings.arabic)),
+                    ],
+                    selected: {locale.languageCode},
+                    onSelectionChanged: (selection) => unawaited(
+                      ref
+                          .read(localeControllerProvider.notifier)
+                          .setLocale(Locale(selection.first)),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -352,16 +374,21 @@ final class _ManualPairingScreenState
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     return WafloPage(
-      appBar: AppBar(
-        title: Text(strings.enterCodeInstead),
-        leading: BackButton(
-          onPressed: () =>
-              ref.read(pairingControllerProvider.notifier).showScanner(),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          WafloTopBar(
+            title: strings.scannerTitle,
+            backTooltip: strings.close,
+            onBack: () =>
+                ref.read(pairingControllerProvider.notifier).showScanner(),
+          ),
+          const SizedBox(height: WafloSpacing.lg),
+          Text(
+            strings.manualCodeTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: WafloSpacing.lg),
           Directionality(
             textDirection: TextDirection.ltr,
             child: TextField(
@@ -374,14 +401,18 @@ final class _ManualPairingScreenState
               keyboardType: TextInputType.visiblePassword,
               textCapitalization: TextCapitalization.characters,
               maxLength: 512,
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
               onChanged: _formatShortCode,
               onSubmitted: (_) => unawaited(_submit()),
-              decoration: InputDecoration(
-                labelText: strings.manualCodeHint,
-                prefixIcon: const Icon(Icons.keyboard_outlined),
-              ),
+              decoration: InputDecoration(labelText: strings.manualCodeHint),
             ),
+          ),
+          const SizedBox(height: WafloSpacing.sm),
+          Text(
+            strings.securitySummary,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
           ),
           const SizedBox(height: WafloSpacing.md),
           FilledButton(

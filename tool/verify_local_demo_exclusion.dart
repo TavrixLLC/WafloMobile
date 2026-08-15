@@ -139,7 +139,8 @@ void main() {
   );
 }
 
-String _read(String path) => File(path).readAsStringSync();
+String _read(String path) =>
+    File(path).readAsStringSync().replaceAll('\r\n', '\n');
 
 Map<String, Object?> _json(String path) =>
     jsonDecode(_read(path)) as Map<String, Object?>;

@@ -30,79 +30,111 @@ final class DeviceSecurityScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(strings.deviceAndSecurity)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            WafloLayout.pageGutter,
+            8,
+            WafloLayout.pageGutter,
+            32,
+          ),
           children: [
-            Container(
-              padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
-              decoration: BoxDecoration(
-                color: context.waflo.successSurface,
-                borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
-              ),
-              child: Row(
+            Text(
+              strings.securityProtected,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: WafloSpacing.xs),
+            Text(
+              strings.securityProtectedBody,
+              style: TextStyle(color: context.waflo.subtleText),
+            ),
+            const SizedBox(height: WafloSpacing.lg),
+            WafloSurfaceCard(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+              child: Column(
                 children: [
-                  const WafloReadyBeacon(size: 42),
-                  const SizedBox(width: WafloSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          strings.securityProtected,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(color: context.waflo.onSuccessSurface),
-                        ),
-                        Text(
-                          strings.securityProtectedBody,
-                          style: TextStyle(
-                            color: context.waflo.onSuccessSurface,
-                          ),
-                        ),
-                      ],
+                  WafloSummaryRow(
+                    label: strings.thisDevice,
+                    value:
+                        deviceContext?.device.displayName ??
+                        strings.unavailable,
+                  ),
+                  WafloSummaryRow(
+                    label: strings.activeOrganization,
+                    value:
+                        deviceContext?.organization.displayName ??
+                        strings.unavailable,
+                  ),
+                  WafloSummaryRow(
+                    label: strings.currentLocationLabel,
+                    value:
+                        deviceContext?.currentLocation.displayName ??
+                        strings.unavailable,
+                  ),
+                  WafloSummaryRow(
+                    label: strings.roleLabel,
+                    value: strings.localizeRole(deviceContext?.role ?? ''),
+                  ),
+                  WafloSummaryRow(
+                    label: strings.deviceStatusLabel,
+                    value: deviceContext?.device.status == 'ACTIVE'
+                        ? strings.active
+                        : deviceContext?.device.status ?? strings.unavailable,
+                  ),
+                  WafloSummaryRow(
+                    label: strings.locationsTitle,
+                    value: strings.assignedLocations(
+                      deviceContext?.assignedLocationCount ?? 0,
                     ),
+                    divider: false,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: WafloSpacing.xl),
-            WafloOperationalLabel(strings.thisDevice),
+            const SizedBox(height: WafloSpacing.md),
+            WafloSurfaceCard(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  WafloSummaryRow(
+                    label: strings.earningCapability,
+                    value:
+                        deviceContext?.currentLocation.earningAllowed ?? false
+                        ? strings.capabilityAllowed
+                        : strings.capabilityBlocked,
+                  ),
+                  WafloSummaryRow(
+                    label: strings.redemptionCapability,
+                    value:
+                        deviceContext?.currentLocation.redemptionAllowed ??
+                            false
+                        ? strings.capabilityAllowed
+                        : strings.capabilityBlocked,
+                  ),
+                  WafloSummaryRow(label: strings.lastVerified, value: verified),
+                  WafloSummaryRow(
+                    label: strings.appLock,
+                    value: _modeLabel(strings, appLock.configuration.mode),
+                  ),
+                  WafloSummaryRow(
+                    label: strings.appVersionLabel,
+                    value: packageInfo.when(
+                      data: (info) => info.version,
+                      error: (error, stackTrace) => strings.unavailable,
+                      loading: () => '…',
+                    ),
+                    divider: false,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: WafloSpacing.sm),
-            WafloSummaryRow(
-              label: strings.deviceName,
-              value: deviceContext?.device.displayName ?? strings.unavailable,
+            Text(
+              strings.localizePlatform(deviceContext?.device.platform ?? ''),
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
             ),
-            WafloSummaryRow(
-              label: strings.platformLabel,
-              value: strings.localizePlatform(
-                deviceContext?.device.platform ?? '',
-              ),
-            ),
-            WafloSummaryRow(
-              label: strings.activeOrganization,
-              value:
-                  deviceContext?.organization.displayName ??
-                  strings.unavailable,
-            ),
-            WafloSummaryRow(
-              label: strings.currentLocationLabel,
-              value:
-                  deviceContext?.currentLocation.displayName ??
-                  strings.unavailable,
-            ),
-            WafloSummaryRow(label: strings.lastVerified, value: verified),
-            WafloSummaryRow(
-              label: strings.appLock,
-              value: _modeLabel(strings, appLock.configuration.mode),
-            ),
-            WafloSummaryRow(
-              label: strings.appVersionLabel,
-              value: packageInfo.when(
-                data: (info) => info.version,
-                error: (error, stackTrace) => strings.unavailable,
-                loading: () => '…',
-              ),
-              divider: false,
-            ),
-            const SizedBox(height: WafloSpacing.xl),
+            const SizedBox(height: WafloSpacing.lg),
             FilledButton.tonalIcon(
               onPressed: localDemo.active
                   ? () {}

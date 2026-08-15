@@ -46,7 +46,9 @@ final class LoyaltyOperationScreen extends ConsumerWidget {
         appBar: scanning
             ? null
             : AppBar(
-                title: Text(_title(strings, state.stage)),
+                title: state.stage == M2OperationStage.membershipReady
+                    ? Text(_title(strings, state.stage))
+                    : const SizedBox.shrink(),
                 leading: submitting
                     ? null
                     : IconButton(
@@ -390,7 +392,8 @@ final class _CustomerScannerViewState
   static bool _requiresExplicitRetry(CustomerScannerState state) =>
       state == CustomerScannerState.expiredQr ||
       state == CustomerScannerState.networkFailure ||
-      state == CustomerScannerState.resolveFailed;
+      state == CustomerScannerState.resolveFailed ||
+      state == CustomerScannerState.cameraUnavailable;
 
   static String _scannerInstruction(
     AppLocalizations strings,
@@ -419,6 +422,8 @@ final class _CustomerScannerViewState
     CustomerScannerState.networkFailure => strings.unableToLoadCustomer,
     CustomerScannerState.resolveFailed => strings.unableToLoadCustomer,
     CustomerScannerState.cameraUnavailable => strings.cameraUnavailable,
+    CustomerScannerState.backgrounded => strings.initializingCamera,
+    CustomerScannerState.idle => strings.initializingCamera,
     _ => strings.scannerReady,
   };
 }
@@ -536,7 +541,12 @@ final class _MembershipOperationViewState
     }
     return ListView(
       key: const Key('customer-membership-screen'),
-      padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        WafloLayout.pageGutter,
+        8,
+        WafloLayout.pageGutter,
+        32,
+      ),
       children: [
         Semantics(
           container: true,
@@ -545,7 +555,12 @@ final class _MembershipOperationViewState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              WafloOperationalLabel(membership.programName),
+              Text(
+                membership.programName.toUpperCase(),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: context.waflo.subtleText,
+                ),
+              ),
               const SizedBox(height: WafloSpacing.sm),
               Text(
                 membership.customerDisplayName,
@@ -554,12 +569,29 @@ final class _MembershipOperationViewState
               const SizedBox(height: WafloSpacing.sm),
               Row(
                 children: [
-                  const WafloReadyBeacon(size: 20),
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: WafloColors.success,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                   const SizedBox(width: WafloSpacing.sm),
                   Text(
                     strings.localizeMembershipStatus(membership.status.name),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: context.waflo.brandAction,
+                      color: WafloColors.success,
+                    ),
+                  ),
+                  const SizedBox(width: WafloSpacing.xs),
+                  Flexible(
+                    child: Text(
+                      '· ${strings.lastVerified} ${DateFormat.Hm(Localizations.localeOf(context).toLanguageTag()).format(membership.resolvedAt.toLocal())}',
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: context.waflo.subtleText,
+                      ),
                     ),
                   ),
                 ],
@@ -568,15 +600,8 @@ final class _MembershipOperationViewState
           ),
         ),
         const SizedBox(height: WafloSpacing.xl),
-        Container(
+        WafloSurfaceCard(
           padding: const EdgeInsetsDirectional.fromSTEB(20, 18, 20, 20),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
-          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -588,24 +613,13 @@ final class _MembershipOperationViewState
                 children: [
                   WafloOperationalLabel(strings.currentProgress),
                   Text(
-                    '${membership.progress.progress}/${membership.progress.goal}',
-                    textDirection: TextDirection.ltr,
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    strings.progressOf(
+                      membership.progress.goal,
+                      membership.progress.progress,
+                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
-              ),
-              const SizedBox(height: WafloSpacing.xs),
-              ExcludeSemantics(
-                child: Text(
-                  strings.progressOf(
-                    membership.progress.goal,
-                    membership.progress.progress,
-                  ),
-                  textAlign: TextAlign.end,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
               ),
               const SizedBox(height: WafloSpacing.md),
               TwoStateStampGrid(
@@ -1014,57 +1028,73 @@ final class _ReviewList extends StatelessWidget {
   final VoidCallback onBack;
 
   @override
-  Widget build(BuildContext context) => ListView(
+  Widget build(BuildContext context) => CustomScrollView(
     key: const Key('operation-confirmation'),
-    padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
-    children: [
-      const Align(child: WafloReadyBeacon(size: 54)),
-      const SizedBox(height: WafloSpacing.lg),
-      Text(
-        title,
-        textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: WafloSpacing.xl),
-      Container(
-        padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(WafloRadius.large),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
+    slivers: [
+      SliverPadding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          WafloLayout.pageGutter,
+          8,
+          WafloLayout.pageGutter,
+          0,
         ),
-        child: Column(
+        sliver: SliverList.list(
           children: [
-            for (var index = 0; index < rows.length; index += 1)
-              WafloSummaryRow(
-                label: rows[index].$2.isEmpty ? '' : rows[index].$1,
-                value: rows[index].$2.isEmpty ? rows[index].$1 : rows[index].$2,
-                divider: index != rows.length - 1,
+            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: WafloSpacing.lg),
+            WafloSurfaceCard(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  for (var index = 0; index < rows.length; index += 1)
+                    WafloSummaryRow(
+                      label: rows[index].$2.isEmpty ? '' : rows[index].$1,
+                      value: rows[index].$2.isEmpty
+                          ? rows[index].$1
+                          : rows[index].$2,
+                      divider: index != rows.length - 1,
+                    ),
+                ],
               ),
+            ),
+            if (warning != null) ...[
+              const SizedBox(height: WafloSpacing.md),
+              WafloStatusBanner(
+                icon: Icons.info_outline_rounded,
+                message: warning!,
+                color: WafloColors.warning,
+                backgroundColor: context.waflo.warningSurface,
+              ),
+            ],
           ],
         ),
       ),
-      if (warning != null) ...[
-        const SizedBox(height: WafloSpacing.md),
-        WafloStatusBanner(
-          icon: Icons.info_outline_rounded,
-          message: warning!,
-          color: WafloColors.warning,
-          backgroundColor: context.waflo.warningSurface,
+      SliverPadding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          WafloLayout.pageGutter,
+          WafloSpacing.lg,
+          WafloLayout.pageGutter,
+          32,
         ),
-      ],
-      const SizedBox(height: WafloSpacing.xl),
-      FilledButton(
-        key: const Key('confirm-operation'),
-        onPressed: onConfirm,
-        child: Text(confirmLabel),
-      ),
-      const SizedBox(height: WafloSpacing.sm),
-      OutlinedButton(
-        onPressed: onBack,
-        child: Text(AppLocalizations.of(context).cancel),
+        sliver: SliverFillRemaining(
+          hasScrollBody: false,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              WafloBottomAction(
+                keyName: 'confirm-operation',
+                title: confirmLabel,
+                onPressed: onConfirm,
+              ),
+              const SizedBox(height: WafloSpacing.sm),
+              TextButton(
+                onPressed: onBack,
+                child: Text(AppLocalizations.of(context).cancel),
+              ),
+            ],
+          ),
+        ),
       ),
     ],
   );
@@ -1083,6 +1113,16 @@ final class _StampSuccess extends ConsumerWidget {
     return _SuccessLayout(
       title: strings.stampSuccessTitle,
       children: [
+        if (membership != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              membership.customerDisplayName,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: context.waflo.subtleText),
+            ),
+          ),
         Text(
           strings.stampsIssued(
             result.progress.progress - result.beforeProgress,
@@ -1128,6 +1168,19 @@ final class _StampSuccess extends ConsumerWidget {
             message: strings.rewardUnlocked,
             color: WafloColors.success,
           ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            [
+              strings.completedCycles(result.completedCycles),
+              if (result.requestId != null)
+                strings.requestReference(result.requestId!),
+            ].join(' · '),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
+          ),
+        ),
       ],
     );
   }
@@ -1146,6 +1199,16 @@ final class _RedemptionSuccess extends ConsumerWidget {
     return _SuccessLayout(
       title: strings.redemptionSuccessTitle,
       children: [
+        if (membership != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              membership.customerDisplayName,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: context.waflo.subtleText),
+            ),
+          ),
         if (state.selectedReward != null)
           Text(
             state.selectedReward!.name,
@@ -1171,6 +1234,19 @@ final class _RedemptionSuccess extends ConsumerWidget {
             allowInsecureAssets:
                 ref.watch(environmentProvider).flavor.name == 'development',
           ),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            [
+              strings.completedCycles(result.completedCycles),
+              if (result.requestId != null)
+                strings.requestReference(result.requestId!),
+            ].join(' · '),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
+          ),
+        ),
       ],
     );
   }
@@ -1191,26 +1267,36 @@ final class _SuccessLayout extends ConsumerWidget {
         key: const Key('operation-success'),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsetsDirectional.fromSTEB(24, 18, 24, 0),
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              WafloLayout.pageGutter,
+              18,
+              WafloLayout.pageGutter,
+              0,
+            ),
             sliver: SliverList.list(
               children: [
-                const Align(child: WafloReadyBeacon(size: 72)),
-                const SizedBox(height: WafloSpacing.lg),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: WafloSpacing.lg),
-                Container(
-                  padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant,
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: WafloColors.success,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: WafloSpacing.sm),
+                    WafloOperationalLabel(
+                      strings.verifiedByWaflo,
+                      color: WafloColors.success,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: WafloSpacing.sm),
+                Text(title, style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: WafloSpacing.lg),
+                WafloSurfaceCard(
+                  padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
                   child: Column(
                     children: children
                         .map(
@@ -1228,15 +1314,22 @@ final class _SuccessLayout extends ConsumerWidget {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsetsDirectional.fromSTEB(24, 20, 24, 32),
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              WafloLayout.pageGutter,
+              20,
+              WafloLayout.pageGutter,
+              32,
+            ),
             sliver: SliverFillRemaining(
               hasScrollBody: false,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  FilledButton.icon(
-                    key: const Key('scan-next-customer'),
+                  WafloBottomAction(
+                    keyName: 'scan-next-customer',
+                    title: strings.scanNextCustomer,
+                    subtitle: strings.rapidScanReady,
                     onPressed: () async {
                       await ref
                           .read(m2OperationControllerProvider.notifier)
@@ -1247,11 +1340,9 @@ final class _SuccessLayout extends ConsumerWidget {
                             .startScanning();
                       }
                     },
-                    icon: const Icon(Icons.qr_code_scanner_rounded),
-                    label: Text(strings.scanNextCustomer),
                   ),
                   const SizedBox(height: WafloSpacing.sm),
-                  OutlinedButton(
+                  TextButton(
                     onPressed: () async {
                       await ref
                           .read(m2OperationControllerProvider.notifier)
@@ -1290,6 +1381,8 @@ final class _PendingRecovery extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            WafloOperationalLabel(strings.checkingTransaction),
+            const SizedBox(height: WafloSpacing.sm),
             const Align(
               child: Icon(
                 Icons.sync_problem_rounded,
@@ -1299,7 +1392,7 @@ final class _PendingRecovery extends ConsumerWidget {
             ),
             const SizedBox(height: WafloSpacing.md),
             Text(
-              strings.checkingTransaction,
+              strings.pendingOperationTitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: context.waflo.onWarningSurface,
@@ -1377,97 +1470,113 @@ final class _ManagerApprovalPanel extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
-              decoration: BoxDecoration(
-                color: presentation.background,
-                borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: presentation.foreground.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: approval == ManagerApprovalState.checking
-                        ? Padding(
-                            padding: const EdgeInsetsDirectional.all(22),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              color: presentation.foreground,
-                            ),
-                          )
-                        : Icon(
-                            presentation.icon,
-                            size: 36,
-                            color: presentation.foreground,
-                          ),
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: presentation.foreground,
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(height: WafloSpacing.md),
-                  Text(
-                    presentation.title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                ),
+                const SizedBox(width: WafloSpacing.sm),
+                Expanded(
+                  child: WafloOperationalLabel(
+                    strings.redemptionReviewTitle,
+                    color: context.waflo.subtleText,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: WafloSpacing.sm),
+            Text(
+              presentation.title,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: WafloSpacing.sm),
+            if (approval == ManagerApprovalState.checking)
+              Row(
+                children: [
+                  SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
                       color: presentation.foreground,
                     ),
                   ),
-                  const SizedBox(height: WafloSpacing.sm),
-                  Text(
-                    presentation.body,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  const SizedBox(width: WafloSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      presentation.body,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: context.waflo.subtleText,
+                      ),
+                    ),
                   ),
                 ],
+              )
+            else
+              Text(
+                presentation.body,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: context.waflo.subtleText,
+                ),
               ),
-            ),
             if (membership != null || reward != null) ...[
               const SizedBox(height: WafloSpacing.md),
-              WafloInfoCard(
-                title: reward?.name ?? strings.finalReward,
-                icon: Icons.redeem_rounded,
-                child: Text(
-                  [
-                    if (membership != null) membership.customerDisplayName,
-                    if (membership != null) membership.programName,
-                  ].join(' · '),
+              WafloSurfaceCard(
+                padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      reward?.name ?? strings.finalReward,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: WafloSpacing.xs),
+                    Text(
+                      [
+                        if (membership != null) membership.customerDisplayName,
+                        if (membership != null) membership.programName,
+                      ].join(' · '),
+                      style: TextStyle(color: context.waflo.subtleText),
+                    ),
+                  ],
                 ),
               ),
             ],
-            const SizedBox(height: WafloSpacing.md),
+            const SizedBox(height: WafloSpacing.lg),
             _ApprovalHandoffRail(strings: strings, approvalState: approval),
             const SizedBox(height: WafloSpacing.md),
-            WafloStatusBanner(
-              icon: Icons.shield_outlined,
-              message: strings.approvalNoMutation,
-              color: context.waflo.brandAction,
+            WafloSurfaceCard(
+              padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+              color: presentation.background,
+              child: Text(
+                strings.approvalNoMutation,
+                style: TextStyle(color: context.waflo.subtleText),
+              ),
             ),
-            const SizedBox(height: WafloSpacing.lg),
+            const SizedBox(height: WafloSpacing.xl),
             if (approval.canCheck)
-              FilledButton.icon(
-                key: const Key('manager-approval-check'),
+              WafloBottomAction(
+                keyName: 'manager-approval-check',
+                title: strings.managerApprovalCheck,
                 onPressed: online
                     ? () => controller.checkManagerApproval(locale: locale)
                     : null,
-                icon: const Icon(Icons.sync_rounded),
-                label: Text(strings.managerApprovalCheck),
               )
             else if (approval != ManagerApprovalState.checking)
-              FilledButton.icon(
-                key: const Key('manager-approval-rescan'),
+              WafloBottomAction(
+                keyName: 'manager-approval-rescan',
                 onPressed: () async {
                   await controller.acknowledgeAndReset();
                   controller.startScanning();
                   if (context.mounted) context.go('/loyalty');
                 },
-                icon: const Icon(Icons.qr_code_scanner_rounded),
-                label: Text(
-                  approval.requiresNewIntent
-                      ? strings.startNewRedemption
-                      : strings.refreshCustomerState,
-                ),
+                title: approval.requiresNewIntent
+                    ? strings.startNewRedemption
+                    : strings.refreshCustomerState,
               ),
             if (approval.canCheck)
               LocalDemoManagerApprovalAction(locale: locale),
@@ -1495,63 +1604,54 @@ final class _ManagerApprovalPanel extends ConsumerWidget {
     ManagerApprovalState.required => _ApprovalPresentation(
       strings.managerApprovalRequired,
       strings.managerApprovalBody,
-      Icons.approval_outlined,
       context.waflo.onWarningSurface,
       context.waflo.warningSurface,
     ),
     ManagerApprovalState.pending => _ApprovalPresentation(
       strings.managerApprovalPending,
       strings.managerApprovalPendingBody,
-      Icons.hourglass_top_rounded,
       context.waflo.onWarningSurface,
       context.waflo.warningSurface,
     ),
     ManagerApprovalState.checking => _ApprovalPresentation(
       strings.managerApprovalChecking,
       strings.managerApprovalCheckingBody,
-      Icons.sync_rounded,
       context.waflo.onSuccessSurface,
       context.waflo.successSurface,
     ),
     ManagerApprovalState.rejected => _ApprovalPresentation(
       strings.managerApprovalRejectedTitle,
       strings.managerApprovalRejectedBody,
-      Icons.do_not_disturb_alt_rounded,
       context.waflo.onDangerSurface,
       context.waflo.dangerSurface,
     ),
     ManagerApprovalState.expired => _ApprovalPresentation(
       strings.managerApprovalExpiredTitle,
       strings.managerApprovalExpiredBody,
-      Icons.timer_off_outlined,
       context.waflo.onWarningSurface,
       context.waflo.warningSurface,
     ),
     ManagerApprovalState.consumed => _ApprovalPresentation(
       strings.managerApprovalConsumedTitle,
       strings.managerApprovalConsumedBody,
-      Icons.history_rounded,
       context.waflo.onWarningSurface,
       context.waflo.warningSurface,
     ),
     ManagerApprovalState.stale => _ApprovalPresentation(
       strings.managerApprovalStaleTitle,
       strings.managerApprovalStaleBody,
-      Icons.refresh_rounded,
       context.waflo.onWarningSurface,
       context.waflo.warningSurface,
     ),
     ManagerApprovalState.approverInactive => _ApprovalPresentation(
       strings.managerApproverInactiveTitle,
       strings.managerApproverInactiveBody,
-      Icons.person_off_outlined,
       context.waflo.onDangerSurface,
       context.waflo.dangerSurface,
     ),
     _ => _ApprovalPresentation(
       strings.managerApprovalInvalidTitle,
       strings.managerApprovalInvalidBody,
-      Icons.shield_outlined,
       context.waflo.onDangerSurface,
       context.waflo.dangerSurface,
     ),
@@ -1579,35 +1679,34 @@ final class _ApprovalHandoffRail extends StatelessWidget {
       strings.approvalStepMerchant,
       strings.approvalStepComplete,
     ];
-    return Container(
-      padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(WafloRadius.large),
-      ),
-      child: Column(
-        children: [
-          for (var index = 0; index < labels.length; index++) ...[
-            Row(
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: index < active
-                        ? context.waflo.brandAction
-                        : index == active
-                        ? context.waflo.warningSurface
-                        : Theme.of(context).colorScheme.surfaceContainer,
-                    shape: BoxShape.circle,
+    return Column(
+      children: [
+        for (var index = 0; index < labels.length; index++) ...[
+          Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: index < active
+                      ? context.waflo.brandAction
+                      : index == active
+                      ? context.waflo.warningSurface
+                      : Theme.of(context).colorScheme.surfaceContainer,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                foregroundDecoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: index <= active
+                        ? Colors.transparent
+                        : Theme.of(context).colorScheme.outlineVariant,
                   ),
-                  child: Icon(
-                    index < active
-                        ? Icons.check_rounded
-                        : index == 1
-                        ? Icons.language_rounded
-                        : Icons.smartphone_rounded,
-                    size: 18,
+                ),
+                child: Text(
+                  '${index + 1}',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: index < active
                         ? context.waflo.onBrandAction
                         : index == active
@@ -1615,30 +1714,30 @@ final class _ApprovalHandoffRail extends StatelessWidget {
                         : context.waflo.subtleText,
                   ),
                 ),
-                const SizedBox(width: WafloSpacing.sm),
-                Expanded(
-                  child: Text(
-                    labels[index],
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: index <= active ? null : context.waflo.subtleText,
-                    ),
+              ),
+              const SizedBox(width: WafloSpacing.sm),
+              Expanded(
+                child: Text(
+                  labels[index],
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: index <= active ? null : context.waflo.subtleText,
                   ),
                 ),
-              ],
-            ),
-            if (index != labels.length - 1)
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Container(
-                  margin: const EdgeInsetsDirectional.only(start: 15),
-                  width: 2,
-                  height: 18,
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
               ),
-          ],
+            ],
+          ),
+          if (index != labels.length - 1)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Container(
+                margin: const EdgeInsetsDirectional.only(start: 15),
+                width: 2,
+                height: 18,
+                color: Theme.of(context).colorScheme.outlineVariant,
+              ),
+            ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -1647,14 +1746,12 @@ final class _ApprovalPresentation {
   const _ApprovalPresentation(
     this.title,
     this.body,
-    this.icon,
     this.foreground,
     this.background,
   );
 
   final String title;
   final String body;
-  final IconData icon;
   final Color foreground;
   final Color background;
 }

@@ -14,12 +14,12 @@ abstract final class WafloColors {
   static const warning = Color(0xFFE6A23C);
   static const danger = Color(0xFFC93C2B);
 
-  // Conservative M3D dark-mode derivations. These are not official source
-  // tokens and are documented separately in the M3D handoff.
-  static const darkCanvas = Color(0xFF17100F);
-  static const darkSurface = Color(0xFF241916);
-  static const darkElevated = Color(0xFF322522);
-  static const darkOutline = Color(0xFF5A4742);
+  // Direction A+ semantic dark surfaces. Official brand colors above remain
+  // unchanged; these neutrals only define the selected dark presentation.
+  static const darkCanvas = Color(0xFF14100F);
+  static const darkSurface = Color(0xFF1E1817);
+  static const darkElevated = Color(0xFF2A201D);
+  static const darkOutline = Color(0xFF362C29);
   static const scannerOverlay = Color(0xD9241916);
 
   static const seed = brick;
@@ -37,12 +37,13 @@ abstract final class WafloSpacing {
 
 abstract final class WafloMotion {
   static const immediate = Duration(milliseconds: 160);
-  static const standard = Duration(milliseconds: 200);
-  static const deliberate = Duration(milliseconds: 240);
+  static const standard = Duration(milliseconds: 260);
+  static const deliberate = Duration(milliseconds: 280);
+  static const scannerBeam = Duration(milliseconds: 2300);
 }
 
 abstract final class WafloLayout {
-  static const pageGutter = 24.0;
+  static const pageGutter = 20.0;
   static const maximumContentWidth = 680.0;
   static const minimumTouchTarget = 48.0;
 }
@@ -240,21 +241,21 @@ abstract final class WafloTheme {
     final textTheme = baseText
         .copyWith(
           displaySmall: baseText.displaySmall?.copyWith(
-            fontSize: 48,
-            height: 56 / 48,
+            fontSize: 44,
+            height: 52 / 44,
             fontWeight: FontWeight.w800,
             letterSpacing: -1.2,
           ),
           headlineMedium: baseText.headlineMedium?.copyWith(
-            fontSize: 36,
-            height: 44 / 36,
+            fontSize: 32,
+            height: 39 / 32,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.8,
             fontFeatures: const [FontFeature.tabularFigures()],
           ),
           headlineSmall: baseText.headlineSmall?.copyWith(
-            fontSize: 28,
-            height: 36 / 28,
+            fontSize: 24,
+            height: 31 / 24,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.4,
           ),
@@ -276,8 +277,8 @@ abstract final class WafloTheme {
             fontWeight: FontWeight.w600,
           ),
           bodyLarge: baseText.bodyLarge?.copyWith(
-            fontSize: 16,
-            height: 26 / 16,
+            fontSize: 17,
+            height: 26 / 17,
           ),
           bodyMedium: baseText.bodyMedium?.copyWith(height: 1.5),
           bodySmall: baseText.bodySmall?.copyWith(
@@ -314,7 +315,6 @@ abstract final class WafloTheme {
         color: scheme.surfaceContainerLow,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(WafloRadius.large),
-          side: BorderSide(color: scheme.outlineVariant),
         ),
       ),
       dividerTheme: DividerThemeData(color: scheme.outlineVariant),
@@ -338,7 +338,7 @@ abstract final class WafloTheme {
           ),
           shape: WidgetStatePropertyAll(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(WafloRadius.medium),
+              borderRadius: BorderRadius.circular(WafloRadius.large),
             ),
           ),
         ),
@@ -350,7 +350,7 @@ abstract final class WafloTheme {
           foregroundColor: dark ? const Color(0xFFFFC1B2) : WafloColors.brick,
           side: BorderSide(color: scheme.outline),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(WafloRadius.medium),
+            borderRadius: BorderRadius.circular(WafloRadius.large),
           ),
         ),
       ),

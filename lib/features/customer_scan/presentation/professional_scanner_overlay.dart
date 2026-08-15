@@ -37,41 +37,44 @@ final class WafloScannerRoundAction extends StatelessWidget {
   final String? label;
 
   @override
-  Widget build(BuildContext context) => Tooltip(
-    message: tooltip,
-    child: Material(
-      color: const Color(0xB3091713),
-      borderRadius: BorderRadius.circular(24),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-          child: Padding(
-            padding: EdgeInsetsDirectional.symmetric(
-              horizontal: label == null ? 12 : 16,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: Colors.white),
-                if (label != null) ...[
-                  const SizedBox(width: WafloSpacing.xs),
-                  Text(
-                    label!,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge?.copyWith(color: Colors.white),
-                  ),
+  Widget build(BuildContext context) {
+    final radius = label == null ? 24.0 : 16.0;
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: const Color(0xE61E1817),
+        borderRadius: BorderRadius.circular(radius),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(radius),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            child: Padding(
+              padding: EdgeInsetsDirectional.symmetric(
+                horizontal: label == null ? 12 : 16,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: Colors.white),
+                  if (label != null) ...[
+                    const SizedBox(width: WafloSpacing.xs),
+                    Text(
+                      label!,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.labelLarge?.copyWith(color: Colors.white),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 final class WafloScannerStatusPill extends StatelessWidget {
@@ -147,10 +150,7 @@ final class _ProfessionalScannerOverlayState
   @override
   void initState() {
     super.initState();
-    _beam = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2300),
-    );
+    _beam = AnimationController(vsync: this, duration: WafloMotion.scannerBeam);
   }
 
   @override
@@ -247,6 +247,19 @@ final class _ScannerOverlayPainter extends CustomPainter {
       ..addRRect(RRect.fromRectAndRadius(target, const Radius.circular(28)));
     final dimmed = Path.combine(PathOperation.difference, outer, opening);
     canvas.drawPath(dimmed, Paint()..color = const Color(0xA6241916));
+    canvas.save();
+    canvas.clipPath(dimmed);
+    final texture = Paint()
+      ..color = Colors.white.withValues(alpha: .035)
+      ..strokeWidth = 1;
+    for (var x = -size.height; x < size.width; x += 18) {
+      canvas.drawLine(
+        Offset(x.toDouble(), size.height),
+        Offset(x + size.height, 0),
+        texture,
+      );
+    }
+    canvas.restore();
 
     final frameColor = detected ? WafloColors.success : WafloColors.coral;
     canvas.drawRRect(

@@ -28,98 +28,103 @@ final class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(strings.settings)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            WafloLayout.pageGutter,
+            8,
+            WafloLayout.pageGutter,
+            32,
+          ),
           children: [
             WafloOperationalLabel(strings.appearanceAndLanguage),
             const SizedBox(height: WafloSpacing.sm),
-            RadioGroup<String>(
-              groupValue: locale.languageCode,
-              onChanged: (value) {
-                if (value != null) {
-                  unawaited(
+            _SettingsChoiceGroup(
+              children: [
+                _SettingsChoice(
+                  label: strings.english,
+                  selected: locale.languageCode == 'en',
+                  onTap: () => unawaited(
                     ref
                         .read(localeControllerProvider.notifier)
-                        .setLocale(Locale(value)),
-                  );
-                }
-              },
-              child: Column(
-                children: [
-                  RadioListTile<String>(
-                    contentPadding: EdgeInsets.zero,
-                    value: 'en',
-                    title: Text(strings.english),
-                    secondary: const Icon(Icons.language_rounded),
+                        .setLocale(const Locale('en')),
                   ),
-                  RadioListTile<String>(
-                    contentPadding: EdgeInsets.zero,
-                    value: 'ar',
-                    title: Text(strings.arabic),
-                    secondary: const Icon(Icons.translate_rounded),
+                ),
+                _SettingsChoice(
+                  label: strings.arabic,
+                  selected: locale.languageCode == 'ar',
+                  onTap: () => unawaited(
+                    ref
+                        .read(localeControllerProvider.notifier)
+                        .setLocale(const Locale('ar')),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const Divider(height: WafloSpacing.xl),
-            RadioGroup<ThemeMode>(
-              groupValue: themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  unawaited(
+            const SizedBox(height: WafloSpacing.xl),
+            _SettingsChoiceGroup(
+              children: [
+                _SettingsChoice(
+                  label: strings.themeSystem,
+                  selected: themeMode == ThemeMode.system,
+                  onTap: () => unawaited(
                     ref
                         .read(themeControllerProvider.notifier)
-                        .setThemeMode(value),
-                  );
-                }
-              },
-              child: Column(
-                children: [
-                  RadioListTile<ThemeMode>(
-                    contentPadding: EdgeInsets.zero,
-                    value: ThemeMode.system,
-                    title: Text(strings.themeSystem),
-                    secondary: const Icon(Icons.brightness_auto_outlined),
+                        .setThemeMode(ThemeMode.system),
                   ),
-                  RadioListTile<ThemeMode>(
-                    contentPadding: EdgeInsets.zero,
-                    value: ThemeMode.light,
-                    title: Text(strings.themeLight),
-                    secondary: const Icon(Icons.light_mode_outlined),
+                ),
+                _SettingsChoice(
+                  label: strings.themeLight,
+                  selected: themeMode == ThemeMode.light,
+                  onTap: () => unawaited(
+                    ref
+                        .read(themeControllerProvider.notifier)
+                        .setThemeMode(ThemeMode.light),
                   ),
-                  RadioListTile<ThemeMode>(
-                    contentPadding: EdgeInsets.zero,
-                    value: ThemeMode.dark,
-                    title: Text(strings.themeDark),
-                    secondary: const Icon(Icons.dark_mode_outlined),
+                ),
+                _SettingsChoice(
+                  label: strings.themeDark,
+                  selected: themeMode == ThemeMode.dark,
+                  onTap: () => unawaited(
+                    ref
+                        .read(themeControllerProvider.notifier)
+                        .setThemeMode(ThemeMode.dark),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const Divider(height: WafloSpacing.xl),
-            SwitchListTile(
-              key: const Key('rapid-scan-setting'),
-              contentPadding: EdgeInsets.zero,
-              value: rapidScan,
-              onChanged: (value) => unawaited(
-                ref
-                    .read(rapidScanControllerProvider.notifier)
-                    .setEnabled(value),
+            const SizedBox(height: WafloSpacing.xl),
+            WafloSurfaceCard(
+              padding: EdgeInsets.zero,
+              child: SwitchListTile(
+                key: const Key('rapid-scan-setting'),
+                contentPadding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: WafloSpacing.md,
+                  vertical: WafloSpacing.xs,
+                ),
+                value: rapidScan,
+                onChanged: (value) => unawaited(
+                  ref
+                      .read(rapidScanControllerProvider.notifier)
+                      .setEnabled(value),
+                ),
+                title: Text(strings.rapidScanMode),
+                subtitle: Text(strings.rapidScanModeBody),
               ),
-              secondary: const Icon(Icons.fast_forward_rounded),
-              title: Text(strings.rapidScanMode),
-              subtitle: Text(strings.rapidScanModeBody),
             ),
             const SizedBox(height: WafloSpacing.md),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.shield_outlined),
-              title: Text(strings.deviceAndSecurity),
-              trailing: Icon(
-                Directionality.of(context) == TextDirection.rtl
-                    ? Icons.chevron_left_rounded
-                    : Icons.chevron_right_rounded,
+            WafloSurfaceCard(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                contentPadding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: WafloSpacing.md,
+                ),
+                title: Text(strings.deviceAndSecurity),
+                trailing: Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_left_rounded
+                      : Icons.chevron_right_rounded,
+                ),
+                onTap: () => context.push('/device-security'),
               ),
-              onTap: () => context.push('/device-security'),
             ),
             if (reviewSession || (localDemo && localDemoScenarioRoute != null))
               ListTile(
@@ -139,29 +144,39 @@ final class SettingsScreen extends ConsumerWidget {
                   localDemo ? localDemoScenarioRoute! : '/review-tools',
                 ),
               ),
-            const Divider(height: WafloSpacing.xl),
+            const SizedBox(height: WafloSpacing.xl),
             WafloOperationalLabel(strings.appInformation),
             const SizedBox(height: WafloSpacing.sm),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.info_outline_rounded),
-              title: Text(strings.appTitle),
-              subtitle: packageInfo.when(
-                data: (info) => Text(strings.appVersion(info.version)),
-                error: (error, stackTrace) => Text(strings.unavailable),
-                loading: () => const LinearProgressIndicator(),
-              ),
-              trailing: !environment.isProduction
-                  ? Text(environment.flavor.name)
-                  : null,
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.description_outlined),
-              title: Text(strings.openSourceLicenses),
-              onTap: () => showLicensePage(
-                context: context,
-                applicationName: strings.appTitle,
+            WafloSurfaceCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: WafloSpacing.md,
+                    ),
+                    title: Text(strings.appTitle),
+                    subtitle: packageInfo.when(
+                      data: (info) => Text(strings.appVersion(info.version)),
+                      error: (error, stackTrace) => Text(strings.unavailable),
+                      loading: () => const LinearProgressIndicator(),
+                    ),
+                    trailing: !environment.isProduction
+                        ? Text(environment.flavor.name)
+                        : null,
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    contentPadding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: WafloSpacing.md,
+                    ),
+                    title: Text(strings.openSourceLicenses),
+                    onTap: () => showLicensePage(
+                      context: context,
+                      applicationName: strings.appTitle,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -169,4 +184,89 @@ final class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+final class _SettingsChoiceGroup extends StatelessWidget {
+  const _SettingsChoiceGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    if (largeText) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var index = 0; index < children.length; index++) ...[
+            children[index],
+            if (index != children.length - 1)
+              const SizedBox(height: WafloSpacing.sm),
+          ],
+        ],
+      );
+    }
+    return Row(
+      children: [
+        for (var index = 0; index < children.length; index++) ...[
+          Expanded(child: children[index]),
+          if (index != children.length - 1)
+            const SizedBox(width: WafloSpacing.sm),
+        ],
+      ],
+    );
+  }
+}
+
+final class _SettingsChoice extends StatelessWidget {
+  const _SettingsChoice({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    child: Material(
+      color: selected
+          ? Theme.of(context).colorScheme.primaryContainer
+          : Theme.of(context).colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(WafloRadius.medium),
+        side: BorderSide(
+          color: selected
+              ? context.waflo.brandAction
+              : Theme.of(context).colorScheme.outlineVariant,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(WafloRadius.medium),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 52),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: WafloSpacing.sm,
+                vertical: WafloSpacing.sm,
+              ),
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: selected ? context.waflo.brandAction : null,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }

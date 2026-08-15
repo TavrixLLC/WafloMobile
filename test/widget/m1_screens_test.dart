@@ -138,7 +138,7 @@ void main() {
   ) async {
     await tester.pumpWidget(_homeHarness());
     await tester.pumpAndSettle();
-    expect(find.text('DEVICE READY'), findsOneWidget);
+    expect(find.text('Device ready'), findsOneWidget);
     expect(find.text('Fixture Coffee'), findsOneWidget);
     expect(find.textContaining('Main branch'), findsWidgets);
     await tester.scrollUntilVisible(

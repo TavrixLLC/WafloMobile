@@ -51,79 +51,52 @@ final class BlockedScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Spacer(flex: 2),
-                    Align(
-                      child: state.stage == BootStage.configurationError
-                          ? Container(
-                              width: 112,
-                              height: 112,
-                              padding: const EdgeInsets.all(22),
-                              decoration: BoxDecoration(
-                                color: WafloColors.ink,
-                                borderRadius: BorderRadius.circular(
-                                  WafloRadius.extraLarge,
-                                ),
-                              ),
-                              child: const WafloBrandMark(size: 68),
-                            )
-                          : Container(
-                              width: 104,
-                              height: 104,
-                              decoration: BoxDecoration(
-                                color: content.background,
-                                borderRadius: BorderRadius.circular(
-                                  WafloRadius.extraLarge,
-                                ),
-                              ),
-                              child: Icon(
-                                content.icon,
-                                size: 50,
-                                color: content.foreground,
-                              ),
-                            ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: content.foreground,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: WafloSpacing.sm),
+                        WafloOperationalLabel(
+                          strings.customerOperationsPaused,
+                          color: context.waflo.subtleText,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: WafloSpacing.xl),
+                    const SizedBox(height: WafloSpacing.sm),
                     Text(
                       content.title,
                       style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: WafloSpacing.md),
+                    const SizedBox(height: WafloSpacing.sm),
                     Text(
                       content.body,
                       style: Theme.of(context).textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: WafloSpacing.lg),
-                    Align(
-                      child: Container(
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: 14,
-                          vertical: 9,
-                        ),
-                        decoration: BoxDecoration(
-                          color: content.background,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.pause_circle_outline_rounded,
-                              size: 18,
-                              color: content.foreground,
+                    WafloSurfaceCard(
+                      color: content.background,
+                      padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+                      child: Row(
+                        children: [
+                          Icon(
+                            content.icon,
+                            size: 22,
+                            color: content.foreground,
+                          ),
+                          const SizedBox(width: WafloSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              strings.customerOperationsPaused,
+                              style: TextStyle(color: content.foreground),
                             ),
-                            const SizedBox(width: WafloSpacing.xs),
-                            Flexible(
-                              child: Text(
-                                strings.customerOperationsPaused,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.labelLarge
-                                    ?.copyWith(color: content.foreground),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                     const Spacer(flex: 3),

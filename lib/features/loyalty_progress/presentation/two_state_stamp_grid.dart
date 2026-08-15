@@ -89,26 +89,52 @@ final class _StampSlot extends StatelessWidget {
     final filled = state == StampSlotState.filled;
     return SizedBox.square(
       dimension: size,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: filled ? foreground : Colors.transparent,
-          border: Border.all(color: foreground, width: filled ? 0 : 2.5),
-          borderRadius: BorderRadius.circular(size * 0.32),
-        ),
-        child: filled
-            ? Center(
-                child: SizedBox.square(
-                  dimension: size * 0.28,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(size * 0.09),
-                    ),
-                  ),
-                ),
-              )
-            : null,
-      ),
+      child: filled
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                color: foreground,
+                borderRadius: BorderRadius.circular(size * 0.28),
+              ),
+            )
+          : CustomPaint(
+              painter: _EmptyStampPainter(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                radius: size * 0.28,
+              ),
+            ),
     );
   }
+}
+
+final class _EmptyStampPainter extends CustomPainter {
+  const _EmptyStampPainter({required this.color, required this.radius});
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)),
+      );
+    final metrics = path.computeMetrics();
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+    for (final metric in metrics) {
+      var distance = 0.0;
+      while (distance < metric.length) {
+        final end = (distance + 6).clamp(0.0, metric.length);
+        canvas.drawPath(metric.extractPath(distance, end), paint);
+        distance += 11;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _EmptyStampPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.radius != radius;
 }

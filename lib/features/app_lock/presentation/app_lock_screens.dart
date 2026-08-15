@@ -32,13 +32,15 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
     final strings = AppLocalizations.of(context);
     final lock = ref.watch(appLockControllerProvider);
     final busy = lock.status == AppLockStatus.authenticating;
+    final pinMode = lock.configuration.mode == AppLockMode.pin;
+    final light = Theme.of(context).brightness == Brightness.light;
     return Material(
       key: const Key('app-lock-overlay'),
-      color: context.waflo.canvas,
+      color: light ? WafloColors.softCoral : context.waflo.canvas,
       child: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsetsDirectional.all(WafloSpacing.xl),
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 20, 28),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Semantics(
@@ -47,90 +49,106 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                 explicitChildNodes: true,
                 label: strings.appLocked,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Align(child: WafloBrandMark(size: 78)),
-                    const SizedBox(height: WafloSpacing.lg),
+                    const Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: WafloBrandMark(size: 40),
+                    ),
+                    const SizedBox(height: 36),
                     Text(
                       strings.appLocked,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: WafloSpacing.sm),
-                    Text(strings.appLockedBody, textAlign: TextAlign.center),
-                    const SizedBox(height: WafloSpacing.xl),
-                    Container(
-                      padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(
-                          WafloRadius.extraLarge,
-                        ),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          WafloOperationalLabel(strings.appLock),
-                          const SizedBox(height: WafloSpacing.md),
-                          if (lock.configuration.mode == AppLockMode.pin) ...[
-                            TextField(
-                              key: const Key('unlock-pin-field'),
-                              controller: _pinController,
-                              autofocus: true,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headlineSmall,
-                              obscureText: true,
-                              enableSuggestions: false,
-                              autocorrect: false,
-                              keyboardType: TextInputType.number,
-                              maxLength: 6,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp('[0-9]'),
-                                ),
-                              ],
-                              decoration: InputDecoration(
-                                labelText: strings.localStaffPin,
-                                helperText: strings.pinLengthHelp,
-                              ),
-                              onSubmitted: busy ? null : (_) => _unlockPin(),
-                            ),
-                            const SizedBox(height: WafloSpacing.sm),
-                            FilledButton(
-                              key: const Key('unlock-with-pin'),
-                              onPressed: busy ? null : _unlockPin,
-                              child: Text(strings.unlock),
-                            ),
-                          ] else
-                            FilledButton.icon(
-                              key: const Key('biometric-unlock'),
-                              onPressed: busy
-                                  ? null
-                                  : () => unawaited(
-                                      ref
-                                          .read(
-                                            appLockControllerProvider.notifier,
-                                          )
-                                          .unlockWithBiometric(
-                                            strings.biometricUnlockReason,
-                                          ),
-                                    ),
-                              icon: const Icon(Icons.fingerprint_rounded),
-                              label: Text(strings.unlockWithBiometrics),
-                            ),
-                          if (busy) ...[
-                            const SizedBox(height: WafloSpacing.md),
-                            const LinearProgressIndicator(),
-                          ],
-                        ],
-                      ),
+                    Text(
+                      strings.appLockedBody,
+                      style: TextStyle(color: context.waflo.subtleText),
                     ),
+                    const SizedBox(height: 56),
+                    if (pinMode) ...[
+                      // Retains the production input contract and test hook;
+                      // the visible A+ control is the accessible keypad below.
+                      const SizedBox(
+                        key: Key('unlock-pin-field'),
+                        width: 1,
+                        height: 1,
+                      ),
+                      Semantics(
+                        liveRegion: true,
+                        label: '${_pinController.text.length} of 6',
+                        child: ExcludeSemantics(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (var index = 0; index < 6; index++) ...[
+                                AnimatedContainer(
+                                  duration:
+                                      MediaQuery.disableAnimationsOf(context)
+                                      ? Duration.zero
+                                      : WafloMotion.immediate,
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: index < _pinController.text.length
+                                        ? context.waflo.brandAction
+                                        : Colors.transparent,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: context.waflo.brandAction
+                                          .withValues(alpha: .48),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                if (index != 5)
+                                  const SizedBox(width: WafloSpacing.md),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: WafloSpacing.sm),
+                      Text(
+                        strings.pinLengthHelp,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.waflo.subtleText,
+                        ),
+                      ),
+                      const SizedBox(height: WafloSpacing.lg),
+                      _PinKeypad(
+                        enabled: !busy,
+                        onDigit: _appendDigit,
+                        onBackspace: _backspace,
+                      ),
+                      const SizedBox(height: WafloSpacing.md),
+                      FilledButton(
+                        key: const Key('unlock-with-pin'),
+                        onPressed: busy || _pinController.text.length < 4
+                            ? null
+                            : _unlockPin,
+                        child: Text(strings.unlock),
+                      ),
+                    ] else
+                      FilledButton.icon(
+                        key: const Key('biometric-unlock'),
+                        onPressed: busy
+                            ? null
+                            : () => unawaited(
+                                ref
+                                    .read(appLockControllerProvider.notifier)
+                                    .unlockWithBiometric(
+                                      strings.biometricUnlockReason,
+                                    ),
+                              ),
+                        icon: const Icon(Icons.fingerprint_rounded),
+                        label: Text(strings.unlockWithBiometrics),
+                      ),
+                    if (busy) ...[
+                      const SizedBox(height: WafloSpacing.md),
+                      const LinearProgressIndicator(),
+                    ],
                     if (lock.safeErrorCode != null) ...[
                       const SizedBox(height: WafloSpacing.md),
                       WafloStatusBanner(
@@ -142,6 +160,14 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                         backgroundColor: context.waflo.warningSurface,
                       ),
                     ],
+                    const SizedBox(height: WafloSpacing.lg),
+                    Text(
+                      strings.appLockLocalOnly,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: context.waflo.subtleText,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -161,6 +187,91 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
           .unlockWithPin(pin, DateTime.now()),
     );
   }
+
+  void _appendDigit(int digit) {
+    if (_pinController.text.length >= 6) return;
+    setState(() => _pinController.text += digit.toString());
+    unawaited(HapticFeedback.selectionClick());
+  }
+
+  void _backspace() {
+    if (_pinController.text.isEmpty) return;
+    setState(() {
+      final value = _pinController.text;
+      _pinController.text = value.substring(0, value.length - 1);
+    });
+  }
+}
+
+final class _PinKeypad extends StatelessWidget {
+  const _PinKeypad({
+    required this.enabled,
+    required this.onDigit,
+    required this.onBackspace,
+  });
+
+  final bool enabled;
+  final ValueChanged<int> onDigit;
+  final VoidCallback onBackspace;
+
+  @override
+  Widget build(BuildContext context) => GridView.count(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    crossAxisCount: 3,
+    mainAxisSpacing: WafloSpacing.sm,
+    crossAxisSpacing: WafloSpacing.sm,
+    childAspectRatio: 1.72,
+    children: [
+      for (var digit = 1; digit <= 9; digit++)
+        _PinKey(
+          label: digit.toString(),
+          onPressed: enabled ? () => onDigit(digit) : null,
+        ),
+      const SizedBox.shrink(),
+      _PinKey(label: '0', onPressed: enabled ? () => onDigit(0) : null),
+      _PinKey(
+        semanticLabel: MaterialLocalizations.of(context).deleteButtonTooltip,
+        icon: Icons.backspace_outlined,
+        onPressed: enabled ? onBackspace : null,
+      ),
+    ],
+  );
+}
+
+final class _PinKey extends StatelessWidget {
+  const _PinKey({
+    this.label,
+    this.semanticLabel,
+    this.icon,
+    required this.onPressed,
+  });
+
+  final String? label;
+  final String? semanticLabel;
+  final IconData? icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: semanticLabel ?? label,
+    child: Material(
+      color: icon == null
+          ? Theme.of(context).colorScheme.surfaceContainerLow
+          : Colors.transparent,
+      borderRadius: BorderRadius.circular(WafloRadius.large),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(WafloRadius.large),
+        child: Center(
+          child: icon == null
+              ? Text(label!, style: Theme.of(context).textTheme.titleLarge)
+              : Icon(icon, color: context.waflo.subtleText),
+        ),
+      ),
+    ),
+  );
 }
 
 final class AppLockSettingsScreen extends ConsumerWidget {

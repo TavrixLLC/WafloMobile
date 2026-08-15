@@ -5,7 +5,7 @@ final class WafloPage extends StatelessWidget {
   const WafloPage({
     required this.child,
     this.appBar,
-    this.padding = const EdgeInsetsDirectional.all(WafloSpacing.lg),
+    this.padding = const EdgeInsetsDirectional.all(WafloLayout.pageGutter),
     this.scrollable = true,
     super.key,
   });
@@ -70,36 +70,34 @@ final class WafloBrandMark extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     image: true,
     label: 'Waflo',
-    child: Align(
-      child: SizedBox.square(
-        dimension: size,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: darkSurface ? WafloColors.white : WafloColors.brick,
-                borderRadius: BorderRadius.circular(size * .22),
-              ),
-              child: Center(
-                child: WafloReadyBeacon(
-                  color: darkSurface ? WafloColors.brick : WafloColors.white,
-                  size: size * .42,
-                ),
+    child: SizedBox.square(
+      dimension: size,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: darkSurface ? WafloColors.white : WafloColors.brick,
+              borderRadius: BorderRadius.circular(size * .22),
+            ),
+            child: Center(
+              child: WafloReadyBeacon(
+                color: darkSurface ? WafloColors.brick : WafloColors.white,
+                size: size * .42,
               ),
             ),
-            Image.asset(
-              darkSurface
-                  ? 'assets/brand/logo/waflo-mark-white-1024.png'
-                  : 'assets/brand/logo/waflo-mark-primary-512.png',
-              fit: BoxFit.contain,
-              filterQuality: FilterQuality.high,
-              excludeFromSemantics: true,
-              errorBuilder: (context, error, stackTrace) =>
-                  const SizedBox.shrink(),
-            ),
-          ],
-        ),
+          ),
+          Image.asset(
+            darkSurface
+                ? 'assets/brand/logo/waflo-mark-white-1024.png'
+                : 'assets/brand/logo/waflo-mark-primary-512.png',
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            excludeFromSemantics: true,
+            errorBuilder: (context, error, stackTrace) =>
+                const SizedBox.shrink(),
+          ),
+        ],
       ),
     ),
   );
@@ -245,11 +243,75 @@ final class WafloOperationalLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     label.toUpperCase(),
-    maxLines: 1,
-    overflow: TextOverflow.ellipsis,
     style: Theme.of(
       context,
     ).textTheme.labelMedium?.copyWith(color: color ?? context.waflo.subtleText),
+  );
+}
+
+/// Direction A+ top bar: quiet navigation, no elevated app chrome.
+final class WafloTopBar extends StatelessWidget {
+  const WafloTopBar({
+    required this.title,
+    this.onBack,
+    this.backTooltip,
+    this.trailing,
+    super.key,
+  });
+
+  final String title;
+  final VoidCallback? onBack;
+  final String? backTooltip;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(minHeight: 56),
+    child: Row(
+      children: [
+        if (onBack != null) ...[
+          IconButton(
+            tooltip: backTooltip,
+            onPressed: onBack,
+            icon: Icon(
+              Directionality.of(context) == TextDirection.rtl
+                  ? Icons.arrow_forward_rounded
+                  : Icons.arrow_back_rounded,
+            ),
+          ),
+          const SizedBox(width: WafloSpacing.xs),
+        ],
+        Expanded(
+          child: Text(title, style: Theme.of(context).textTheme.bodyMedium),
+        ),
+        // ignore: use_null_aware_elements
+        if (trailing != null) trailing!,
+      ],
+    ),
+  );
+}
+
+/// Flat, coherent grouping surface used throughout the selected A+ system.
+final class WafloSurfaceCard extends StatelessWidget {
+  const WafloSurfaceCard({
+    required this.child,
+    this.padding = const EdgeInsetsDirectional.all(WafloSpacing.lg),
+    this.color,
+    this.radius = WafloRadius.large,
+    super.key,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final Color? color;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: color ?? Theme.of(context).colorScheme.surfaceContainerLow,
+    borderRadius: BorderRadius.circular(radius),
+    clipBehavior: Clip.antiAlias,
+    child: Padding(padding: padding, child: child),
   );
 }
 
@@ -309,20 +371,8 @@ final class WafloInfoCard extends StatelessWidget {
   final IconData? icon;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => WafloSurfaceCard(
     padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainerLow,
-      borderRadius: BorderRadius.circular(WafloRadius.large),
-      border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-      boxShadow: [
-        BoxShadow(
-          color: context.waflo.cardShadow,
-          offset: const Offset(0, 12),
-          blurRadius: 32,
-        ),
-      ],
-    ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -364,6 +414,7 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = onPressed != null;
+    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.5;
     final background = enabled
         ? context.waflo.brandAction
         : Theme.of(context).colorScheme.surfaceContainer;
@@ -382,7 +433,7 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
           key: const Key('primary-scan-customer'),
           onTap: onPressed,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 184),
+            constraints: const BoxConstraints(minHeight: 188),
             child: Stack(
               children: [
                 PositionedDirectional(
@@ -407,7 +458,7 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(28, 48, 28, 28),
+                  padding: const EdgeInsetsDirectional.fromSTEB(24, 48, 24, 24),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -432,12 +483,83 @@ final class WafloPrimaryActionPanel extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: WafloSpacing.md),
-                      Icon(icon, size: 34, color: foreground),
+                      if (!largeText) ...[
+                        const SizedBox(width: WafloSpacing.md),
+                        Icon(icon, size: 34, color: foreground),
+                      ],
                     ],
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Thumb-zone action used by A+ confirmation and completion surfaces.
+final class WafloBottomAction extends StatelessWidget {
+  const WafloBottomAction({
+    required this.title,
+    required this.onPressed,
+    this.subtitle,
+    this.keyName,
+    super.key,
+  });
+
+  final String title;
+  final String? subtitle;
+  final VoidCallback? onPressed;
+  final String? keyName;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onPressed != null;
+    final background = enabled
+        ? context.waflo.brandAction
+        : Theme.of(context).colorScheme.surfaceContainer;
+    final foreground = enabled
+        ? context.waflo.onBrandAction
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: subtitle == null ? title : '$title. $subtitle',
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(WafloRadius.large),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: keyName == null ? null : Key(keyName!),
+          onTap: onPressed,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: subtitle == null ? 64 : 94),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: foreground,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: WafloSpacing.xs),
+                    Text(
+                      subtitle!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: foreground.withValues(alpha: .82),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
@@ -478,32 +600,46 @@ final class WafloSummaryRow extends StatelessWidget {
   final bool divider;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    decoration: divider
-        ? BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
+  Widget build(BuildContext context) {
+    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    final labelWidget = Text(
+      label,
+      style: TextStyle(color: context.waflo.subtleText),
+    );
+    final valueWidget = Text(
+      value,
+      textAlign: largeText ? TextAlign.start : TextAlign.end,
+      style: const TextStyle(fontWeight: FontWeight.w700),
+    );
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: divider
+          ? BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
+            )
+          : null,
+      child: largeText
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                labelWidget,
+                const SizedBox(height: WafloSpacing.xs),
+                valueWidget,
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: labelWidget),
+                const SizedBox(width: WafloSpacing.md),
+                Flexible(child: valueWidget),
+              ],
             ),
-          )
-        : null,
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Text(label, style: TextStyle(color: context.waflo.subtleText)),
-        ),
-        const SizedBox(width: WafloSpacing.md),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-        ),
-      ],
-    ),
-  );
+    );
+  }
 }

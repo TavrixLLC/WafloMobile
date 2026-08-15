@@ -34,16 +34,6 @@ final class HomeScreen extends ConsumerWidget {
           ).format(deviceContext.synchronizedAt.toLocal());
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(strings.appTitle),
-        actions: [
-          IconButton(
-            tooltip: strings.settings,
-            onPressed: () => context.push('/settings'),
-            icon: const Icon(Icons.tune_rounded),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: localDemo.active
@@ -51,8 +41,62 @@ final class HomeScreen extends ConsumerWidget {
               : ref.read(bootControllerProvider.notifier).refreshContext,
           child: ListView(
             key: const Key('task-first-home'),
-            padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              WafloLayout.pageGutter,
+              20,
+              WafloLayout.pageGutter,
+              32,
+            ),
             children: [
+              Semantics(
+                container: true,
+                label: online ? strings.deviceReady : strings.offline,
+                child: Row(
+                  children: [
+                    const WafloBrandMark(size: 30),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(WafloRadius.pill),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: online
+                                  ? WafloColors.success
+                                  : WafloColors.warning,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: WafloSpacing.sm),
+                          Text(
+                            online ? strings.deviceReady : strings.offline,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: WafloSpacing.xl),
               if ((boot.session?.isReview ?? false) || localDemo.active) ...[
                 WafloStatusBanner(
                   icon: Icons.science_outlined,
@@ -91,67 +135,30 @@ final class HomeScreen extends ConsumerWidget {
                 _PendingTransaction(onPressed: () => context.push('/loyalty')),
                 const SizedBox(height: WafloSpacing.lg),
               ],
-              Semantics(
-                container: true,
-                label: online ? strings.deviceReady : strings.offline,
-                child: Wrap(
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: WafloSpacing.sm,
-                  runSpacing: WafloSpacing.sm,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        WafloReadyBeacon(
-                          color: online
-                              ? context.waflo.brandAction
-                              : WafloColors.warning,
-                        ),
-                        const SizedBox(width: WafloSpacing.sm),
-                        WafloOperationalLabel(
-                          online ? strings.deviceReady : strings.offline,
-                          color: online
-                              ? context.waflo.brandAction
-                              : WafloColors.warning,
-                        ),
-                      ],
-                    ),
-                    if (lastVerified != null)
-                      Text(
-                        '${strings.lastVerified} $lastVerified',
-                        maxLines: 1,
-                        textAlign: TextAlign.end,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: context.waflo.subtleText,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: WafloSpacing.lg),
               Text(
                 deviceContext?.organization.displayName ?? strings.appTitle,
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: WafloSpacing.sm),
-              Row(
+              Wrap(
+                spacing: WafloSpacing.xs,
+                runSpacing: WafloSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 21,
-                    color: context.waflo.subtleText,
+                  Text(
+                    deviceContext?.currentLocation.displayName ??
+                        strings.unavailable,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: context.waflo.subtleText,
+                    ),
                   ),
-                  const SizedBox(width: WafloSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      deviceContext?.currentLocation.displayName ??
-                          strings.unavailable,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  if (lastVerified != null)
+                    Text(
+                      '· ${strings.lastVerified} $lastVerified',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: context.waflo.subtleText,
                       ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(height: WafloSpacing.xxl),
@@ -180,22 +187,18 @@ final class HomeScreen extends ConsumerWidget {
                       }
                     : null,
               ),
-              const SizedBox(height: WafloSpacing.xl),
-              WafloOperationalLabel(strings.quickActions),
-              const SizedBox(height: WafloSpacing.sm),
+              const SizedBox(height: WafloSpacing.lg),
               Row(
                 children: [
                   Expanded(
-                    child: _QuickAction(
-                      icon: Icons.shield_outlined,
+                    child: _HomeLink(
                       label: strings.deviceAndSecurity,
                       onTap: () => context.push('/device-security'),
                     ),
                   ),
                   const SizedBox(width: WafloSpacing.sm),
                   Expanded(
-                    child: _QuickAction(
-                      icon: Icons.tune_rounded,
+                    child: _HomeLink(
                       label: strings.settings,
                       onTap: () => context.push('/settings'),
                     ),
@@ -267,46 +270,27 @@ final class _PendingTransaction extends StatelessWidget {
   }
 }
 
-final class _QuickAction extends StatelessWidget {
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
+final class _HomeLink extends StatelessWidget {
+  const _HomeLink({required this.label, required this.onTap});
 
-  final IconData icon;
   final String label;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: Colors.transparent,
-    shape: RoundedRectangleBorder(
-      side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-      borderRadius: BorderRadius.circular(WafloRadius.medium),
+  Widget build(BuildContext context) => TextButton(
+    onPressed: onTap,
+    style: TextButton.styleFrom(
+      foregroundColor: context.waflo.subtleText,
+      alignment: AlignmentDirectional.centerStart,
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
     ),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(WafloRadius.medium),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 88),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.all(14),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon),
-              const SizedBox(height: WafloSpacing.sm),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-            ],
-          ),
-        ),
+    child: Text(
+      label,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        decoration: TextDecoration.underline,
+        decorationColor: context.waflo.subtleText,
       ),
     ),
   );
