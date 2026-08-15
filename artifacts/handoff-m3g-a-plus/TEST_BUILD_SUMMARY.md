@@ -14,9 +14,9 @@
 - Production-v1 Mobile authority gate: PASS.
 - Generated client drift: PASS; zero resulting diff.
 - Localization generated drift: no M3G localization changes.
-- Absolute-path scan: PASS, 1,290 tracked files.
+- Absolute-path scan: PASS, 1,304 tracked files.
 - Official-brand lint: PASS.
-- Security/secret scan: PASS, 1,290 tracked files.
+- Security/secret scan: PASS, 1,304 tracked files.
 - Local-Demo source exclusion: PASS.
 - Portable archive scans: PASS for three historical bundles and the 86-entry
   owner reference archive.
@@ -33,21 +33,27 @@
 - Total M3G comparison screenshots: 66.
 - Flutter screenshot bytes: 1,630,334.
 
-## Pending external/platform gates
+## Hosted CI on validated implementation SHA `52e34a7`
 
-- Android physical install/integration: blocked by ADB `unauthorized` until the
-  owner unlocks the device and approves USB debugging.
-- Initial Linux CI reached the golden step after all earlier quality gates
-  passed, then correctly rejected 17 obsolete M1 pixel expectations. The
-  historical images were not overwritten; M1 now remains a layout/semantics
-  regression while the 38-screen M3G pack is current visual authority. Final
-  Linux rerun is pending the provenance/fix push.
-- iOS/macOS tests and all three no-sign builds passed on the implementation
-  SHA. A final branch-tip rerun will follow the provenance/fix push.
-- Approved real-W4 contract gates: queued on the approved self-hosted runner;
-  no substitute runner was used.
-- Owner physical visual approval: pending and separate.
+- Linux quality/brand/security/archive: PASS. Contract and generated drift,
+  absolute-path, brand, format, fatal analyze, unit, widget, golden, security,
+  and historical archive steps all completed successfully.
+- Android builds: PASS. Development debug, staging release, production release,
+  and release LOCAL_DEMO binary exclusion all completed successfully.
+- Android emulator integration: PASS. The authoritative M1–M3E Staff flow
+  matrix completed, including M3C recovery and both M3E Review/Local Demo flows.
+- macOS/iOS: PASS. Fatal analyze, unit, widget, localized camera-purpose strings,
+  and development/staging/production no-sign builds all completed successfully.
+- Approved real-W4 contract job: **QUEUED** on the approved self-hosted runner.
+  The parent workflow therefore remains queued; no substitute runner was used
+  and W4 is not claimed green.
+
+## Pending physical/owner gates
+
+- Android physical install: blocked by ADB `unauthorized` until the owner
+  unlocks the device and approves USB debugging.
+- Owner physical visual approval: pending and separate from automated evidence.
 
 Known non-failing build warnings concern future Gradle/Kotlin support and the
-existing Cupertino icon reference. They are not treated as Production Ready
-evidence.
+existing Cupertino icon reference. Neither the hosted successes nor M3G
+completion are treated as Production Ready evidence.

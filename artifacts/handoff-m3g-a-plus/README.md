@@ -1,11 +1,13 @@
 # Waflo Mobile M3G — Direction A+ handoff
 
-Status: **engineering implementation complete locally; external/device and remote
-gates remain pending**.
+Status: **M3G COMPLETE — OWNER-SELECTED A+ DESIGN IMPLEMENTED IN FLUTTER AND
+READY FOR OWNER PHYSICAL VISUAL REVIEW**.
 
 Direction A+ is the owner-selected visual/UX authority. This handoff does not
 mean Production Ready, release approved, security approved, or owner visually
-approved. Physical owner review remains a separate decision.
+approved. The approved W4 self-hosted job remains queued, the physical Android
+device still requires owner USB authorization, and physical owner review
+remains a separate decision.
 
 ## Outcome
 
@@ -22,6 +24,8 @@ approved. Physical owner review remains a separate decision.
 - Generated drift: **none**.
 - Reference evidence: **28** screenshots.
 - Flutter M3G evidence: **38** screenshots.
+- Hosted Linux, Android build, Android emulator/integration, and macOS/iOS
+  gates: **PASS** on validated implementation SHA `52e34a7`.
 
 ## Handoff index
 
@@ -61,8 +65,8 @@ The forensic source of truth and raw comparison evidence remain in
 13. Are auth/session/Ed25519 contracts unchanged? **Yes.**
 14. Is Backend untouched? **Yes; zero changed files.**
 15. Is M2 provenance untouched? **Yes; zero changed files.**
-16. Are there zero committed secrets? **Pre-commit scans find zero; the final
-    scan must remain green after staging.**
+16. Are there zero committed secrets? **Yes; local and Linux branch-tip scans
+    find zero.**
 17. Was Lovable used only as design/interaction reference? **Yes.**
 18. Were English/Arabic RTL/dark/large-text/reduced-motion verified? **Yes in
     automated visual evidence; physical review remains pending.**
