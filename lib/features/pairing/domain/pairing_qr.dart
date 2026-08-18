@@ -65,6 +65,10 @@ final class PairingQrParser {
           !_environment.hasMatch(environment)) {
         throw const PairingQrException(PairingQrProblem.invalid);
       }
+      assert(() {
+        print('WAFLO_PAIRING_DIAGNOSTIC scannedEnvironment=$environment expectedEnvironment=$expectedEnvironment');
+        return true;
+      }());
       if (environment != expectedEnvironment) {
         throw const PairingQrException(PairingQrProblem.wrongEnvironment);
       }
