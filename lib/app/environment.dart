@@ -155,8 +155,7 @@ final class AppEnvironment {
     }
     final allowedPairingEnvironments = switch (flavor) {
       AppFlavor.development => const {'development'},
-      // W4 round-1 NODE_ENV calls the staging-equivalent environment "test".
-      AppFlavor.staging => const {'test'},
+      AppFlavor.staging => const {'staging'},
       AppFlavor.production => const {'production'},
     };
     if (!allowedPairingEnvironments.contains(pairingEnvironment)) {

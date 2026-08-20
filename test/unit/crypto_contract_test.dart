@@ -116,6 +116,52 @@ void main() {
     expect(headers.toString(), isNot(contains('fixture-token')));
   });
 
+  test('global request ID is the signed device request ID', () async {
+    final repository = DeviceIdentityRepository(MemorySecureKeyValueStore());
+    final identity = await repository.loadOrCreate();
+    final headers =
+        await DeviceRequestSigner(
+          repository,
+          clock: _FixedClock(DateTime.utc(2026, DateTime.july, 30, 12)),
+        ).sign(
+          method: 'GET',
+          canonicalPath: '/v1/staff/device-context',
+          exactBodyBytes: const [],
+          accessToken: 'fixture-token',
+          devicePublicId: 'device-public-id',
+          deviceSessionId: 'device-session-id',
+          organizationId: 'organization-id',
+        );
+    final httpHeaders = headers.toHttpHeaders();
+    final globalRequestId = httpHeaders['X-Request-Id'];
+
+    expect(globalRequestId, isNotNull);
+    expect(globalRequestId, httpHeaders['X-Waflo-Request-Id']);
+    expect(globalRequestId, headers.requestId);
+
+    final signedEnvelope = SignedRequestEnvelope(
+      method: 'GET',
+      canonicalPath: '/v1/staff/device-context',
+      requestId: globalRequestId!,
+      timestamp: headers.timestamp,
+      nonce: headers.nonce,
+      bodyDigest: headers.bodyDigest,
+      deviceSessionId: headers.deviceSessionId,
+      organizationId: 'organization-id',
+    );
+    final publicBytes = base64.decode(identity.publicKey).sublist(12);
+    expect(
+      await Ed25519().verify(
+        utf8.encode(signedEnvelope.canonicalize()),
+        signature: Signature(
+          _base64UrlDecode(headers.signature),
+          publicKey: SimplePublicKey(publicBytes, type: KeyPairType.ed25519),
+        ),
+      ),
+      isTrue,
+    );
+  });
+
   test('corrupt identity fails closed', () async {
     final repository = DeviceIdentityRepository(
       MemorySecureKeyValueStore({'device.identity.v1': '{"bad":true}'}),

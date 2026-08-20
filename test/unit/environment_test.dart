@@ -71,30 +71,73 @@ void main() {
     );
   });
 
-  test('staging maps to the approved W4 test pairing environment', () {
+  test('development accepts ONLY development pairing environment', () {
+    expect(
+      environment(
+        flavor: AppFlavor.development,
+        pairing: 'development',
+      ).validate(),
+      isEmpty,
+    );
+    for (final invalid in ['test', 'staging', 'production', 'custom']) {
+      expect(
+        environment(flavor: AppFlavor.development, pairing: invalid).validate(),
+        contains('PAIRING_ENVIRONMENT_MISMATCH'),
+        reason: 'development should reject $invalid',
+      );
+    }
+  });
+
+  test('production accepts ONLY production pairing environment', () {
+    expect(
+      environment(
+        flavor: AppFlavor.production,
+        pairing: 'production',
+        url: 'https://api.waflo.app',
+        level: AppLogLevel.minimal,
+        testAdapter: false,
+      ).validate(),
+      isEmpty,
+    );
+    for (final invalid in ['test', 'staging', 'development', 'custom']) {
+      expect(
+        environment(
+          flavor: AppFlavor.production,
+          pairing: invalid,
+          url: 'https://api.waflo.app',
+          level: AppLogLevel.minimal,
+          testAdapter: false,
+        ).validate(),
+        contains('PAIRING_ENVIRONMENT_MISMATCH'),
+        reason: 'production should reject $invalid',
+      );
+    }
+  });
+
+  test('staging accepts ONLY staging pairing environment', () {
     expect(
       environment(
         flavor: AppFlavor.staging,
         pairing: 'staging',
-        url: 'https://staging-api.waflo.app',
-        level: AppLogLevel.info,
-        testAdapter: false,
-      ).validate(),
-      contains('PAIRING_ENVIRONMENT_MISMATCH'),
-    );
-  });
-
-  test('deployed staging host is HTTPS and release-safe', () {
-    expect(
-      environment(
-        flavor: AppFlavor.staging,
-        pairing: 'test',
         url: 'https://api-staging.waflo.app',
         level: AppLogLevel.info,
         testAdapter: false,
       ).validate(),
       isEmpty,
     );
+    for (final invalid in ['test', 'development', 'production', 'custom']) {
+      expect(
+        environment(
+          flavor: AppFlavor.staging,
+          pairing: invalid,
+          url: 'https://api-staging.waflo.app',
+          level: AppLogLevel.info,
+          testAdapter: false,
+        ).validate(),
+        contains('PAIRING_ENVIRONMENT_MISMATCH'),
+        reason: 'staging should reject $invalid',
+      );
+    }
   });
 
   test('staging and production reject every non-canonical API origin', () {
@@ -107,7 +150,7 @@ void main() {
       expect(
         environment(
           flavor: AppFlavor.staging,
-          pairing: 'test',
+          pairing: 'staging',
           url: url,
           level: AppLogLevel.info,
           testAdapter: false,
@@ -128,17 +171,22 @@ void main() {
     );
   });
 
-  test('committed release configurations use only canonical HTTPS origins', () {
-    final staging =
-        jsonDecode(File('config/staging.json').readAsStringSync())
-            as Map<String, dynamic>;
-    final production =
-        jsonDecode(File('config/production.json').readAsStringSync())
-            as Map<String, dynamic>;
+  test(
+    'committed release configurations use only canonical HTTPS origins and pairing environments',
+    () {
+      final staging =
+          jsonDecode(File('config/staging.json').readAsStringSync())
+              as Map<String, dynamic>;
+      final production =
+          jsonDecode(File('config/production.json').readAsStringSync())
+              as Map<String, dynamic>;
 
-    expect(staging['WAFLO_API_BASE_URL'], 'https://api-staging.waflo.app');
-    expect(production['WAFLO_API_BASE_URL'], 'https://api.waflo.app');
-  });
+      expect(staging['WAFLO_API_BASE_URL'], 'https://api-staging.waflo.app');
+      expect(staging['WAFLO_PAIRING_ENVIRONMENT'], 'staging');
+      expect(production['WAFLO_API_BASE_URL'], 'https://api.waflo.app');
+      expect(production['WAFLO_PAIRING_ENVIRONMENT'], 'production');
+    },
+  );
 
   test('native and Dart flavors must match exactly', () {
     final mismatched = AppEnvironment(

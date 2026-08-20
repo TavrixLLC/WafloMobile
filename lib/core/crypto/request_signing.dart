@@ -136,6 +136,7 @@ final class SignedRequestHeaders {
     'X-Waflo-Device-Id': deviceId,
     'X-Waflo-Device-Session-Id': deviceSessionId,
     'X-Waflo-Request-Id': requestId,
+    'X-Request-Id': requestId,
     'X-Waflo-Timestamp': timestamp,
     'X-Waflo-Nonce': nonce,
     'X-Waflo-Body-Sha256': bodyDigest,
