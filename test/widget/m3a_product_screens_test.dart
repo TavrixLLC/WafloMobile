@@ -9,10 +9,12 @@ import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
+import 'package:waflo_staff/features/app_lock/data/biometric_service.dart';
 import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
 import 'package:waflo_staff/features/app_lock/presentation/app_lock_screens.dart';
 import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
+import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/device_security/presentation/device_security_screen.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
@@ -30,8 +32,59 @@ void main() {
     expect(find.text('Main branch'), findsOneWidget);
     expect(find.text('Device & Security'), findsOneWidget);
     expect(find.text('Settings'), findsWidgets);
+    expect(find.byKey(const Key('home-device-security')), findsOneWidget);
+    expect(find.byKey(const Key('home-settings')), findsOneWidget);
+    final deviceSecuritySize = tester.getSize(
+      find.byKey(const Key('home-device-security')),
+    );
+    final settingsSize = tester.getSize(find.byKey(const Key('home-settings')));
+    expect(deviceSecuritySize.width, settingsSize.width);
+    expect(deviceSecuritySize.height, settingsSize.height);
+    expect(find.textContaining('Last verified'), findsNothing);
     expect(find.textContaining('00000000-'), findsNothing);
     expect(find.textContaining('session'), findsNothing);
+  });
+
+  testWidgets('Device & Security makes unavailable context intentional', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          bootControllerProvider.overrideWithBuild(
+            (ref, notifier) => BootState(
+              stage: BootStage.pairedReady,
+              context: _contextWithUnavailableNames,
+              session: fixtureSession(),
+            ),
+          ),
+          appLockControllerProvider.overrideWithBuild(
+            (ref, notifier) => const AppLockState(
+              configuration: AppLockConfiguration(),
+              status: AppLockStatus.unlocked,
+            ),
+          ),
+          packageInfoProvider.overrideWithValue(
+            AsyncData(
+              PackageInfo(
+                appName: 'Waflo Staff',
+                packageName: 'app.waflo.staff',
+                version: '1.0.0',
+                buildNumber: '1',
+              ),
+            ),
+          ),
+        ],
+        child: _app(const DeviceSecurityScreen()),
+      ),
+    );
+
+    final rows = tester.widgetList<WafloSummaryRow>(
+      find.byType(WafloSummaryRow),
+    );
+    expect(rows.every((row) => row.value.trim().isNotEmpty), isTrue);
+    expect(find.text('Unavailable'), findsWidgets);
+    expect(find.text('Blocked'), findsNothing);
   });
 
   testWidgets('pending command is above scan and blocks new scanning', (
@@ -112,12 +165,17 @@ void main() {
       await tester.pumpWidget(_locked(AppLockMode.pin));
       expect(find.byKey(const Key('app-lock-overlay')), findsOneWidget);
       expect(find.byKey(const Key('unlock-pin-field')), findsOneWidget);
+      expect(find.text('Enter your PIN'), findsOneWidget);
       expect(find.text('Unlock'), findsOneWidget);
 
-      await tester.pumpWidget(_locked(AppLockMode.biometric));
-      await tester.pump();
-      expect(find.byKey(const Key('biometric-unlock')), findsOneWidget);
-      expect(find.text('Unlock with biometrics'), findsOneWidget);
+      final biometrics = FakeBiometricService(result: false);
+      await tester.pumpWidget(_locked(AppLockMode.biometric, biometrics));
+      await tester.pumpAndSettle();
+      expect(biometrics.calls, 1);
+      expect(find.text('Waflo Staff is locked'), findsNothing);
+      expect(find.byKey(const Key('unlock-pin-field')), findsOneWidget);
+      expect(find.byKey(const Key('try-biometrics-again')), findsOneWidget);
+      expect(find.textContaining('Enter your PIN to continue'), findsWidgets);
     },
   );
 
@@ -141,13 +199,24 @@ void main() {
     expect(find.textContaining('protects this phone only'), findsOneWidget);
     expect(find.textContaining('server permissions'), findsOneWidget);
     expect(find.text('Biometric'), findsOneWidget);
+    expect(
+      find.text('Create a PIN before enabling biometrics.'),
+      findsOneWidget,
+    );
     expect(find.text('Local Staff PIN'), findsOneWidget);
     expect(find.text('Immediately'), findsOneWidget);
     expect(find.text('After 5 minutes'), findsOneWidget);
     expect(find.textContaining('Manager PIN'), findsNothing);
+    final biometricTile = tester.widget<ListTile>(
+      find.descendant(
+        of: find.byKey(const Key('biometric-mode')),
+        matching: find.byType(ListTile),
+      ),
+    );
+    expect(biometricTile.enabled, isFalse);
   });
 
-  testWidgets('background state immediately covers customer content', (
+  testWidgets('background state leaves content available for capture', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -179,11 +248,12 @@ void main() {
     expect(find.byKey(const Key('privacy-cover')), findsNothing);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     await tester.pump();
-    expect(find.byKey(const Key('privacy-cover')), findsOneWidget);
+    expect(find.byKey(const Key('privacy-cover')), findsNothing);
+    expect(find.text('Sensitive customer'), findsOneWidget);
   });
 
   testWidgets(
-    'privacy cover and ready beacon survive a missing theme extension',
+    'ready beacon survives a background transition without a theme extension',
     (tester) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -216,8 +286,8 @@ void main() {
       expect(tester.takeException(), isNull);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pump();
-      expect(find.byKey(const Key('privacy-cover')), findsOneWidget);
-      expect(find.byType(WafloBrandMark), findsOneWidget);
+      expect(find.byKey(const Key('privacy-cover')), findsNothing);
+      expect(find.byType(WafloReadyBeacon), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -246,18 +316,21 @@ Widget _home({bool online = true, PendingOperationRecord? pending}) =>
       child: _app(const HomeScreen()),
     );
 
-Widget _locked(AppLockMode mode) => ProviderScope(
-  key: UniqueKey(),
-  overrides: [
-    appLockControllerProvider.overrideWithBuild(
-      (ref, notifier) => AppLockState(
-        configuration: AppLockConfiguration(mode: mode),
-        status: AppLockStatus.locked,
-      ),
-    ),
-  ],
-  child: _app(const AppLockOverlay()),
-);
+Widget _locked(AppLockMode mode, [BiometricService? biometrics]) =>
+    ProviderScope(
+      key: UniqueKey(),
+      overrides: [
+        appLockControllerProvider.overrideWithBuild(
+          (ref, notifier) => AppLockState(
+            configuration: AppLockConfiguration(mode: mode),
+            status: AppLockStatus.locked,
+          ),
+        ),
+        if (biometrics != null)
+          biometricServiceProvider.overrideWithValue(biometrics),
+      ],
+      child: _app(const AppLockOverlay()),
+    );
 
 Widget _app(Widget child) => MaterialApp(
   debugShowCheckedModeBanner: false,
@@ -281,4 +354,30 @@ final _pending = PendingOperationRecord(
   createdAt: DateTime.utc(2026, 8, 11, 12),
   lastCheckedAt: null,
   status: PendingOperationStatus.processing,
+);
+
+final _contextWithUnavailableNames = AuthoritativeDeviceContext(
+  organization: const OrganizationContext(publicId: 'org', displayName: ''),
+  staff: const StaffContext(publicId: 'staff', displayName: '', role: ''),
+  device: const DeviceContextSummary(
+    publicId: 'device',
+    displayName: '',
+    status: 'ACTIVE',
+    platform: '',
+    appVersion: '1.0.0',
+  ),
+  currentLocation: const LocationContext(
+    publicId: 'location',
+    displayName: '',
+    earningAllowed: false,
+    redemptionAllowed: false,
+    capabilitiesKnown: false,
+  ),
+  assignedLocations: const [],
+  appPolicy: const AppUpdatePolicy(
+    minimumSupportedVersion: '1.0.0',
+    updateRequired: false,
+  ),
+  requestId: 'request',
+  synchronizedAt: DateTime.utc(2026, 8, 21, 12),
 );

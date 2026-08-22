@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
+import 'package:waflo_staff/core/localization/app_locales.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
@@ -81,23 +82,22 @@ final class _WelcomeScreen extends ConsumerWidget {
                         .showCameraRationale(),
                     child: Text(strings.scanPairingCode),
                   ),
-                  const SizedBox(height: WafloSpacing.lg),
-                  Text(
-                    strings.chooseLanguage,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: context.waflo.subtleText),
-                  ),
                   const SizedBox(height: WafloSpacing.sm),
-                  SegmentedButton<String>(
-                    segments: [
-                      ButtonSegment(value: 'en', label: Text(strings.english)),
-                      ButtonSegment(value: 'ar', label: Text(strings.arabic)),
-                    ],
-                    selected: {locale.languageCode},
-                    onSelectionChanged: (selection) => unawaited(
-                      ref
-                          .read(localeControllerProvider.notifier)
-                          .setLocale(Locale(selection.first)),
+                  Align(
+                    alignment: AlignmentDirectional.center,
+                    child: _PairingLanguageControl(
+                      selectedLocale: locale,
+                      onPressed: () => unawaited(
+                        _showPairingLanguageSheet(
+                          context,
+                          selectedLocale: locale,
+                          onSelected: (selected) => unawaited(
+                            ref
+                                .read(localeControllerProvider.notifier)
+                                .setLocale(selected),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -108,6 +108,254 @@ final class _WelcomeScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+final class _PairingLanguageControl extends StatelessWidget {
+  const _PairingLanguageControl({
+    required this.selectedLocale,
+    required this.onPressed,
+  });
+
+  final Locale selectedLocale;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    return TextButton(
+      key: const Key('pairing-language-control'),
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: context.waflo.subtleText,
+        minimumSize: const Size(48, 44),
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 12,
+          vertical: WafloSpacing.sm,
+        ),
+        shape: const StadiumBorder(),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.language_rounded, size: 18),
+          const SizedBox(width: WafloSpacing.sm),
+          Flexible(
+            child: Text(
+              '${strings.chooseLanguage} · '
+              '${_localizedLocaleName(strings, selectedLocale)}',
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+          const SizedBox(width: WafloSpacing.xs),
+          const Icon(Icons.expand_more_rounded, size: 18),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _showPairingLanguageSheet(
+  BuildContext context, {
+  required Locale selectedLocale,
+  required ValueChanged<Locale> onSelected,
+}) => showModalBottomSheet<void>(
+  context: context,
+  useSafeArea: true,
+  isScrollControlled: true,
+  showDragHandle: true,
+  backgroundColor: Theme.of(context).colorScheme.surface,
+  builder: (sheetContext) => _PairingLanguageSheet(
+    selectedLocale: selectedLocale,
+    onSelected: (locale) {
+      Navigator.of(sheetContext).pop();
+      onSelected(locale);
+    },
+  ),
+);
+
+final class _PairingLanguageSheet extends StatelessWidget {
+  const _PairingLanguageSheet({
+    required this.selectedLocale,
+    required this.onSelected,
+  });
+
+  final Locale selectedLocale;
+  final ValueChanged<Locale> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    return SingleChildScrollView(
+      padding: EdgeInsetsDirectional.fromSTEB(
+        WafloLayout.pageGutter,
+        0,
+        WafloLayout.pageGutter,
+        WafloSpacing.lg + MediaQuery.viewPaddingOf(context).bottom,
+      ),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: WafloLayout.maximumContentWidth,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                strings.chooseLanguage,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: WafloSpacing.md),
+              _PairingLocaleRow(
+                key: const Key('pairing-language-en'),
+                label: strings.english,
+                selected: WafloLocales.same(
+                  selectedLocale,
+                  WafloLocales.english,
+                ),
+                onTap: () => onSelected(WafloLocales.english),
+              ),
+              const SizedBox(height: WafloSpacing.xs),
+              _PairingLocaleRow(
+                key: const Key('pairing-language-ar'),
+                label: strings.arabic,
+                selected: WafloLocales.same(
+                  selectedLocale,
+                  WafloLocales.arabic,
+                ),
+                onTap: () => onSelected(WafloLocales.arabic),
+              ),
+              const SizedBox(height: WafloSpacing.lg),
+              Text(
+                key: const Key('pairing-language-kurdish-label'),
+                strings.kurdishGroup,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: context.waflo.subtleText,
+                ),
+              ),
+              const SizedBox(height: WafloSpacing.sm),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  border: BorderDirectional(
+                    start: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    start: WafloSpacing.sm,
+                  ),
+                  child: Column(
+                    children: [
+                      _PairingLocaleRow(
+                        key: const Key('pairing-language-ku-Arab-IQ'),
+                        label: strings.kurdishBadini,
+                        selected: WafloLocales.same(
+                          selectedLocale,
+                          WafloLocales.badini,
+                        ),
+                        onTap: () => onSelected(WafloLocales.badini),
+                      ),
+                      const SizedBox(height: WafloSpacing.xs),
+                      _PairingLocaleRow(
+                        key: const Key('pairing-language-ckb'),
+                        label: strings.kurdishSorani,
+                        selected: WafloLocales.same(
+                          selectedLocale,
+                          WafloLocales.sorani,
+                        ),
+                        onTap: () => onSelected(WafloLocales.sorani),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+final class _PairingLocaleRow extends StatelessWidget {
+  const _PairingLocaleRow({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    selected: selected,
+    child: Material(
+      color: selected
+          ? Theme.of(context).colorScheme.primaryContainer
+          : Colors.transparent,
+      borderRadius: BorderRadius.circular(WafloRadius.medium),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: WafloLayout.minimumTouchTarget + 8,
+          ),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: 12,
+              vertical: WafloSpacing.sm,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: selected ? context.waflo.brandAction : null,
+                    ),
+                  ),
+                ),
+                if (selected)
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: context.waflo.brandAction,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check_rounded,
+                      size: 18,
+                      color: context.waflo.onBrandAction,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+String _localizedLocaleName(AppLocalizations strings, Locale locale) {
+  if (WafloLocales.same(locale, WafloLocales.arabic)) return strings.arabic;
+  if (WafloLocales.same(locale, WafloLocales.badini)) {
+    return strings.kurdishBadini;
+  }
+  if (WafloLocales.same(locale, WafloLocales.sorani)) {
+    return strings.kurdishSorani;
+  }
+  return strings.english;
 }
 
 final class _CameraRationaleScreen extends ConsumerStatefulWidget {
@@ -499,12 +747,6 @@ final class _PairingSuccessScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Icon(
-            Icons.verified_outlined,
-            size: 80,
-            color: WafloColors.success,
-          ),
-          const SizedBox(height: WafloSpacing.lg),
           Text(
             strings.pairingSuccessTitle,
             style: Theme.of(context).textTheme.headlineMedium,
@@ -515,25 +757,70 @@ final class _PairingSuccessScreen extends ConsumerWidget {
           if (deviceContext != null) ...[
             const SizedBox(height: WafloSpacing.lg),
             Container(
-              padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
+              key: const Key('pairing-confirmation-card'),
+              padding: const EdgeInsetsDirectional.all(12),
               decoration: BoxDecoration(
                 color: context.waflo.successSurface,
-                borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
+                borderRadius: BorderRadius.circular(WafloRadius.large),
+                border: Border.all(
+                  color: WafloColors.success.withValues(alpha: 0.24),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Row(
                 children: [
-                  WafloOperationalLabel(strings.verifiedByWaflo),
-                  const SizedBox(height: WafloSpacing.sm),
-                  Text(
-                    deviceContext.organization.displayName,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: context.waflo.onSuccessSurface,
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(
+                      color: WafloColors.success,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.verified_rounded,
+                      size: 24,
+                      color: WafloColors.white,
                     ),
                   ),
-                  Text(
-                    deviceContext.currentLocation.displayName,
-                    style: TextStyle(color: context.waflo.onSuccessSurface),
+                  const SizedBox(width: WafloSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        WafloOperationalLabel(
+                          strings.verifiedByWaflo,
+                          color: context.waflo.onSuccessSurface,
+                        ),
+                        if (deviceContext
+                            .organization
+                            .displayName
+                            .isNotEmpty) ...[
+                          const SizedBox(height: WafloSpacing.xs),
+                          Text(
+                            deviceContext.organization.displayName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: context.waflo.onSuccessSurface,
+                                ),
+                          ),
+                        ],
+                        if (deviceContext
+                            .currentLocation
+                            .displayName
+                            .isNotEmpty)
+                          Text(
+                            deviceContext.currentLocation.displayName,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: context.waflo.onSuccessSurface,
+                                ),
+                          ),
+                      ],
+                    ),
                   ),
                 ],
               ),

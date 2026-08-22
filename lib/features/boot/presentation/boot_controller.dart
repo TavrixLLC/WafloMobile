@@ -293,6 +293,11 @@ final class BootController extends Notifier<BootState> {
     state = const BootState(stage: BootStage.unpaired);
   }
 
+  Future<void> pairAgainAfterRevocation() async {
+    if (state.stage != BootStage.deviceRevoked) return;
+    await resetForRepair();
+  }
+
   void _setFailure(AppFailure failure) {
     final disposition = classifyFailure(failure);
     if (disposition == FailureDisposition.deviceRevoked ||

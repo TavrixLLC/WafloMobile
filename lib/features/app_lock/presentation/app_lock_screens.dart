@@ -18,13 +18,30 @@ final class AppLockOverlay extends ConsumerStatefulWidget {
 }
 
 final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
-  final _pinController = TextEditingController();
+  String _pin = '';
+  bool _automaticBiometricStarted = false;
 
   @override
-  void dispose() {
-    _pinController.clear();
-    _pinController.dispose();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final lock = ref.read(appLockControllerProvider);
+    if (_automaticBiometricStarted ||
+        lock.configuration.mode != AppLockMode.biometric ||
+        !lock.isLocked ||
+        lock.safeErrorCode != null) {
+      return;
+    }
+    _automaticBiometricStarted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        ref
+            .read(appLockControllerProvider.notifier)
+            .unlockWithBiometric(
+              AppLocalizations.of(context).biometricUnlockReason,
+            ),
+      );
+    });
   }
 
   @override
@@ -32,8 +49,14 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
     final strings = AppLocalizations.of(context);
     final lock = ref.watch(appLockControllerProvider);
     final busy = lock.status == AppLockStatus.authenticating;
-    final pinMode = lock.configuration.mode == AppLockMode.pin;
+    final biometricMode = lock.configuration.mode == AppLockMode.biometric;
     final light = Theme.of(context).brightness == Brightness.light;
+    if (biometricMode && lock.safeErrorCode == null) {
+      return Material(
+        key: const Key('biometric-prompt-launching'),
+        color: light ? WafloColors.softCoral : context.waflo.canvas,
+      );
+    }
     return Material(
       key: const Key('app-lock-overlay'),
       color: light ? WafloColors.softCoral : context.waflo.canvas,
@@ -47,7 +70,7 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                 scopesRoute: true,
                 namesRoute: true,
                 explicitChildNodes: true,
-                label: strings.appLocked,
+                label: strings.enterPinToUnlock,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -57,16 +80,18 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                     ),
                     const SizedBox(height: 36),
                     Text(
-                      strings.appLocked,
+                      strings.enterPinToUnlock,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: WafloSpacing.sm),
                     Text(
-                      strings.appLockedBody,
+                      biometricMode
+                          ? strings.biometricPinFallback
+                          : strings.pinUnlockBody,
                       style: TextStyle(color: context.waflo.subtleText),
                     ),
-                    const SizedBox(height: 56),
-                    if (pinMode) ...[
+                    const SizedBox(height: 48),
+                    ...[
                       // Retains the production input contract and test hook;
                       // the visible A+ control is the accessible keypad below.
                       const SizedBox(
@@ -74,39 +99,9 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                         width: 1,
                         height: 1,
                       ),
-                      Semantics(
-                        liveRegion: true,
-                        label: '${_pinController.text.length} of 6',
-                        child: ExcludeSemantics(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              for (var index = 0; index < 6; index++) ...[
-                                AnimatedContainer(
-                                  duration:
-                                      MediaQuery.disableAnimationsOf(context)
-                                      ? Duration.zero
-                                      : WafloMotion.immediate,
-                                  width: 12,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: index < _pinController.text.length
-                                        ? context.waflo.brandAction
-                                        : Colors.transparent,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: context.waflo.brandAction
-                                          .withValues(alpha: .48),
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                                if (index != 5)
-                                  const SizedBox(width: WafloSpacing.md),
-                              ],
-                            ],
-                          ),
-                        ),
+                      _PinDots(
+                        key: const Key('unlock-pin-dots'),
+                        length: _pin.length,
                       ),
                       const SizedBox(height: WafloSpacing.sm),
                       Text(
@@ -125,14 +120,14 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                       const SizedBox(height: WafloSpacing.md),
                       FilledButton(
                         key: const Key('unlock-with-pin'),
-                        onPressed: busy || _pinController.text.length < 4
-                            ? null
-                            : _unlockPin,
+                        onPressed: busy || _pin.length < 4 ? null : _unlockPin,
                         child: Text(strings.unlock),
                       ),
-                    ] else
-                      FilledButton.icon(
-                        key: const Key('biometric-unlock'),
+                    ],
+                    if (biometricMode) ...[
+                      const SizedBox(height: WafloSpacing.sm),
+                      TextButton.icon(
+                        key: const Key('try-biometrics-again'),
                         onPressed: busy
                             ? null
                             : () => unawaited(
@@ -143,18 +138,22 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
                                     ),
                               ),
                         icon: const Icon(Icons.fingerprint_rounded),
-                        label: Text(strings.unlockWithBiometrics),
+                        label: Text(strings.tryBiometricsAgain),
                       ),
+                    ],
                     if (busy) ...[
                       const SizedBox(height: WafloSpacing.md),
                       const LinearProgressIndicator(),
                     ],
-                    if (lock.safeErrorCode != null) ...[
+                    if (lock.safeErrorCode != null &&
+                        lock.safeErrorCode != 'BIOMETRIC_FAILED') ...[
                       const SizedBox(height: WafloSpacing.md),
                       WafloStatusBanner(
                         icon: Icons.lock_clock_outlined,
                         message: lock.status == AppLockStatus.rateLimited
                             ? strings.pinRateLimited
+                            : lock.safeErrorCode == 'BIOMETRIC_FAILED'
+                            ? strings.biometricPinFallback
                             : strings.unlockFailed,
                         color: WafloColors.warning,
                         backgroundColor: context.waflo.warningSurface,
@@ -179,8 +178,8 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
   }
 
   void _unlockPin() {
-    final pin = _pinController.text;
-    _pinController.clear();
+    final pin = _pin;
+    setState(() => _pin = '');
     unawaited(
       ref
           .read(appLockControllerProvider.notifier)
@@ -189,18 +188,54 @@ final class _AppLockOverlayState extends ConsumerState<AppLockOverlay> {
   }
 
   void _appendDigit(int digit) {
-    if (_pinController.text.length >= 6) return;
-    setState(() => _pinController.text += digit.toString());
+    if (_pin.length >= 6) return;
+    setState(() => _pin += digit.toString());
     unawaited(HapticFeedback.selectionClick());
   }
 
   void _backspace() {
-    if (_pinController.text.isEmpty) return;
-    setState(() {
-      final value = _pinController.text;
-      _pinController.text = value.substring(0, value.length - 1);
-    });
+    if (_pin.isEmpty) return;
+    setState(() => _pin = _pin.substring(0, _pin.length - 1));
   }
+}
+
+final class _PinDots extends StatelessWidget {
+  const _PinDots({required this.length, super.key});
+
+  final int length;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    liveRegion: true,
+    label: '$length of 6',
+    child: ExcludeSemantics(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          for (var index = 0; index < 6; index++) ...[
+            AnimatedContainer(
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : WafloMotion.immediate,
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: index < length
+                    ? context.waflo.brandAction
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: context.waflo.brandAction.withValues(alpha: .48),
+                  width: 2,
+                ),
+              ),
+            ),
+            if (index != 5) const SizedBox(width: WafloSpacing.md),
+          ],
+        ],
+      ),
+    ),
+  );
 }
 
 final class _PinKeypad extends StatelessWidget {
@@ -208,6 +243,7 @@ final class _PinKeypad extends StatelessWidget {
     required this.enabled,
     required this.onDigit,
     required this.onBackspace,
+    super.key,
   });
 
   final bool enabled;
@@ -225,12 +261,18 @@ final class _PinKeypad extends StatelessWidget {
     children: [
       for (var digit = 1; digit <= 9; digit++)
         _PinKey(
+          key: Key('pin-key-$digit'),
           label: digit.toString(),
           onPressed: enabled ? () => onDigit(digit) : null,
         ),
       const SizedBox.shrink(),
-      _PinKey(label: '0', onPressed: enabled ? () => onDigit(0) : null),
       _PinKey(
+        key: const Key('pin-key-0'),
+        label: '0',
+        onPressed: enabled ? () => onDigit(0) : null,
+      ),
+      _PinKey(
+        key: const Key('pin-key-delete'),
         semanticLabel: MaterialLocalizations.of(context).deleteButtonTooltip,
         icon: Icons.backspace_outlined,
         onPressed: enabled ? onBackspace : null,
@@ -245,6 +287,7 @@ final class _PinKey extends StatelessWidget {
     this.semanticLabel,
     this.icon,
     required this.onPressed,
+    super.key,
   });
 
   final String? label;
@@ -294,31 +337,50 @@ final class AppLockSettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: WafloSpacing.lg),
             _ModeRow(
+              key: const Key('pin-mode'),
+              icon: Icons.pin_outlined,
+              title: strings.localStaffPin,
+              selected: state.configuration.mode != AppLockMode.off,
+              onTap: () => context.push('/app-lock/pin'),
+            ),
+            _ModeRow(
+              key: const Key('biometric-mode'),
+              icon: Icons.fingerprint_rounded,
+              title: strings.biometric,
+              subtitle: state.configuration.mode == AppLockMode.off
+                  ? strings.createPinFirst
+                  : null,
+              selected: state.configuration.mode == AppLockMode.biometric,
+              onTap: state.configuration.mode == AppLockMode.off
+                  ? null
+                  : () async {
+                      if (state.configuration.mode == AppLockMode.biometric) {
+                        await controller.disableBiometric();
+                        return;
+                      }
+                      final enabled = await controller.setBiometric(
+                        strings.biometricSetupReason,
+                      );
+                      if (!enabled && context.mounted) {
+                        final current = ref.read(appLockControllerProvider);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              current.safeErrorCode == 'PIN_REQUIRED'
+                                  ? strings.createPinFirst
+                                  : strings.biometricUnavailable,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+            ),
+            _ModeRow(
+              key: const Key('app-lock-off-mode'),
               icon: Icons.lock_open_rounded,
               title: strings.appLockOff,
               selected: state.configuration.mode == AppLockMode.off,
               onTap: () => unawaited(controller.setOff()),
-            ),
-            _ModeRow(
-              icon: Icons.fingerprint_rounded,
-              title: strings.biometric,
-              selected: state.configuration.mode == AppLockMode.biometric,
-              onTap: () async {
-                final enabled = await controller.setBiometric(
-                  strings.biometricSetupReason,
-                );
-                if (!enabled && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(strings.biometricUnavailable)),
-                  );
-                }
-              },
-            ),
-            _ModeRow(
-              icon: Icons.pin_outlined,
-              title: strings.localStaffPin,
-              selected: state.configuration.mode == AppLockMode.pin,
-              onTap: () => context.push('/app-lock/pin'),
             ),
             const SizedBox(height: WafloSpacing.xl),
             WafloOperationalLabel(strings.lockAfter),
@@ -354,25 +416,30 @@ final class AppLockSettingsScreen extends ConsumerWidget {
 
 final class _ModeRow extends StatelessWidget {
   const _ModeRow({
+    super.key,
     required this.icon,
     required this.title,
     required this.selected,
     required this.onTap,
+    this.subtitle,
   });
 
   final IconData icon;
   final String title;
+  final String? subtitle;
   final bool selected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) => ListTile(
     minTileHeight: 64,
     contentPadding: EdgeInsets.zero,
+    enabled: onTap != null,
     leading: Icon(icon),
     title: Text(title, style: Theme.of(context).textTheme.titleMedium),
+    subtitle: subtitle == null ? null : Text(subtitle!),
     trailing: Icon(
-      selected ? Icons.radio_button_checked : Icons.radio_button_off,
+      selected ? Icons.check_circle_rounded : Icons.circle_outlined,
       color: selected ? Theme.of(context).colorScheme.primary : null,
     ),
     onTap: onTap,
@@ -387,35 +454,45 @@ final class PinSetupScreen extends ConsumerStatefulWidget {
 }
 
 final class _PinSetupScreenState extends ConsumerState<PinSetupScreen> {
-  final _pin = TextEditingController();
-  final _confirmation = TextEditingController();
+  String _entry = '';
+  String? _newPin;
   bool _saving = false;
   String? _error;
 
   @override
-  void dispose() {
-    _pin.clear();
-    _confirmation.clear();
-    _pin.dispose();
-    _confirmation.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
+    final confirming = _newPin != null;
     return WafloPage(
       appBar: AppBar(title: Text(strings.createLocalStaffPin)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Align(child: WafloBrandMark(size: 58)),
+          const Align(child: WafloBrandMark(size: 48)),
           const SizedBox(height: WafloSpacing.lg),
           Text(strings.pinNeverManager, textAlign: TextAlign.center),
-          const SizedBox(height: WafloSpacing.lg),
-          _PinField(controller: _pin, label: strings.newPin),
+          const SizedBox(height: WafloSpacing.xl),
+          AnimatedSwitcher(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : WafloMotion.immediate,
+            child: Text(
+              confirming ? strings.confirmPin : strings.newPin,
+              key: ValueKey(confirming),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          ),
           const SizedBox(height: WafloSpacing.md),
-          _PinField(controller: _confirmation, label: strings.confirmPin),
+          _PinDots(key: const Key('pin-setup-dots'), length: _entry.length),
+          const SizedBox(height: WafloSpacing.sm),
+          Text(
+            strings.pinLengthHelp,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
+          ),
           if (_error != null) ...[
             const SizedBox(height: WafloSpacing.md),
             WafloStatusBanner(
@@ -426,53 +503,69 @@ final class _PinSetupScreenState extends ConsumerState<PinSetupScreen> {
             ),
           ],
           const SizedBox(height: WafloSpacing.lg),
+          _PinKeypad(
+            key: const Key('pin-setup-keypad'),
+            enabled: !_saving,
+            onDigit: _appendDigit,
+            onBackspace: _backspace,
+          ),
+          const SizedBox(height: WafloSpacing.md),
           FilledButton(
-            onPressed: _saving ? null : _save,
-            child: Text(strings.savePin),
+            key: Key(confirming ? 'pin-setup-save' : 'pin-setup-continue'),
+            onPressed: _saving || _entry.length < 4 ? null : _advance,
+            child: Text(confirming ? strings.savePin : strings.continueAction),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _save() async {
+  void _appendDigit(int digit) {
+    if (_entry.length >= 6 || _saving) return;
+    setState(() {
+      _entry += digit.toString();
+      _error = null;
+    });
+    unawaited(HapticFeedback.selectionClick());
+  }
+
+  void _backspace() {
+    if (_entry.isEmpty || _saving) return;
+    setState(() {
+      _entry = _entry.substring(0, _entry.length - 1);
+      _error = null;
+    });
+  }
+
+  Future<void> _advance() async {
     final strings = AppLocalizations.of(context);
-    if (!RegExp(r'^[0-9]{4,6}$').hasMatch(_pin.text)) {
+    if (!RegExp(r'^[0-9]{4,6}$').hasMatch(_entry)) {
       setState(() => _error = strings.pinLengthHelp);
       return;
     }
-    if (_pin.text != _confirmation.text) {
-      setState(() => _error = strings.pinMismatch);
+    final pendingPin = _newPin;
+    if (pendingPin == null) {
+      setState(() {
+        _newPin = _entry;
+        _entry = '';
+        _error = null;
+      });
+      return;
+    }
+    if (pendingPin != _entry) {
+      setState(() {
+        _entry = '';
+        _error = strings.pinMismatch;
+      });
       return;
     }
     setState(() {
       _saving = true;
       _error = null;
     });
-    await ref.read(appLockControllerProvider.notifier).setPin(_pin.text);
-    _pin.clear();
-    _confirmation.clear();
+    await ref.read(appLockControllerProvider.notifier).setPin(pendingPin);
+    _entry = '';
+    _newPin = null;
     if (mounted) context.pop();
   }
-}
-
-final class _PinField extends StatelessWidget {
-  const _PinField({required this.controller, required this.label});
-
-  final TextEditingController controller;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => TextField(
-    controller: controller,
-    textAlign: TextAlign.center,
-    style: Theme.of(context).textTheme.headlineSmall,
-    obscureText: true,
-    enableSuggestions: false,
-    autocorrect: false,
-    keyboardType: TextInputType.number,
-    maxLength: 6,
-    inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9]'))],
-    decoration: InputDecoration(labelText: label),
-  );
 }

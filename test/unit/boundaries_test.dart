@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/core/api/api_error_decoder.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
+import 'package:waflo_staff/core/localization/app_locales.dart';
 import 'package:waflo_staff/core/logging/safe_logger.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/version/mobile_semantic_version.dart';
@@ -138,6 +139,10 @@ void main() {
       ),
     );
     expect(repository.readLocale(), const Locale('ar'));
+    await repository.setLocale(WafloLocales.badini);
+    expect(repository.readLocale(), WafloLocales.badini);
+    await repository.setLocale(WafloLocales.sorani);
+    expect(repository.readLocale(), WafloLocales.sorani);
     expect(repository.readThemeMode(), ThemeMode.dark);
     final cache = repository.readSafeContext();
     expect(cache?.role, 'STAFF');

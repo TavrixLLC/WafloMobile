@@ -87,6 +87,8 @@ final class PairingFlowService {
         signatureAlgorithm: claim.signatureAlgorithm,
         message: claim.message,
       );
+      // Preserve the established asynchronous error boundary for pairing.
+      // ignore: unawaited_return_in_try_block
       return _completeClaim(
         identity: identity,
         pairingPublicId: claim.pairingPublicId,
@@ -197,6 +199,8 @@ final class PairingFlowService {
         signatureAlgorithm: recovered.signatureAlgorithm,
         message: recovered.message,
       );
+      // Preserve the established asynchronous error boundary for recovery.
+      // ignore: unawaited_return_in_try_block
       return _completeClaim(
         identity: identity,
         pairingPublicId: recovered.pairingPublicId,

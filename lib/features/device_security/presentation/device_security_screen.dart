@@ -21,6 +21,10 @@ final class DeviceSecurityScreen extends ConsumerWidget {
     final deviceContext = ref.watch(activeDeviceContextProvider);
     final appLock = ref.watch(appLockControllerProvider);
     final packageInfo = ref.watch(packageInfoProvider);
+    final device = deviceContext?.device;
+    final currentLocation = deviceContext?.currentLocation;
+    final role = _nonEmpty(deviceContext?.role);
+    final status = _nonEmpty(device?.status);
     final verified = deviceContext == null
         ? strings.unavailable
         : DateFormat.yMd(
@@ -53,37 +57,38 @@ final class DeviceSecurityScreen extends ConsumerWidget {
                 children: [
                   WafloSummaryRow(
                     label: strings.thisDevice,
-                    value:
-                        deviceContext?.device.displayName ??
-                        strings.unavailable,
+                    value: _available(device?.displayName, strings),
                   ),
                   WafloSummaryRow(
                     label: strings.activeOrganization,
-                    value:
-                        deviceContext?.organization.displayName ??
-                        strings.unavailable,
+                    value: _available(
+                      deviceContext?.organization.displayName,
+                      strings,
+                    ),
                   ),
                   WafloSummaryRow(
                     label: strings.currentLocationLabel,
-                    value:
-                        deviceContext?.currentLocation.displayName ??
-                        strings.unavailable,
+                    value: _available(currentLocation?.displayName, strings),
                   ),
                   WafloSummaryRow(
                     label: strings.roleLabel,
-                    value: strings.localizeRole(deviceContext?.role ?? ''),
+                    value: role == null
+                        ? strings.unavailable
+                        : strings.localizeRole(role),
                   ),
                   WafloSummaryRow(
                     label: strings.deviceStatusLabel,
-                    value: deviceContext?.device.status == 'ACTIVE'
+                    value: status == 'ACTIVE'
                         ? strings.active
-                        : deviceContext?.device.status ?? strings.unavailable,
+                        : status ?? strings.unavailable,
                   ),
                   WafloSummaryRow(
                     label: strings.locationsTitle,
-                    value: strings.assignedLocations(
-                      deviceContext?.assignedLocationCount ?? 0,
-                    ),
+                    value: deviceContext == null
+                        ? strings.unavailable
+                        : strings.assignedLocations(
+                            deviceContext.assignedLocationCount,
+                          ),
                     divider: false,
                   ),
                 ],
@@ -96,18 +101,19 @@ final class DeviceSecurityScreen extends ConsumerWidget {
                 children: [
                   WafloSummaryRow(
                     label: strings.earningCapability,
-                    value:
-                        deviceContext?.currentLocation.earningAllowed ?? false
-                        ? strings.capabilityAllowed
-                        : strings.capabilityBlocked,
+                    value: _capability(
+                      strings,
+                      known: currentLocation?.capabilitiesKnown,
+                      allowed: currentLocation?.earningAllowed,
+                    ),
                   ),
                   WafloSummaryRow(
                     label: strings.redemptionCapability,
-                    value:
-                        deviceContext?.currentLocation.redemptionAllowed ??
-                            false
-                        ? strings.capabilityAllowed
-                        : strings.capabilityBlocked,
+                    value: _capability(
+                      strings,
+                      known: currentLocation?.capabilitiesKnown,
+                      allowed: currentLocation?.redemptionAllowed,
+                    ),
                   ),
                   WafloSummaryRow(label: strings.lastVerified, value: verified),
                   WafloSummaryRow(
@@ -117,7 +123,7 @@ final class DeviceSecurityScreen extends ConsumerWidget {
                   WafloSummaryRow(
                     label: strings.appVersionLabel,
                     value: packageInfo.when(
-                      data: (info) => info.version,
+                      data: (info) => _available(info.version, strings),
                       error: (error, stackTrace) => strings.unavailable,
                       loading: () => '…',
                     ),
@@ -128,7 +134,7 @@ final class DeviceSecurityScreen extends ConsumerWidget {
             ),
             const SizedBox(height: WafloSpacing.sm),
             Text(
-              strings.localizePlatform(deviceContext?.device.platform ?? ''),
+              _platform(strings, device?.platform),
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -178,9 +184,33 @@ final class DeviceSecurityScreen extends ConsumerWidget {
   static String _modeLabel(AppLocalizations strings, AppLockMode mode) =>
       switch (mode) {
         AppLockMode.off => strings.appLockOff,
-        AppLockMode.biometric => strings.biometric,
+        AppLockMode.biometric => strings.pinAndBiometrics,
         AppLockMode.pin => strings.localStaffPin,
       };
+
+  static String? _nonEmpty(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+
+  static String _available(String? value, AppLocalizations strings) =>
+      _nonEmpty(value) ?? strings.unavailable;
+
+  static String _capability(
+    AppLocalizations strings, {
+    required bool? known,
+    required bool? allowed,
+  }) {
+    if (known != true || allowed == null) return strings.unavailable;
+    return allowed ? strings.capabilityAllowed : strings.capabilityBlocked;
+  }
+
+  static String _platform(AppLocalizations strings, String? platform) {
+    final value = _nonEmpty(platform);
+    return value == null
+        ? strings.unavailable
+        : strings.localizePlatform(value);
+  }
 
   static Future<void> _confirmSignOut(
     BuildContext context,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart' hide TextDirection;
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
@@ -27,11 +26,14 @@ final class HomeScreen extends ConsumerWidget {
             deviceContext.currentLocation.redemptionAllowed);
     final pending = operation.pendingOperation != null;
     final canScan = online && capable && !pending;
-    final lastVerified = deviceContext == null
-        ? null
-        : DateFormat.Hm(
-            Localizations.localeOf(context).toLanguageTag(),
-          ).format(deviceContext.synchronizedAt.toLocal());
+    final organization = _displayValue(
+      deviceContext?.organization.displayName,
+      strings.appTitle,
+    );
+    final location = _displayValue(
+      deviceContext?.currentLocation.displayName,
+      strings.unavailable,
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -97,6 +99,30 @@ final class HomeScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: WafloSpacing.xl),
+              Text(
+                organization,
+                style: Theme.of(context).textTheme.displaySmall,
+              ),
+              const SizedBox(height: WafloSpacing.sm),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 18,
+                    color: context.waflo.subtleText,
+                  ),
+                  const SizedBox(width: WafloSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      location,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: context.waflo.subtleText,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: WafloSpacing.lg),
               if ((boot.session?.isReview ?? false) || localDemo.active) ...[
                 WafloStatusBanner(
                   icon: Icons.science_outlined,
@@ -135,33 +161,7 @@ final class HomeScreen extends ConsumerWidget {
                 _PendingTransaction(onPressed: () => context.push('/loyalty')),
                 const SizedBox(height: WafloSpacing.lg),
               ],
-              Text(
-                deviceContext?.organization.displayName ?? strings.appTitle,
-                style: Theme.of(context).textTheme.displaySmall,
-              ),
-              const SizedBox(height: WafloSpacing.sm),
-              Wrap(
-                spacing: WafloSpacing.xs,
-                runSpacing: WafloSpacing.xs,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    deviceContext?.currentLocation.displayName ??
-                        strings.unavailable,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: context.waflo.subtleText,
-                    ),
-                  ),
-                  if (lastVerified != null)
-                    Text(
-                      '· ${strings.lastVerified} $lastVerified',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: context.waflo.subtleText,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: WafloSpacing.xxl),
+              const SizedBox(height: WafloSpacing.md),
               if (!capable) ...[
                 WafloStatusBanner(
                   icon: Icons.location_off_outlined,
@@ -188,22 +188,11 @@ final class HomeScreen extends ConsumerWidget {
                     : null,
               ),
               const SizedBox(height: WafloSpacing.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: _HomeLink(
-                      label: strings.deviceAndSecurity,
-                      onTap: () => context.push('/device-security'),
-                    ),
-                  ),
-                  const SizedBox(width: WafloSpacing.sm),
-                  Expanded(
-                    child: _HomeLink(
-                      label: strings.settings,
-                      onTap: () => context.push('/settings'),
-                    ),
-                  ),
-                ],
+              WafloOperationalLabel(strings.deviceControls),
+              const SizedBox(height: WafloSpacing.sm),
+              _HomeActionDock(
+                onDeviceSecurity: () => context.push('/device-security'),
+                onSettings: () => context.push('/settings'),
               ),
             ],
           ),
@@ -256,12 +245,7 @@ final class _PendingTransaction extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Directionality.of(context) == TextDirection.rtl
-                    ? Icons.chevron_left_rounded
-                    : Icons.chevron_right_rounded,
-                color: context.waflo.onWarningSurface,
-              ),
+              WafloForwardChevron(color: context.waflo.onWarningSurface),
             ],
           ),
         ),
@@ -270,28 +254,122 @@ final class _PendingTransaction extends StatelessWidget {
   }
 }
 
-final class _HomeLink extends StatelessWidget {
-  const _HomeLink({required this.label, required this.onTap});
+final class _HomeActionDock extends StatelessWidget {
+  const _HomeActionDock({
+    required this.onDeviceSecurity,
+    required this.onSettings,
+  });
 
+  final VoidCallback onDeviceSecurity;
+  final VoidCallback onSettings;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final stackActions =
+          constraints.maxWidth < 340 ||
+          MediaQuery.textScalerOf(context).scale(14) >= 18.2;
+      final deviceSecurity = _HomeDockAction(
+        key: const Key('home-device-security'),
+        icon: Icons.shield_outlined,
+        label: AppLocalizations.of(context).deviceAndSecurity,
+        onTap: onDeviceSecurity,
+      );
+      final settings = _HomeDockAction(
+        key: const Key('home-settings'),
+        icon: Icons.tune_rounded,
+        label: AppLocalizations.of(context).settings,
+        onTap: onSettings,
+      );
+      if (stackActions) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            deviceSecurity,
+            const SizedBox(height: WafloSpacing.sm),
+            settings,
+          ],
+        );
+      }
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: deviceSecurity),
+            const SizedBox(width: WafloSpacing.sm),
+            Expanded(child: settings),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+final class _HomeDockAction extends StatelessWidget {
+  const _HomeDockAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
   final String label;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => TextButton(
-    onPressed: onTap,
-    style: TextButton.styleFrom(
-      foregroundColor: context.waflo.subtleText,
-      alignment: AlignmentDirectional.centerStart,
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surfaceContainerLow,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(WafloRadius.large),
+      side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
     ),
-    child: Text(
-      label,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        decoration: TextDecoration.underline,
-        decorationColor: context.waflo.subtleText,
+    clipBehavior: Clip.antiAlias,
+    child: InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 104),
+        child: Padding(
+          padding: const EdgeInsetsDirectional.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(WafloRadius.medium),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 20,
+                      color: context.waflo.brandAction,
+                    ),
+                  ),
+                  const Spacer(),
+                  WafloForwardChevron(color: context.waflo.subtleText),
+                ],
+              ),
+              const SizedBox(height: WafloSpacing.md),
+              Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ],
+          ),
+        ),
       ),
     ),
   );
+}
+
+String _displayValue(String? value, String unavailable) {
+  final trimmed = value?.trim();
+  return trimmed == null || trimmed.isEmpty ? unavailable : trimmed;
 }

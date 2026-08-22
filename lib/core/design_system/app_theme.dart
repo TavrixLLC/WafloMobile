@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waflo_staff/core/localization/app_locales.dart';
 
 /// Official Waflo brand tokens from Developer/waflo-design-tokens.json.
 abstract final class WafloColors {
@@ -193,7 +194,7 @@ abstract final class WafloTheme {
 
   static ThemeData _build(Brightness brightness, {required Locale locale}) {
     final dark = brightness == Brightness.dark;
-    final usesArabicTypography = locale.languageCode == 'ar';
+    final usesArabicTypography = WafloLocales.usesArabicScript(locale);
     final primaryFontFamily = usesArabicTypography
         ? 'NotoSansArabic'
         : 'Manrope';

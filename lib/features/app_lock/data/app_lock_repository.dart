@@ -10,6 +10,7 @@ abstract interface class AppLockStore {
   AppLockConfiguration readConfiguration();
   Future<void> setConfiguration(AppLockConfiguration configuration);
   Future<void> setPin(String pin);
+  Future<bool> hasPin();
   Future<bool> verifyPin(String pin);
   Future<void> clearPin();
   Future<PinRateLimit> readRateLimit();
@@ -32,10 +33,11 @@ final class AppLockRepository implements AppLockStore {
 
   @override
   AppLockConfiguration readConfiguration() => AppLockConfiguration(
-    mode: AppLockMode.values.firstWhere(
-      (value) => value.name == _preferences.getString(_modeKey),
-      orElse: () => AppLockMode.off,
-    ),
+    mode: switch (_preferences.getString(_modeKey)) {
+      'pin' => AppLockMode.pin,
+      'biometricWithPin' => AppLockMode.biometric,
+      _ => AppLockMode.off,
+    },
     interval: AppLockInterval.values.firstWhere(
       (value) => value.name == _preferences.getString(_intervalKey),
       orElse: () => AppLockInterval.immediately,
@@ -44,7 +46,12 @@ final class AppLockRepository implements AppLockStore {
 
   @override
   Future<void> setConfiguration(AppLockConfiguration configuration) async {
-    await _preferences.setString(_modeKey, configuration.mode.name);
+    await _preferences.setString(
+      _modeKey,
+      configuration.mode == AppLockMode.biometric
+          ? 'biometricWithPin'
+          : configuration.mode.name,
+    );
     await _preferences.setString(_intervalKey, configuration.interval.name);
   }
 
@@ -89,6 +96,24 @@ final class AppLockRepository implements AppLockStore {
         difference |= actual[index] ^ expected[index];
       }
       return difference == 0;
+    } on FormatException {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> hasPin() async {
+    final raw = await _secureStore.read(_pinMaterialKey);
+    if (raw == null) return false;
+    try {
+      final value = jsonDecode(raw);
+      return value is Map<String, Object?> &&
+          value['version'] == 1 &&
+          value['iterations'] == _pinIterations &&
+          value['salt'] is String &&
+          value['verifier'] is String &&
+          base64Url.decode(value['salt']! as String).isNotEmpty &&
+          base64Url.decode(value['verifier']! as String).isNotEmpty;
     } on FormatException {
       return false;
     }

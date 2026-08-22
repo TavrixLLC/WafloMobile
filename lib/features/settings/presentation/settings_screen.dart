@@ -8,6 +8,7 @@ import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/features/local_demo/presentation/local_demo_navigation.dart';
+import 'package:waflo_staff/features/settings/presentation/language_selector.dart';
 
 final class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -37,59 +38,40 @@ final class SettingsScreen extends ConsumerWidget {
           children: [
             WafloOperationalLabel(strings.appearanceAndLanguage),
             const SizedBox(height: WafloSpacing.sm),
-            _SettingsChoiceGroup(
-              children: [
-                _SettingsChoice(
-                  label: strings.english,
-                  selected: locale.languageCode == 'en',
-                  onTap: () => unawaited(
-                    ref
-                        .read(localeControllerProvider.notifier)
-                        .setLocale(const Locale('en')),
-                  ),
-                ),
-                _SettingsChoice(
-                  label: strings.arabic,
-                  selected: locale.languageCode == 'ar',
-                  onTap: () => unawaited(
-                    ref
-                        .read(localeControllerProvider.notifier)
-                        .setLocale(const Locale('ar')),
-                  ),
-                ),
-              ],
+            WafloLanguageSelector(
+              selectedLocale: locale,
+              onSelected: (selected) => unawaited(
+                ref.read(localeControllerProvider.notifier).setLocale(selected),
+              ),
             ),
-            const SizedBox(height: WafloSpacing.xl),
-            _SettingsChoiceGroup(
-              children: [
-                _SettingsChoice(
-                  label: strings.themeSystem,
-                  selected: themeMode == ThemeMode.system,
-                  onTap: () => unawaited(
-                    ref
-                        .read(themeControllerProvider.notifier)
-                        .setThemeMode(ThemeMode.system),
-                  ),
+            const SizedBox(height: WafloSpacing.sm),
+            WafloSelectField<ThemeMode>(
+              key: ValueKey('theme-select-${themeMode.name}'),
+              selectedValue: themeMode,
+              semanticsLabel: _themeModeLabel(strings, themeMode),
+              icon: Icons.contrast_rounded,
+              items: [
+                DropdownMenuItem(
+                  key: const Key('theme-system'),
+                  value: ThemeMode.system,
+                  child: Text(strings.themeSystem),
                 ),
-                _SettingsChoice(
-                  label: strings.themeLight,
-                  selected: themeMode == ThemeMode.light,
-                  onTap: () => unawaited(
-                    ref
-                        .read(themeControllerProvider.notifier)
-                        .setThemeMode(ThemeMode.light),
-                  ),
+                DropdownMenuItem(
+                  key: const Key('theme-light'),
+                  value: ThemeMode.light,
+                  child: Text(strings.themeLight),
                 ),
-                _SettingsChoice(
-                  label: strings.themeDark,
-                  selected: themeMode == ThemeMode.dark,
-                  onTap: () => unawaited(
-                    ref
-                        .read(themeControllerProvider.notifier)
-                        .setThemeMode(ThemeMode.dark),
-                  ),
+                DropdownMenuItem(
+                  key: const Key('theme-dark'),
+                  value: ThemeMode.dark,
+                  child: Text(strings.themeDark),
                 ),
               ],
+              onSelected: (selected) => unawaited(
+                ref
+                    .read(themeControllerProvider.notifier)
+                    .setThemeMode(selected),
+              ),
             ),
             const SizedBox(height: WafloSpacing.xl),
             WafloSurfaceCard(
@@ -118,11 +100,7 @@ final class SettingsScreen extends ConsumerWidget {
                   horizontal: WafloSpacing.md,
                 ),
                 title: Text(strings.deviceAndSecurity),
-                trailing: Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.chevron_left_rounded
-                      : Icons.chevron_right_rounded,
-                ),
+                trailing: const WafloForwardChevron(),
                 onTap: () => context.push('/device-security'),
               ),
             ),
@@ -135,11 +113,7 @@ final class SettingsScreen extends ConsumerWidget {
                 subtitle: Text(
                   localDemo ? strings.sampleData : strings.demoMode,
                 ),
-                trailing: Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.chevron_left_rounded
-                      : Icons.chevron_right_rounded,
-                ),
+                trailing: const WafloForwardChevron(),
                 onTap: () => context.push(
                   localDemo ? localDemoScenarioRoute! : '/review-tools',
                 ),
@@ -186,87 +160,9 @@ final class SettingsScreen extends ConsumerWidget {
   }
 }
 
-final class _SettingsChoiceGroup extends StatelessWidget {
-  const _SettingsChoiceGroup({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.3;
-    if (largeText) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var index = 0; index < children.length; index++) ...[
-            children[index],
-            if (index != children.length - 1)
-              const SizedBox(height: WafloSpacing.sm),
-          ],
-        ],
-      );
-    }
-    return Row(
-      children: [
-        for (var index = 0; index < children.length; index++) ...[
-          Expanded(child: children[index]),
-          if (index != children.length - 1)
-            const SizedBox(width: WafloSpacing.sm),
-        ],
-      ],
-    );
-  }
-}
-
-final class _SettingsChoice extends StatelessWidget {
-  const _SettingsChoice({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    selected: selected,
-    child: Material(
-      color: selected
-          ? Theme.of(context).colorScheme.primaryContainer
-          : Theme.of(context).colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(WafloRadius.medium),
-        side: BorderSide(
-          color: selected
-              ? context.waflo.brandAction
-              : Theme.of(context).colorScheme.outlineVariant,
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(WafloRadius.medium),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: WafloSpacing.sm,
-                vertical: WafloSpacing.sm,
-              ),
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: selected ? context.waflo.brandAction : null,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
+String _themeModeLabel(AppLocalizations strings, ThemeMode themeMode) =>
+    switch (themeMode) {
+      ThemeMode.system => strings.themeSystem,
+      ThemeMode.light => strings.themeLight,
+      ThemeMode.dark => strings.themeDark,
+    };

@@ -38,6 +38,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get arabic => 'العربية';
 
   @override
+  String get kurdishGroup => 'کوردی';
+
+  @override
+  String get kurdishBadini => 'بادینی';
+
+  @override
+  String get kurdishSorani => 'سۆرانی';
+
+  @override
   String get cameraTitle => 'Camera access for pairing';
 
   @override
@@ -244,7 +253,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearance => 'Appearance';
 
   @override
-  String get themeSystem => 'System theme';
+  String get themeSystem => 'System';
 
   @override
   String get themeLight => 'Light';
@@ -369,6 +378,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetForRepair => 'Reset for new pairing';
+
+  @override
+  String get pairDeviceAgain => 'Pair device again';
 
   @override
   String get genericError => 'Something went wrong. Try again safely.';
@@ -926,6 +938,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deviceAndSecurity => 'Device & Security';
 
   @override
+  String get deviceControls => 'Device controls';
+
+  @override
   String get securityProtected => 'Security: Protected';
 
   @override
@@ -965,6 +980,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get biometric => 'Biometric';
+
+  @override
+  String get pinAndBiometrics => 'PIN + biometrics';
 
   @override
   String get localStaffPin => 'Local Staff PIN';
@@ -1026,6 +1044,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get biometricUnavailable =>
       'Biometric unlock is not available on this phone.';
+
+  @override
+  String get createPinFirst => 'Create a PIN before enabling biometrics.';
+
+  @override
+  String get enterPinToUnlock => 'Enter your PIN';
+
+  @override
+  String get pinUnlockBody => 'Use the local Staff PIN created on this phone.';
+
+  @override
+  String get biometricPinFallback =>
+      'Biometrics weren’t confirmed. Enter your PIN to continue.';
+
+  @override
+  String get tryBiometricsAgain => 'Try biometrics again';
 
   @override
   String get pinRateLimited => 'Too many attempts. Wait before trying again.';

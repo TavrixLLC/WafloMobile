@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:waflo_staff/core/localization/app_locales.dart';
 
 final class SafeContextCache {
   const SafeContextCache({
@@ -63,18 +64,14 @@ final class PreferencesRepository {
 
   Locale? readLocale() {
     final value = _preferences.getString(_localeKey);
-    return switch (value) {
-      'en' => const Locale('en'),
-      'ar' => const Locale('ar'),
-      _ => null,
-    };
+    return WafloLocales.fromStoredTag(value);
   }
 
   Future<void> setLocale(Locale? locale) async {
     if (locale == null) {
       await _preferences.remove(_localeKey);
     } else {
-      await _preferences.setString(_localeKey, locale.languageCode);
+      await _preferences.setString(_localeKey, locale.toLanguageTag());
     }
   }
 

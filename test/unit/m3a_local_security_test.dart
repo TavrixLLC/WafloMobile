@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,6 +7,7 @@ import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/haptics/haptic_service.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/app_lock/data/app_lock_repository.dart';
+import 'package:waflo_staff/features/app_lock/data/biometric_service.dart';
 import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 
@@ -31,10 +34,32 @@ void main() {
 
         expect(secureStore.snapshot.values, isNotEmpty);
         expect(secureStore.snapshot.values.join(), isNot(contains('4826')));
+        expect(await repository.hasPin(), isTrue);
         expect(await repository.verifyPin('4826'), isTrue);
         expect(await repository.verifyPin('4827'), isFalse);
+        await repository.clearPin();
+        expect(await repository.hasPin(), isFalse);
       },
     );
+
+    test('legacy biometric-only configuration is disabled safely', () async {
+      SharedPreferences.setMockInitialValues({'app_lock.mode.v1': 'biometric'});
+      final legacy = AppLockRepository(
+        await SharedPreferences.getInstance(),
+        secureStore,
+      );
+
+      expect(legacy.readConfiguration().mode, AppLockMode.off);
+
+      await legacy.setConfiguration(
+        const AppLockConfiguration(mode: AppLockMode.biometric),
+      );
+      expect(
+        (await SharedPreferences.getInstance()).getString('app_lock.mode.v1'),
+        'biometricWithPin',
+      );
+      expect(legacy.readConfiguration().mode, AppLockMode.biometric);
+    });
 
     test('accepts only four to six ASCII digits', () async {
       for (final invalid in ['123', '1234567', '12A4', '١٢٣٤']) {
@@ -100,6 +125,156 @@ void main() {
         );
       },
     );
+
+    test('biometrics require a PIN and always retain PIN fallback', () async {
+      final biometrics = FakeBiometricService();
+      final container = ProviderContainer(
+        overrides: [
+          appLockRepositoryProvider.overrideWithValue(repository),
+          biometricServiceProvider.overrideWithValue(biometrics),
+        ],
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(appLockControllerProvider.notifier);
+
+      expect(await controller.setBiometric('Enable biometrics'), isFalse);
+      expect(biometrics.calls, 0);
+      expect(
+        container.read(appLockControllerProvider).safeErrorCode,
+        'PIN_REQUIRED',
+      );
+
+      await controller.setPin('4826');
+      expect(await controller.setBiometric('Enable biometrics'), isTrue);
+      expect(await repository.hasPin(), isTrue);
+      expect(
+        container.read(appLockControllerProvider).configuration.mode,
+        AppLockMode.biometric,
+      );
+
+      controller.lockNow();
+      biometrics.result = false;
+      expect(await controller.unlockWithBiometric('Unlock'), isFalse);
+      expect(
+        container.read(appLockControllerProvider).safeErrorCode,
+        'BIOMETRIC_FAILED',
+      );
+      expect(
+        await controller.unlockWithPin('4826', DateTime.utc(2026, 8, 21)),
+        isTrue,
+      );
+      expect(
+        container.read(appLockControllerProvider).status,
+        AppLockStatus.unlocked,
+      );
+    });
+
+    test(
+      'biometric lifecycle interruption unlocks once without relocking',
+      () async {
+        await repository.setPin('4826');
+        await repository.setConfiguration(
+          const AppLockConfiguration(mode: AppLockMode.biometric),
+        );
+        final biometrics = _DeferredBiometricService();
+        final container = ProviderContainer(
+          overrides: [
+            appLockRepositoryProvider.overrideWithValue(repository),
+            biometricServiceProvider.overrideWithValue(biometrics),
+          ],
+        );
+        addTearDown(container.dispose);
+        final controller = container.read(appLockControllerProvider.notifier);
+        final backgroundedAt = DateTime.utc(2026, 8, 21, 12);
+
+        final first = controller.unlockWithBiometric('Unlock');
+        final duplicate = controller.unlockWithBiometric('Unlock');
+        expect(biometrics.calls, 1);
+
+        controller.onBackground(backgroundedAt);
+        expect(
+          container.read(appLockControllerProvider).status,
+          AppLockStatus.authenticating,
+        );
+
+        biometrics.complete(true);
+        expect(await first, isTrue);
+        expect(await duplicate, isTrue);
+        controller.onResume(backgroundedAt.add(const Duration(seconds: 1)));
+
+        expect(biometrics.calls, 1);
+        expect(
+          container.read(appLockControllerProvider).status,
+          AppLockStatus.unlocked,
+        );
+      },
+    );
+
+    test(
+      'biometric resume before the platform result does not relock',
+      () async {
+        await repository.setPin('4826');
+        await repository.setConfiguration(
+          const AppLockConfiguration(mode: AppLockMode.biometric),
+        );
+        final biometrics = _DeferredBiometricService();
+        final container = ProviderContainer(
+          overrides: [
+            appLockRepositoryProvider.overrideWithValue(repository),
+            biometricServiceProvider.overrideWithValue(biometrics),
+          ],
+        );
+        addTearDown(container.dispose);
+        final controller = container.read(appLockControllerProvider.notifier);
+        final backgroundedAt = DateTime.utc(2026, 8, 21, 12);
+
+        final authentication = controller.unlockWithBiometric('Unlock');
+        controller.onBackground(backgroundedAt);
+        controller.onResume(backgroundedAt.add(const Duration(seconds: 1)));
+        expect(
+          container.read(appLockControllerProvider).status,
+          AppLockStatus.authenticating,
+        );
+
+        biometrics.complete(true);
+        expect(await authentication, isTrue);
+        expect(biometrics.calls, 1);
+        expect(
+          container.read(appLockControllerProvider).status,
+          AppLockStatus.unlocked,
+        );
+      },
+    );
+
+    test('cancelled biometric lifecycle falls back to the PIN', () async {
+      await repository.setPin('4826');
+      await repository.setConfiguration(
+        const AppLockConfiguration(mode: AppLockMode.biometric),
+      );
+      final biometrics = _DeferredBiometricService();
+      final container = ProviderContainer(
+        overrides: [
+          appLockRepositoryProvider.overrideWithValue(repository),
+          biometricServiceProvider.overrideWithValue(biometrics),
+        ],
+      );
+      addTearDown(container.dispose);
+      final controller = container.read(appLockControllerProvider.notifier);
+      final backgroundedAt = DateTime.utc(2026, 8, 21, 12);
+
+      final authentication = controller.unlockWithBiometric('Unlock');
+      controller.onBackground(backgroundedAt);
+      biometrics.complete(false);
+      expect(await authentication, isFalse);
+      controller.onResume(backgroundedAt.add(const Duration(seconds: 1)));
+
+      expect(container.read(appLockControllerProvider).isLocked, isTrue);
+      expect(
+        container.read(appLockControllerProvider).safeErrorCode,
+        'BIOMETRIC_FAILED',
+      );
+      expect(await controller.unlockWithPin('4826', backgroundedAt), isTrue);
+    });
   });
 
   group('scanner state machine', () {
@@ -177,4 +352,20 @@ void main() {
     expect(PinRateLimitPolicy.delayFor(5), const Duration(minutes: 1));
     expect(PinRateLimitPolicy.delayFor(20), const Duration(minutes: 5));
   });
+}
+
+final class _DeferredBiometricService implements BiometricService {
+  final Completer<bool> _result = Completer<bool>();
+  int calls = 0;
+
+  @override
+  Future<bool> authenticate(String reason) {
+    calls += 1;
+    return _result.future;
+  }
+
+  @override
+  Future<bool> isAvailable() async => true;
+
+  void complete(bool value) => _result.complete(value);
 }

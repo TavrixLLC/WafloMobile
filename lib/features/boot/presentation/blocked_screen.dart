@@ -35,6 +35,7 @@ final class BlockedScreen extends ConsumerWidget {
         !presentationOnly &&
         (state.stage == BootStage.backendUnavailable ||
             state.stage == BootStage.devicePending);
+    final rePair = !presentationOnly && state.stage == BootStage.deviceRevoked;
     return WafloPage(
       scrollable: false,
       child: Semantics(
@@ -100,7 +101,18 @@ final class BlockedScreen extends ConsumerWidget {
                       ),
                     ),
                     const Spacer(flex: 3),
-                    if (repair)
+                    if (rePair)
+                      FilledButton.icon(
+                        key: const Key('pair-device-again'),
+                        onPressed: () => unawaited(
+                          ref
+                              .read(bootControllerProvider.notifier)
+                              .pairAgainAfterRevocation(),
+                        ),
+                        icon: const Icon(Icons.qr_code_scanner_rounded),
+                        label: Text(strings.pairDeviceAgain),
+                      )
+                    else if (repair)
                       FilledButton.icon(
                         key: const Key('reset-for-repair'),
                         onPressed: () => unawaited(
@@ -122,7 +134,7 @@ final class BlockedScreen extends ConsumerWidget {
                         icon: const Icon(Icons.refresh_rounded),
                         label: Text(strings.retry),
                       ),
-                    if (repair || retry)
+                    if (rePair || repair || retry)
                       const SizedBox(height: WafloSpacing.md),
                     if (presentationOnly && onClose != null) ...[
                       FilledButton.icon(

@@ -273,11 +273,7 @@ final class WafloTopBar extends StatelessWidget {
           IconButton(
             tooltip: backTooltip,
             onPressed: onBack,
-            icon: Icon(
-              Directionality.of(context) == TextDirection.rtl
-                  ? Icons.arrow_forward_rounded
-                  : Icons.arrow_back_rounded,
-            ),
+            icon: const Icon(Icons.arrow_back_rounded),
           ),
           const SizedBox(width: WafloSpacing.xs),
         ],
@@ -289,6 +285,18 @@ final class WafloTopBar extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// A logical forward/detail chevron. Material mirrors this icon in RTL.
+final class WafloForwardChevron extends StatelessWidget {
+  const WafloForwardChevron({this.color, this.size, super.key});
+
+  final Color? color;
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) =>
+      Icon(Icons.chevron_right_rounded, color: color, size: size);
 }
 
 /// Flat, coherent grouping surface used throughout the selected A+ system.

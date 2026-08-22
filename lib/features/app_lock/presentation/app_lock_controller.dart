@@ -7,6 +7,9 @@ import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
 final class AppLockController extends Notifier<AppLockState> {
   DateTime? _backgroundedAt;
   Future<bool>? _authentication;
+  bool _biometricAuthenticationActive = false;
+  bool _biometricLifecycleGuard = false;
+  bool _biometricLifecycleInterrupted = false;
 
   @override
   AppLockState build() {
@@ -34,7 +37,9 @@ final class AppLockController extends Notifier<AppLockState> {
   Future<void> setPin(String pin) async {
     await ref.read(appLockRepositoryProvider).setPin(pin);
     final configuration = AppLockConfiguration(
-      mode: AppLockMode.pin,
+      mode: state.configuration.mode == AppLockMode.biometric
+          ? AppLockMode.biometric
+          : AppLockMode.pin,
       interval: state.configuration.interval,
     );
     await ref.read(appLockRepositoryProvider).setConfiguration(configuration);
@@ -45,12 +50,16 @@ final class AppLockController extends Notifier<AppLockState> {
   }
 
   Future<bool> setBiometric(String reason) async {
+    final repository = ref.read(appLockRepositoryProvider);
+    if (!await repository.hasPin()) {
+      state = state.copyWith(safeErrorCode: 'PIN_REQUIRED');
+      return false;
+    }
     final service = ref.read(biometricServiceProvider);
     if (!await service.isAvailable() || !await service.authenticate(reason)) {
       state = state.copyWith(safeErrorCode: 'BIOMETRIC_UNAVAILABLE');
       return false;
     }
-    await ref.read(appLockRepositoryProvider).clearPin();
     final configuration = AppLockConfiguration(
       mode: AppLockMode.biometric,
       interval: state.configuration.interval,
@@ -63,6 +72,19 @@ final class AppLockController extends Notifier<AppLockState> {
     return true;
   }
 
+  Future<void> disableBiometric() async {
+    if (state.configuration.mode != AppLockMode.biometric) return;
+    final configuration = AppLockConfiguration(
+      mode: AppLockMode.pin,
+      interval: state.configuration.interval,
+    );
+    await ref.read(appLockRepositoryProvider).setConfiguration(configuration);
+    state = AppLockState(
+      configuration: configuration,
+      status: AppLockStatus.unlocked,
+    );
+  }
+
   Future<void> setInterval(AppLockInterval interval) async {
     final configuration = AppLockConfiguration(
       mode: state.configuration.mode,
@@ -73,6 +95,11 @@ final class AppLockController extends Notifier<AppLockState> {
   }
 
   void onBackground(DateTime at) {
+    if (_biometricLifecycleGuard) {
+      _biometricLifecycleInterrupted = true;
+      _backgroundedAt = null;
+      return;
+    }
     _backgroundedAt = at.toUtc();
     if (state.configuration.mode != AppLockMode.off &&
         state.configuration.interval == AppLockInterval.immediately) {
@@ -81,6 +108,14 @@ final class AppLockController extends Notifier<AppLockState> {
   }
 
   void onResume(DateTime at) {
+    if (_biometricLifecycleGuard && _biometricLifecycleInterrupted) {
+      _biometricLifecycleInterrupted = false;
+      _backgroundedAt = null;
+      if (!_biometricAuthenticationActive) {
+        _biometricLifecycleGuard = false;
+      }
+      return;
+    }
     final backgrounded = _backgroundedAt;
     _backgroundedAt = null;
     if (state.configuration.mode == AppLockMode.off || backgrounded == null) {
@@ -112,7 +147,7 @@ final class AppLockController extends Notifier<AppLockState> {
   }
 
   Future<bool> _unlockWithPin(String pin, DateTime now) async {
-    if (state.configuration.mode != AppLockMode.pin) return false;
+    if (state.configuration.mode == AppLockMode.off) return false;
     final repository = ref.read(appLockRepositoryProvider);
     final limit = await repository.readRateLimit();
     if (limit.blockedAt(now)) {
@@ -140,10 +175,40 @@ final class AppLockController extends Notifier<AppLockState> {
     return true;
   }
 
-  Future<bool> unlockWithBiometric(String reason) async {
+  Future<bool> unlockWithBiometric(String reason) {
+    final running = _authentication;
+    if (running != null) return running;
+    final operation = _unlockWithBiometric(reason);
+    _authentication = operation;
+    unawaited(
+      operation.whenComplete(() {
+        if (identical(_authentication, operation)) _authentication = null;
+      }),
+    );
+    return operation;
+  }
+
+  Future<bool> _unlockWithBiometric(String reason) async {
     if (state.configuration.mode != AppLockMode.biometric) return false;
-    state = state.copyWith(status: AppLockStatus.authenticating);
-    if (!await ref.read(biometricServiceProvider).authenticate(reason)) {
+    _biometricAuthenticationActive = true;
+    _biometricLifecycleGuard = true;
+    _biometricLifecycleInterrupted = false;
+    state = state.copyWith(
+      status: AppLockStatus.authenticating,
+      clearError: true,
+    );
+    late final bool authenticated;
+    try {
+      authenticated = await ref
+          .read(biometricServiceProvider)
+          .authenticate(reason);
+    } finally {
+      _biometricAuthenticationActive = false;
+      if (!_biometricLifecycleInterrupted) {
+        _biometricLifecycleGuard = false;
+      }
+    }
+    if (!authenticated) {
       state = state.copyWith(
         status: AppLockStatus.locked,
         safeErrorCode: 'BIOMETRIC_FAILED',

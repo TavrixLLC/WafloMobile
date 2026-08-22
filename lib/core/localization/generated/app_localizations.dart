@@ -6,7 +6,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_ar.dart';
+import 'app_localizations_ckb.dart';
 import 'app_localizations_en.dart';
+import 'app_localizations_ku.dart';
 
 // ignore_for_file: type=lint
 
@@ -95,7 +97,9 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('ar'),
+    Locale('ckb'),
     Locale('en'),
+    Locale('ku'),
   ];
 
   /// No description provided for @appTitle.
@@ -151,6 +155,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'العربية'**
   String get arabic;
+
+  /// No description provided for @kurdishGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'کوردی'**
+  String get kurdishGroup;
+
+  /// No description provided for @kurdishBadini.
+  ///
+  /// In en, this message translates to:
+  /// **'بادینی'**
+  String get kurdishBadini;
+
+  /// No description provided for @kurdishSorani.
+  ///
+  /// In en, this message translates to:
+  /// **'سۆرانی'**
+  String get kurdishSorani;
 
   /// No description provided for @cameraTitle.
   ///
@@ -527,7 +549,7 @@ abstract class AppLocalizations {
   /// No description provided for @themeSystem.
   ///
   /// In en, this message translates to:
-  /// **'System theme'**
+  /// **'System'**
   String get themeSystem;
 
   /// No description provided for @themeLight.
@@ -745,6 +767,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reset for new pairing'**
   String get resetForRepair;
+
+  /// No description provided for @pairDeviceAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair device again'**
+  String get pairDeviceAgain;
 
   /// No description provided for @genericError.
   ///
@@ -1670,6 +1698,12 @@ abstract class AppLocalizations {
   /// **'Device & Security'**
   String get deviceAndSecurity;
 
+  /// No description provided for @deviceControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Device controls'**
+  String get deviceControls;
+
   /// No description provided for @securityProtected.
   ///
   /// In en, this message translates to:
@@ -1747,6 +1781,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Biometric'**
   String get biometric;
+
+  /// No description provided for @pinAndBiometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN + biometrics'**
+  String get pinAndBiometrics;
 
   /// No description provided for @localStaffPin.
   ///
@@ -1861,6 +1901,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Biometric unlock is not available on this phone.'**
   String get biometricUnavailable;
+
+  /// No description provided for @createPinFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a PIN before enabling biometrics.'**
+  String get createPinFirst;
+
+  /// No description provided for @enterPinToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN'**
+  String get enterPinToUnlock;
+
+  /// No description provided for @pinUnlockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the local Staff PIN created on this phone.'**
+  String get pinUnlockBody;
+
+  /// No description provided for @biometricPinFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometrics weren’t confirmed. Enter your PIN to continue.'**
+  String get biometricPinFallback;
+
+  /// No description provided for @tryBiometricsAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try biometrics again'**
+  String get tryBiometricsAgain;
 
   /// No description provided for @pinRateLimited.
   ///
@@ -2444,7 +2514,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['ar', 'en'].contains(locale.languageCode);
+      <String>['ar', 'ckb', 'en', 'ku'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -2455,8 +2525,12 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'ar':
       return AppLocalizationsAr();
+    case 'ckb':
+      return AppLocalizationsCkb();
     case 'en':
       return AppLocalizationsEn();
+    case 'ku':
+      return AppLocalizationsKu();
   }
 
   throw FlutterError(

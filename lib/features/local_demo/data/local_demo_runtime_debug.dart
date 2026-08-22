@@ -556,6 +556,9 @@ final class _LocalDemoAppLockStore implements AppLockStore {
   }
 
   @override
+  Future<bool> hasPin() async => _pinDigest != null && _salt != null;
+
+  @override
   Future<bool> verifyPin(String pin) async {
     final expected = _pinDigest;
     final salt = _salt;

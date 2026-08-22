@@ -208,11 +208,7 @@ final class _ScenarioRow extends StatelessWidget {
           color: selected ? context.waflo.brandAction : null,
         ),
         title: Text(_scenarioLabel(strings, scenario)),
-        trailing: Icon(
-          Directionality.of(context) == TextDirection.rtl
-              ? Icons.chevron_left_rounded
-              : Icons.chevron_right_rounded,
-        ),
+        trailing: const WafloForwardChevron(),
         enabled: enabled,
         onTap: enabled ? onTap : null,
       ),

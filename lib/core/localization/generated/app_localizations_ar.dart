@@ -38,6 +38,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get arabic => 'العربية';
 
   @override
+  String get kurdishGroup => 'کوردی';
+
+  @override
+  String get kurdishBadini => 'بادینی';
+
+  @override
+  String get kurdishSorani => 'سۆرانی';
+
+  @override
   String get cameraTitle => 'استخدام الكاميرا للإقران';
 
   @override
@@ -370,6 +379,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get resetForRepair => 'إعادة الضبط لإقران جديد';
+
+  @override
+  String get pairDeviceAgain => 'إقران الجهاز مرة أخرى';
 
   @override
   String get genericError => 'حدث خطأ. حاول مرة أخرى بأمان.';
@@ -900,6 +912,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get deviceAndSecurity => 'الجهاز والأمان';
 
   @override
+  String get deviceControls => 'عناصر تحكم الجهاز';
+
+  @override
   String get securityProtected => 'الأمان: محمي';
 
   @override
@@ -939,6 +954,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get biometric => 'المقاييس الحيوية';
+
+  @override
+  String get pinAndBiometrics => 'رمز PIN + المقاييس الحيوية';
 
   @override
   String get localStaffPin => 'رمز الموظف المحلي';
@@ -1000,6 +1018,23 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get biometricUnavailable =>
       'الفتح بالمقاييس الحيوية غير متاح على هذا الهاتف.';
+
+  @override
+  String get createPinFirst => 'أنشئ رمز PIN قبل تفعيل المقاييس الحيوية.';
+
+  @override
+  String get enterPinToUnlock => 'أدخل رمز PIN';
+
+  @override
+  String get pinUnlockBody =>
+      'استخدم رمز الموظف المحلي الذي أنشأته على هذا الهاتف.';
+
+  @override
+  String get biometricPinFallback =>
+      'لم يتم تأكيد المقاييس الحيوية. أدخل رمز PIN للمتابعة.';
+
+  @override
+  String get tryBiometricsAgain => 'حاول استخدام المقاييس الحيوية مجدداً';
 
   @override
   String get pinRateLimited => 'محاولات كثيرة. انتظر قبل المحاولة مجدداً.';

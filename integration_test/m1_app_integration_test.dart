@@ -213,7 +213,20 @@ void main() {
       ),
     );
     expect(find.text('Device revoked'), findsOneWidget);
+    expect(find.byKey(const Key('pair-device-again')), findsOneWidget);
     expect(await StaffDeviceSessionRepository(harness.store).read(), isNull);
+
+    await tester.tap(find.byKey(const Key('pair-device-again')));
+    await _pumpFrames(tester);
+
+    expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
+    expect(await StaffDeviceSessionRepository(harness.store).read(), isNull);
+    expect(await DeviceIdentityRepository(harness.store).load(), isNull);
+    expect(await PairingTransactionRepository(harness.store).read(), isNull);
+    expect(
+      (await LocalLifecycleRepository(harness.store).read())?.state,
+      LocalLifecycleState.neverPaired,
+    );
   });
 
   testWidgets('12 compromised clears session and renders repair state', (

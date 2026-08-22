@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/app_lifecycle.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/app/router.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
+import 'package:waflo_staff/core/localization/app_locales.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 
 final class WafloApp extends ConsumerWidget {
@@ -22,13 +22,8 @@ final class WafloApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       routerConfig: router,
       locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
+      supportedLocales: WafloLocales.selectable,
+      localizationsDelegates: wafloLocalizationDelegates,
       theme: WafloTheme.light(locale: typographyLocale),
       darkTheme: WafloTheme.dark(locale: typographyLocale),
       themeMode: themeMode,
