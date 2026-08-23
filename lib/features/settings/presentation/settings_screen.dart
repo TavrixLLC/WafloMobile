@@ -26,13 +26,7 @@ final class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(strings.settings)),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            WafloLayout.pageGutter,
-            8,
-            WafloLayout.pageGutter,
-            32,
-          ),
+        child: WafloResponsiveListView(
           children: [
             WafloOperationalLabel(strings.appearanceAndLanguage),
             const SizedBox(height: WafloSpacing.sm),

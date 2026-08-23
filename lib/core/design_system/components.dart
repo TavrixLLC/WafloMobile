@@ -6,6 +6,10 @@ final class WafloPage extends StatelessWidget {
     required this.child,
     this.appBar,
     this.padding = const EdgeInsetsDirectional.all(WafloLayout.pageGutter),
+    this.tabletPadding = const EdgeInsetsDirectional.all(
+      WafloLayout.tabletPageGutter,
+    ),
+    this.maxWidth = WafloLayout.maximumContentWidth,
     this.scrollable = true,
     super.key,
   });
@@ -13,14 +17,23 @@ final class WafloPage extends StatelessWidget {
   final PreferredSizeWidget? appBar;
   final Widget child;
   final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry tabletPadding;
+  final double maxWidth;
   final bool scrollable;
 
   @override
   Widget build(BuildContext context) {
     final content = Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 680),
-        child: Padding(padding: padding, child: child),
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: SizedBox(
+          key: const Key('waflo-page-content'),
+          width: double.infinity,
+          child: Padding(
+            padding: context.isWafloTablet ? tabletPadding : padding,
+            child: child,
+          ),
+        ),
       ),
     );
     return Scaffold(
@@ -32,6 +45,90 @@ final class WafloPage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A centered, bounded scroll surface for screen content that should remain
+/// full-width on phones without stretching across a tablet viewport.
+final class WafloResponsiveListView extends StatelessWidget {
+  const WafloResponsiveListView({
+    required this.children,
+    this.maxWidth = WafloLayout.maximumContentWidth,
+    this.compactHorizontalPadding = WafloLayout.pageGutter,
+    this.topPadding = 8,
+    this.bottomPadding = WafloSpacing.xl,
+    this.physics,
+    super.key,
+  });
+
+  final List<Widget> children;
+  final double maxWidth;
+  final double compactHorizontalPadding;
+  final double topPadding;
+  final double bottomPadding;
+  final ScrollPhysics? physics;
+
+  @override
+  Widget build(BuildContext context) {
+    final horizontal = context.wafloPageGutter(
+      compact: compactHorizontalPadding,
+    );
+    return ListView(
+      padding: EdgeInsets.zero,
+      physics: physics,
+      children: [
+        Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: SizedBox(
+              key: const Key('waflo-responsive-content'),
+              width: double.infinity,
+              child: Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  horizontal,
+                  topPadding,
+                  horizontal,
+                  bottomPadding,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Applies the same centered tablet geometry to non-scrolling and sliver
+/// content while leaving compact layouts unchanged.
+final class WafloConstrainedContent extends StatelessWidget {
+  const WafloConstrainedContent({
+    required this.child,
+    this.maxWidth = WafloLayout.maximumContentWidth,
+    this.padding = EdgeInsets.zero,
+    this.contentKey,
+    super.key,
+  });
+
+  final Widget child;
+  final double maxWidth;
+  final EdgeInsetsGeometry padding;
+  final Key? contentKey;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: SizedBox(
+        key: contentKey,
+        width: double.infinity,
+        child: Padding(padding: padding, child: child),
+      ),
+    ),
+  );
 }
 
 final class WafloReadyBeacon extends StatelessWidget {

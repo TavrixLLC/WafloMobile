@@ -228,97 +228,102 @@ final class _CustomerScannerViewState
           ),
           SafeArea(
             minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    WafloScannerRoundAction(
-                      tooltip: strings.close,
-                      icon: Icons.close_rounded,
-                      onPressed: () => unawaited(_close(adapter)),
-                    ),
-                    const SizedBox(width: WafloSpacing.sm),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            strings.m2ScannerTitle,
-                            maxLines: 2,
-                            overflow: TextOverflow.fade,
-                            style:
-                                (largeText
-                                        ? Theme.of(
-                                            context,
-                                          ).textTheme.titleMedium
-                                        : Theme.of(
-                                            context,
-                                          ).textTheme.titleLarge)
-                                    ?.copyWith(color: Colors.white),
-                          ),
-                          if (location != null)
+            child: WafloConstrainedContent(
+              contentKey: const Key('scanner-controls-content'),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      WafloScannerRoundAction(
+                        tooltip: strings.close,
+                        icon: Icons.close_rounded,
+                        onPressed: () => unawaited(_close(adapter)),
+                      ),
+                      const SizedBox(width: WafloSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
-                              location.displayName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.white70),
+                              strings.m2ScannerTitle,
+                              maxLines: 2,
+                              overflow: TextOverflow.fade,
+                              style:
+                                  (largeText
+                                          ? Theme.of(
+                                              context,
+                                            ).textTheme.titleMedium
+                                          : Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge)
+                                      ?.copyWith(color: Colors.white),
                             ),
-                        ],
+                            if (location != null)
+                              Text(
+                                location.displayName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.white70),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      _scannerInstruction(strings, scannerState),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        shadows: const [Shadow(blurRadius: 8)],
                       ),
                     ),
+                  ),
+                  const SizedBox(height: WafloSpacing.md),
+                  WafloScannerStatusPill(
+                    label: _scannerStatus(strings, scannerState),
+                    busy: _isScannerBusy(scannerState),
+                  ),
+                  const SizedBox(height: WafloSpacing.md),
+                  if (_requiresExplicitRetry(scannerState)) ...[
+                    OutlinedButton.icon(
+                      key: const Key('scanner-resolve-retry'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white54),
+                      ),
+                      onPressed: () => unawaited(_retry(adapter)),
+                      icon: const Icon(Icons.refresh_rounded),
+                      label: Text(strings.retry),
+                    ),
+                    const SizedBox(height: WafloSpacing.sm),
                   ],
-                ),
-                const Spacer(),
-                Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    _scannerInstruction(strings, scannerState),
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      shadows: const [Shadow(blurRadius: 8)],
-                    ),
+                  const LocalDemoScannerControlsSlot(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ValueListenableBuilder<bool>(
+                        valueListenable: adapter.torchEnabled,
+                        builder: (context, enabled, child) =>
+                            WafloScannerRoundAction(
+                              tooltip: strings.toggleFlash,
+                              label: enabled
+                                  ? strings.flashOff
+                                  : strings.flashOn,
+                              icon: enabled
+                                  ? Icons.flashlight_off_rounded
+                                  : Icons.flashlight_on_rounded,
+                              onPressed: () => unawaited(adapter.toggleTorch()),
+                            ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-                WafloScannerStatusPill(
-                  label: _scannerStatus(strings, scannerState),
-                  busy: _isScannerBusy(scannerState),
-                ),
-                const SizedBox(height: WafloSpacing.md),
-                if (_requiresExplicitRetry(scannerState)) ...[
-                  OutlinedButton.icon(
-                    key: const Key('scanner-resolve-retry'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white54),
-                    ),
-                    onPressed: () => unawaited(_retry(adapter)),
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: Text(strings.retry),
-                  ),
-                  const SizedBox(height: WafloSpacing.sm),
                 ],
-                const LocalDemoScannerControlsSlot(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ValueListenableBuilder<bool>(
-                      valueListenable: adapter.torchEnabled,
-                      builder: (context, enabled, child) =>
-                          WafloScannerRoundAction(
-                            tooltip: strings.toggleFlash,
-                            label: enabled ? strings.flashOff : strings.flashOn,
-                            icon: enabled
-                                ? Icons.flashlight_off_rounded
-                                : Icons.flashlight_on_rounded,
-                            onPressed: () => unawaited(adapter.toggleTorch()),
-                          ),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
           if (_isPermissionFailure(scannerState))
@@ -539,14 +544,8 @@ final class _MembershipOperationViewState
     if (_amount > maximum && maximum > 0) {
       _amount = maximum;
     }
-    return ListView(
+    return WafloResponsiveListView(
       key: const Key('customer-membership-screen'),
-      padding: const EdgeInsetsDirectional.fromSTEB(
-        WafloLayout.pageGutter,
-        8,
-        WafloLayout.pageGutter,
-        32,
-      ),
       children: [
         Semantics(
           container: true,
@@ -1028,76 +1027,84 @@ final class _ReviewList extends StatelessWidget {
   final VoidCallback onBack;
 
   @override
-  Widget build(BuildContext context) => CustomScrollView(
-    key: const Key('operation-confirmation'),
-    slivers: [
-      SliverPadding(
-        padding: const EdgeInsetsDirectional.fromSTEB(
-          WafloLayout.pageGutter,
-          8,
-          WafloLayout.pageGutter,
-          0,
-        ),
-        sliver: SliverList.list(
-          children: [
-            Text(title, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: WafloSpacing.lg),
-            WafloSurfaceCard(
-              padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  for (var index = 0; index < rows.length; index += 1)
-                    WafloSummaryRow(
-                      label: rows[index].$2.isEmpty ? '' : rows[index].$1,
-                      value: rows[index].$2.isEmpty
-                          ? rows[index].$1
-                          : rows[index].$2,
-                      divider: index != rows.length - 1,
-                    ),
-                ],
-              ),
+  Widget build(BuildContext context) {
+    final horizontal = context.wafloPageGutter();
+    return CustomScrollView(
+      key: const Key('operation-confirmation'),
+      slivers: [
+        SliverToBoxAdapter(
+          child: WafloConstrainedContent(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              horizontal,
+              8,
+              horizontal,
+              0,
             ),
-            if (warning != null) ...[
-              const SizedBox(height: WafloSpacing.md),
-              WafloStatusBanner(
-                icon: Icons.info_outline_rounded,
-                message: warning!,
-                color: WafloColors.warning,
-                backgroundColor: context.waflo.warningSurface,
-              ),
-            ],
-          ],
-        ),
-      ),
-      SliverPadding(
-        padding: const EdgeInsetsDirectional.fromSTEB(
-          WafloLayout.pageGutter,
-          WafloSpacing.lg,
-          WafloLayout.pageGutter,
-          32,
-        ),
-        sliver: SliverFillRemaining(
-          hasScrollBody: false,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              WafloBottomAction(
-                keyName: 'confirm-operation',
-                title: confirmLabel,
-                onPressed: onConfirm,
-              ),
-              const SizedBox(height: WafloSpacing.sm),
-              TextButton(
-                onPressed: onBack,
-                child: Text(AppLocalizations.of(context).cancel),
-              ),
-            ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(title, style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: WafloSpacing.lg),
+                WafloSurfaceCard(
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: 20,
+                  ),
+                  child: Column(
+                    children: [
+                      for (var index = 0; index < rows.length; index += 1)
+                        WafloSummaryRow(
+                          label: rows[index].$2.isEmpty ? '' : rows[index].$1,
+                          value: rows[index].$2.isEmpty
+                              ? rows[index].$1
+                              : rows[index].$2,
+                          divider: index != rows.length - 1,
+                        ),
+                    ],
+                  ),
+                ),
+                if (warning != null) ...[
+                  const SizedBox(height: WafloSpacing.md),
+                  WafloStatusBanner(
+                    icon: Icons.info_outline_rounded,
+                    message: warning!,
+                    color: WafloColors.warning,
+                    backgroundColor: context.waflo.warningSurface,
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
-      ),
-    ],
-  );
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: WafloConstrainedContent(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              horizontal,
+              WafloSpacing.lg,
+              horizontal,
+              32,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                WafloBottomAction(
+                  keyName: 'confirm-operation',
+                  title: confirmLabel,
+                  onPressed: onConfirm,
+                ),
+                const SizedBox(height: WafloSpacing.sm),
+                TextButton(
+                  onPressed: onBack,
+                  child: Text(AppLocalizations.of(context).cancel),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 final class _StampSuccess extends ConsumerWidget {
@@ -1261,67 +1268,74 @@ final class _SuccessLayout extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
+    final horizontal = context.wafloPageGutter();
     return Semantics(
       liveRegion: true,
       child: CustomScrollView(
         key: const Key('operation-success'),
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              WafloLayout.pageGutter,
-              18,
-              WafloLayout.pageGutter,
-              0,
-            ),
-            sliver: SliverList.list(
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(
-                        color: WafloColors.success,
-                        shape: BoxShape.circle,
+          SliverToBoxAdapter(
+            child: WafloConstrainedContent(
+              padding: EdgeInsetsDirectional.fromSTEB(
+                horizontal,
+                18,
+                horizontal,
+                0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: WafloColors.success,
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: WafloSpacing.sm),
-                    WafloOperationalLabel(
-                      strings.verifiedByWaflo,
-                      color: WafloColors.success,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: WafloSpacing.sm),
-                Text(title, style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: WafloSpacing.lg),
-                WafloSurfaceCard(
-                  padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
-                  child: Column(
-                    children: children
-                        .map(
-                          (child) => Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: WafloSpacing.md,
-                            ),
-                            child: child,
-                          ),
-                        )
-                        .toList(growable: false),
+                      const SizedBox(width: WafloSpacing.sm),
+                      WafloOperationalLabel(
+                        strings.verifiedByWaflo,
+                        color: WafloColors.success,
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: WafloSpacing.sm),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: WafloSpacing.lg),
+                  WafloSurfaceCard(
+                    padding: const EdgeInsetsDirectional.all(WafloSpacing.lg),
+                    child: Column(
+                      children: children
+                          .map(
+                            (child) => Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: WafloSpacing.md,
+                              ),
+                              child: child,
+                            ),
+                          )
+                          .toList(growable: false),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              WafloLayout.pageGutter,
-              20,
-              WafloLayout.pageGutter,
-              32,
-            ),
-            sliver: SliverFillRemaining(
-              hasScrollBody: false,
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: WafloConstrainedContent(
+              padding: EdgeInsetsDirectional.fromSTEB(
+                horizontal,
+                20,
+                horizontal,
+                32,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.stretch,

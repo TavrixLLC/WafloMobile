@@ -33,13 +33,7 @@ final class DeviceSecurityScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(strings.deviceAndSecurity)),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            WafloLayout.pageGutter,
-            8,
-            WafloLayout.pageGutter,
-            32,
-          ),
+        child: WafloResponsiveListView(
           children: [
             Text(
               strings.securityProtected,

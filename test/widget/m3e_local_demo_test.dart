@@ -47,7 +47,7 @@ void main() {
         _reviewCode(),
       );
       await tester.tap(find.byKey(const Key('manual-code-continue')));
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(container.read(localDemoControllerProvider).active, isTrue);
       expect(container.read(bootControllerProvider).session, isNull);
     },

@@ -1,3 +1,4 @@
-#include "Debug.xcconfig"
+#include? "../Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-production.xcconfig"
+#include "Generated.xcconfig"
 PRODUCT_BUNDLE_IDENTIFIER=app.waflo.staff
 APP_DISPLAY_NAME=Waflo Staff

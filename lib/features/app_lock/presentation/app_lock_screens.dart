@@ -328,8 +328,8 @@ final class AppLockSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(strings.appLock)),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+        child: WafloResponsiveListView(
+          compactHorizontalPadding: WafloSpacing.lg,
           children: [
             Text(
               strings.appLockLocalOnly,
@@ -465,6 +465,7 @@ final class _PinSetupScreenState extends ConsumerState<PinSetupScreen> {
     final confirming = _newPin != null;
     return WafloPage(
       appBar: AppBar(title: Text(strings.createLocalStaffPin)),
+      maxWidth: WafloLayout.maximumPinWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

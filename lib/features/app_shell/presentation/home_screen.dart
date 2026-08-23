@@ -32,14 +32,11 @@ final class HomeScreen extends ConsumerWidget {
           onRefresh: localDemo.active
               ? () async {}
               : ref.read(bootControllerProvider.notifier).refreshContext,
-          child: ListView(
+          child: WafloResponsiveListView(
             key: const Key('task-first-home'),
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              WafloLayout.pageGutter,
-              20,
-              WafloLayout.pageGutter,
-              32,
-            ),
+            maxWidth: WafloLayout.maximumWideContentWidth,
+            topPadding: 20,
+            physics: const AlwaysScrollableScrollPhysics(),
             children: [
               Semantics(
                 container: true,
@@ -150,14 +147,14 @@ final class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: WafloSpacing.md),
               ],
-              WafloPrimaryActionPanel(
+              _HomePrimaryWorkspace(
                 title: strings.scanCustomer,
                 subtitle: pending
                     ? strings.scannerBlockedPending
                     : online
                     ? strings.serveNextCustomer
                     : strings.offlineOperationsBlocked,
-                onPressed: canScan
+                onScan: canScan
                     ? () {
                         ref
                             .read(m2OperationControllerProvider.notifier)
@@ -165,11 +162,6 @@ final class HomeScreen extends ConsumerWidget {
                         context.go('/loyalty');
                       }
                     : null,
-              ),
-              const SizedBox(height: WafloSpacing.lg),
-              WafloOperationalLabel(strings.deviceControls),
-              const SizedBox(height: WafloSpacing.sm),
-              _HomeActionDock(
                 onDeviceSecurity: () => context.push('/device-security'),
                 onSettings: () => context.push('/settings'),
               ),
@@ -179,6 +171,64 @@ final class HomeScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+final class _HomePrimaryWorkspace extends StatelessWidget {
+  const _HomePrimaryWorkspace({
+    required this.title,
+    required this.subtitle,
+    required this.onScan,
+    required this.onDeviceSecurity,
+    required this.onSettings,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback? onScan;
+  final VoidCallback onDeviceSecurity;
+  final VoidCallback onSettings;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final scan = WafloPrimaryActionPanel(
+        title: title,
+        subtitle: subtitle,
+        onPressed: onScan,
+      );
+      final controls = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          WafloOperationalLabel(AppLocalizations.of(context).deviceControls),
+          const SizedBox(height: WafloSpacing.sm),
+          _HomeActionDock(
+            onDeviceSecurity: onDeviceSecurity,
+            onSettings: onSettings,
+          ),
+        ],
+      );
+      final split = context.isWafloTablet && constraints.maxWidth >= 680;
+      if (!split) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            scan,
+            const SizedBox(height: WafloSpacing.lg),
+            controls,
+          ],
+        );
+      }
+      final controlsWidth = (constraints.maxWidth * .34).clamp(280.0, 340.0);
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: scan),
+          const SizedBox(width: WafloSpacing.lg),
+          SizedBox(width: controlsWidth, child: controls),
+        ],
+      );
+    },
+  );
 }
 
 final class _PendingTransaction extends StatelessWidget {

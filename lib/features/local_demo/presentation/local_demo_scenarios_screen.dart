@@ -21,9 +21,10 @@ final class LocalDemoScenariosScreen extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            ListView(
+            WafloResponsiveListView(
               key: const Key('local-demo-scenario-hub'),
-              padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+              maxWidth: WafloLayout.maximumWideContentWidth,
+              compactHorizontalPadding: WafloSpacing.lg,
               children: [
                 WafloStatusBanner(
                   icon: Icons.visibility_outlined,
@@ -34,16 +35,13 @@ final class LocalDemoScenariosScreen extends ConsumerWidget {
                   ).colorScheme.primaryContainer,
                 ),
                 const SizedBox(height: WafloSpacing.lg),
-                for (final group in _groups(strings)) ...[
-                  _ScenarioGroup(
-                    group: group,
-                    selected: state.scenario,
-                    enabled: !state.busy,
-                    onSelect: (scenario) =>
-                        unawaited(_openScenario(context, ref, scenario)),
-                  ),
-                  const SizedBox(height: WafloSpacing.sm),
-                ],
+                _ScenarioGroupLayout(
+                  groups: _groups(strings),
+                  selected: state.scenario,
+                  enabled: !state.busy,
+                  onSelect: (scenario) =>
+                      unawaited(_openScenario(context, ref, scenario)),
+                ),
                 const SizedBox(height: WafloSpacing.lg),
                 OutlinedButton.icon(
                   key: const Key('exit-local-demo'),
@@ -145,6 +143,62 @@ final class LocalDemoScenariosScreen extends ConsumerWidget {
       LocalDemoScenario.settings,
     ]),
   ];
+}
+
+final class _ScenarioGroupLayout extends StatelessWidget {
+  const _ScenarioGroupLayout({
+    required this.groups,
+    required this.selected,
+    required this.enabled,
+    required this.onSelect,
+  });
+
+  final List<_ScenarioGroupData> groups;
+  final LocalDemoScenario selected;
+  final bool enabled;
+  final ValueChanged<LocalDemoScenario> onSelect;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      Widget column(Iterable<_ScenarioGroupData> items) => Column(
+        children: [
+          for (final group in items) ...[
+            _ScenarioGroup(
+              group: group,
+              selected: selected,
+              enabled: enabled,
+              onSelect: onSelect,
+            ),
+            const SizedBox(height: WafloSpacing.sm),
+          ],
+        ],
+      );
+      if (!context.isWafloTablet || constraints.maxWidth < 760) {
+        return column(groups);
+      }
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: column(
+              groups.indexed
+                  .where((item) => item.$1.isEven)
+                  .map((item) => item.$2),
+            ),
+          ),
+          const SizedBox(width: WafloSpacing.md),
+          Expanded(
+            child: column(
+              groups.indexed
+                  .where((item) => item.$1.isOdd)
+                  .map((item) => item.$2),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 final class _ScenarioGroup extends StatelessWidget {

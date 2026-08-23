@@ -191,15 +191,19 @@ final class _ProfessionalScannerOverlayState
         key: const Key('professional-scanner-overlay'),
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final tablet = context.isWafloTablet;
             final shortest = math.min(
               constraints.maxWidth,
-              constraints.maxHeight * 0.58,
+              constraints.maxHeight * (tablet ? 0.64 : 0.58),
             );
-            final size = (shortest - 48).clamp(208.0, 316.0);
+            final size = (shortest - (tablet ? 64 : 48)).clamp(
+              208.0,
+              tablet ? 420.0 : 316.0,
+            );
             final rect = Rect.fromCenter(
               center: Offset(
                 constraints.maxWidth / 2,
-                constraints.maxHeight * 0.45,
+                constraints.maxHeight * (tablet ? 0.46 : 0.45),
               ),
               width: size,
               height: size,

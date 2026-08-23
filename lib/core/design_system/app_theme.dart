@@ -45,8 +45,24 @@ abstract final class WafloMotion {
 
 abstract final class WafloLayout {
   static const pageGutter = 20.0;
+  static const tabletPageGutter = 32.0;
+  static const compactBreakpoint = 600.0;
+  static const wideBreakpoint = 900.0;
   static const maximumContentWidth = 680.0;
+  static const maximumFormWidth = 560.0;
+  static const maximumPinWidth = 484.0;
+  static const maximumWideContentWidth = 1040.0;
   static const minimumTouchTarget = 48.0;
+}
+
+extension WafloResponsiveContext on BuildContext {
+  /// Uses the shortest side so a landscape phone keeps the compact UI while
+  /// tablets and large foldable panes receive the roomier layout.
+  bool get isWafloTablet =>
+      MediaQuery.sizeOf(this).shortestSide >= WafloLayout.compactBreakpoint;
+
+  double wafloPageGutter({double compact = WafloLayout.pageGutter}) =>
+      isWafloTablet ? WafloLayout.tabletPageGutter : compact;
 }
 
 /// Official Waflo radii.
@@ -384,6 +400,7 @@ abstract final class WafloTheme {
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: scheme.surface,
+        constraints: const BoxConstraints(maxWidth: 560),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(WafloRadius.extraLarge),
         ),
@@ -391,6 +408,7 @@ abstract final class WafloTheme {
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: scheme.surface,
         modalBackgroundColor: scheme.surface,
+        constraints: const BoxConstraints(maxWidth: 680),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(WafloRadius.extraLarge),

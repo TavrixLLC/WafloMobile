@@ -54,6 +54,8 @@ flutter_launcher_icons:
   background_color_ios: "#AE3115"
 
 flutter:
+  config:
+    enable-swift-package-manager: false
   generate: true
   uses-material-design: true
   assets:

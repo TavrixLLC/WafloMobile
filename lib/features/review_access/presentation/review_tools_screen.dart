@@ -33,8 +33,8 @@ final class _ReviewToolsScreenState extends ConsumerState<ReviewToolsScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(strings.reviewTools)),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsetsDirectional.fromSTEB(24, 8, 24, 32),
+        child: WafloResponsiveListView(
+          compactHorizontalPadding: WafloSpacing.lg,
           children: [
             WafloStatusBanner(
               icon: Icons.science_outlined,
