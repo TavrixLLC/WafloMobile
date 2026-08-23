@@ -188,6 +188,121 @@ void main() {
     },
   );
 
+  test('iOS staging scheme embeds the same secure Dart configuration', () {
+    final staging =
+        jsonDecode(File('config/staging.json').readAsStringSync())
+            as Map<String, dynamic>;
+    final environmentConfig = File(
+      'ios/Flutter/Environment-staging.xcconfig',
+    ).readAsStringSync();
+    final encodedDefines = RegExp(
+      r'^DART_DEFINES=(.+)$',
+      multiLine: true,
+    ).firstMatch(environmentConfig)?.group(1);
+
+    expect(encodedDefines, isNotNull);
+    final iosDefines = <String, String>{};
+    for (final encoded in encodedDefines!.split(',')) {
+      final definition = utf8.decode(base64Decode(encoded));
+      final separator = definition.indexOf('=');
+      expect(separator, greaterThan(0), reason: definition);
+      iosDefines[definition.substring(0, separator)] = definition.substring(
+        separator + 1,
+      );
+    }
+
+    expect(iosDefines, staging.map((key, value) => MapEntry(key, '$value')));
+    expect(
+      AppEnvironment(
+        flavor: AppFlavor.staging,
+        expectedNativeFlavor: AppFlavor.staging,
+        suppliedDartEnvironment: iosDefines['WAFLO_ENV']!,
+        apiBaseUrl: Uri.parse(iosDefines['WAFLO_API_BASE_URL']!),
+        pairingEnvironment: iosDefines['WAFLO_PAIRING_ENVIRONMENT']!,
+        logLevel: AppLogLevel.values.byName(iosDefines['WAFLO_LOG_LEVEL']!),
+        allowTestAdapter: bool.tryParse(
+          iosDefines['WAFLO_ALLOW_TEST_ADAPTER']!,
+        )!,
+        localDemoRequested: bool.tryParse(
+          iosDefines['WAFLO_LOCAL_DEMO_ENABLED']!,
+        )!,
+        minimumVersionSource: iosDefines['WAFLO_MIN_VERSION_SOURCE']!,
+        crashReportingEnabled: bool.tryParse(
+          iosDefines['WAFLO_CRASH_REPORTING']!,
+        )!,
+        certificatePinningEnabled: bool.tryParse(
+          iosDefines['WAFLO_CERT_PINNING']!,
+        )!,
+      ).validate(),
+      isEmpty,
+    );
+
+    for (final mode in ['Debug', 'Profile', 'Release']) {
+      final xcconfig = File(
+        'ios/Flutter/$mode-staging.xcconfig',
+      ).readAsStringSync();
+      expect(
+        xcconfig.indexOf('#include "Environment-staging.xcconfig"'),
+        lessThan(xcconfig.indexOf('#include "Generated.xcconfig"')),
+        reason:
+            '$mode must allow explicit Flutter CLI defines to override '
+            'the Xcode-scheme fallback.',
+      );
+      expect(xcconfig, contains('FLUTTER_TARGET=lib/main_staging.dart'));
+      expect(xcconfig, contains('FLAVOR=staging'));
+    }
+
+    final scheme = File(
+      'ios/Runner.xcodeproj/xcshareddata/xcschemes/staging.xcscheme',
+    ).readAsStringSync();
+    for (final mapping in [
+      'TestAction buildConfiguration="Debug"',
+      'LaunchAction buildConfiguration="Debug-staging"',
+      'ProfileAction buildConfiguration="Profile-staging"',
+      'AnalyzeAction buildConfiguration="Debug-staging"',
+      'ArchiveAction buildConfiguration="Release-staging"',
+    ]) {
+      expect(scheme, contains(mapping));
+    }
+  });
+
+  test(
+    'staging entrypoint without Dart defines fails the exact secure checks',
+    () {
+      expect(
+        AppEnvironment.fromDefines(
+          expectedNativeFlavor: AppFlavor.staging,
+        ).validate(),
+        const [
+          'REQUIRED_DART_CONFIGURATION_MISSING',
+          'DART_ENVIRONMENT_INVALID',
+          'API_BASE_URL_INVALID',
+          'NON_DEVELOPMENT_REQUIRES_HTTPS',
+          'NON_DEVELOPMENT_API_ORIGIN_MISMATCH',
+          'PAIRING_ENVIRONMENT_MISMATCH',
+        ],
+      );
+    },
+    skip: const String.fromEnvironment('WAFLO_ENV').isNotEmpty,
+  );
+
+  test(
+    'supplied staging or production Dart configuration passes every guard',
+    () {
+      final expectedFlavor = AppFlavor.values.byName(
+        const String.fromEnvironment('WAFLO_ENV'),
+      );
+      final environment = AppEnvironment.fromDefines(
+        expectedNativeFlavor: expectedFlavor,
+      );
+
+      expect(environment.validate(), isEmpty);
+    },
+    skip:
+        const String.fromEnvironment('WAFLO_ENV') != 'staging' &&
+        const String.fromEnvironment('WAFLO_ENV') != 'production',
+  );
+
   test('native and Dart flavors must match exactly', () {
     final mismatched = AppEnvironment(
       flavor: AppFlavor.production,

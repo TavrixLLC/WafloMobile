@@ -91,6 +91,48 @@ void main() {
     );
   });
 
+  test(
+    'configured staging build reaches pairing and home-ready boot states',
+    () async {
+      final environment = AppEnvironment.fromDefines(
+        expectedNativeFlavor: AppFlavor.staging,
+      );
+      expect(environment.validate(), isEmpty);
+
+      final freshStore = MemorySecureKeyValueStore();
+      final freshContainer = await _container(
+        freshStore,
+        environment: environment,
+      );
+      addTearDown(freshContainer.dispose);
+      await freshContainer.read(bootControllerProvider.notifier).initialize();
+      expect(
+        freshContainer.read(bootControllerProvider).stage,
+        BootStage.unpaired,
+      );
+
+      final pairedStore = MemorySecureKeyValueStore();
+      await DeviceIdentityRepository(pairedStore).loadOrCreate();
+      await StaffDeviceSessionRepository(
+        pairedStore,
+      ).replaceAtomically(fixtureSession());
+      await LocalLifecycleRepository(
+        pairedStore,
+      ).mark(LocalLifecycleState.paired);
+      final pairedContainer = await _container(
+        pairedStore,
+        environment: environment,
+      );
+      addTearDown(pairedContainer.dispose);
+      await pairedContainer.read(bootControllerProvider.notifier).initialize();
+      expect(
+        pairedContainer.read(bootControllerProvider).stage,
+        BootStage.pairedReady,
+      );
+    },
+    skip: const String.fromEnvironment('WAFLO_ENV') != 'staging',
+  );
+
   test('paired marker with identity but no session fails closed', () async {
     final store = MemorySecureKeyValueStore();
     await DeviceIdentityRepository(store).loadOrCreate();
@@ -193,13 +235,14 @@ Future<ProviderContainer> _container(
   MemorySecureKeyValueStore store, {
   PairingApi? pairingApi,
   DeviceSessionApi sessionApi = const _BootSessionApi(),
+  AppEnvironment? environment,
 }) async => ProviderContainer(
   overrides: [
     secureStoreProvider.overrideWithValue(store),
     sharedPreferencesProvider.overrideWithValue(
       await SharedPreferences.getInstance(),
     ),
-    environmentProvider.overrideWithValue(_environment),
+    environmentProvider.overrideWithValue(environment ?? _environment),
     deviceSessionApiProvider.overrideWithValue(sessionApi),
     if (pairingApi != null) pairingApiProvider.overrideWithValue(pairingApi),
   ],

@@ -339,6 +339,27 @@ void main() {
     expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('19 configured staging build reaches pairing and home', (
+    tester,
+  ) async {
+    final environment = AppEnvironment.fromDefines(
+      expectedNativeFlavor: AppFlavor.staging,
+    );
+    expect(environment.validate(), isEmpty);
+
+    final harness = await _AppHarness.pump(tester, environment: environment);
+    expect(find.text('Pair this staff device'), findsOneWidget);
+    expect(find.text('App configuration error'), findsNothing);
+
+    harness.container.read(pairingControllerProvider.notifier).showScanner();
+    await _pumpFrames(tester);
+    await harness.scanner.emit(_stagingToken());
+    await _pumpFrames(tester);
+    await tester.tap(find.byKey(const Key('pairing-success-continue')));
+    await _pumpFrames(tester);
+    _expectTaskFirstHome();
+  }, skip: const String.fromEnvironment('WAFLO_ENV') != 'staging');
 }
 
 void _expectTaskFirstHome() {
@@ -616,4 +637,11 @@ String _developmentToken() {
       'MDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMTAw.'
       'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.'
       'ZGV2ZWxvcG1lbnQ';
+}
+
+String _stagingToken() {
+  return 'waflo-pair-v1.'
+      'MDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMTAw.'
+      'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.'
+      'c3RhZ2luZw';
 }
