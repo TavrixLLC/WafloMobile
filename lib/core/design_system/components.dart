@@ -131,6 +131,74 @@ final class WafloConstrainedContent extends StatelessWidget {
   );
 }
 
+/// Switches structure at product breakpoints without changing the compact
+/// widget tree. The available constraints are authoritative so iPad
+/// multitasking and resizable Android windows update immediately.
+final class WafloAdaptiveLayout extends StatelessWidget {
+  const WafloAdaptiveLayout({
+    required this.compact,
+    required this.wide,
+    this.medium,
+    super.key,
+  });
+
+  final Widget compact;
+  final Widget? medium;
+  final Widget wide;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final mediaSize = MediaQuery.sizeOf(context);
+      final size = Size(
+        constraints.hasBoundedWidth ? constraints.maxWidth : mediaSize.width,
+        mediaSize.height,
+      );
+      final windowClass = WafloLayout.windowClassFor(size);
+      return KeyedSubtree(
+        key: Key('waflo-adaptive-${windowClass.name}'),
+        child: switch (windowClass) {
+          WafloWindowClass.compact => compact,
+          WafloWindowClass.medium => medium ?? compact,
+          WafloWindowClass.wide => wide,
+        },
+      );
+    },
+  );
+}
+
+/// A disciplined wide-window split. Compact and medium compositions are
+/// supplied by the caller so phone geometry remains screen-specific.
+final class WafloWideSplit extends StatelessWidget {
+  const WafloWideSplit({
+    required this.primary,
+    required this.secondary,
+    this.primaryFlex = 6,
+    this.secondaryFlex = 5,
+    this.gap = WafloSpacing.xl,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
+    super.key,
+  });
+
+  final Widget primary;
+  final Widget secondary;
+  final int primaryFlex;
+  final int secondaryFlex;
+  final double gap;
+  final CrossAxisAlignment crossAxisAlignment;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    key: const Key('waflo-wide-split'),
+    crossAxisAlignment: crossAxisAlignment,
+    children: [
+      Expanded(flex: primaryFlex, child: primary),
+      SizedBox(width: gap),
+      Expanded(flex: secondaryFlex, child: secondary),
+    ],
+  );
+}
+
 final class WafloReadyBeacon extends StatelessWidget {
   const WafloReadyBeacon({this.color, this.size = 26, super.key});
 

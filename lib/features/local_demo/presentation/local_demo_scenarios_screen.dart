@@ -174,28 +174,28 @@ final class _ScenarioGroupLayout extends StatelessWidget {
           ],
         ],
       );
-      if (!context.isWafloTablet || constraints.maxWidth < 760) {
+      if (!context.isWafloWide) {
         return column(groups);
       }
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: column(
-              groups.indexed
-                  .where((item) => item.$1.isEven)
-                  .map((item) => item.$2),
-            ),
+      return WafloWideSplit(
+        key: const Key('scenario-groups-wide'),
+        primary: KeyedSubtree(
+          key: const Key('scenario-groups-primary'),
+          child: column(
+            groups.indexed
+                .where((item) => item.$1.isEven)
+                .map((item) => item.$2),
           ),
-          const SizedBox(width: WafloSpacing.md),
-          Expanded(
-            child: column(
-              groups.indexed
-                  .where((item) => item.$1.isOdd)
-                  .map((item) => item.$2),
-            ),
+        ),
+        secondary: KeyedSubtree(
+          key: const Key('scenario-groups-secondary'),
+          child: column(
+            groups.indexed
+                .where((item) => item.$1.isOdd)
+                .map((item) => item.$2),
           ),
-        ],
+        ),
+        gap: WafloSpacing.md,
       );
     },
   );

@@ -18,6 +18,8 @@ import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/device_security/presentation/device_security_screen.dart';
+import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_scenarios_screen.dart';
 import 'package:waflo_staff/features/membership_resolution/domain/resolved_membership.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
@@ -35,6 +37,9 @@ const _iPadPortrait = Size(810, 1080);
 const _iPadProLandscape = Size(1366, 1024);
 const _androidPortrait = Size(800, 1280);
 const _androidLandscape = Size(1280, 800);
+const _narrowIpadWindow = Size(520, 900);
+const _mediumIpadWindow = Size(744, 900);
+const _phone = Size(390, 844);
 
 void main() {
   testWidgets('Home uses a bounded tablet workspace in both orientations', (
@@ -50,10 +55,20 @@ void main() {
         tester.getSize(content).width,
         lessThanOrEqualTo(WafloLayout.maximumWideContentWidth),
       );
-      expect(
-        tester.getSize(find.byKey(const Key('primary-scan-customer'))).width,
-        lessThanOrEqualTo(640),
-      );
+      final scan = find.byKey(const Key('home-primary-pane'));
+      final controls = find.byKey(const Key('home-control-pane'));
+      expect(scan, findsOneWidget);
+      expect(controls, findsOneWidget);
+      if (size.width < WafloLayout.wideBreakpoint) {
+        expect(tester.getTopLeft(scan).dx, tester.getTopLeft(controls).dx);
+        expect(tester.getSize(scan).width, lessThanOrEqualTo(760));
+      } else {
+        expect(
+          tester.getTopLeft(scan).dx,
+          isNot(tester.getTopLeft(controls).dx),
+        );
+        expect(tester.getSize(scan).width, lessThanOrEqualTo(720));
+      }
       expect(find.byKey(const Key('home-device-security')), findsOneWidget);
       expect(find.byKey(const Key('home-settings')), findsOneWidget);
       expect(tester.takeException(), isNull, reason: '$size');
@@ -91,8 +106,16 @@ void main() {
       _settingsHarness(locale: WafloLocales.arabic),
     );
     var content = find.byKey(const Key('waflo-responsive-content'));
-    expect(tester.getSize(content).width, lessThanOrEqualTo(680));
+    expect(tester.getSize(content).width, lessThanOrEqualTo(1120));
     expect(Directionality.of(tester.element(content)), TextDirection.rtl);
+    final preferences = find.byKey(const Key('settings-preferences-pane'));
+    final system = find.byKey(const Key('settings-system-pane'));
+    expect(preferences, findsOneWidget);
+    expect(system, findsOneWidget);
+    expect(
+      tester.getTopLeft(preferences).dx,
+      greaterThan(tester.getTopLeft(system).dx),
+    );
     expect(tester.takeException(), isNull);
 
     await _pumpAt(
@@ -101,8 +124,10 @@ void main() {
       _deviceSecurityHarness(locale: WafloLocales.badini),
     );
     content = find.byKey(const Key('waflo-responsive-content'));
-    expect(tester.getSize(content).width, lessThanOrEqualTo(680));
+    expect(tester.getSize(content).width, lessThanOrEqualTo(800));
     expect(Directionality.of(tester.element(content)), TextDirection.rtl);
+    expect(find.byKey(const Key('device-identity-pane')), findsOneWidget);
+    expect(find.byKey(const Key('device-policy-pane')), findsOneWidget);
     await tester.scrollUntilVisible(
       find.byKey(const Key('sign-out')),
       280,
@@ -111,35 +136,57 @@ void main() {
     await tester.tap(find.byKey(const Key('sign-out')));
     await tester.pumpAndSettle();
     expect(find.byType(AlertDialog), findsOneWidget);
-    expect(
-      tester.getSize(find.byType(AlertDialog)).width,
-      lessThanOrEqualTo(560),
+    expect(tester.takeException(), isNull);
+
+    await _pumpAt(
+      tester,
+      _iPadProLandscape,
+      _deviceSecurityHarness(locale: WafloLocales.arabic),
     );
+    final identity = find.byKey(const Key('device-identity-pane'));
+    final policy = find.byKey(const Key('device-policy-pane'));
+    expect(identity, findsOneWidget);
+    expect(policy, findsOneWidget);
+    expect(
+      tester.getTopLeft(identity).dx,
+      greaterThan(tester.getTopLeft(policy).dx),
+    );
+    expect(find.byKey(const Key('device-actions-group')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('pairing pages and language sheet cover common tablet sizes', (
+  testWidgets('Pairing follows compact, medium, and wide resize classes', (
     tester,
   ) async {
     _resetViewAfterTest(tester);
-    final sizes = [
-      _iPadPortrait,
-      _iPadProLandscape,
-      _androidPortrait,
-      _androidLandscape,
-    ];
-    for (var index = 0; index < sizes.length; index += 1) {
-      final locale = index.isEven ? WafloLocales.english : WafloLocales.arabic;
+    for (final size in [_phone, _narrowIpadWindow]) {
       await _pumpAt(
         tester,
-        sizes[index],
-        _pairingHarness(const PairingViewState.welcome(), locale: locale),
+        size,
+        _pairingHarness(const PairingViewState.welcome()),
       );
-      final content = find.byKey(const Key('waflo-page-content'));
-      expect(tester.getSize(content).width, lessThanOrEqualTo(680));
+      expect(find.byKey(const Key('waflo-adaptive-compact')), findsOneWidget);
+      expect(find.byKey(const Key('pairing-security-rail')), findsNothing);
       expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
-      expect(tester.takeException(), isNull, reason: '${sizes[index]}');
+      expect(tester.takeException(), isNull, reason: '$size');
     }
+
+    await _pumpAt(
+      tester,
+      _mediumIpadWindow,
+      _pairingHarness(const PairingViewState.welcome()),
+    );
+    expect(find.byKey(const Key('waflo-adaptive-medium')), findsOneWidget);
+    expect(find.byKey(const Key('pairing-security-rail')), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const Key('pairing-actions-group'))).width,
+      lessThanOrEqualTo(440),
+    );
+    expect(
+      tester.getBottomRight(find.byKey(const Key('pairing-actions-group'))).dy,
+      lessThan(_mediumIpadWindow.height * .6),
+    );
+    expect(tester.takeException(), isNull);
 
     await _pumpAt(
       tester,
@@ -149,11 +196,26 @@ void main() {
         locale: WafloLocales.sorani,
       ),
     );
+    expect(find.byKey(const Key('waflo-adaptive-wide')), findsOneWidget);
+    final introduction = find.byKey(const Key('pairing-introduction-pane'));
+    final actions = find.byKey(const Key('pairing-action-pane'));
+    expect(introduction, findsOneWidget);
+    expect(actions, findsOneWidget);
+    expect(
+      tester.getTopLeft(introduction).dx,
+      greaterThan(tester.getTopLeft(actions).dx),
+    );
+    expect(
+      tester.getSize(find.byKey(const Key('scan-pairing-code'))).width,
+      lessThanOrEqualTo(480),
+    );
     await tester.tap(find.byKey(const Key('pairing-language-control')));
     await tester.pumpAndSettle();
     expect(find.byType(BottomSheet), findsOneWidget);
     expect(
-      tester.getSize(find.byType(BottomSheet)).width,
+      tester
+          .getSize(find.byKey(const Key('pairing-language-sheet-content')))
+          .width,
       lessThanOrEqualTo(680),
     );
     expect(
@@ -189,6 +251,20 @@ void main() {
     addTearDown(adapter.dispose);
     await _pumpAt(
       tester,
+      _iPadPortrait,
+      _pairingHarness(
+        const PairingViewState(stage: PairingViewStage.scanner),
+        adapter: adapter,
+      ),
+    );
+    expect(
+      find.byKey(const Key('scanner-compact-control-deck')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+
+    await _pumpAt(
+      tester,
       _iPadProLandscape,
       _pairingHarness(
         const PairingViewState(stage: PairingViewStage.scanner),
@@ -197,13 +273,14 @@ void main() {
     );
     expect(
       tester.getSize(find.byKey(const Key('scanner-controls-content'))).width,
-      lessThanOrEqualTo(680),
+      lessThanOrEqualTo(WafloLayout.maximumWideContentWidth),
     );
     expect(
       find.byKey(const Key('professional-scanner-overlay')),
       findsOneWidget,
     );
     expect(find.byKey(const Key('manual-code-entry')), findsOneWidget);
+    expect(find.byKey(const Key('scanner-wide-control-deck')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -214,19 +291,38 @@ void main() {
     for (final size in [_iPadPortrait, _androidLandscape]) {
       await _pumpAt(tester, size, _pinSetupHarness());
       expect(
-        tester.getSize(find.byKey(const Key('waflo-page-content'))).width,
-        lessThanOrEqualTo(WafloLayout.maximumPinWidth),
-      );
-      expect(
         tester.getSize(find.byKey(const Key('pin-setup-keypad'))).width,
         lessThanOrEqualTo(420),
       );
+      if (size.width >= WafloLayout.wideBreakpoint) {
+        expect(find.byKey(const Key('pin-security-pane')), findsOneWidget);
+      } else {
+        expect(find.byKey(const Key('waflo-adaptive-medium')), findsOneWidget);
+      }
       expect(tester.takeException(), isNull, reason: '$size');
     }
 
     await _pumpAt(tester, _iPadProLandscape, _lockOverlayHarness());
     expect(tester.getSize(find.byType(GridView)).width, lessThanOrEqualTo(420));
+    expect(find.byKey(const Key('unlock-security-pane')), findsOneWidget);
+    expect(find.byKey(const Key('unlock-controls-pane')), findsOneWidget);
     expect(find.byKey(const Key('unlock-with-pin')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('App Lock settings split modes from timeout controls when wide', (
+    tester,
+  ) async {
+    _resetViewAfterTest(tester);
+    await _pumpAt(tester, _iPadProLandscape, _appLockSettingsHarness());
+    final modes = find.byKey(const Key('app-lock-modes-pane'));
+    final interval = find.byKey(const Key('app-lock-interval-pane'));
+    expect(modes, findsOneWidget);
+    expect(interval, findsOneWidget);
+    expect(
+      tester.getTopLeft(modes).dx,
+      lessThan(tester.getTopLeft(interval).dx),
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -293,14 +389,48 @@ void main() {
       await _pumpAt(tester, size, _reviewToolsHarness());
       await tester.pumpAndSettle();
       final content = find.byKey(const Key('waflo-responsive-content'));
-      expect(tester.getSize(content).width, lessThanOrEqualTo(680));
-      expect(find.text('Review scenarios'), findsOneWidget);
+      expect(
+        tester.getSize(content).width,
+        lessThanOrEqualTo(WafloLayout.maximumWideContentWidth),
+      );
+      expect(find.byKey(const Key('review-scenarios-pane')), findsOneWidget);
+      expect(find.byKey(const Key('review-actions-pane')), findsOneWidget);
+      if (size.width >= WafloLayout.wideBreakpoint) {
+        expect(
+          tester.getTopLeft(find.byKey(const Key('review-scenarios-pane'))).dx,
+          greaterThan(
+            tester.getTopLeft(find.byKey(const Key('review-actions-pane'))).dx,
+          ),
+        );
+      }
       expect(tester.takeException(), isNull, reason: '$size');
     }
+  });
+
+  testWidgets('Demo review scenario groups adapt from one to two columns', (
+    tester,
+  ) async {
+    _resetViewAfterTest(tester);
+    await _pumpAt(tester, _androidPortrait, _localDemoHarness());
+    expect(find.byKey(const Key('scenario-groups-wide')), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await _pumpAt(tester, _androidLandscape, _localDemoHarness());
+    final primary = find.byKey(const Key('scenario-groups-primary'));
+    final secondary = find.byKey(const Key('scenario-groups-secondary'));
+    expect(primary, findsOneWidget);
+    expect(secondary, findsOneWidget);
+    expect(
+      tester.getTopLeft(primary).dx,
+      lessThan(tester.getTopLeft(secondary).dx),
+    );
+    expect(tester.takeException(), isNull);
   });
 }
 
 Future<void> _pumpAt(WidgetTester tester, Size size, Widget widget) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump();
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   await tester.pumpWidget(widget);
@@ -323,6 +453,7 @@ Widget _app(Widget child, {Locale locale = WafloLocales.english}) =>
     );
 
 Widget _homeHarness({Locale locale = WafloLocales.english}) => ProviderScope(
+  key: UniqueKey(),
   overrides: [
     bootControllerProvider.overrideWithBuild(
       (ref, notifier) => BootState(
@@ -341,6 +472,7 @@ Widget _homeHarness({Locale locale = WafloLocales.english}) => ProviderScope(
 
 Widget _settingsHarness({Locale locale = WafloLocales.english}) =>
     ProviderScope(
+      key: UniqueKey(),
       overrides: [
         localeControllerProvider.overrideWithBuild((ref, notifier) => locale),
         themeControllerProvider.overrideWithBuild(
@@ -355,6 +487,7 @@ Widget _settingsHarness({Locale locale = WafloLocales.english}) =>
 
 Widget _deviceSecurityHarness({Locale locale = WafloLocales.english}) =>
     ProviderScope(
+      key: UniqueKey(),
       overrides: [
         bootControllerProvider.overrideWithBuild(
           (ref, notifier) => BootState(
@@ -390,6 +523,7 @@ Widget _pairingHarness(
 );
 
 Widget _pinSetupHarness() => ProviderScope(
+  key: UniqueKey(),
   overrides: [
     appLockControllerProvider.overrideWithBuild(
       (ref, notifier) => const AppLockState(
@@ -401,7 +535,21 @@ Widget _pinSetupHarness() => ProviderScope(
   child: _app(const PinSetupScreen()),
 );
 
+Widget _appLockSettingsHarness() => ProviderScope(
+  key: UniqueKey(),
+  overrides: [
+    appLockControllerProvider.overrideWithBuild(
+      (ref, notifier) => const AppLockState(
+        configuration: AppLockConfiguration(mode: AppLockMode.pin),
+        status: AppLockStatus.unlocked,
+      ),
+    ),
+  ],
+  child: _app(const AppLockSettingsScreen()),
+);
+
 Widget _lockOverlayHarness() => ProviderScope(
+  key: UniqueKey(),
   overrides: [
     appLockControllerProvider.overrideWithBuild(
       (ref, notifier) => const AppLockState(
@@ -417,6 +565,7 @@ Widget _loyaltyHarness(
   M2OperationState state, {
   Locale locale = WafloLocales.english,
 }) => ProviderScope(
+  key: UniqueKey(),
   overrides: [
     m2OperationControllerProvider.overrideWithBuild((ref, notifier) => state),
     bootControllerProvider.overrideWithBuild(
@@ -431,8 +580,19 @@ Widget _loyaltyHarness(
 );
 
 Widget _reviewToolsHarness() => ProviderScope(
+  key: UniqueKey(),
   overrides: [reviewAccessRepositoryProvider.overrideWithValue(_ReviewRepo())],
   child: _app(const ReviewToolsScreen()),
+);
+
+Widget _localDemoHarness() => ProviderScope(
+  key: UniqueKey(),
+  overrides: [
+    localDemoControllerProvider.overrideWithBuild(
+      (ref, notifier) => const LocalDemoState(status: LocalDemoStatus.active),
+    ),
+  ],
+  child: _app(const LocalDemoScenariosScreen()),
 );
 
 ResolvedMembership _membership() {

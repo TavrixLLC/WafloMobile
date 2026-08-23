@@ -28,145 +28,190 @@ final class DeviceSecurityScreen extends ConsumerWidget {
     final verified = deviceContext == null
         ? strings.unavailable
         : DateFormat.yMd(
-            Localizations.localeOf(context).toLanguageTag(),
+            _supportedDateLocale(Localizations.localeOf(context)),
           ).add_Hm().format(deviceContext.synchronizedAt.toLocal());
+
+    Widget introduction() => Column(
+      key: const Key('device-security-introduction'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          strings.securityProtected,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: WafloSpacing.xs),
+        Text(
+          strings.securityProtectedBody,
+          style: TextStyle(color: context.waflo.subtleText),
+        ),
+      ],
+    );
+
+    Widget identityPane() => WafloSurfaceCard(
+      key: const Key('device-identity-pane'),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          WafloSummaryRow(
+            label: strings.thisDevice,
+            value: _available(device?.displayName, strings),
+          ),
+          WafloSummaryRow(
+            label: strings.activeOrganization,
+            value: _available(deviceContext?.organization.displayName, strings),
+          ),
+          WafloSummaryRow(
+            label: strings.currentLocationLabel,
+            value: _available(currentLocation?.displayName, strings),
+          ),
+          WafloSummaryRow(
+            label: strings.roleLabel,
+            value: role == null
+                ? strings.unavailable
+                : strings.localizeRole(role),
+          ),
+          WafloSummaryRow(
+            label: strings.deviceStatusLabel,
+            value: status == 'ACTIVE'
+                ? strings.active
+                : status ?? strings.unavailable,
+          ),
+          WafloSummaryRow(
+            label: strings.locationsTitle,
+            value: deviceContext == null
+                ? strings.unavailable
+                : strings.assignedLocations(
+                    deviceContext.assignedLocationCount,
+                  ),
+            divider: false,
+          ),
+        ],
+      ),
+    );
+
+    Widget policyPane() => WafloSurfaceCard(
+      key: const Key('device-policy-pane'),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+      child: Column(
+        children: [
+          WafloSummaryRow(
+            label: strings.earningCapability,
+            value: _capability(
+              strings,
+              known: currentLocation?.capabilitiesKnown,
+              allowed: currentLocation?.earningAllowed,
+            ),
+          ),
+          WafloSummaryRow(
+            label: strings.redemptionCapability,
+            value: _capability(
+              strings,
+              known: currentLocation?.capabilitiesKnown,
+              allowed: currentLocation?.redemptionAllowed,
+            ),
+          ),
+          WafloSummaryRow(label: strings.lastVerified, value: verified),
+          WafloSummaryRow(
+            label: strings.appLock,
+            value: _modeLabel(strings, appLock.configuration.mode),
+          ),
+          WafloSummaryRow(
+            label: strings.appVersionLabel,
+            value: packageInfo.when(
+              data: (info) => _available(info.version, strings),
+              error: (error, stackTrace) => strings.unavailable,
+              loading: () => '…',
+            ),
+            divider: false,
+          ),
+        ],
+      ),
+    );
+
+    Widget actions() => Column(
+      key: const Key('device-actions-group'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          _platform(strings, device?.platform),
+          textAlign: TextAlign.center,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
+        ),
+        const SizedBox(height: WafloSpacing.lg),
+        FilledButton.tonalIcon(
+          onPressed: localDemo.active
+              ? () {}
+              : () => unawaited(
+                  ref.read(bootControllerProvider.notifier).refreshContext(),
+                ),
+          icon: const Icon(Icons.refresh_rounded),
+          label: Text(strings.refreshStatus),
+        ),
+        const SizedBox(height: WafloSpacing.sm),
+        OutlinedButton.icon(
+          onPressed: () => context.push('/app-lock'),
+          icon: const Icon(Icons.lock_outline_rounded),
+          label: Text(strings.appLockSettings),
+        ),
+        const SizedBox(height: WafloSpacing.sm),
+        TextButton.icon(
+          key: const Key('sign-out'),
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.error,
+          ),
+          onPressed: () => _confirmSignOut(
+            context,
+            ref,
+            strings,
+            localDemo: localDemo.active,
+          ),
+          icon: const Icon(Icons.logout_rounded),
+          label: Text(localDemo.active ? strings.exitDemo : strings.signOut),
+        ),
+      ],
+    );
+
+    Widget compactLayout() => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        introduction(),
+        const SizedBox(height: WafloSpacing.lg),
+        identityPane(),
+        const SizedBox(height: WafloSpacing.md),
+        policyPane(),
+        const SizedBox(height: WafloSpacing.sm),
+        actions(),
+      ],
+    );
+
     return Scaffold(
       appBar: AppBar(title: Text(strings.deviceAndSecurity)),
       body: SafeArea(
         child: WafloResponsiveListView(
+          maxWidth: WafloLayout.maximumWideContentWidth,
           children: [
-            Text(
-              strings.securityProtected,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: WafloSpacing.xs),
-            Text(
-              strings.securityProtectedBody,
-              style: TextStyle(color: context.waflo.subtleText),
-            ),
-            const SizedBox(height: WafloSpacing.lg),
-            WafloSurfaceCard(
-              padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-              child: Column(
+            WafloAdaptiveLayout(
+              compact: compactLayout(),
+              medium: compactLayout(),
+              wide: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  WafloSummaryRow(
-                    label: strings.thisDevice,
-                    value: _available(device?.displayName, strings),
-                  ),
-                  WafloSummaryRow(
-                    label: strings.activeOrganization,
-                    value: _available(
-                      deviceContext?.organization.displayName,
-                      strings,
+                  introduction(),
+                  const SizedBox(height: WafloSpacing.lg),
+                  WafloWideSplit(
+                    primary: identityPane(),
+                    secondary: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        policyPane(),
+                        const SizedBox(height: WafloSpacing.md),
+                        actions(),
+                      ],
                     ),
-                  ),
-                  WafloSummaryRow(
-                    label: strings.currentLocationLabel,
-                    value: _available(currentLocation?.displayName, strings),
-                  ),
-                  WafloSummaryRow(
-                    label: strings.roleLabel,
-                    value: role == null
-                        ? strings.unavailable
-                        : strings.localizeRole(role),
-                  ),
-                  WafloSummaryRow(
-                    label: strings.deviceStatusLabel,
-                    value: status == 'ACTIVE'
-                        ? strings.active
-                        : status ?? strings.unavailable,
-                  ),
-                  WafloSummaryRow(
-                    label: strings.locationsTitle,
-                    value: deviceContext == null
-                        ? strings.unavailable
-                        : strings.assignedLocations(
-                            deviceContext.assignedLocationCount,
-                          ),
-                    divider: false,
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: WafloSpacing.md),
-            WafloSurfaceCard(
-              padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  WafloSummaryRow(
-                    label: strings.earningCapability,
-                    value: _capability(
-                      strings,
-                      known: currentLocation?.capabilitiesKnown,
-                      allowed: currentLocation?.earningAllowed,
-                    ),
-                  ),
-                  WafloSummaryRow(
-                    label: strings.redemptionCapability,
-                    value: _capability(
-                      strings,
-                      known: currentLocation?.capabilitiesKnown,
-                      allowed: currentLocation?.redemptionAllowed,
-                    ),
-                  ),
-                  WafloSummaryRow(label: strings.lastVerified, value: verified),
-                  WafloSummaryRow(
-                    label: strings.appLock,
-                    value: _modeLabel(strings, appLock.configuration.mode),
-                  ),
-                  WafloSummaryRow(
-                    label: strings.appVersionLabel,
-                    value: packageInfo.when(
-                      data: (info) => _available(info.version, strings),
-                      error: (error, stackTrace) => strings.unavailable,
-                      loading: () => '…',
-                    ),
-                    divider: false,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: WafloSpacing.sm),
-            Text(
-              _platform(strings, device?.platform),
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: context.waflo.subtleText),
-            ),
-            const SizedBox(height: WafloSpacing.lg),
-            FilledButton.tonalIcon(
-              onPressed: localDemo.active
-                  ? () {}
-                  : () => unawaited(
-                      ref
-                          .read(bootControllerProvider.notifier)
-                          .refreshContext(),
-                    ),
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(strings.refreshStatus),
-            ),
-            const SizedBox(height: WafloSpacing.sm),
-            OutlinedButton.icon(
-              onPressed: () => context.push('/app-lock'),
-              icon: const Icon(Icons.lock_outline_rounded),
-              label: Text(strings.appLockSettings),
-            ),
-            const SizedBox(height: WafloSpacing.sm),
-            TextButton.icon(
-              key: const Key('sign-out'),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-              ),
-              onPressed: () => _confirmSignOut(
-                context,
-                ref,
-                strings,
-                localDemo: localDemo.active,
-              ),
-              icon: const Icon(Icons.logout_rounded),
-              label: Text(
-                localDemo.active ? strings.exitDemo : strings.signOut,
               ),
             ),
           ],
@@ -204,6 +249,17 @@ final class DeviceSecurityScreen extends ConsumerWidget {
     return value == null
         ? strings.unavailable
         : strings.localizePlatform(value);
+  }
+
+  static String _supportedDateLocale(Locale locale) {
+    final requested = locale.toLanguageTag();
+    if (DateFormat.localeExists(requested)) return requested;
+    if (DateFormat.localeExists(locale.languageCode)) {
+      return locale.languageCode;
+    }
+    return locale.languageCode == 'ku' || locale.languageCode == 'ckb'
+        ? 'ar'
+        : 'en';
   }
 
   static Future<void> _confirmSignOut(

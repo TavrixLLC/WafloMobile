@@ -30,73 +30,116 @@ final class _ReviewToolsScreenState extends ConsumerState<ReviewToolsScreen> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final state = ref.watch(reviewAccessControllerProvider);
+
+    Widget status() => WafloStatusBanner(
+      icon: Icons.science_outlined,
+      message: strings.reviewToolsBody,
+      color: context.waflo.brandAction,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    );
+
+    Widget scenarios() => Column(
+      key: const Key('review-scenarios-pane'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        WafloOperationalLabel(strings.reviewScenarios),
+        const SizedBox(height: WafloSpacing.sm),
+        if (state.loading && state.scenarios.isEmpty)
+          const Center(child: CircularProgressIndicator())
+        else
+          ...state.scenarios.map(
+            (scenario) => _ScenarioTile(
+              scenario: scenario,
+              selected: state.selected == scenario.id,
+              enabled: !state.loading,
+              onTap: () => unawaited(
+                ref
+                    .read(reviewAccessControllerProvider.notifier)
+                    .select(scenario.id),
+              ),
+            ),
+          ),
+        if (state.failure != null) ...[
+          const SizedBox(height: WafloSpacing.md),
+          WafloStatusBanner(
+            icon: Icons.info_outline_rounded,
+            message: strings.reviewEnvironmentUnavailable,
+            color: WafloColors.warning,
+            backgroundColor: context.waflo.warningSurface,
+          ),
+        ],
+      ],
+    );
+
+    Widget actions() => Column(
+      key: const Key('review-actions-pane'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          onPressed: state.loading
+              ? null
+              : () => unawaited(
+                  ref
+                      .read(reviewAccessControllerProvider.notifier)
+                      .resetFixtures(),
+                ),
+          icon: const Icon(Icons.restart_alt_rounded),
+          label: Text(strings.resetReviewData),
+        ),
+        if (state.resetComplete) ...[
+          const SizedBox(height: WafloSpacing.sm),
+          Text(
+            strings.reviewResetComplete,
+            textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: WafloColors.success),
+          ),
+        ],
+        const SizedBox(height: WafloSpacing.md),
+        TextButton(
+          onPressed: state.loading
+              ? null
+              : () => unawaited(_confirmExit(context)),
+          child: Text(strings.exitDemo),
+        ),
+      ],
+    );
+
+    Widget compactLayout() => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        status(),
+        const SizedBox(height: WafloSpacing.lg),
+        scenarios(),
+        const SizedBox(height: WafloSpacing.xl),
+        actions(),
+      ],
+    );
+
     return Scaffold(
       appBar: AppBar(title: Text(strings.reviewTools)),
       body: SafeArea(
         child: WafloResponsiveListView(
+          maxWidth: WafloLayout.maximumWideContentWidth,
           compactHorizontalPadding: WafloSpacing.lg,
           children: [
-            WafloStatusBanner(
-              icon: Icons.science_outlined,
-              message: strings.reviewToolsBody,
-              color: context.waflo.brandAction,
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            ),
-            const SizedBox(height: WafloSpacing.lg),
-            WafloOperationalLabel(strings.reviewScenarios),
-            const SizedBox(height: WafloSpacing.sm),
-            if (state.loading && state.scenarios.isEmpty)
-              const Center(child: CircularProgressIndicator())
-            else
-              ...state.scenarios.map(
-                (scenario) => _ScenarioTile(
-                  scenario: scenario,
-                  selected: state.selected == scenario.id,
-                  enabled: !state.loading,
-                  onTap: () => unawaited(
-                    ref
-                        .read(reviewAccessControllerProvider.notifier)
-                        .select(scenario.id),
-                  ),
+            WafloAdaptiveLayout(
+              compact: compactLayout(),
+              medium: compactLayout(),
+              wide: WafloWideSplit(
+                primary: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    status(),
+                    const SizedBox(height: WafloSpacing.xl),
+                    actions(),
+                  ],
                 ),
+                secondary: scenarios(),
+                primaryFlex: 5,
+                secondaryFlex: 6,
               ),
-            if (state.failure != null) ...[
-              const SizedBox(height: WafloSpacing.md),
-              WafloStatusBanner(
-                icon: Icons.info_outline_rounded,
-                message: strings.reviewEnvironmentUnavailable,
-                color: WafloColors.warning,
-                backgroundColor: context.waflo.warningSurface,
-              ),
-            ],
-            const SizedBox(height: WafloSpacing.xl),
-            OutlinedButton.icon(
-              onPressed: state.loading
-                  ? null
-                  : () => unawaited(
-                      ref
-                          .read(reviewAccessControllerProvider.notifier)
-                          .resetFixtures(),
-                    ),
-              icon: const Icon(Icons.restart_alt_rounded),
-              label: Text(strings.resetReviewData),
-            ),
-            if (state.resetComplete) ...[
-              const SizedBox(height: WafloSpacing.sm),
-              Text(
-                strings.reviewResetComplete,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: WafloColors.success),
-              ),
-            ],
-            const SizedBox(height: WafloSpacing.md),
-            TextButton(
-              onPressed: state.loading
-                  ? null
-                  : () => unawaited(_confirmExit(context)),
-              child: Text(strings.exitDemo),
             ),
           ],
         ),

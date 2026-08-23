@@ -45,24 +45,50 @@ abstract final class WafloMotion {
 
 abstract final class WafloLayout {
   static const pageGutter = 20.0;
+  static const mediumPageGutter = 28.0;
   static const tabletPageGutter = 32.0;
   static const compactBreakpoint = 600.0;
   static const wideBreakpoint = 900.0;
   static const maximumContentWidth = 680.0;
+  static const maximumMediumContentWidth = 760.0;
   static const maximumFormWidth = 560.0;
   static const maximumPinWidth = 484.0;
-  static const maximumWideContentWidth = 1040.0;
+  static const maximumWideContentWidth = 1120.0;
   static const minimumTouchTarget = 48.0;
+
+  static WafloWindowClass windowClassFor(Size size) {
+    // Keep landscape handsets on the exact compact composition while letting
+    // iPad/Android split panes respond to the width they actually receive.
+    if (size.shortestSide < 480 || size.width < compactBreakpoint) {
+      return WafloWindowClass.compact;
+    }
+    if (size.width < wideBreakpoint) return WafloWindowClass.medium;
+    return WafloWindowClass.wide;
+  }
+}
+
+enum WafloWindowClass { compact, medium, wide }
+
+extension WafloWindowClassValues on WafloWindowClass {
+  bool get isCompact => this == WafloWindowClass.compact;
+  bool get isMedium => this == WafloWindowClass.medium;
+  bool get isWide => this == WafloWindowClass.wide;
 }
 
 extension WafloResponsiveContext on BuildContext {
-  /// Uses the shortest side so a landscape phone keeps the compact UI while
-  /// tablets and large foldable panes receive the roomier layout.
-  bool get isWafloTablet =>
-      MediaQuery.sizeOf(this).shortestSide >= WafloLayout.compactBreakpoint;
+  WafloWindowClass get wafloWindowClass =>
+      WafloLayout.windowClassFor(MediaQuery.sizeOf(this));
+
+  bool get isWafloTablet => !wafloWindowClass.isCompact;
+
+  bool get isWafloWide => wafloWindowClass.isWide;
 
   double wafloPageGutter({double compact = WafloLayout.pageGutter}) =>
-      isWafloTablet ? WafloLayout.tabletPageGutter : compact;
+      switch (wafloWindowClass) {
+        WafloWindowClass.compact => compact,
+        WafloWindowClass.medium => WafloLayout.mediumPageGutter,
+        WafloWindowClass.wide => WafloLayout.tabletPageGutter,
+      };
 }
 
 /// Official Waflo radii.

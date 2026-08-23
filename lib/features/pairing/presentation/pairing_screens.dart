@@ -42,74 +42,195 @@ final class _WelcomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
-    return WafloPage(
-      maxWidth: WafloLayout.maximumContentWidth,
-      scrollable: false,
-      child: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: IntrinsicHeight(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: WafloBrandMark(size: 42),
-                  ),
-                  const SizedBox(height: 40),
-                  Text(
-                    strings.welcomeTitle,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: WafloSpacing.sm),
-                  Text(
-                    strings.welcomeBody,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: context.waflo.subtleText,
-                    ),
-                  ),
-                  const SizedBox(height: WafloSpacing.lg),
-                  Text(
-                    strings.securitySummary,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: context.waflo.subtleText,
-                    ),
-                  ),
-                  const Spacer(),
-                  FilledButton(
-                    key: const Key('scan-pairing-code'),
-                    onPressed: () => ref
-                        .read(pairingControllerProvider.notifier)
-                        .showCameraRationale(),
-                    child: Text(strings.scanPairingCode),
-                  ),
-                  const SizedBox(height: WafloSpacing.sm),
-                  Align(
-                    alignment: AlignmentDirectional.center,
-                    child: _PairingLanguageControl(
-                      selectedLocale: locale,
-                      onPressed: () => unawaited(
-                        _showPairingLanguageSheet(
-                          context,
-                          selectedLocale: locale,
-                          onSelected: (selected) => unawaited(
-                            ref
-                                .read(localeControllerProvider.notifier)
-                                .setLocale(selected),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    final actions = _PairingWelcomeActions(
+      selectedLocale: locale,
+      onScan: () =>
+          ref.read(pairingControllerProvider.notifier).showCameraRationale(),
+      onLanguage: () => unawaited(
+        _showPairingLanguageSheet(
+          context,
+          selectedLocale: locale,
+          onSelected: (selected) => unawaited(
+            ref.read(localeControllerProvider.notifier).setLocale(selected),
           ),
         ),
       ),
     );
+    return WafloPage(
+      maxWidth: WafloLayout.maximumWideContentWidth,
+      scrollable: false,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _PairingWelcomeIntroduction(
+                      strings: strings,
+                      compact: true,
+                    ),
+                    const Spacer(),
+                    actions,
+                  ],
+                ),
+              ),
+            ),
+          );
+          final medium = SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Align(
+                alignment: AlignmentDirectional.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: WafloLayout.maximumMediumContentWidth,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _PairingWelcomeIntroduction(strings: strings),
+                      const SizedBox(height: WafloSpacing.xl),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 440),
+                          child: actions,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+          final wide = SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: WafloWideSplit(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  primary: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: _PairingWelcomeIntroduction(strings: strings),
+                  ),
+                  secondary: Align(
+                    alignment: AlignmentDirectional.center,
+                    child: WafloSurfaceCard(
+                      key: const Key('pairing-action-pane'),
+                      padding: const EdgeInsetsDirectional.all(WafloSpacing.xl),
+                      child: actions,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+          return WafloAdaptiveLayout(
+            compact: compact,
+            medium: medium,
+            wide: wide,
+          );
+        },
+      ),
+    );
   }
+}
+
+final class _PairingWelcomeIntroduction extends StatelessWidget {
+  const _PairingWelcomeIntroduction({
+    required this.strings,
+    this.compact = false,
+  });
+
+  final AppLocalizations strings;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: const Key('pairing-introduction-pane'),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      const Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: WafloBrandMark(size: 42),
+      ),
+      SizedBox(height: compact ? 40 : WafloSpacing.xl),
+      Text(
+        strings.welcomeTitle,
+        style: Theme.of(context).textTheme.headlineMedium,
+      ),
+      const SizedBox(height: WafloSpacing.sm),
+      Text(
+        strings.welcomeBody,
+        style: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: context.waflo.subtleText),
+      ),
+      const SizedBox(height: WafloSpacing.lg),
+      if (compact)
+        Text(
+          strings.securitySummary,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: context.waflo.subtleText),
+        )
+      else
+        Container(
+          key: const Key('pairing-security-rail'),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(WafloRadius.medium),
+            border: BorderDirectional(
+              start: BorderSide(color: context.waflo.brandAction, width: 4),
+            ),
+          ),
+          child: Text(
+            strings.securitySummary,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: context.waflo.subtleText),
+          ),
+        ),
+    ],
+  );
+}
+
+final class _PairingWelcomeActions extends StatelessWidget {
+  const _PairingWelcomeActions({
+    required this.selectedLocale,
+    required this.onScan,
+    required this.onLanguage,
+  });
+
+  final Locale selectedLocale;
+  final VoidCallback onScan;
+  final VoidCallback onLanguage;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    key: const Key('pairing-actions-group'),
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      FilledButton(
+        key: const Key('scan-pairing-code'),
+        onPressed: onScan,
+        child: Text(AppLocalizations.of(context).scanPairingCode),
+      ),
+      const SizedBox(height: WafloSpacing.sm),
+      Align(
+        alignment: AlignmentDirectional.center,
+        child: _PairingLanguageControl(
+          selectedLocale: selectedLocale,
+          onPressed: onLanguage,
+        ),
+      ),
+    ],
+  );
 }
 
 final class _PairingLanguageControl extends StatelessWidget {
@@ -201,6 +322,7 @@ final class _PairingLanguageSheet extends StatelessWidget {
             maxWidth: WafloLayout.maximumContentWidth,
           ),
           child: Column(
+            key: const Key('pairing-language-sheet-content'),
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -509,6 +631,7 @@ final class _PairingScannerScreenState
               minimum: const EdgeInsets.fromLTRB(16, 12, 16, 18),
               child: WafloConstrainedContent(
                 contentKey: const Key('scanner-controls-content'),
+                maxWidth: WafloLayout.maximumWideContentWidth,
                 child: Column(
                   children: [
                     Row(
@@ -540,65 +663,58 @@ final class _PairingScannerScreenState
                       ],
                     ),
                     const Spacer(),
-                    Text(
-                      strings.scannerInstructions,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        shadows: const [Shadow(blurRadius: 8)],
+                    WafloScannerControlDeck(
+                      instruction: strings.scannerInstructions,
+                      status: WafloScannerStatusPill(
+                        label: switch (scannerState) {
+                          CustomerScannerState.initializingCamera =>
+                            strings.initializingCamera,
+                          CustomerScannerState.candidateCaptured =>
+                            strings.codeDetected,
+                          CustomerScannerState.cameraUnavailable =>
+                            strings.cameraUnavailable,
+                          _ => strings.scannerReady,
+                        },
+                        busy:
+                            scannerState ==
+                                CustomerScannerState.initializingCamera ||
+                            scannerState ==
+                                CustomerScannerState.candidateCaptured,
                       ),
-                    ),
-                    const SizedBox(height: WafloSpacing.md),
-                    WafloScannerStatusPill(
-                      label: switch (scannerState) {
-                        CustomerScannerState.initializingCamera =>
-                          strings.initializingCamera,
-                        CustomerScannerState.candidateCaptured =>
-                          strings.codeDetected,
-                        CustomerScannerState.cameraUnavailable =>
-                          strings.cameraUnavailable,
-                        _ => strings.scannerReady,
-                      },
-                      busy:
-                          scannerState ==
-                              CustomerScannerState.initializingCamera ||
-                          scannerState ==
-                              CustomerScannerState.candidateCaptured,
-                    ),
-                    const SizedBox(height: WafloSpacing.md),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: WafloSpacing.sm,
-                      runSpacing: WafloSpacing.sm,
-                      children: [
-                        ValueListenableBuilder<bool>(
-                          valueListenable: adapter.torchEnabled,
-                          builder: (context, enabled, child) =>
-                              WafloScannerRoundAction(
-                                tooltip: strings.toggleFlash,
-                                label: enabled
-                                    ? strings.flashOff
-                                    : strings.flashOn,
-                                icon: enabled
-                                    ? Icons.flashlight_off_rounded
-                                    : Icons.flashlight_on_rounded,
-                                onPressed: () =>
-                                    unawaited(adapter.toggleTorch()),
-                              ),
-                        ),
-                        WafloScannerRoundAction(
-                          key: const Key('manual-code-entry'),
-                          tooltip: strings.enterCodeInstead,
-                          label: strings.enterCodeInstead,
-                          icon: Icons.keyboard_alt_outlined,
-                          onPressed: () {
-                            unawaited(adapter.stop());
-                            ref
-                                .read(pairingControllerProvider.notifier)
-                                .showManualEntry();
-                          },
-                        ),
-                      ],
+                      actions: Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: WafloSpacing.sm,
+                        runSpacing: WafloSpacing.sm,
+                        children: [
+                          ValueListenableBuilder<bool>(
+                            valueListenable: adapter.torchEnabled,
+                            builder: (context, enabled, child) =>
+                                WafloScannerRoundAction(
+                                  tooltip: strings.toggleFlash,
+                                  label: enabled
+                                      ? strings.flashOff
+                                      : strings.flashOn,
+                                  icon: enabled
+                                      ? Icons.flashlight_off_rounded
+                                      : Icons.flashlight_on_rounded,
+                                  onPressed: () =>
+                                      unawaited(adapter.toggleTorch()),
+                                ),
+                          ),
+                          WafloScannerRoundAction(
+                            key: const Key('manual-code-entry'),
+                            tooltip: strings.enterCodeInstead,
+                            label: strings.enterCodeInstead,
+                            icon: Icons.keyboard_alt_outlined,
+                            onPressed: () {
+                              unawaited(adapter.stop());
+                              ref
+                                  .read(pairingControllerProvider.notifier)
+                                  .showManualEntry();
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

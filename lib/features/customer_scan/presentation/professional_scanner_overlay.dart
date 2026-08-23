@@ -138,6 +138,75 @@ final class WafloScannerStatusPill extends StatelessWidget {
   );
 }
 
+/// Keeps scanner guidance and controls close to the capture area. Wide
+/// windows use an anchored two-part control deck; compact scanner geometry is
+/// intentionally unchanged.
+final class WafloScannerControlDeck extends StatelessWidget {
+  const WafloScannerControlDeck({
+    required this.instruction,
+    required this.status,
+    required this.actions,
+    super.key,
+  });
+
+  final String instruction;
+  final Widget status;
+  final Widget actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final instructionText = Text(
+      instruction,
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        color: Colors.white,
+        shadows: const [Shadow(blurRadius: 8)],
+      ),
+    );
+    if (!context.isWafloWide) {
+      return Column(
+        key: const Key('scanner-compact-control-deck'),
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          instructionText,
+          const SizedBox(height: WafloSpacing.md),
+          status,
+          const SizedBox(height: WafloSpacing.md),
+          actions,
+        ],
+      );
+    }
+    return Container(
+      key: const Key('scanner-wide-control-deck'),
+      padding: const EdgeInsetsDirectional.all(WafloSpacing.md),
+      decoration: BoxDecoration(
+        color: const Color(0xD9141110),
+        borderRadius: BorderRadius.circular(WafloRadius.large),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 6,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                instructionText,
+                const SizedBox(height: WafloSpacing.sm),
+                Align(child: status),
+              ],
+            ),
+          ),
+          const SizedBox(width: WafloSpacing.xl),
+          Flexible(flex: 5, child: actions),
+        ],
+      ),
+    );
+  }
+}
+
 final class _ProfessionalScannerOverlayState
     extends State<ProfessionalScannerOverlay>
     with SingleTickerProviderStateMixin {

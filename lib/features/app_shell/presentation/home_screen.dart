@@ -192,22 +192,26 @@ final class _HomePrimaryWorkspace extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final scan = WafloPrimaryActionPanel(
+        key: const Key('home-primary-pane'),
         title: title,
         subtitle: subtitle,
         onPressed: onScan,
       );
-      final controls = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          WafloOperationalLabel(AppLocalizations.of(context).deviceControls),
-          const SizedBox(height: WafloSpacing.sm),
-          _HomeActionDock(
-            onDeviceSecurity: onDeviceSecurity,
-            onSettings: onSettings,
-          ),
-        ],
+      final controls = KeyedSubtree(
+        key: const Key('home-control-pane'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            WafloOperationalLabel(AppLocalizations.of(context).deviceControls),
+            const SizedBox(height: WafloSpacing.sm),
+            _HomeActionDock(
+              onDeviceSecurity: onDeviceSecurity,
+              onSettings: onSettings,
+            ),
+          ],
+        ),
       );
-      final split = context.isWafloTablet && constraints.maxWidth >= 680;
+      final split = context.isWafloWide;
       if (!split) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
