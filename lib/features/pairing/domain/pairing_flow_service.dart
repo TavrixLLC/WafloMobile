@@ -34,16 +34,12 @@ final class PairingFlowService {
     this._transactionRepository,
     this._lifecycleRepository,
     this._sessionManager, {
-    ReviewAccessAuthorizationApi? reviewAccessApi,
     DateTime Function()? now,
-  }) : _reviewAccessApi =
-           reviewAccessApi ?? const _UnavailableReviewAccessAuthorizationApi(),
-       _now = now ?? DateTime.now;
+  }) : _now = now ?? DateTime.now;
 
   final PairingQrParser _parser;
   final DeviceIdentityRepository _identityRepository;
   final PairingApi _pairingApi;
-  final ReviewAccessAuthorizationApi _reviewAccessApi;
   final DeviceMetadataProvider _metadataProvider;
   final StaffDeviceSessionRepository _sessionRepository;
   final PairingTransactionRepository _transactionRepository;
@@ -61,7 +57,6 @@ final class PairingFlowService {
     await _transactionRepository.mark(
       pairingPublicId: payload.pairingPublicId,
       stage: PairingTransactionStage.claimPending,
-      sessionMode: StaffSessionMode.normal,
     );
 
     onProgress(PairingProgress.creatingIdentity);
@@ -96,7 +91,6 @@ final class PairingFlowService {
         challengeExpiresAt: claim.challengeExpiresAt,
         message: claim.message,
         onProgress: onProgress,
-        sessionMode: StaffSessionMode.normal,
       );
     } on AppFailure catch (failure) {
       if (failure is NetworkFailure ||
@@ -112,53 +106,6 @@ final class PairingFlowService {
       }
       rethrow;
     }
-  }
-
-  Future<PairingFlowResult> enterReviewAccess(
-    String rawCode, {
-    required void Function(PairingProgress progress) onProgress,
-  }) async {
-    onProgress(PairingProgress.validating);
-    final code = normalizeReviewAccessCode(rawCode);
-    if (!isValidReviewAccessCode(code)) {
-      throw const ApiFailure('REVIEW_ACCESS_INVALID', httpStatus: 422);
-    }
-    await _lifecycleRepository.mark(LocalLifecycleState.pairing);
-    onProgress(PairingProgress.creatingIdentity);
-    final identity = await _identityRepository.loadOrCreate();
-    final metadata = await _metadataProvider.load();
-    onProgress(PairingProgress.claiming);
-    final claim = await _reviewAccessApi.authorize(
-      ReviewAccessAuthorizeCommand(
-        reviewAccessCode: code,
-        installationId: identity.installationId,
-        publicKey: identity.publicKey,
-        metadata: metadata,
-      ),
-    );
-    await _transactionRepository.mark(
-      pairingPublicId: claim.pairingPublicId,
-      stage: PairingTransactionStage.claimPending,
-      sessionMode: StaffSessionMode.review,
-    );
-    _validateChallenge(
-      expectedPairingPublicId: claim.pairingPublicId,
-      identity: identity,
-      pairingPublicId: claim.pairingPublicId,
-      challenge: claim.challenge,
-      challengeExpiresAt: claim.challengeExpiresAt,
-      signatureAlgorithm: claim.signatureAlgorithm,
-      message: claim.message,
-    );
-    return _completeClaim(
-      identity: identity,
-      pairingPublicId: claim.pairingPublicId,
-      challenge: claim.challenge,
-      challengeExpiresAt: claim.challengeExpiresAt,
-      message: claim.message,
-      onProgress: onProgress,
-      sessionMode: StaffSessionMode.review,
-    );
   }
 
   Future<PairingFlowResult> resume({
@@ -185,6 +132,9 @@ final class PairingFlowService {
     required DeviceIdentity identity,
     required void Function(PairingProgress progress) onProgress,
   }) async {
+    if (transaction.sessionMode != StaffSessionMode.normal) {
+      throw const LocalSecurityFailure('LEGACY_REVIEW_SESSION_FORBIDDEN');
+    }
     onProgress(PairingProgress.recoveringChallenge);
     try {
       final recovered = await _pairingApi.challenge(
@@ -209,7 +159,6 @@ final class PairingFlowService {
         message: recovered.message,
         onProgress: onProgress,
         priorTransaction: transaction,
-        sessionMode: transaction.sessionMode,
       );
     } on AppFailure catch (failure) {
       if (failure.safeCode == 'DEVICE_PAIRING_EXPIRED') {
@@ -227,7 +176,6 @@ final class PairingFlowService {
     required String message,
     required void Function(PairingProgress progress) onProgress,
     PairingTransaction? priorTransaction,
-    required StaffSessionMode sessionMode,
   }) async {
     await _transactionRepository.mark(
       pairingPublicId: pairingPublicId,
@@ -235,7 +183,6 @@ final class PairingFlowService {
       challenge: challenge,
       challengeExpiresAt: challengeExpiresAt,
       message: message,
-      sessionMode: sessionMode,
     );
 
     onProgress(PairingProgress.signing);
@@ -253,7 +200,6 @@ final class PairingFlowService {
       challengeExpiresAt: challengeExpiresAt,
       message: message,
       signature: signature,
-      sessionMode: sessionMode,
     );
 
     await _transactionRepository.mark(
@@ -267,7 +213,6 @@ final class PairingFlowService {
         challenge: challenge,
         signature: signature,
         displayName: 'Waflo Staff device',
-        sessionMode: sessionMode,
       ),
     );
 
@@ -293,18 +238,6 @@ final class PairingFlowService {
     final context = await _sessionManager.loadContext(refreshIfExpired: false);
     return PairingFlowResult(context: context);
   }
-
-  static String normalizeReviewAccessCode(String value) {
-    final compact = value.toUpperCase().replaceAll(
-      RegExp('[^A-HJ-NP-Z2-9]'),
-      '',
-    );
-    if (compact.length <= 4) return compact;
-    return '${compact.substring(0, 4)}-${compact.substring(4, compact.length.clamp(4, 8))}';
-  }
-
-  static bool isValidReviewAccessCode(String value) =>
-      RegExp(r'^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$').hasMatch(value);
 
   void _validateChallenge({
     required String expectedPairingPublicId,
@@ -342,15 +275,4 @@ final class PairingFlowService {
       requestId: failure.requestId,
     );
   }
-}
-
-final class _UnavailableReviewAccessAuthorizationApi
-    implements ReviewAccessAuthorizationApi {
-  const _UnavailableReviewAccessAuthorizationApi();
-
-  @override
-  Future<PairingClaimResult> authorize(
-    ReviewAccessAuthorizeCommand command,
-  ) async =>
-      throw const ApiFailure('REVIEW_TENANT_UNAVAILABLE', httpStatus: 503);
 }

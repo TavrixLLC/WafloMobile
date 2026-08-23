@@ -1,15 +1,16 @@
-import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
+import 'package:waflo_staff/features/review_access/domain/local_review_access.dart';
 
 /// The intent behind a value entered in the scanner's neutral manual-code
-/// surface. This classifies routing only; authorization remains server-side.
-enum ManualCodeIntent { normalPairing, serverReview, localDemo }
+/// surface. This classifies routing only; authorization remains in the local
+/// Review access authority.
+enum ManualCodeIntent { normalPairing, localReview }
 
 abstract interface class ManualCodeIntentResolver {
   ManualCodeIntent resolve(String rawCode);
 }
 
-/// Product resolver. It deliberately has no local Demo credential or fixture
-/// dependency. Review-looking credentials are still validated by the server.
+/// Product resolver. It recognizes only the dedicated Review-code shape; the
+/// resolver never verifies, persists, logs, or transmits the entered value.
 final class ProductManualCodeIntentResolver
     implements ManualCodeIntentResolver {
   const ProductManualCodeIntentResolver();
@@ -18,14 +19,13 @@ final class ProductManualCodeIntentResolver
   ManualCodeIntent resolve(String rawCode) {
     final candidate = rawCode.trim();
     final reviewShaped =
-        candidate.length <= 12 &&
+        candidate.length <= 16 &&
         RegExp(r'^[A-Za-z0-9 -]+$').hasMatch(candidate);
     final normalized = reviewShaped
-        ? PairingFlowService.normalizeReviewAccessCode(candidate)
+        ? LocalReviewCodeFormat.normalize(candidate)
         : candidate;
-    if (reviewShaped &&
-        PairingFlowService.isValidReviewAccessCode(normalized)) {
-      return ManualCodeIntent.serverReview;
+    if (reviewShaped && LocalReviewCodeFormat.isValid(normalized)) {
+      return ManualCodeIntent.localReview;
     }
     return ManualCodeIntent.normalPairing;
   }

@@ -13,6 +13,7 @@ enum BootStage {
   pairingInProgress,
   pairedLoadingContext,
   pairedReady,
+  localReviewReady,
   devicePending,
   sessionRefreshRequired,
   sessionExpired,
@@ -89,6 +90,30 @@ final class BootController extends Notifier<BootState> {
       final identity = await identityRepository.load();
       final transaction = await transactionRepository.read();
       final lifecycle = await lifecycleRepository.read();
+
+      if (session?.isReview == true ||
+          transaction?.sessionMode == StaffSessionMode.review) {
+        // Older builds could create backend-backed REVIEW sessions. They are
+        // intentionally non-migratable into the frontend-only Review mode.
+        await sessionRepository.clear();
+        await identityRepository.delete();
+        await transactionRepository.clear();
+        await ref.read(preferencesRepositoryProvider).clearSafeContext();
+        await ref.read(localReviewAccessProvider).deactivate();
+        await lifecycleRepository.mark(LocalLifecycleState.neverPaired);
+        state = const BootState(stage: BootStage.unpaired);
+        return;
+      }
+
+      if (await ref
+          .read(localDemoControllerProvider.notifier)
+          .restoreIfActive()) {
+        state = BootState(
+          stage: BootStage.localReviewReady,
+          context: ref.read(localDemoRuntimeProvider).deviceContext,
+        );
+        return;
+      }
 
       if (lifecycle?.state == LocalLifecycleState.loggedOut) {
         await sessionRepository.clear();
@@ -228,6 +253,7 @@ final class BootController extends Notifier<BootState> {
   }
 
   Future<void> refreshContext() async {
+    if (ref.read(localDemoControllerProvider).active) return;
     if (state.stage != BootStage.pairedReady &&
         state.stage != BootStage.backendUnavailable) {
       return;
@@ -251,6 +277,7 @@ final class BootController extends Notifier<BootState> {
   }
 
   Future<void> onResume() async {
+    if (ref.read(localDemoControllerProvider).active) return;
     final last = _lastContextRefresh;
     if (state.stage == BootStage.pairedReady &&
         (last == null ||
@@ -271,12 +298,11 @@ final class BootController extends Notifier<BootState> {
   }
 
   Future<void> exitReviewMode() async {
-    await ref.read(sessionManagerProvider).exitReviewMode();
+    if (!ref.read(localDemoControllerProvider).active) {
+      throw const LocalSecurityFailure('REVIEW_SESSION_INVALID');
+    }
+    await ref.read(localDemoControllerProvider.notifier).exit();
     await ref.read(pendingOperationStoreProvider).clear();
-    ref.read(pairingControllerProvider.notifier).reset();
-    await ref
-        .read(m2OperationControllerProvider.notifier)
-        .acknowledgeAndReset();
     state = const BootState(stage: BootStage.unpaired);
   }
 

@@ -510,6 +510,18 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get home;
 
+  /// No description provided for @homeHeaderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every visit counts'**
+  String get homeHeaderTitle;
+
+  /// No description provided for @homeHeaderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the customer and let Waflo handle the rest.'**
+  String get homeHeaderSubtitle;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:

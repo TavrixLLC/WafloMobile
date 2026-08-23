@@ -13,6 +13,7 @@ import 'package:waflo_staff/features/customer_scan/presentation/professional_sca
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
+import 'package:waflo_staff/features/review_access/domain/local_review_access.dart';
 
 final class PairingFlowScreen extends ConsumerWidget {
   const PairingFlowScreen({super.key});
@@ -681,11 +682,11 @@ final class _ManualPairingScreenState
 
   void _formatShortCode(String value) {
     if (value.toLowerCase().startsWith('waflo') ||
-        value.length > 12 ||
+        value.length > 16 ||
         !RegExp(r'^[A-Za-z0-9 -]*$').hasMatch(value)) {
       return;
     }
-    final normalized = PairingFlowService.normalizeReviewAccessCode(value);
+    final normalized = LocalReviewCodeFormat.normalize(value);
     if (normalized == value) return;
     _controller.value = TextEditingValue(
       text: normalized,

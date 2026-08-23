@@ -6,14 +6,14 @@ import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_gate.dart';
 import 'package:waflo_staff/features/device_security/presentation/device_security_screen.dart';
+import 'package:waflo_staff/features/local_demo/presentation/local_demo_routes_debug.dart';
 import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_operation_screen.dart';
-import 'package:waflo_staff/features/review_access/presentation/review_tools_screen.dart';
 import 'package:waflo_staff/features/settings/presentation/settings_screen.dart';
 
-/// Product builds receive an empty route table. Development and staging debug
-/// entrypoints inject the local Demo routes from their debug-only root.
+/// Local Review routes are registered in every Store build, but redirect back
+/// to the pairing gate unless a locally authorized Review mode is active.
 final localDemoRoutesProvider = Provider<List<RouteBase>>(
-  (ref) => const <RouteBase>[],
+  (ref) => buildLocalDemoRoutes(),
 );
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -52,20 +52,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/app-lock/pin',
         builder: (context, state) => const PinSetupScreen(),
       ),
-      GoRoute(
-        path: '/review-tools',
-        builder: (context, state) => const ReviewToolsScreen(),
-      ),
       if (localDemoAvailable) ...ref.watch(localDemoRoutesProvider),
     ],
     redirect: (context, state) {
       final protected = state.matchedLocation != '/';
       if (protected && !operationalReady) {
         return '/';
-      }
-      if (state.matchedLocation == '/review-tools' &&
-          !(ref.read(bootControllerProvider).session?.isReview ?? false)) {
-        return operationalReady ? '/home' : '/';
       }
       if (state.matchedLocation.startsWith('/demo-') && !localDemoActive) {
         return operationalReady ? '/home' : '/';

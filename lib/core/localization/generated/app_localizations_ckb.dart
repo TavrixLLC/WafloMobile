@@ -236,6 +236,13 @@ class AppLocalizationsCkb extends AppLocalizations {
   String get home => 'سەرەکی';
 
   @override
+  String get homeHeaderTitle => 'هەر سەردانێک حسابە';
+
+  @override
+  String get homeHeaderSubtitle =>
+      'کڕیارەکە بسکەنە و باقییەکەی بسپێرە بە وافلۆ.';
+
+  @override
   String get settings => 'ڕێکخستنەکان';
 
   @override

@@ -72,32 +72,12 @@ final class PairingCompleteCommand {
     required this.challenge,
     required this.signature,
     this.displayName,
-    this.sessionMode = StaffSessionMode.normal,
   });
 
   final String pairingPublicId;
   final String challenge;
   final String signature;
   final String? displayName;
-  final StaffSessionMode sessionMode;
-}
-
-final class ReviewAccessAuthorizeCommand {
-  const ReviewAccessAuthorizeCommand({
-    required this.reviewAccessCode,
-    required this.installationId,
-    required this.publicKey,
-    required this.metadata,
-  });
-
-  final String reviewAccessCode;
-  final String installationId;
-  final String publicKey;
-  final SafeDeviceMetadata metadata;
-}
-
-abstract interface class ReviewAccessAuthorizationApi {
-  Future<PairingClaimResult> authorize(ReviewAccessAuthorizeCommand command);
 }
 
 abstract interface class PairingApi {

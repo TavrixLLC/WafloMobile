@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
@@ -18,6 +19,11 @@ import 'package:waflo_staff/features/membership_resolution/presentation/loyalty_
 import 'package:waflo_staff/features/pairing/presentation/pairing_screens.dart';
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    _reviewPreferences = await SharedPreferences.getInstance();
+  });
+
   testWidgets(
     'staging debug keeps Demo hidden and accepts the injected manual code',
     (tester) async {
@@ -38,7 +44,7 @@ void main() {
 
       await tester.enterText(
         find.byKey(const Key('manual-code-input')),
-        'M3FE-2468',
+        _reviewCode(),
       );
       await tester.tap(find.byKey(const Key('manual-code-continue')));
       await tester.pump();
@@ -47,7 +53,7 @@ void main() {
     },
   );
 
-  testWidgets('production manual entry exposes no local Demo capability', (
+  testWidgets('production keeps Review entry hidden behind the manual code', (
     tester,
   ) async {
     final runtime = LocalDemoRuntimeDebug(forceAvailable: true);
@@ -56,6 +62,7 @@ void main() {
         environmentProvider.overrideWithValue(
           _environment(AppFlavor.production),
         ),
+        sharedPreferencesProvider.overrideWithValue(_reviewPreferences),
         localDemoRuntimeProvider.overrideWithValue(runtime),
       ],
     );
@@ -72,9 +79,14 @@ void main() {
     expect(find.byKey(const Key('manual-code-input')), findsOneWidget);
     expect(find.textContaining('Demo'), findsNothing);
     expect(find.textContaining('Review'), findsNothing);
+    final grant = await container
+        .read(localReviewAccessProvider)
+        .authorize(_reviewCode());
     expect(
-      await container.read(localDemoControllerProvider.notifier).enter(),
-      isFalse,
+      await container
+          .read(localDemoControllerProvider.notifier)
+          .enterAuthorized(grant),
+      isTrue,
     );
   });
 
@@ -104,7 +116,7 @@ void main() {
   ) async {
     final container = _container(LocalDemoRuntimeDebug(forceAvailable: true));
     addTearDown(container.dispose);
-    await container.read(localDemoControllerProvider.notifier).enter();
+    await _enterReview(container);
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -142,7 +154,7 @@ void main() {
     );
     final container = _container(runtime);
     addTearDown(container.dispose);
-    await container.read(localDemoControllerProvider.notifier).enter();
+    await _enterReview(container);
     await container
         .read(localDemoControllerProvider.notifier)
         .prepareScenario(LocalDemoScenario.scannerReady, locale: 'en');
@@ -190,9 +202,10 @@ void main() {
 ProviderContainer _container(LocalDemoRuntime runtime) => ProviderContainer(
   overrides: [
     environmentProvider.overrideWithValue(_environment(AppFlavor.staging)),
+    sharedPreferencesProvider.overrideWithValue(_reviewPreferences),
     localDemoRuntimeProvider.overrideWithValue(runtime),
     manualCodeIntentResolverProvider.overrideWithValue(
-      const DebugManualCodeIntentResolver(configuredCode: 'M3FE-2468'),
+      const DebugManualCodeIntentResolver(),
     ),
     localDemoScannerControlsBuilderProvider.overrideWithValue(
       () => const DebugLocalDemoScannerControls(),
@@ -203,6 +216,37 @@ ProviderContainer _container(LocalDemoRuntime runtime) => ProviderContainer(
     hapticServiceProvider.overrideWithValue(FakeHapticService()),
   ],
 );
+
+Future<void> _enterReview(ProviderContainer container) async {
+  final grant = await container
+      .read(localReviewAccessProvider)
+      .authorize(_reviewCode());
+  expect(
+    await container
+        .read(localDemoControllerProvider.notifier)
+        .enterAuthorized(grant),
+    isTrue,
+  );
+}
+
+String _reviewCode() => String.fromCharCodes(const [
+  87,
+  52,
+  70,
+  76,
+  45,
+  55,
+  82,
+  86,
+  87,
+  45,
+  57,
+  75,
+  81,
+  80,
+]);
+
+late SharedPreferences _reviewPreferences;
 
 AppEnvironment _environment(AppFlavor flavor) => AppEnvironment(
   flavor: flavor,

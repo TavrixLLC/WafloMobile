@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
-import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
+import 'package:waflo_staff/features/review_access/domain/local_review_access.dart';
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
 final class LocalDemoController extends Notifier<LocalDemoState> {
@@ -22,10 +22,22 @@ final class LocalDemoController extends Notifier<LocalDemoState> {
     }
   }
 
-  Future<bool> enter() async {
+  Future<bool> enterAuthorized(LocalReviewAccessGrant grant) async {
     if (!canEnter || state.active) return state.active;
-    final boot = ref.read(bootControllerProvider);
-    if (boot.stage == BootStage.pairedReady || boot.session != null) {
+    if (await _hasProductionState()) {
+      return false;
+    }
+    await ref.read(localDemoRuntimeProvider).reset();
+    await ref.read(localReviewAccessProvider).activate(grant);
+    state = const LocalDemoState(status: LocalDemoStatus.active);
+    return true;
+  }
+
+  Future<bool> restoreIfActive() async {
+    final access = ref.read(localReviewAccessProvider);
+    if (!access.isActive) return false;
+    if (!canEnter || await _hasProductionState()) {
+      await access.deactivate();
       return false;
     }
     await ref.read(localDemoRuntimeProvider).reset();
@@ -39,9 +51,18 @@ final class LocalDemoController extends Notifier<LocalDemoState> {
         .read(m2OperationControllerProvider.notifier)
         .acknowledgeAndReset();
     await ref.read(localDemoRuntimeProvider).reset();
+    await ref.read(localReviewAccessProvider).deactivate();
     state = const LocalDemoState();
     ref.read(pairingControllerProvider.notifier).reset();
   });
+
+  Future<bool> _hasProductionState() async {
+    final session = await ref.read(sessionRepositoryProvider).read();
+    final transaction = await ref
+        .read(pairingTransactionRepositoryProvider)
+        .read();
+    return session != null || transaction != null;
+  }
 
   Future<String> prepareScenario(
     LocalDemoScenario scenario, {

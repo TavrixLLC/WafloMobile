@@ -245,8 +245,13 @@ void main() {
     await tester.pumpWidget(_homeHarness());
     await tester.pumpAndSettle();
     expect(find.text('Device ready'), findsOneWidget);
-    expect(find.text('Fixture Coffee'), findsOneWidget);
-    expect(find.textContaining('Main branch'), findsWidgets);
+    expect(find.text('Every visit counts'), findsOneWidget);
+    expect(
+      find.text('Scan the customer and let Waflo handle the rest.'),
+      findsOneWidget,
+    );
+    expect(find.text('Fixture Coffee'), findsNothing);
+    expect(find.textContaining('Main branch'), findsNothing);
     await tester.scrollUntilVisible(
       find.text('Scan customer'),
       240,

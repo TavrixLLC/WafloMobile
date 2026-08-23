@@ -94,7 +94,7 @@ final class GeneratedPairingApi implements PairingApi {
         role: role,
         locationId: data.context.locationId,
         issuedAt: DateTime.now().toUtc(),
-        sessionMode: command.sessionMode,
+        sessionMode: StaffSessionMode.normal,
       );
     } on Object catch (error) {
       throw _errorDecoder.decode(error);

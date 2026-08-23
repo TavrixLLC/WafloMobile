@@ -236,6 +236,12 @@ class AppLocalizationsKu extends AppLocalizations {
   String get home => 'سەرەکی';
 
   @override
+  String get homeHeaderTitle => 'هەر سەردانەک دهێتە هژمارتن';
+
+  @override
+  String get homeHeaderSubtitle => 'کریاری بسکەنە و یێ مای بسپێرە وافلۆ.';
+
+  @override
   String get settings => 'رێکخستن';
 
   @override

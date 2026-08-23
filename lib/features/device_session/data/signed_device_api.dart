@@ -206,10 +206,11 @@ final class SignedDeviceApi implements DeviceSessionApi {
     Map<String, Object?> data,
     StaffDeviceSession current,
   ) {
+    if (current.isReview) {
+      throw const LocalSecurityFailure('LEGACY_REVIEW_SESSION_FORBIDDEN');
+    }
     final wireMode = data['sessionMode'];
-    final expected = current.isReview ? 'REVIEW' : 'NORMAL';
-    if ((current.isReview && wireMode != expected) ||
-        (wireMode != null && wireMode != expected)) {
+    if (wireMode != null && wireMode != 'NORMAL') {
       throw const ApiFailure('DEVICE_CONTEXT_MISMATCH');
     }
   }
@@ -234,6 +235,9 @@ final class SignedDeviceApi implements DeviceSessionApi {
     required String? body,
     required StaffDeviceSession session,
   }) async {
+    if (session.isReview) {
+      throw const LocalSecurityFailure('LEGACY_REVIEW_SESSION_FORBIDDEN');
+    }
     final bodyBytes = body == null ? const <int>[] : utf8.encode(body);
     final headers = await _signer.sign(
       method: method,

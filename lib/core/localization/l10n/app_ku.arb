@@ -68,6 +68,8 @@
   "active": "چالاک",
   "lastSynchronized": "دوماهیک هاودەمکرن {time}",
   "home": "سەرەکی",
+  "homeHeaderTitle": "هەر سەردانەک دهێتە هژمارتن",
+  "homeHeaderSubtitle": "کریاری بسکەنە و یێ مای بسپێرە وافلۆ.",
   "settings": "رێکخستن",
   "scanCustomer": "کریاری سکان بکە",
   "recentOperations": "کارێن نوی",

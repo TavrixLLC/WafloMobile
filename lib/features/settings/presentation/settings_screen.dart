@@ -21,8 +21,6 @@ final class SettingsScreen extends ConsumerWidget {
     final rapidScan = ref.watch(rapidScanControllerProvider);
     final environment = ref.watch(environmentProvider);
     final packageInfo = ref.watch(packageInfoProvider);
-    final reviewSession =
-        ref.watch(bootControllerProvider).session?.isReview ?? false;
     final localDemo = ref.watch(localDemoControllerProvider).active;
     final localDemoScenarioRoute = ref.watch(localDemoScenarioRouteProvider);
     return Scaffold(
@@ -104,19 +102,15 @@ final class SettingsScreen extends ConsumerWidget {
                 onTap: () => context.push('/device-security'),
               ),
             ),
-            if (reviewSession || (localDemo && localDemoScenarioRoute != null))
+            if (localDemo && localDemoScenarioRoute != null)
               ListTile(
                 key: const Key('review-tools-entry'),
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.science_outlined),
                 title: Text(strings.demoScenarios),
-                subtitle: Text(
-                  localDemo ? strings.sampleData : strings.demoMode,
-                ),
+                subtitle: Text(strings.sampleData),
                 trailing: const WafloForwardChevron(),
-                onTap: () => context.push(
-                  localDemo ? localDemoScenarioRoute! : '/review-tools',
-                ),
+                onTap: () => context.push(localDemoScenarioRoute),
               ),
             const SizedBox(height: WafloSpacing.xl),
             WafloOperationalLabel(strings.appInformation),

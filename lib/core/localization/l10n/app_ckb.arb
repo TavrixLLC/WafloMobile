@@ -68,6 +68,8 @@
   "active": "چالاک",
   "lastSynchronized": "دوایین هاوکاتکردن {time}",
   "home": "سەرەکی",
+  "homeHeaderTitle": "هەر سەردانێک حسابە",
+  "homeHeaderSubtitle": "کڕیارەکە بسکەنە و باقییەکەی بسپێرە بە وافلۆ.",
   "settings": "ڕێکخستنەکان",
   "scanCustomer": "کڕیار سکان بکە",
   "recentOperations": "کردارە نوێیەکان",

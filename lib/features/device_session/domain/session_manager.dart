@@ -68,6 +68,9 @@ final class SessionManager {
     if (current == null) {
       throw const ApiFailure('STAFF_DEVICE_NOT_ACTIVE', httpStatus: 401);
     }
+    if (current.isReview) {
+      throw const LocalSecurityFailure('LEGACY_REVIEW_SESSION_FORBIDDEN');
+    }
     if (!current.accessExpiresAt.isAfter(_now().toUtc())) {
       const failure = ApiFailure(
         'STAFF_DEVICE_SESSION_EXPIRED',
@@ -104,6 +107,9 @@ final class SessionManager {
     if (session == null) {
       throw const ApiFailure('STAFF_DEVICE_NOT_ACTIVE', httpStatus: 401);
     }
+    if (session.isReview) {
+      throw const LocalSecurityFailure('LEGACY_REVIEW_SESSION_FORBIDDEN');
+    }
     if (!session.accessExpiresAt.isAfter(_now().toUtc())) {
       const failure = ApiFailure(
         'STAFF_DEVICE_SESSION_EXPIRED',
@@ -138,7 +144,7 @@ final class SessionManager {
   Future<LogoutResult> logout() async {
     final current = await _sessionRepository.read();
     var serverReached = false;
-    if (current != null) {
+    if (current != null && !current.isReview) {
       try {
         await _api.logout(current);
         serverReached = true;
@@ -159,20 +165,13 @@ final class SessionManager {
     if (current == null || !current.isReview) {
       throw const LocalSecurityFailure('REVIEW_SESSION_INVALID');
     }
-    var serverReached = false;
-    try {
-      await _api.logout(current);
-      serverReached = true;
-    } on AppFailure {
-      serverReached = false;
-    }
     await _sessionRepository.clear();
-    // Review re-entry is authorized again by the server and proves possession
-    // of this same key. Normal logout continues to delete device identity.
+    // Legacy backend-backed Review sessions are removed without making any
+    // request. Current local Review mode never creates this record at all.
     await _transactionRepository.clear();
     await _preferencesRepository.clearSafeContext();
     await _lifecycleRepository.mark(LocalLifecycleState.loggedOut);
-    return LogoutResult(serverReached: serverReached);
+    return const LogoutResult(serverReached: false);
   }
 
   Future<void> _handleConclusiveBlockedFailure(AppFailure failure) async {

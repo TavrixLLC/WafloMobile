@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Null in product roots. The local scenario route is injected only by the
-/// development/staging debug composition root.
-final localDemoScenarioRouteProvider = Provider<String?>((ref) => null);
+/// The route is discoverable from Settings only after local Review mode is
+/// active. The public pairing surface never links to it.
+final localDemoScenarioRouteProvider = Provider<String?>(
+  (ref) => '/demo-scenarios',
+);

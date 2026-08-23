@@ -13,18 +13,18 @@ void main() {
     expect(product.resolve(pairingPayload), ManualCodeIntent.normalPairing);
   });
 
-  test('product resolver routes review-shaped values to server authority', () {
-    expect(product.resolve('abcd 2345'), ManualCodeIntent.serverReview);
+  test('product resolver routes review-shaped values to local authority', () {
+    expect(product.resolve('w4fl 7rvw 9kqp'), ManualCodeIntent.localReview);
   });
 
-  test('debug resolver recognizes only its injected owner code locally', () {
+  test('debug resolver cannot inject a separate local bypass', () {
     const resolver = DebugManualCodeIntentResolver(configuredCode: 'M3FE-2468');
-    expect(resolver.resolve('M3FE-2468'), ManualCodeIntent.localDemo);
-    expect(resolver.resolve('M3FE-2469'), ManualCodeIntent.serverReview);
+    expect(resolver.resolve('M3FE-2468'), ManualCodeIntent.normalPairing);
+    expect(resolver.resolve('W4FL-7RVW-9KQP'), ManualCodeIntent.localReview);
   });
 
-  test('debug resolver without an injected code has no local entry', () {
+  test('debug resolver without an injected code uses the product rules', () {
     const resolver = DebugManualCodeIntentResolver(configuredCode: '');
-    expect(resolver.resolve('M3FE-2468'), ManualCodeIntent.serverReview);
+    expect(resolver.resolve('M3FE-2468'), ManualCodeIntent.normalPairing);
   });
 }

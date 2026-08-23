@@ -14,7 +14,6 @@ import 'package:waflo_staff/features/customer_scan/domain/scanner_mode.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
-import 'package:waflo_staff/features/local_demo/data/manual_code_router_debug.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
 import 'package:waflo_staff/features/loyalty_progress/domain/stamp_progress.dart';
 import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
@@ -26,8 +25,9 @@ import 'package:waflo_staff/features/stamp_operation/domain/stamp_models.dart';
 
 LocalDemoRuntime createLocalDemoRuntime() => LocalDemoRuntimeDebug();
 
-/// Debug-only fixture runtime. This library is not selected when
-/// `dart.vm.product` is true, and it still requires the explicit build define.
+/// Credential-free, in-memory runtime used by the isolated local Review mode.
+/// Despite the legacy filename, this class is safe for Store release builds:
+/// it owns no backend client, Staff session, token, or real customer data.
 final class LocalDemoRuntimeDebug implements LocalDemoRuntime {
   LocalDemoRuntimeDebug({
     this.forceAvailable = false,
@@ -37,7 +37,6 @@ final class LocalDemoRuntimeDebug implements LocalDemoRuntime {
        _operations = _LocalDemoLoyaltyOperations(),
        _appLock = _LocalDemoAppLockStore();
 
-  static const _configured = bool.fromEnvironment('WAFLO_LOCAL_DEMO_ENABLED');
   final bool forceAvailable;
   final CustomerScannerAdapter Function() _scannerFactory;
   final _LocalDemoLoyaltyOperations _operations;
@@ -49,12 +48,7 @@ final class LocalDemoRuntimeDebug implements LocalDemoRuntime {
   LocalDemoScenario _scenario = LocalDemoScenario.home;
 
   @override
-  bool availableFor(AppEnvironment environment) =>
-      (forceAvailable ||
-          (_configured &&
-              DebugManualCodeIntentResolver.hasConfiguredCode &&
-              kDebugMode)) &&
-      environment.flavor != AppFlavor.production;
+  bool availableFor(AppEnvironment environment) => true;
 
   @override
   AuthoritativeDeviceContext get deviceContext => AuthoritativeDeviceContext(

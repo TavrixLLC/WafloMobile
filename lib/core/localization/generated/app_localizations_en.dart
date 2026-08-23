@@ -235,6 +235,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home => 'Home';
 
   @override
+  String get homeHeaderTitle => 'Every visit counts';
+
+  @override
+  String get homeHeaderSubtitle =>
+      'Scan the customer and let Waflo handle the rest.';
+
+  @override
   String get settings => 'Settings';
 
   @override

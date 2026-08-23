@@ -68,6 +68,8 @@
   "active": "نشط",
   "lastSynchronized": "آخر مزامنة {time}",
   "home": "الرئيسية",
+  "homeHeaderTitle": "كل زيارة تحسب",
+  "homeHeaderSubtitle": "امسح العميل وخلّي وافلو يتابع الباقي.",
   "settings": "الإعدادات",
   "scanCustomer": "مسح العميل",
   "recentOperations": "العمليات الأخيرة",

@@ -26,15 +26,6 @@ final class HomeScreen extends ConsumerWidget {
             deviceContext.currentLocation.redemptionAllowed);
     final pending = operation.pendingOperation != null;
     final canScan = online && capable && !pending;
-    final organization = _displayValue(
-      deviceContext?.organization.displayName,
-      strings.appTitle,
-    );
-    final location = _displayValue(
-      deviceContext?.currentLocation.displayName,
-      strings.unavailable,
-    );
-
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
@@ -100,27 +91,15 @@ final class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: WafloSpacing.xl),
               Text(
-                organization,
+                strings.homeHeaderTitle,
                 style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: WafloSpacing.sm),
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 18,
-                    color: context.waflo.subtleText,
-                  ),
-                  const SizedBox(width: WafloSpacing.xs),
-                  Expanded(
-                    child: Text(
-                      location,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: context.waflo.subtleText,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                strings.homeHeaderSubtitle,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: context.waflo.subtleText,
+                ),
               ),
               const SizedBox(height: WafloSpacing.lg),
               if ((boot.session?.isReview ?? false) || localDemo.active) ...[
@@ -367,9 +346,4 @@ final class _HomeDockAction extends StatelessWidget {
       ),
     ),
   );
-}
-
-String _displayValue(String? value, String unavailable) {
-  final trimmed = value?.trim();
-  return trimmed == null || trimmed.isEmpty ? unavailable : trimmed;
 }

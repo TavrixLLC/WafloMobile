@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
@@ -63,21 +62,6 @@ final class PairingController extends Notifier<PairingViewState> {
     }
   }
 
-  @visibleForTesting
-  Future<void> enterLocalDemo() async {
-    if (_pairingOperation != null) return;
-    final entered = await ref
-        .read(localDemoControllerProvider.notifier)
-        .enter();
-    if (!entered) {
-      state = const PairingViewState(
-        stage: PairingViewStage.error,
-        failure: ApiFailure('LOCAL_DEMO_UNAVAILABLE', responseReceived: false),
-        reviewFlow: true,
-      );
-    }
-  }
-
   void reset() {
     if (_pairingOperation == null) {
       state = const PairingViewState.welcome();
@@ -111,8 +95,7 @@ final class PairingController extends Notifier<PairingViewState> {
     final intent = ref.read(manualCodeIntentResolverProvider).resolve(rawCode);
     return switch (intent) {
       ManualCodeIntent.normalPairing => submit(rawCode.trim()),
-      ManualCodeIntent.serverReview => submitReviewAccess(rawCode),
-      ManualCodeIntent.localDemo => enterLocalDemo(),
+      ManualCodeIntent.localReview => submitReviewAccess(rawCode),
     };
   }
 
@@ -133,21 +116,21 @@ final class PairingController extends Notifier<PairingViewState> {
 
   Future<void> _submitReviewAccess(String code) async {
     try {
-      final result = await ref
-          .read(pairingFlowServiceProvider)
-          .enterReviewAccess(
-            code,
-            onProgress: (progress) {
-              state = PairingViewState(
-                stage: PairingViewStage.progress,
-                progress: progress,
-                reviewFlow: true,
-              );
-            },
-          );
+      state = const PairingViewState(
+        stage: PairingViewStage.progress,
+        progress: PairingProgress.validating,
+        reviewFlow: true,
+      );
+      final grant = await ref.read(localReviewAccessProvider).authorize(code);
+      final entered = await ref
+          .read(localDemoControllerProvider.notifier)
+          .enterAuthorized(grant);
+      if (!entered) {
+        throw const LocalSecurityFailure('REVIEW_PRODUCTION_STATE_PRESENT');
+      }
       state = PairingViewState(
         stage: PairingViewStage.success,
-        context: result.context,
+        context: ref.read(localDemoRuntimeProvider).deviceContext,
         reviewFlow: true,
       );
     } on AppFailure catch (failure) {

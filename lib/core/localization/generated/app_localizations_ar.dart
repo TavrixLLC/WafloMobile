@@ -236,6 +236,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get home => 'الرئيسية';
 
   @override
+  String get homeHeaderTitle => 'كل زيارة تحسب';
+
+  @override
+  String get homeHeaderSubtitle => 'امسح العميل وخلّي وافلو يتابع الباقي.';
+
+  @override
   String get settings => 'الإعدادات';
 
   @override

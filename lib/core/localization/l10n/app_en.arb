@@ -68,6 +68,8 @@
   "active": "Active",
   "lastSynchronized": "Last synchronized {time}",
   "home": "Home",
+  "homeHeaderTitle": "Every visit counts",
+  "homeHeaderSubtitle": "Scan the customer and let Waflo handle the rest.",
   "settings": "Settings",
   "scanCustomer": "Scan customer",
   "recentOperations": "Recent operations",

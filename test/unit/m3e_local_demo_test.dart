@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/haptics/haptic_service.dart';
@@ -17,6 +18,11 @@ import 'package:waflo_staff/features/reward_redemption/domain/manager_approval.d
 import 'package:waflo_staff/features/stamp_operation/presentation/m2_operation_controller.dart';
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    _reviewPreferences = await SharedPreferences.getInstance();
+  });
+
   test(
     'LOCAL_DEMO enters without a Staff session or Backend credential',
     () async {
@@ -25,10 +31,7 @@ void main() {
       final container = _container(runtime, secureStore);
       addTearDown(container.dispose);
 
-      expect(
-        await container.read(localDemoControllerProvider.notifier).enter(),
-        isTrue,
-      );
+      await _enterReview(container);
       expect(container.read(localDemoControllerProvider).active, isTrue);
       expect(
         container.read(activeDeviceContextProvider)?.organization.displayName,
@@ -45,7 +48,7 @@ void main() {
       final runtime = LocalDemoRuntimeDebug(forceAvailable: true);
       final container = _container(runtime, MemorySecureKeyValueStore());
       addTearDown(container.dispose);
-      await container.read(localDemoControllerProvider.notifier).enter();
+      await _enterReview(container);
       final demo = container.read(localDemoControllerProvider.notifier);
 
       await demo.prepareScenario(
@@ -91,7 +94,7 @@ void main() {
     final container = _container(runtime, MemorySecureKeyValueStore());
     addTearDown(container.dispose);
     final demo = container.read(localDemoControllerProvider.notifier);
-    await demo.enter();
+    await _enterReview(container);
 
     await demo.prepareScenario(
       LocalDemoScenario.customerZeroOfEight,
@@ -120,7 +123,7 @@ void main() {
     final container = _container(runtime, MemorySecureKeyValueStore());
     addTearDown(container.dispose);
     final demo = container.read(localDemoControllerProvider.notifier);
-    await demo.enter();
+    await _enterReview(container);
     await demo.prepareScenario(LocalDemoScenario.stampSuccess, locale: 'en');
 
     await demo.exit();
@@ -138,7 +141,7 @@ void main() {
     final container = _container(runtime, MemorySecureKeyValueStore());
     addTearDown(container.dispose);
     final demo = container.read(localDemoControllerProvider.notifier);
-    await demo.enter();
+    await _enterReview(container);
 
     await demo.prepareScenario(LocalDemoScenario.appLock, locale: 'en');
 
@@ -165,19 +168,25 @@ void main() {
     );
   });
 
-  test('production rejects local runtime even when a caller requests it', () {
-    final production = _environment(AppFlavor.production, localDemo: true);
-    final debugRuntime = LocalDemoRuntimeDebug(forceAvailable: true);
-    final releaseRuntime = release_runtime.createLocalDemoRuntime();
+  test(
+    'production Review runtime is local while obsolete debug flag fails',
+    () {
+      final production = _environment(AppFlavor.production, localDemo: true);
+      final debugRuntime = LocalDemoRuntimeDebug(forceAvailable: true);
+      final releaseRuntime = release_runtime.createLocalDemoRuntime();
 
-    expect(debugRuntime.availableFor(production), isFalse);
-    expect(releaseRuntime.availableFor(production), isFalse);
-    expect(
-      () => releaseRuntime.deviceContext,
-      throwsA(isA<LocalDemoUnavailableError>()),
-    );
-    expect(production.validate(), contains('PRODUCTION_LOCAL_DEMO_FORBIDDEN'));
-  });
+      expect(debugRuntime.availableFor(production), isTrue);
+      expect(releaseRuntime.availableFor(production), isFalse);
+      expect(
+        () => releaseRuntime.deviceContext,
+        throwsA(isA<LocalDemoUnavailableError>()),
+      );
+      expect(
+        production.validate(),
+        contains('PRODUCTION_LOCAL_DEMO_FORBIDDEN'),
+      );
+    },
+  );
 
   test(
     'committed build configs enable local demo only for non-production debug',
@@ -201,11 +210,43 @@ ProviderContainer _container(
 ) => ProviderContainer(
   overrides: [
     environmentProvider.overrideWithValue(_environment(AppFlavor.staging)),
+    sharedPreferencesProvider.overrideWithValue(_reviewPreferences),
     localDemoRuntimeProvider.overrideWithValue(runtime),
     secureStoreProvider.overrideWithValue(secureStore),
     hapticServiceProvider.overrideWithValue(FakeHapticService()),
   ],
 );
+
+Future<void> _enterReview(ProviderContainer container) async {
+  final grant = await container
+      .read(localReviewAccessProvider)
+      .authorize(_reviewCode());
+  expect(
+    await container
+        .read(localDemoControllerProvider.notifier)
+        .enterAuthorized(grant),
+    isTrue,
+  );
+}
+
+String _reviewCode() => String.fromCharCodes(const [
+  87,
+  52,
+  70,
+  76,
+  45,
+  55,
+  82,
+  86,
+  87,
+  45,
+  57,
+  75,
+  81,
+  80,
+]);
+
+late SharedPreferences _reviewPreferences;
 
 AppEnvironment _environment(AppFlavor flavor, {bool localDemo = true}) =>
     AppEnvironment(

@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:waflo_staff/app/environment.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
@@ -23,10 +24,13 @@ void main() {
   testWidgets('LOCAL_DEMO completes the physical owner loyalty path offline', (
     tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
     final runtime = LocalDemoRuntimeDebug(forceAvailable: true);
     final container = ProviderContainer(
       overrides: [
         environmentProvider.overrideWithValue(_environment),
+        sharedPreferencesProvider.overrideWithValue(preferences),
         localDemoRuntimeProvider.overrideWithValue(runtime),
         localDemoScannerControlsBuilderProvider.overrideWithValue(
           () => const DebugLocalDemoScannerControls(),
@@ -41,7 +45,10 @@ void main() {
     addTearDown(container.dispose);
     final demo = container.read(localDemoControllerProvider.notifier);
 
-    expect(await demo.enter(), isTrue);
+    final grant = await container
+        .read(localReviewAccessProvider)
+        .authorize(_reviewCode());
+    expect(await demo.enterAuthorized(grant), isTrue);
     expect(await container.read(sessionRepositoryProvider).read(), isNull);
 
     await demo.prepareScenario(
@@ -128,3 +135,20 @@ final _environment = AppEnvironment(
   expectedNativeFlavor: AppFlavor.staging,
   suppliedDartEnvironment: 'staging',
 );
+
+String _reviewCode() => String.fromCharCodes(const [
+  87,
+  52,
+  70,
+  76,
+  45,
+  55,
+  82,
+  86,
+  87,
+  45,
+  57,
+  75,
+  81,
+  80,
+]);

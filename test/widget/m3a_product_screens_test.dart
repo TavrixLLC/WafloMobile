@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -7,7 +6,7 @@ import 'package:waflo_staff/app/app_lifecycle.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
-import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
+import 'package:waflo_staff/core/localization/app_locales.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/features/app_lock/data/biometric_service.dart';
 import 'package:waflo_staff/features/app_lock/domain/app_lock.dart';
@@ -28,8 +27,13 @@ void main() {
 
     expect(find.byKey(const Key('task-first-home')), findsOneWidget);
     expect(find.byKey(const Key('primary-scan-customer')), findsOneWidget);
-    expect(find.text('Fixture Coffee'), findsOneWidget);
-    expect(find.text('Main branch'), findsOneWidget);
+    expect(find.text('Every visit counts'), findsOneWidget);
+    expect(
+      find.text('Scan the customer and let Waflo handle the rest.'),
+      findsOneWidget,
+    );
+    expect(find.text('Fixture Coffee'), findsNothing);
+    expect(find.text('Main branch'), findsNothing);
     expect(find.text('Device & Security'), findsOneWidget);
     expect(find.text('Settings'), findsWidgets);
     expect(find.byKey(const Key('home-device-security')), findsOneWidget);
@@ -43,6 +47,60 @@ void main() {
     expect(find.textContaining('Last verified'), findsNothing);
     expect(find.textContaining('00000000-'), findsNothing);
     expect(find.textContaining('session'), findsNothing);
+  });
+
+  testWidgets('Home header is localized with correct script direction', (
+    tester,
+  ) async {
+    final cases = <(Locale, String, String, TextDirection)>[
+      (
+        const Locale('en'),
+        'Every visit counts',
+        'Scan the customer and let Waflo handle the rest.',
+        TextDirection.ltr,
+      ),
+      (
+        const Locale('ar'),
+        'كل زيارة تحسب',
+        'امسح العميل وخلّي وافلو يتابع الباقي.',
+        TextDirection.rtl,
+      ),
+      (
+        const Locale.fromSubtags(
+          languageCode: 'ku',
+          scriptCode: 'Arab',
+          countryCode: 'IQ',
+        ),
+        'هەر سەردانەک دهێتە هژمارتن',
+        'کریاری بسکەنە و یێ مای بسپێرە وافلۆ.',
+        TextDirection.rtl,
+      ),
+      (
+        const Locale('ckb'),
+        'هەر سەردانێک حسابە',
+        'کڕیارەکە بسکەنە و باقییەکەی بسپێرە بە وافلۆ.',
+        TextDirection.rtl,
+      ),
+    ];
+
+    for (final (locale, title, subtitle, direction) in cases) {
+      await tester.pumpWidget(_home(locale: locale));
+      await tester.pump();
+      expect(find.text(title), findsOneWidget, reason: locale.toLanguageTag());
+      expect(
+        find.text(subtitle),
+        findsOneWidget,
+        reason: locale.toLanguageTag(),
+      );
+      expect(
+        Directionality.of(
+          tester.element(find.byKey(const Key('task-first-home'))),
+        ),
+        direction,
+        reason: locale.toLanguageTag(),
+      );
+      expect(find.text('Main branch'), findsNothing);
+    }
   });
 
   testWidgets('Device & Security makes unavailable context intentional', (
@@ -293,28 +351,31 @@ void main() {
   );
 }
 
-Widget _home({bool online = true, PendingOperationRecord? pending}) =>
-    ProviderScope(
-      overrides: [
-        bootControllerProvider.overrideWithBuild(
-          (ref, notifier) => BootState(
-            stage: BootStage.pairedReady,
-            context: fixtureContext(),
-            session: fixtureSession(),
-          ),
-        ),
-        m2OperationControllerProvider.overrideWithBuild(
-          (ref, notifier) => pending == null
-              ? const M2OperationState.idle()
-              : M2OperationState(
-                  stage: M2OperationStage.stampAmbiguous,
-                  pendingOperation: pending,
-                ),
-        ),
-        connectivityProvider.overrideWithValue(AsyncData(online)),
-      ],
-      child: _app(const HomeScreen()),
-    );
+Widget _home({
+  bool online = true,
+  PendingOperationRecord? pending,
+  Locale locale = const Locale('en'),
+}) => ProviderScope(
+  overrides: [
+    bootControllerProvider.overrideWithBuild(
+      (ref, notifier) => BootState(
+        stage: BootStage.pairedReady,
+        context: fixtureContext(),
+        session: fixtureSession(),
+      ),
+    ),
+    m2OperationControllerProvider.overrideWithBuild(
+      (ref, notifier) => pending == null
+          ? const M2OperationState.idle()
+          : M2OperationState(
+              stage: M2OperationStage.stampAmbiguous,
+              pendingOperation: pending,
+            ),
+    ),
+    connectivityProvider.overrideWithValue(AsyncData(online)),
+  ],
+  child: _app(const HomeScreen(), locale: locale),
+);
 
 Widget _locked(AppLockMode mode, [BiometricService? biometrics]) =>
     ProviderScope(
@@ -332,17 +393,12 @@ Widget _locked(AppLockMode mode, [BiometricService? biometrics]) =>
       child: _app(const AppLockOverlay()),
     );
 
-Widget _app(Widget child) => MaterialApp(
+Widget _app(Widget child, {Locale locale = const Locale('en')}) => MaterialApp(
   debugShowCheckedModeBanner: false,
-  locale: const Locale('en'),
-  supportedLocales: AppLocalizations.supportedLocales,
-  localizationsDelegates: const [
-    AppLocalizations.delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ],
-  theme: WafloTheme.light(),
+  locale: locale,
+  supportedLocales: WafloLocales.selectable,
+  localizationsDelegates: wafloLocalizationDelegates,
+  theme: WafloTheme.light(locale: locale),
   home: child,
 );
 

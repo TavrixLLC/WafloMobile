@@ -16,6 +16,7 @@ import 'package:waflo_staff/core/idempotency/business_command_id.dart';
 import 'package:waflo_staff/core/images/digest_image_cache.dart';
 import 'package:waflo_staff/core/logging/safe_logger.dart';
 import 'package:waflo_staff/core/network/dio_factory.dart';
+import 'package:waflo_staff/core/network/review_mode_network_guard.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
@@ -30,8 +31,7 @@ import 'package:waflo_staff/features/device_session/data/signed_device_api.dart'
 import 'package:waflo_staff/features/device_session/domain/local_secure_state.dart';
 import 'package:waflo_staff/features/device_session/domain/session_manager.dart';
 import 'package:waflo_staff/features/device_session/domain/staff_device_session.dart';
-import 'package:waflo_staff/features/local_demo/data/local_demo_runtime_release.dart'
-    as release_demo;
+import 'package:waflo_staff/features/local_demo/data/local_demo_runtime_debug.dart';
 import 'package:waflo_staff/features/local_demo/domain/local_demo.dart';
 import 'package:waflo_staff/features/local_demo/presentation/local_demo_controller.dart';
 import 'package:waflo_staff/features/membership_resolution/data/loyalty_operations_api.dart';
@@ -43,8 +43,8 @@ import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
-import 'package:waflo_staff/features/review_access/data/review_access_authorization_api.dart';
-import 'package:waflo_staff/features/review_access/data/signed_review_access_repository.dart';
+import 'package:waflo_staff/features/review_access/data/local_review_scenarios_repository.dart';
+import 'package:waflo_staff/features/review_access/domain/local_review_access.dart';
 import 'package:waflo_staff/features/review_access/domain/review_access.dart';
 import 'package:waflo_staff/features/review_access/presentation/review_access_controller.dart';
 import 'package:waflo_staff/features/reward_redemption/data/manager_approval_store.dart';
@@ -66,8 +66,11 @@ final safeLoggerProvider = Provider<SafeLogger>(
 final preferencesRepositoryProvider = Provider<PreferencesRepository>(
   (ref) => PreferencesRepository(ref.watch(sharedPreferencesProvider)),
 );
+final localReviewAccessProvider = Provider<LocalReviewAccess>(
+  (ref) => LocalReviewAccess(ref.watch(sharedPreferencesProvider)),
+);
 final localDemoRuntimeProvider = Provider<LocalDemoRuntime>(
-  (ref) => release_demo.createLocalDemoRuntime(),
+  (ref) => LocalDemoRuntimeDebug(forceAvailable: true),
 );
 final localDemoAccessAvailableProvider = Provider<bool>((ref) {
   try {
@@ -116,15 +119,39 @@ final managerApprovalIntentStoreProvider = Provider<ManagerApprovalIntentStore>(
 final apiErrorDecoderProvider = Provider<ApiErrorDecoder>(
   (ref) => const ApiErrorDecoder(),
 );
-final publicDioProvider = Provider<Dio>(
-  (ref) => const DioFactory().create(ref.watch(environmentProvider)),
-);
-final signedDioProvider = Provider<Dio>(
-  (ref) => const DioFactory().create(ref.watch(environmentProvider)),
-);
-final stampAssetDioProvider = Provider<Dio>(
-  (ref) => const DioFactory().create(ref.watch(environmentProvider)),
-);
+final reviewModeNetworkGuardProvider = Provider<ReviewModeNetworkGuard>((ref) {
+  final guard = ReviewModeNetworkGuard();
+  ref.listen<bool>(
+    localDemoControllerProvider.select((state) => state.active),
+    (previous, active) => guard.setBlocked(active),
+    fireImmediately: true,
+  );
+  return guard;
+});
+final publicDioProvider = Provider<Dio>((ref) {
+  final dio = const DioFactory().create(ref.watch(environmentProvider));
+  dio.interceptors.insert(
+    0,
+    ReviewModeNetworkInterceptor(ref.watch(reviewModeNetworkGuardProvider)),
+  );
+  return dio;
+});
+final signedDioProvider = Provider<Dio>((ref) {
+  final dio = const DioFactory().create(ref.watch(environmentProvider));
+  dio.interceptors.insert(
+    0,
+    ReviewModeNetworkInterceptor(ref.watch(reviewModeNetworkGuardProvider)),
+  );
+  return dio;
+});
+final stampAssetDioProvider = Provider<Dio>((ref) {
+  final dio = const DioFactory().create(ref.watch(environmentProvider));
+  dio.interceptors.insert(
+    0,
+    ReviewModeNetworkInterceptor(ref.watch(reviewModeNetworkGuardProvider)),
+  );
+  return dio;
+});
 final stampImageCacheProvider = Provider<StampImageLoader>(
   (ref) => DigestImageCache(ref.watch(stampAssetDioProvider)),
 );
@@ -155,13 +182,6 @@ final pairingApiProvider = Provider<PairingApi>(
     ref.watch(apiErrorDecoderProvider),
   ),
 );
-final reviewAccessAuthorizationApiProvider =
-    Provider<ReviewAccessAuthorizationApi>(
-      (ref) => DioReviewAccessAuthorizationApi(
-        ref.watch(publicDioProvider),
-        ref.watch(apiErrorDecoderProvider),
-      ),
-    );
 final metadataProvider = Provider<DeviceMetadataProvider>(
   (ref) => PlatformDeviceMetadataProvider(),
 );
@@ -224,13 +244,7 @@ final loyaltyOperationsApiProvider = Provider<LoyaltyOperationsApi>((ref) {
   );
 });
 final reviewAccessRepositoryProvider = Provider<ReviewAccessRepository>(
-  (ref) => SignedReviewAccessRepository(
-    dio: ref.watch(signedDioProvider),
-    signer: ref.watch(requestSignerProvider),
-    sessionRepository: ref.watch(sessionRepositoryProvider),
-    commandIds: ref.watch(businessCommandIdGeneratorProvider),
-    errorDecoder: ref.watch(apiErrorDecoderProvider),
-  ),
+  (ref) => const LocalReviewScenariosRepository(),
 );
 final pairingFlowServiceProvider = Provider<PairingFlowService>(
   (ref) => PairingFlowService(
@@ -242,7 +256,6 @@ final pairingFlowServiceProvider = Provider<PairingFlowService>(
     ref.watch(pairingTransactionRepositoryProvider),
     ref.watch(localLifecycleRepositoryProvider),
     ref.watch(sessionManagerProvider),
-    reviewAccessApi: ref.watch(reviewAccessAuthorizationApiProvider),
   ),
 );
 final connectivityProvider = StreamProvider<bool>((ref) async* {
