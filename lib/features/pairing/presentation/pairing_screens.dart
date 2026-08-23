@@ -83,24 +83,26 @@ final class _WelcomeScreen extends ConsumerWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: Align(
-                alignment: AlignmentDirectional.topCenter,
+                alignment: const AlignmentDirectional(0, -.12),
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: WafloLayout.maximumMediumContentWidth,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _PairingWelcomeIntroduction(strings: strings),
-                      const SizedBox(height: WafloSpacing.xl),
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 440),
-                          child: actions,
+                  constraints: const BoxConstraints(maxWidth: 640),
+                  child: SizedBox(
+                    key: const Key('pairing-medium-workspace'),
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _PairingWelcomeIntroduction(strings: strings),
+                        const SizedBox(height: WafloSpacing.xl),
+                        Align(
+                          alignment: AlignmentDirectional.center,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 420),
+                            child: actions,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -109,19 +111,53 @@ final class _WelcomeScreen extends ConsumerWidget {
           final wide = SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: WafloWideSplit(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  primary: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: _PairingWelcomeIntroduction(strings: strings),
-                  ),
-                  secondary: Align(
-                    alignment: AlignmentDirectional.center,
-                    child: WafloSurfaceCard(
-                      key: const Key('pairing-action-pane'),
-                      padding: const EdgeInsetsDirectional.all(WafloSpacing.xl),
-                      child: actions,
+              child: Align(
+                alignment: AlignmentDirectional.center,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 980),
+                  child: Container(
+                    key: const Key('pairing-wide-workspace'),
+                    width: double.infinity,
+                    padding: const EdgeInsetsDirectional.all(WafloSpacing.xl),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(
+                        WafloRadius.extraLarge,
+                      ),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withValues(alpha: .72),
+                      ),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: _PairingWelcomeIntroduction(
+                              strings: strings,
+                            ),
+                          ),
+                          const SizedBox(width: WafloSpacing.lg),
+                          VerticalDivider(
+                            key: const Key('pairing-workspace-divider'),
+                            width: 1,
+                            thickness: 1,
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          const SizedBox(width: WafloSpacing.lg),
+                          Expanded(
+                            flex: 5,
+                            child: Container(
+                              key: const Key('pairing-action-pane'),
+                              alignment: AlignmentDirectional.center,
+                              child: actions,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -157,7 +193,7 @@ final class _PairingWelcomeIntroduction extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         child: WafloBrandMark(size: 42),
       ),
-      SizedBox(height: compact ? 40 : WafloSpacing.xl),
+      SizedBox(height: compact ? 40 : WafloSpacing.lg),
       Text(
         strings.welcomeTitle,
         style: Theme.of(context).textTheme.headlineMedium,

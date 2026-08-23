@@ -178,13 +178,21 @@ void main() {
     );
     expect(find.byKey(const Key('waflo-adaptive-medium')), findsOneWidget);
     expect(find.byKey(const Key('pairing-security-rail')), findsOneWidget);
+    final mediumWorkspace = find.byKey(const Key('pairing-medium-workspace'));
+    final mediumActions = find.byKey(const Key('pairing-actions-group'));
+    expect(tester.getSize(mediumWorkspace).width, lessThanOrEqualTo(640));
+    expect(tester.getSize(mediumActions).width, lessThanOrEqualTo(420));
     expect(
-      tester.getSize(find.byKey(const Key('pairing-actions-group'))).width,
-      lessThanOrEqualTo(440),
+      tester.getCenter(mediumActions).dx,
+      closeTo(tester.getCenter(mediumWorkspace).dx, 1),
     );
     expect(
-      tester.getBottomRight(find.byKey(const Key('pairing-actions-group'))).dy,
-      lessThan(_mediumIpadWindow.height * .6),
+      tester.getCenter(mediumWorkspace).dy,
+      closeTo(_mediumIpadWindow.height / 2, 32),
+    );
+    expect(
+      tester.getBottomRight(mediumActions).dy,
+      lessThan(_mediumIpadWindow.height * .75),
     );
     expect(tester.takeException(), isNull);
 
@@ -197,13 +205,30 @@ void main() {
       ),
     );
     expect(find.byKey(const Key('waflo-adaptive-wide')), findsOneWidget);
+    final workspace = find.byKey(const Key('pairing-wide-workspace'));
     final introduction = find.byKey(const Key('pairing-introduction-pane'));
     final actions = find.byKey(const Key('pairing-action-pane'));
+    final divider = find.byKey(const Key('pairing-workspace-divider'));
+    expect(workspace, findsOneWidget);
     expect(introduction, findsOneWidget);
     expect(actions, findsOneWidget);
+    expect(divider, findsOneWidget);
+    expect(tester.getSize(workspace).width, lessThanOrEqualTo(980));
+    expect(
+      tester.getCenter(workspace).dx,
+      closeTo(_iPadProLandscape.width / 2, 1),
+    );
     expect(
       tester.getTopLeft(introduction).dx,
       greaterThan(tester.getTopLeft(actions).dx),
+    );
+    expect(
+      tester.getTopLeft(introduction).dx - tester.getTopRight(actions).dx,
+      inInclusiveRange(40, 64),
+    );
+    expect(
+      tester.getCenter(introduction).dy,
+      closeTo(tester.getCenter(actions).dy, 1),
     );
     expect(
       tester.getSize(find.byKey(const Key('scan-pairing-code'))).width,
@@ -225,6 +250,67 @@ void main() {
       TextDirection.rtl,
     );
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Pairing portrait stays grouped on iPad and Android tablets', (
+    tester,
+  ) async {
+    _resetViewAfterTest(tester);
+    for (final size in [_iPadPortrait, _androidPortrait]) {
+      await _pumpAt(
+        tester,
+        size,
+        _pairingHarness(const PairingViewState.welcome()),
+      );
+      final workspace = find.byKey(const Key('pairing-medium-workspace'));
+      final actions = find.byKey(const Key('pairing-actions-group'));
+
+      expect(find.byKey(const Key('waflo-adaptive-medium')), findsOneWidget);
+      expect(tester.getSize(workspace).width, lessThanOrEqualTo(640));
+      expect(tester.getCenter(workspace).dx, closeTo(size.width / 2, 1));
+      expect(tester.getCenter(workspace).dy, closeTo(size.height / 2, 64));
+      expect(tester.getBottomRight(actions).dy, lessThan(size.height * .7));
+      expect(tester.takeException(), isNull, reason: '$size');
+    }
+  });
+
+  testWidgets('Pairing wide workspace mirrors across all supported scripts', (
+    tester,
+  ) async {
+    _resetViewAfterTest(tester);
+    for (final size in [_iPadProLandscape, _androidLandscape]) {
+      for (final locale in WafloLocales.selectable) {
+        await _pumpAt(
+          tester,
+          size,
+          _pairingHarness(const PairingViewState.welcome(), locale: locale),
+        );
+        final workspace = find.byKey(const Key('pairing-wide-workspace'));
+        final introduction = find.byKey(const Key('pairing-introduction-pane'));
+        final actions = find.byKey(const Key('pairing-action-pane'));
+        final isRtl = WafloLocales.usesArabicScript(locale);
+        final reason = '${size.width}x${size.height} ${locale.toLanguageTag()}';
+
+        expect(
+          Directionality.of(tester.element(workspace)),
+          isRtl ? TextDirection.rtl : TextDirection.ltr,
+          reason: reason,
+        );
+        expect(
+          tester.getCenter(introduction).dx,
+          isRtl
+              ? greaterThan(tester.getCenter(actions).dx)
+              : lessThan(tester.getCenter(actions).dx),
+          reason: reason,
+        );
+        expect(
+          tester.getCenter(workspace).dx,
+          closeTo(size.width / 2, 1),
+          reason: reason,
+        );
+        expect(tester.takeException(), isNull, reason: reason);
+      }
+    }
   });
 
   testWidgets('manual pairing and scanner controls remain tablet-sized', (
