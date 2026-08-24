@@ -860,11 +860,19 @@ class AppLocalizationsCkb extends AppLocalizations {
       'ڕێگە بە دەستگەیشتن بە کامێرا بدە بۆ سکانی کۆدی ئەندامێتیی کڕیار.';
 
   @override
-  String get cameraPermissionDeniedTitle => 'دەستگەیشتن بە کامێرا ناچالاکە';
+  String get cameraPermissionDeniedTitle => 'دەستگەیشتن بە کامێرا ڕەتکرایەوە';
 
   @override
   String get cameraPermissionDeniedBody =>
-      'ڕێکخستنەکانی ئامێر بکەرەوە و ڕێگە بە کامێرا بدە بۆ وافلۆی ستاف.';
+      'دەستگەیشتن بە کامێرا ڕەتکرایەوە. ڕێگەی پێ بدە بۆ سکانی کۆدی QRی جوتکردنەوە و کڕیار.';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedTitle =>
+      'دەستگەیشتن بە کامێرا بلۆک کراوە';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedBody =>
+      'دەستگەیشتن بە کامێرا بلۆک کراوە یان سنووردار کراوە. ڕێکخستنەکانی ئامێر بکەرەوە و ڕێگە بە کامێرا بدە بۆ وافلۆی ستاف.';
 
   @override
   String get scannerReady => 'ئامادەی سکانکردن';

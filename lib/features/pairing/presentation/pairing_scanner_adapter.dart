@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:waflo_staff/core/permissions/camera_permission.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 
 abstract interface class PairingScannerAdapter {
@@ -21,13 +22,20 @@ abstract interface class PairingScannerAdapter {
 }
 
 final class MobilePairingScannerAdapter implements PairingScannerAdapter {
-  MobilePairingScannerAdapter()
-    : _controller = MobileScannerController(
-        autoStart: false,
-        formats: const [BarcodeFormat.qrCode],
-        detectionSpeed: DetectionSpeed.noDuplicates,
-      );
+  MobilePairingScannerAdapter({
+    CameraPermissionCoordinator? permissionCoordinator,
+  }) : _permissions =
+           permissionCoordinator ??
+           CameraPermissionCoordinator(
+             const PermissionHandlerCameraPermissionGateway(),
+           ),
+       _controller = MobileScannerController(
+         autoStart: false,
+         formats: const [BarcodeFormat.qrCode],
+         detectionSpeed: DetectionSpeed.noDuplicates,
+       );
 
+  final CameraPermissionCoordinator _permissions;
   final MobileScannerController _controller;
   final ValueNotifier<CustomerScannerState> _state = ValueNotifier(
     CustomerScannerState.idle,
@@ -35,6 +43,7 @@ final class MobilePairingScannerAdapter implements PairingScannerAdapter {
   final ValueNotifier<bool> _torchEnabled = ValueNotifier(false);
   bool _handled = false;
   bool _disposed = false;
+  Future<void>? _starting;
 
   @override
   ValueListenable<CustomerScannerState> get state => _state;
@@ -75,14 +84,52 @@ final class MobilePairingScannerAdapter implements PairingScannerAdapter {
   }
 
   @override
-  Future<void> start() async {
+  Future<void> start() {
+    final running = _starting;
+    if (running != null) return running;
+    final operation = _start();
+    _starting = operation;
+    unawaited(
+      operation.whenComplete(() {
+        if (identical(_starting, operation)) _starting = null;
+      }),
+    );
+    return operation;
+  }
+
+  Future<void> _start() async {
     if (_disposed || _handled) return;
+    _state.value = CustomerScannerState.requestingPermission;
+    final access = await _permissions.requestAccess();
+    if (_disposed || _handled) return;
+    switch (access) {
+      case CameraPermissionAccess.granted:
+        break;
+      case CameraPermissionAccess.denied:
+        _state.value = CustomerScannerState.cameraPermissionDenied;
+        return;
+      case CameraPermissionAccess.permanentlyDenied ||
+          CameraPermissionAccess.restricted:
+        _state.value = CustomerScannerState.cameraPermissionPermanentlyDenied;
+        return;
+    }
     _state.value = CustomerScannerState.initializingCamera;
     try {
       await _controller.start();
       if (!_disposed) _state.value = CustomerScannerState.ready;
-    } on MobileScannerException {
-      if (!_disposed) _state.value = CustomerScannerState.cameraUnavailable;
+    } on MobileScannerException catch (error) {
+      if (_disposed) return;
+      if (error.errorCode == MobileScannerErrorCode.permissionDenied) {
+        final permission = await _permissions.checkAccess();
+        if (_disposed) return;
+        _state.value =
+            permission == CameraPermissionAccess.permanentlyDenied ||
+                permission == CameraPermissionAccess.restricted
+            ? CustomerScannerState.cameraPermissionPermanentlyDenied
+            : CustomerScannerState.cameraPermissionDenied;
+      } else {
+        _state.value = CustomerScannerState.cameraUnavailable;
+      }
     }
   }
 

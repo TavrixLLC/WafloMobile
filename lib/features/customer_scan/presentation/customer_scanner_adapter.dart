@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:waflo_staff/core/permissions/camera_permission.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_mode.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 
@@ -28,14 +28,21 @@ abstract interface class CustomerScannerAdapter {
 }
 
 final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
-  MobileCustomerScannerAdapter()
-    : _controller = MobileScannerController(
-        autoStart: false,
-        formats: const [BarcodeFormat.qrCode],
-        detectionSpeed: DetectionSpeed.noDuplicates,
-      );
+  MobileCustomerScannerAdapter({
+    CameraPermissionCoordinator? permissionCoordinator,
+  }) : _permissions =
+           permissionCoordinator ??
+           CameraPermissionCoordinator(
+             const PermissionHandlerCameraPermissionGateway(),
+           ),
+       _controller = MobileScannerController(
+         autoStart: false,
+         formats: const [BarcodeFormat.qrCode],
+         detectionSpeed: DetectionSpeed.noDuplicates,
+       );
 
   static const maximumCandidateLength = 220;
+  final CameraPermissionCoordinator _permissions;
   final MobileScannerController _controller;
   final CustomerScannerStateMachine _machine = CustomerScannerStateMachine();
   final ValueNotifier<CustomerScannerState> _state = ValueNotifier(
@@ -92,7 +99,7 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
   Future<void> start() {
     final running = _starting;
     if (running != null) return running;
-    final operation = _start();
+    final operation = _start(requestIfNeeded: true);
     _starting = operation;
     unawaited(
       operation.whenComplete(() {
@@ -102,11 +109,28 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
     return operation;
   }
 
-  Future<void> _start() async {
+  Future<void> _start({required bool requestIfNeeded}) async {
     if (_disposed || _handled) return;
-    _machine.initializeCamera();
-    _publish();
     _machine.requestPermission();
+    _publish();
+    final access = requestIfNeeded
+        ? await _permissions.requestAccess()
+        : await _permissions.checkAccess();
+    if (_disposed || _handled) return;
+    switch (access) {
+      case CameraPermissionAccess.granted:
+        break;
+      case CameraPermissionAccess.denied:
+        _machine.permissionDenied();
+        _publish();
+        return;
+      case CameraPermissionAccess.permanentlyDenied ||
+          CameraPermissionAccess.restricted:
+        _machine.permissionPermanentlyDenied();
+        _publish();
+        return;
+    }
+    _machine.initializeCamera();
     _publish();
     try {
       await _controller.start();
@@ -114,8 +138,9 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
       _publish();
     } on MobileScannerException catch (error) {
       if (error.errorCode == MobileScannerErrorCode.permissionDenied) {
-        final permission = await Permission.camera.status;
-        if (permission.isPermanentlyDenied) {
+        final permission = await _permissions.checkAccess();
+        if (permission == CameraPermissionAccess.permanentlyDenied ||
+            permission == CameraPermissionAccess.restricted) {
           _machine.permissionPermanentlyDenied();
         } else {
           _machine.permissionDenied();
@@ -146,7 +171,13 @@ final class MobileCustomerScannerAdapter implements CustomerScannerAdapter {
     if (_disposed || _handled) return;
     _machine.reset();
     _publish();
-    await start();
+    final running = _starting;
+    if (running != null) return running;
+    final operation = _start(requestIfNeeded: false);
+    _starting = operation;
+    await operation.whenComplete(() {
+      if (identical(_starting, operation)) _starting = null;
+    });
   }
 
   @override

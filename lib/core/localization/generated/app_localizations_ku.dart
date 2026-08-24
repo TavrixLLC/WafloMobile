@@ -859,11 +859,19 @@ class AppLocalizationsKu extends AppLocalizations {
       'دەستپێگەهشتنا کامێرایێ بدە بۆ سکانا کۆدێ ئەندامەتیا کریاری.';
 
   @override
-  String get cameraPermissionDeniedTitle => 'دەستگەهشتنا کامێرایێ گرتی یە';
+  String get cameraPermissionDeniedTitle => 'دەستگەهشتنا کامێرایێ هاتە رەتکرن';
 
   @override
   String get cameraPermissionDeniedBody =>
-      'رێکخستنێن ئامێری ڤەکە و دەستپێگەهشتنا کامێرایێ بدە وافلۆ ستاف.';
+      'دەستگەهشتنا کامێرایێ هاتە رەتکرن. دەستپێگەهشتنێ بدە بۆ سکانا کۆدێن QR یێن جوتکرنێ و کریاران.';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedTitle =>
+      'دەستگەهشتنا کامێرایێ هاتە بلۆککرن';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedBody =>
+      'دەستگەهشتنا کامێرایێ هاتە بلۆککرن یان سنووردارکرن. رێکخستنێن ئامێری ڤەکە و دەستپێگەهشتنا کامێرایێ بدە وافلۆ ستاف.';
 
   @override
   String get scannerReady => 'بۆ سکانکرنێ ئامادە یە';

@@ -83,6 +83,8 @@
 		B20000000000000000000010 /* Profile.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Profile.xcconfig; path = Flutter/Profile.xcconfig; sourceTree = "<group>"; };
 		C10000000000000000000002 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C10000000000000000000003 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C10000000000000000000005 /* ckb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ckb; path = ckb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C10000000000000000000006 /* ku */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ku; path = ku.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		CFA274C48C4E6BE0DE9181FD /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		DBD8E52753B01061527F7485 /* Pods-Runner.release-staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-staging.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-staging.xcconfig"; sourceTree = "<group>"; };
 		E5801A0EE37ABF16CD0D0F7D /* Pods-Runner.profile-development.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-development.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-development.xcconfig"; sourceTree = "<group>"; };
@@ -281,7 +283,9 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				ar,
+				ckb,
 				en,
+				ku,
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
@@ -480,6 +484,8 @@
 			children = (
 				C10000000000000000000002 /* en */,
 				C10000000000000000000003 /* ar */,
+				C10000000000000000000005 /* ckb */,
+				C10000000000000000000006 /* ku */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

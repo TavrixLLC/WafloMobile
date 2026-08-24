@@ -18,6 +18,7 @@ import 'package:waflo_staff/core/logging/safe_logger.dart';
 import 'package:waflo_staff/core/network/dio_factory.dart';
 import 'package:waflo_staff/core/network/review_mode_network_guard.dart';
 import 'package:waflo_staff/core/operation_recovery/pending_operation.dart';
+import 'package:waflo_staff/core/permissions/camera_permission.dart';
 import 'package:waflo_staff/core/storage/preferences_repository.dart';
 import 'package:waflo_staff/core/storage/secure_store.dart';
 import 'package:waflo_staff/features/app_lock/data/app_lock_repository.dart';
@@ -60,6 +61,12 @@ final sharedPreferencesProvider = Provider<SharedPreferences>(
 final secureStoreProvider = Provider<SecureKeyValueStore>(
   (ref) => PlatformSecureKeyValueStore(),
 );
+final cameraPermissionCoordinatorProvider =
+    Provider<CameraPermissionCoordinator>(
+      (ref) => CameraPermissionCoordinator(
+        const PermissionHandlerCameraPermissionGateway(),
+      ),
+    );
 final safeLoggerProvider = Provider<SafeLogger>(
   (ref) => SafeLogger(ref.watch(environmentProvider).logLevel),
 );
@@ -187,7 +194,9 @@ final metadataProvider = Provider<DeviceMetadataProvider>(
 );
 final pairingScannerAdapterProvider =
     Provider.autoDispose<PairingScannerAdapter>((ref) {
-      final adapter = MobilePairingScannerAdapter();
+      final adapter = MobilePairingScannerAdapter(
+        permissionCoordinator: ref.watch(cameraPermissionCoordinatorProvider),
+      );
       ref.onDispose(() => unawaited(adapter.dispose()));
       return adapter;
     });
@@ -202,7 +211,9 @@ final customerScannerAdapterProvider =
         ref.onDispose(() => unawaited(adapter.dispose()));
         return adapter;
       }
-      final adapter = MobileCustomerScannerAdapter();
+      final adapter = MobileCustomerScannerAdapter(
+        permissionCoordinator: ref.watch(cameraPermissionCoordinatorProvider),
+      );
       ref.onDispose(() => unawaited(adapter.dispose()));
       return adapter;
     });

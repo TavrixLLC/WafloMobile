@@ -2,17 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/app_locales.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
+import 'package:waflo_staff/core/permissions/camera_permission.dart';
+import 'package:waflo_staff/core/permissions/camera_permission_dialog.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_qr.dart';
 import 'package:waflo_staff/features/pairing/presentation/pairing_controller.dart';
+import 'package:waflo_staff/features/pairing/presentation/pairing_scanner_adapter.dart';
 import 'package:waflo_staff/features/review_access/domain/local_review_access.dart';
 
 final class PairingFlowScreen extends ConsumerWidget {
@@ -23,7 +25,9 @@ final class PairingFlowScreen extends ConsumerWidget {
     final state = ref.watch(pairingControllerProvider);
     return switch (state.stage) {
       PairingViewStage.welcome => const _WelcomeScreen(),
-      PairingViewStage.cameraRationale => const _CameraRationaleScreen(),
+      PairingViewStage.cameraRationale => _CameraRationaleScreen(
+        initialAccess: state.cameraPermission,
+      ),
       PairingViewStage.scanner => const PairingScannerScreen(),
       PairingViewStage.manualEntry => const _ManualPairingScreen(),
       PairingViewStage.progress => _PairingProgressScreen(
@@ -44,8 +48,7 @@ final class _WelcomeScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context);
     final actions = _PairingWelcomeActions(
       selectedLocale: locale,
-      onScan: () =>
-          ref.read(pairingControllerProvider.notifier).showCameraRationale(),
+      onScan: () => unawaited(_requestPairingCamera(ref)),
       onLanguage: () => unawaited(
         _showPairingLanguageSheet(
           context,
@@ -518,8 +521,21 @@ String _localizedLocaleName(AppLocalizations strings, Locale locale) {
   return strings.english;
 }
 
+Future<void> _requestPairingCamera(WidgetRef ref) async {
+  final controller = ref.read(pairingControllerProvider.notifier);
+  final permissions = ref.read(cameraPermissionCoordinatorProvider);
+  final access = await permissions.requestAccess();
+  if (access == CameraPermissionAccess.granted) {
+    controller.showScanner();
+  } else {
+    controller.showCameraRationale(permission: access);
+  }
+}
+
 final class _CameraRationaleScreen extends ConsumerStatefulWidget {
-  const _CameraRationaleScreen();
+  const _CameraRationaleScreen({required this.initialAccess});
+
+  final CameraPermissionAccess? initialAccess;
 
   @override
   ConsumerState<_CameraRationaleScreen> createState() =>
@@ -527,23 +543,87 @@ final class _CameraRationaleScreen extends ConsumerStatefulWidget {
 }
 
 final class _CameraRationaleScreenState
-    extends ConsumerState<_CameraRationaleScreen> {
-  bool _denied = false;
-  bool _permanentlyDenied = false;
+    extends ConsumerState<_CameraRationaleScreen>
+    with WidgetsBindingObserver {
+  late CameraPermissionAccess? _access = widget.initialAccess;
+  bool _requesting = false;
+  bool _returningFromSettings = false;
+
+  bool get _denied =>
+      _access != null && _access != CameraPermissionAccess.granted;
+  bool get _settingsRequired =>
+      _access == CameraPermissionAccess.permanentlyDenied ||
+      _access == CameraPermissionAccess.restricted;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    if (_settingsRequired) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _showSettingsDialog(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _returningFromSettings) {
+      _returningFromSettings = false;
+      unawaited(_checkAfterSettings());
+    }
+  }
 
   Future<void> _request() async {
-    final status = await Permission.camera.request();
-    if (!mounted) {
-      return;
-    }
-    if (status.isGranted) {
+    if (_requesting) return;
+    setState(() => _requesting = true);
+    final access = await ref
+        .read(cameraPermissionCoordinatorProvider)
+        .requestAccess();
+    if (!mounted) return;
+    setState(() {
+      _requesting = false;
+      _access = access;
+    });
+    if (access == CameraPermissionAccess.granted) {
       ref.read(pairingControllerProvider.notifier).showScanner();
       return;
     }
-    setState(() {
-      _denied = true;
-      _permanentlyDenied = status.isPermanentlyDenied;
-    });
+    if (_settingsRequired) await _showSettingsDialog();
+  }
+
+  Future<void> _showSettingsDialog() async {
+    if (!mounted || !_settingsRequired) return;
+    await showCameraPermissionSettingsDialog(
+      context,
+      onOpenSettings: _openSettings,
+    );
+  }
+
+  Future<void> _openSettings() async {
+    _returningFromSettings = true;
+    final opened = await ref
+        .read(cameraPermissionCoordinatorProvider)
+        .openSettings();
+    if (!opened) _returningFromSettings = false;
+  }
+
+  Future<void> _checkAfterSettings() async {
+    final access = await ref
+        .read(cameraPermissionCoordinatorProvider)
+        .checkAccess();
+    if (!mounted) return;
+    if (access == CameraPermissionAccess.granted) {
+      ref.read(pairingControllerProvider.notifier).showScanner();
+    } else {
+      setState(() => _access = access);
+    }
   }
 
   @override
@@ -572,21 +652,21 @@ final class _CameraRationaleScreenState
             const SizedBox(height: WafloSpacing.md),
             WafloStatusBanner(
               icon: Icons.no_photography_outlined,
-              message: strings.cameraDenied,
+              message: strings.cameraPermissionDeniedBody,
               color: WafloColors.warning,
             ),
           ],
           const SizedBox(height: WafloSpacing.lg),
-          if (_permanentlyDenied)
+          if (_settingsRequired)
             FilledButton(
-              onPressed: () => unawaited(openAppSettings()),
+              onPressed: () => unawaited(_showSettingsDialog()),
               child: Text(strings.openSettings),
             )
           else
             FilledButton(
               key: const Key('request-camera'),
-              onPressed: _request,
-              child: Text(strings.continueAction),
+              onPressed: _requesting ? null : _request,
+              child: Text(_denied ? strings.retry : strings.continueAction),
             ),
           const SizedBox(height: WafloSpacing.sm),
           OutlinedButton(
@@ -612,28 +692,77 @@ final class _PairingScannerScreenState
     extends ConsumerState<PairingScannerScreen>
     with WidgetsBindingObserver {
   bool _handled = false;
+  bool _settingsDialogScheduled = false;
+  PairingScannerAdapter? _adapter;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) unawaited(ref.read(pairingScannerAdapterProvider).start());
+      if (!mounted) return;
+      final adapter = ref.read(pairingScannerAdapterProvider);
+      _bindAdapter(adapter);
+      unawaited(adapter.start());
     });
+  }
+
+  void _bindAdapter(PairingScannerAdapter adapter) {
+    if (identical(_adapter, adapter)) return;
+    _adapter?.state.removeListener(_onScannerStateChanged);
+    _adapter = adapter;
+    adapter.state.addListener(_onScannerStateChanged);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _adapter?.state.removeListener(_onScannerStateChanged);
     super.dispose();
+  }
+
+  void _onScannerStateChanged() {
+    final state = _adapter?.state.value;
+    if (state != CustomerScannerState.cameraPermissionPermanentlyDenied) {
+      _settingsDialogScheduled = false;
+      return;
+    }
+    if (_settingsDialogScheduled || !mounted) return;
+    _settingsDialogScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(
+          showCameraPermissionSettingsDialog(
+            context,
+            onOpenSettings: ref
+                .read(cameraPermissionCoordinatorProvider)
+                .openSettings,
+          ),
+        );
+      }
+    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && !_handled) {
-      unawaited(ref.read(pairingScannerAdapterProvider).start());
+      unawaited(_resumeScanner());
     } else if (state != AppLifecycleState.resumed) {
       unawaited(ref.read(pairingScannerAdapterProvider).stop());
+    }
+  }
+
+  Future<void> _resumeScanner() async {
+    final access = await ref
+        .read(cameraPermissionCoordinatorProvider)
+        .checkAccess();
+    if (!mounted || _handled) return;
+    if (access == CameraPermissionAccess.granted) {
+      await ref.read(pairingScannerAdapterProvider).start();
+    } else {
+      ref
+          .read(pairingControllerProvider.notifier)
+          .showCameraRationale(permission: access);
     }
   }
 
@@ -650,6 +779,7 @@ final class _PairingScannerScreenState
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final adapter = ref.watch(pairingScannerAdapterProvider);
+    _bindAdapter(adapter);
     final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.5;
     return Scaffold(
       backgroundColor: Colors.black,
@@ -703,12 +833,18 @@ final class _PairingScannerScreenState
                       instruction: strings.scannerInstructions,
                       status: WafloScannerStatusPill(
                         label: switch (scannerState) {
+                          CustomerScannerState.requestingPermission =>
+                            strings.requestingCamera,
                           CustomerScannerState.initializingCamera =>
                             strings.initializingCamera,
                           CustomerScannerState.candidateCaptured =>
                             strings.codeDetected,
                           CustomerScannerState.cameraUnavailable =>
                             strings.cameraUnavailable,
+                          CustomerScannerState.cameraPermissionDenied ||
+                          CustomerScannerState
+                              .cameraPermissionPermanentlyDenied =>
+                            strings.cameraPermissionDeniedTitle,
                           _ => strings.scannerReady,
                         },
                         busy:
@@ -752,6 +888,35 @@ final class _PairingScannerScreenState
                         ],
                       ),
                     ),
+                    if (scannerState ==
+                            CustomerScannerState.cameraPermissionDenied ||
+                        scannerState ==
+                            CustomerScannerState
+                                .cameraPermissionPermanentlyDenied) ...[
+                      const SizedBox(height: WafloSpacing.sm),
+                      FilledButton(
+                        onPressed:
+                            scannerState ==
+                                CustomerScannerState
+                                    .cameraPermissionPermanentlyDenied
+                            ? () => unawaited(
+                                showCameraPermissionSettingsDialog(
+                                  context,
+                                  onOpenSettings: ref
+                                      .read(cameraPermissionCoordinatorProvider)
+                                      .openSettings,
+                                ),
+                              )
+                            : () => unawaited(adapter.start()),
+                        child: Text(
+                          scannerState ==
+                                  CustomerScannerState
+                                      .cameraPermissionPermanentlyDenied
+                              ? strings.openSettings
+                              : strings.retry,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -793,8 +958,7 @@ final class _ManualPairingScreenState
           WafloTopBar(
             title: strings.scannerTitle,
             backTooltip: strings.close,
-            onBack: () =>
-                ref.read(pairingControllerProvider.notifier).showScanner(),
+            onBack: () => unawaited(_requestPairingCamera(ref)),
           ),
           const SizedBox(height: WafloSpacing.lg),
           Text(

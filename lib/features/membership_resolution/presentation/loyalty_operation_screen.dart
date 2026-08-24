@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
 import 'package:waflo_staff/core/localization/localization_extensions.dart';
 import 'package:waflo_staff/core/money/minor_unit_money.dart';
+import 'package:waflo_staff/core/permissions/camera_permission_dialog.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/customer_scanner_adapter.dart';
 import 'package:waflo_staff/features/customer_scan/presentation/professional_scanner_overlay.dart';
@@ -171,14 +171,44 @@ final class _CustomerScannerViewState
   CustomerScannerAdapter? _adapter;
   String? _reportedFailureCode;
   Timer? _invalidRecovery;
+  bool _settingsDialogScheduled = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _adapter = ref.read(customerScannerAdapterProvider);
-      unawaited(_adapter!.start());
+      final adapter = ref.read(customerScannerAdapterProvider);
+      _bindAdapter(adapter);
+      unawaited(adapter.start());
+    });
+  }
+
+  void _bindAdapter(CustomerScannerAdapter adapter) {
+    if (identical(_adapter, adapter)) return;
+    _adapter?.state.removeListener(_onScannerStateChanged);
+    _adapter = adapter;
+    adapter.state.addListener(_onScannerStateChanged);
+  }
+
+  void _onScannerStateChanged() {
+    final state = _adapter?.state.value;
+    if (state != CustomerScannerState.cameraPermissionPermanentlyDenied) {
+      _settingsDialogScheduled = false;
+      return;
+    }
+    if (_settingsDialogScheduled || !mounted) return;
+    _settingsDialogScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(
+        showCameraPermissionSettingsDialog(
+          context,
+          onOpenSettings: ref
+              .read(cameraPermissionCoordinatorProvider)
+              .openSettings,
+        ),
+      );
     });
   }
 
@@ -195,6 +225,7 @@ final class _CustomerScannerViewState
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _invalidRecovery?.cancel();
+    _adapter?.state.removeListener(_onScannerStateChanged);
     unawaited(_adapter?.stop());
     super.dispose();
   }
@@ -206,7 +237,7 @@ final class _CustomerScannerViewState
     final operation = ref.watch(m2OperationControllerProvider);
     final location = ref.watch(activeDeviceContextProvider)?.currentLocation;
     final largeText = MediaQuery.textScalerOf(context).scale(1) > 1.5;
-    _adapter = adapter;
+    _bindAdapter(adapter);
     _reportFailure(operation, adapter);
     return ValueListenableBuilder<CustomerScannerState>(
       valueListenable: adapter.state,
@@ -332,6 +363,14 @@ final class _CustomerScannerViewState
                   scannerState ==
                   CustomerScannerState.cameraPermissionPermanentlyDenied,
               onRetry: () => unawaited(adapter.resetForExplicitRetry()),
+              onOpenSettings: () => unawaited(
+                showCameraPermissionSettingsDialog(
+                  context,
+                  onOpenSettings: ref
+                      .read(cameraPermissionCoordinatorProvider)
+                      .openSettings,
+                ),
+              ),
             ),
         ],
       ),
@@ -437,10 +476,12 @@ final class _ScannerPermissionPanel extends StatelessWidget {
   const _ScannerPermissionPanel({
     required this.permanentlyDenied,
     required this.onRetry,
+    required this.onOpenSettings,
   });
 
   final bool permanentlyDenied;
   final VoidCallback onRetry;
+  final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -464,8 +505,8 @@ final class _ScannerPermissionPanel extends StatelessWidget {
                   const SizedBox(height: WafloSpacing.lg),
                   Text(
                     permanentlyDenied
-                        ? strings.cameraPermissionDeniedTitle
-                        : strings.cameraPermissionRequiredTitle,
+                        ? strings.cameraPermissionPermanentlyDeniedTitle
+                        : strings.cameraPermissionDeniedTitle,
                     textAlign: TextAlign.center,
                     style: Theme.of(
                       context,
@@ -474,8 +515,8 @@ final class _ScannerPermissionPanel extends StatelessWidget {
                   const SizedBox(height: WafloSpacing.sm),
                   Text(
                     permanentlyDenied
-                        ? strings.cameraPermissionDeniedBody
-                        : strings.cameraPermissionRequiredBody,
+                        ? strings.cameraPermissionPermanentlyDeniedBody
+                        : strings.cameraPermissionDeniedBody,
                     textAlign: TextAlign.center,
                     style: Theme.of(
                       context,
@@ -483,9 +524,7 @@ final class _ScannerPermissionPanel extends StatelessWidget {
                   ),
                   const SizedBox(height: WafloSpacing.xl),
                   FilledButton.icon(
-                    onPressed: permanentlyDenied
-                        ? () => unawaited(openAppSettings())
-                        : onRetry,
+                    onPressed: permanentlyDenied ? onOpenSettings : onRetry,
                     icon: Icon(
                       permanentlyDenied
                           ? Icons.settings_outlined

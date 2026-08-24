@@ -68,6 +68,42 @@ void main() {
     expect(plist, contains('<key>UILaunchStoryboardName</key>'));
   });
 
+  test('camera permission is configured and localized on iOS', () {
+    final plist = File('ios/Runner/Info.plist').readAsStringSync();
+    final podfile = File('ios/Podfile').readAsStringSync();
+    final project = File(
+      'ios/Runner.xcodeproj/project.pbxproj',
+    ).readAsStringSync();
+
+    expect(plist, contains('<key>NSCameraUsageDescription</key>'));
+    expect(podfile, contains('PERMISSION_CAMERA=1'));
+    for (final locale in ['en', 'ar', 'ckb', 'ku']) {
+      final strings = File(
+        'ios/Runner/$locale.lproj/InfoPlist.strings',
+      ).readAsStringSync();
+      expect(strings, contains('"NSCameraUsageDescription"'));
+      expect(project, contains('$locale.lproj/InfoPlist.strings'));
+    }
+  });
+
+  test('Android declares camera without microphone or media permissions', () {
+    final manifest = File(
+      'android/app/src/main/AndroidManifest.xml',
+    ).readAsStringSync();
+
+    expect(manifest, contains('android.permission.CAMERA'));
+    expect(manifest, isNot(contains('android.permission.RECORD_AUDIO')));
+    expect(manifest, isNot(contains('android.permission.READ_MEDIA')));
+    expect(
+      manifest,
+      isNot(contains('android.permission.READ_EXTERNAL_STORAGE')),
+    );
+    expect(
+      manifest,
+      isNot(contains('android.permission.WRITE_EXTERNAL_STORAGE')),
+    );
+  });
+
   test(
     'flavor schemes still map to their Debug Profile and Release configs',
     () {

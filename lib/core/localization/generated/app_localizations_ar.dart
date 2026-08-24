@@ -845,11 +845,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'اسمح باستخدام الكاميرا لمسح رمز عضوية العميل.';
 
   @override
-  String get cameraPermissionDeniedTitle => 'استخدام الكاميرا متوقف';
+  String get cameraPermissionDeniedTitle => 'تم رفض استخدام الكاميرا';
 
   @override
   String get cameraPermissionDeniedBody =>
-      'افتح إعدادات الجهاز واسمح لتطبيق وافلو للموظفين باستخدام الكاميرا.';
+      'تم رفض استخدام الكاميرا. اسمح بها لمسح رموز QR للإقران والعملاء.';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedTitle => 'استخدام الكاميرا محظور';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedBody =>
+      'استخدام الكاميرا محظور أو مقيّد. افتح إعدادات الجهاز واسمح لتطبيق وافلو للموظفين باستخدام الكاميرا.';
 
   @override
   String get scannerReady => 'جاهز للمسح';

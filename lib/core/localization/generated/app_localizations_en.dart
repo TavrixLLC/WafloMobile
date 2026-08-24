@@ -865,11 +865,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow camera access to scan the customer’s membership code.';
 
   @override
-  String get cameraPermissionDeniedTitle => 'Camera access is off';
+  String get cameraPermissionDeniedTitle => 'Camera access denied';
 
   @override
   String get cameraPermissionDeniedBody =>
-      'Open device settings and allow camera access for Waflo Staff.';
+      'Camera access was denied. Allow it to scan pairing and customer QR codes.';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedTitle =>
+      'Camera access is blocked';
+
+  @override
+  String get cameraPermissionPermanentlyDeniedBody =>
+      'Camera access is blocked or restricted. Open device settings and allow camera access for Waflo Staff.';
 
   @override
   String get scannerReady => 'Ready to scan';

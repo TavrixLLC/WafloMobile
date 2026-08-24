@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waflo_staff/app/providers.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
+import 'package:waflo_staff/core/permissions/camera_permission.dart';
 import 'package:waflo_staff/features/device_context/domain/device_context.dart';
 import 'package:waflo_staff/features/pairing/domain/manual_code_router.dart';
 import 'package:waflo_staff/features/pairing/domain/pairing_flow_service.dart';
@@ -26,6 +27,7 @@ final class PairingViewState {
     this.failure,
     this.context,
     this.reviewFlow = false,
+    this.cameraPermission,
   });
 
   const PairingViewState.welcome() : this(stage: PairingViewStage.welcome);
@@ -36,6 +38,7 @@ final class PairingViewState {
   final AppFailure? failure;
   final AuthoritativeDeviceContext? context;
   final bool reviewFlow;
+  final CameraPermissionAccess? cameraPermission;
 }
 
 final class PairingController extends Notifier<PairingViewState> {
@@ -44,9 +47,12 @@ final class PairingController extends Notifier<PairingViewState> {
   @override
   PairingViewState build() => const PairingViewState.welcome();
 
-  void showCameraRationale() {
+  void showCameraRationale({CameraPermissionAccess? permission}) {
     if (_pairingOperation == null) {
-      state = const PairingViewState(stage: PairingViewStage.cameraRationale);
+      state = PairingViewState(
+        stage: PairingViewStage.cameraRationale,
+        cameraPermission: permission,
+      );
     }
   }
 

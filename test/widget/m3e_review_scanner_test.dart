@@ -7,6 +7,7 @@ import 'package:waflo_staff/core/design_system/app_theme.dart';
 import 'package:waflo_staff/core/design_system/components.dart';
 import 'package:waflo_staff/core/errors/app_failure.dart';
 import 'package:waflo_staff/core/localization/generated/app_localizations.dart';
+import 'package:waflo_staff/core/permissions/camera_permission.dart';
 import 'package:waflo_staff/features/app_shell/presentation/home_screen.dart';
 import 'package:waflo_staff/features/boot/presentation/boot_controller.dart';
 import 'package:waflo_staff/features/customer_scan/domain/scanner_state_machine.dart';
@@ -23,17 +24,15 @@ void main() {
   testWidgets('manual code entry is hidden behind the normal scanner path', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      const ProviderScope(child: _LocalizedApp(child: PairingFlowScreen())),
-    );
+    await tester.pumpWidget(_pairingWithDeniedCamera());
 
     expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
     expect(find.textContaining('Demo'), findsNothing);
     expect(find.textContaining('Review'), findsNothing);
 
     await tester.tap(find.byKey(const Key('scan-pairing-code')));
-    await tester.pump();
-    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Enter code instead'));
     await tester.pump();
     expect(find.byKey(const Key('manual-code-input')), findsOneWidget);
 
@@ -55,13 +54,13 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      const ProviderScope(
-        child: _LocalizedApp(locale: Locale('ar'), child: PairingFlowScreen()),
-      ),
+      _pairingWithDeniedCamera(locale: const Locale('ar')),
     );
     await tester.tap(find.byKey(const Key('scan-pairing-code')));
-    await tester.pump();
-    await tester.tap(find.text('ليس الآن'));
+    await tester.pumpAndSettle();
+    final fallback = find.text('إدخال الرمز بدلاً من ذلك');
+    await tester.ensureVisible(fallback);
+    await tester.tap(fallback);
     await tester.pump();
 
     expect(
@@ -201,6 +200,29 @@ void main() {
       await scanner.dispose();
     },
   );
+}
+
+Widget _pairingWithDeniedCamera({Locale locale = const Locale('en')}) =>
+    ProviderScope(
+      overrides: [
+        cameraPermissionCoordinatorProvider.overrideWithValue(
+          CameraPermissionCoordinator(_DeniedCameraPermissionGateway()),
+        ),
+      ],
+      child: _LocalizedApp(locale: locale, child: const PairingFlowScreen()),
+    );
+
+final class _DeniedCameraPermissionGateway implements CameraPermissionGateway {
+  @override
+  Future<CameraPermissionAccess> status() async =>
+      CameraPermissionAccess.denied;
+
+  @override
+  Future<CameraPermissionAccess> request() async =>
+      CameraPermissionAccess.denied;
+
+  @override
+  Future<bool> openSettings() async => false;
 }
 
 Widget _home(StaffSessionMode mode) => ProviderScope(

@@ -1581,14 +1581,26 @@ abstract class AppLocalizations {
   /// No description provided for @cameraPermissionDeniedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Camera access is off'**
+  /// **'Camera access denied'**
   String get cameraPermissionDeniedTitle;
 
   /// No description provided for @cameraPermissionDeniedBody.
   ///
   /// In en, this message translates to:
-  /// **'Open device settings and allow camera access for Waflo Staff.'**
+  /// **'Camera access was denied. Allow it to scan pairing and customer QR codes.'**
   String get cameraPermissionDeniedBody;
+
+  /// No description provided for @cameraPermissionPermanentlyDeniedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is blocked'**
+  String get cameraPermissionPermanentlyDeniedTitle;
+
+  /// No description provided for @cameraPermissionPermanentlyDeniedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is blocked or restricted. Open device settings and allow camera access for Waflo Staff.'**
+  String get cameraPermissionPermanentlyDeniedBody;
 
   /// No description provided for @scannerReady.
   ///
