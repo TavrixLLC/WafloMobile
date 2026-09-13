@@ -1,0 +1,8 @@
+# Production Release Signing Configuration
+# Copy this file to "android/key.properties" and fill in your actual credentials.
+# Note: "android/key.properties" is in .gitignore and will never be committed.
+
+storeFile=upload-keystore.jks
+storePassword=yourKeystorePassword
+keyAlias=upload
+keyPassword=yourKeyPassword

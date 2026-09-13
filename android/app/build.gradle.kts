@@ -20,7 +20,11 @@ val requiredSigningProperties =
     listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
 val missingSigningProperties =
     requiredSigningProperties.filter { signingProperty(it) == null }
-val productionReleaseStoreFile = signingProperty("storeFile")?.let { file(it) }
+val productionReleaseStoreFile =
+    signingProperty("storeFile")?.let { path ->
+        val candidate = file(path)
+        if (candidate.isFile) candidate else rootProject.file(path)
+    }
 val productionReleaseSigningConfigured =
     missingSigningProperties.isEmpty() && productionReleaseStoreFile?.isFile == true
 
