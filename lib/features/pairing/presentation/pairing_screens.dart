@@ -39,11 +39,59 @@ final class PairingFlowScreen extends ConsumerWidget {
   }
 }
 
-final class _WelcomeScreen extends ConsumerWidget {
+final class _WelcomeScreen extends ConsumerStatefulWidget {
   const _WelcomeScreen();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+final class _WelcomeScreenState extends ConsumerState<_WelcomeScreen> {
+  bool _cameraMessageShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _cameraMessageShown) return;
+      _cameraMessageShown = true;
+      unawaited(_showCameraMessage());
+    });
+  }
+
+  Future<void> _showCameraMessage() async {
+    final continueToPermission = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        final strings = AppLocalizations.of(dialogContext);
+        return AlertDialog(
+          key: const Key('first-open-camera-dialog'),
+          icon: const Icon(Icons.camera_alt_outlined),
+          title: Text(strings.cameraTitle),
+          content: Text(strings.cameraBody),
+          actions: [
+            TextButton(
+              key: const Key('first-open-camera-not-now'),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(strings.notNow),
+            ),
+            FilledButton(
+              key: const Key('first-open-camera-continue'),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(strings.continueAction),
+            ),
+          ],
+        );
+      },
+    );
+    if (mounted && continueToPermission == true) {
+      await _requestPairingCamera(ref);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
     final actions = _PairingWelcomeActions(

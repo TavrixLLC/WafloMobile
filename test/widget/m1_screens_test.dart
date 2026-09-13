@@ -28,6 +28,9 @@ void main() {
         locale: const Locale('en'),
       ),
     );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('first-open-camera-dialog')), findsOneWidget);
+    await _dismissFirstOpenCameraMessage(tester);
     expect(find.text('Pair this staff device'), findsOneWidget);
     expect(find.textContaining('password'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
@@ -40,6 +43,7 @@ void main() {
         locale: const Locale('ar'),
       ),
     );
+    await _dismissFirstOpenCameraMessage(tester);
     final title = find.text('إقران جهاز الموظف');
     expect(title, findsOneWidget);
     expect(Directionality.of(tester.element(title)), TextDirection.rtl);
@@ -55,6 +59,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await _dismissFirstOpenCameraMessage(tester);
 
       const controlKey = Key('pairing-language-control');
       expect(find.byKey(controlKey), findsOneWidget);
@@ -100,6 +105,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await _dismissFirstOpenCameraMessage(tester);
       expect(
         Directionality.of(
           tester.element(find.byKey(const Key('pairing-language-control'))),
@@ -332,6 +338,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await _dismissFirstOpenCameraMessage(tester);
     expect(tester.takeException(), isNull);
     expect(find.byKey(const Key('scan-pairing-code')), findsOneWidget);
   });
@@ -357,6 +364,13 @@ void main() {
     expect(semantics.value, isNot(contains(secret)));
     semanticsHandle.dispose();
   });
+}
+
+Future<void> _dismissFirstOpenCameraMessage(WidgetTester tester) async {
+  final dialog = find.byKey(const Key('first-open-camera-dialog'));
+  if (dialog.evaluate().isEmpty) return;
+  await tester.tap(find.byKey(const Key('first-open-camera-not-now')));
+  await tester.pumpAndSettle();
 }
 
 Widget _pairingHarness(
